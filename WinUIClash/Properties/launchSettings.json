@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WinUIClash (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WinUIClash (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
