@@ -1,6 +1,6 @@
 # WinUIClash
 
-> 将 [FlClash](https://github.com/chen08209/FlClash) 的 Flutter UI 迁移至 WinUI 3 的实验性项目。
+> 将 [FlClash](https://github.com/chen08209/FlClash) 的 Flutter UI 迁移至 [WinUI 3](https://github.com/sandhope/WinUIClash) 的实验性项目。
 
 ## 项目目标
 
@@ -30,13 +30,7 @@
 
 ## 构建与运行
 
-```powershell
-# 调试运行
-dotnet build WinUIClash\WinUIClash.csproj
-
-# 发布（以 x64 为例）
-dotnet publish WinUIClash\WinUIClash.csproj -c Release -r win-x64
-```
+使用 Visual Studio
 
 ## 许可证
 
