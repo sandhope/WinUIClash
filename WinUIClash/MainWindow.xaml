@@ -6,6 +6,7 @@
     xmlns:local="using:WinUIClash"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:fluent="using:FluentIcons.WinUI"
     mc:Ignorable="d"
     Title="WinUIClash">
 
@@ -13,7 +14,89 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid>
+    <NavigationView
+        x:Name="RootNavigation"
+        PaneDisplayMode="Left"
+        IsPaneToggleButtonVisible="False"
+        IsBackButtonVisible="Collapsed"
+        IsSettingsVisible="False"
+        AlwaysShowHeader="False"
+        OpenPaneLength="200"
+        SelectionChanged="RootNavigation_SelectionChanged">
 
-    </Grid>
+        <NavigationView.PaneHeader>
+            <Grid Height="48" Margin="16,12,0,0" VerticalAlignment="Center">
+                <TextBlock
+                    Text="WinUIClash"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </NavigationView.PaneHeader>
+
+        <NavigationView.MenuItems>
+            <!-- 仪表盘 -->
+            <NavigationViewItem Content="仪表盘" Tag="Dashboard">
+                <NavigationViewItem.Icon>
+                    <fluent:SymbolIcon Symbol="Home" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <!-- 代理 -->
+            <NavigationViewItem Content="代理" Tag="Proxies">
+                <NavigationViewItem.Icon>
+                    <fluent:SymbolIcon Symbol="Globe" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <!-- 配置 -->
+            <NavigationViewItem Content="配置" Tag="Profiles">
+                <NavigationViewItem.Icon>
+                    <fluent:SymbolIcon Symbol="Folder" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <!-- 请求 -->
+            <NavigationViewItem Content="请求" Tag="Requests">
+                <NavigationViewItem.Icon>
+                    <fluent:SymbolIcon Symbol="List" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <!-- 连接 -->
+            <NavigationViewItem Content="连接" Tag="Connections">
+                <NavigationViewItem.Icon>
+                    <fluent:SymbolIcon Symbol="Link" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <!-- 资源 -->
+            <NavigationViewItem Content="资源" Tag="Resources">
+                <NavigationViewItem.Icon>
+                    <fluent:SymbolIcon Symbol="Library" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <!-- 日志 -->
+            <NavigationViewItem Content="日志" Tag="Logs">
+                <NavigationViewItem.Icon>
+                    <fluent:SymbolIcon Symbol="Notepad" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <!-- 工具 -->
+            <NavigationViewItem Content="工具" Tag="Tools">
+                <NavigationViewItem.Icon>
+                    <fluent:SymbolIcon Symbol="Wrench" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </NavigationView.MenuItems>
+
+        <NavigationView.PaneFooter>
+            <Button
+                x:Name="SidebarToggleButton"
+                Click="SidebarToggleButton_Click"
+                HorizontalAlignment="Center"
+                Margin="0,0,0,16"
+                Background="Transparent"
+                BorderThickness="0">
+                <fluent:SymbolIcon Symbol="Navigation" />
+            </Button>
+        </NavigationView.PaneFooter>
+
+        <Frame x:Name="ContentFrame" />
+    </NavigationView>
 </Window>
