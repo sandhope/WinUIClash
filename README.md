@@ -30,7 +30,19 @@
 
 ## 构建与运行
 
+选择其一，两种方式开发，Visual Studio运行会有报错
+
+### 推荐
 使用 Visual Studio
+
+### 命令行
+
+参考 [DEVELOP.md](DEVELOP.md)
+
+```bash
+dotnet run --project WinUIClash\WinUIClash.csproj --verbose
+dotnet run --project WinUIClash\WinUIClash.csproj -c Debug -r win-x64 --verbose
+```
 
 ## 许可证
 
