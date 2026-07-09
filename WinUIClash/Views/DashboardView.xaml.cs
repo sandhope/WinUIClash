@@ -263,6 +263,18 @@ public sealed partial class DashboardView : Page
         Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
     }
 
+    private void TunToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (sender is ToggleSwitch ts)
+        {
+            // Only respond to user-initiated toggles (not programmatic changes)
+            if (ts.IsOn != ViewModel.IsTunEnabled)
+            {
+                ViewModel.ToggleTunModeCommand.Execute(null);
+            }
+        }
+    }
+
     private static Polygon BuildFill(
         System.Collections.ObjectModel.ObservableCollection<Traffic> data,
         Func<Traffic, long> selector,
