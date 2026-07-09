@@ -12,5 +12,14 @@ public sealed partial class LogsView : Page
         ViewModel = ServiceLocator.Get<LogsViewModel>();
         InitializeComponent();
         Loaded += (_, _) => ViewModel.StartCommand.Execute(null);
+
+        // 自动滚动到底部
+        ViewModel.LogAppended += () =>
+        {
+            if (ViewModel.AutoScroll && LogList.Items.Count > 0)
+            {
+                LogList.ScrollIntoView(LogList.Items[^1]);
+            }
+        };
     }
 }

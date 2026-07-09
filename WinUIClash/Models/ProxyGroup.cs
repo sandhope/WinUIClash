@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace WinUIClash.Models;
 
@@ -17,11 +18,12 @@ public enum ProxyGroupType
 /// <summary>
 /// 代理组
 /// </summary>
-public class ProxyGroup
+public partial class ProxyGroup : ObservableObject
 {
     public string Name { get; set; } = string.Empty;
     public ProxyGroupType Type { get; set; }
-    public string Now { get; set; } = string.Empty;
+
+    [ObservableProperty] private string _now = string.Empty;
     public ObservableCollection<Proxy> Proxies { get; set; } = new();
     public bool Hidden { get; set; }
     public string? Icon { get; set; }

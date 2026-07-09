@@ -12,6 +12,7 @@ namespace WinUIClash.ViewModels;
 public partial class ResourcesViewModel : ObservableObject
 {
     private readonly IClashService _clash;
+    private bool _initialized;
 
     public ResourcesViewModel(IClashService clash)
     {
@@ -31,11 +32,11 @@ public partial class ResourcesViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task UpdateProviderAsync(string name)
+    private async Task UpdateProviderAsync(ExternalProvider? provider)
     {
-        await _clash.UpdateExternalProviderAsync(name);
-        var p = Providers.FirstOrDefault(x => x.Name == name);
-        if (p != null) p.UpdateAt = DateTime.Now;
+        if (provider == null) return;
+        await _clash.UpdateExternalProviderAsync(provider.Name);
+        provider.UpdateAt = DateTime.Now;
     }
 
     [RelayCommand]
@@ -43,13 +44,19 @@ public partial class ResourcesViewModel : ObservableObject
     {
         foreach (var p in Providers)
         {
-            await _clash.UpdateExternalProviderAsync(p.Name);
-            p.UpdateAt = DateTime.Now;
+            try
+            {
+                await _clash.UpdateExternalProviderAsync(p.Name);
+                p.UpdateAt = DateTime.Now;
+            }
+            catch { /* 单个失败不影响其余 */ }
         }
     }
 
     public async Task InitializeAsync()
     {
+        if (_initialized) return;
+        _initialized = true;
         await LoadAsync();
     }
 }

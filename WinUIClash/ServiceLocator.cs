@@ -22,14 +22,14 @@ public static class ServiceLocator
         services.AddSingleton<IClashService, MockClashService>();
 
         // ── ViewModel ──
-        services.AddTransient<DashboardViewModel>();
-        services.AddTransient<ProxiesViewModel>();
-        services.AddTransient<ProfilesViewModel>();
-        services.AddTransient<LogsViewModel>();
-        services.AddTransient<ConnectionsViewModel>();
-        services.AddTransient<RequestsViewModel>();
-        services.AddTransient<ResourcesViewModel>();
-        services.AddTransient<ToolsViewModel>();
+        services.AddSingleton<DashboardViewModel>();
+        services.AddSingleton<ProxiesViewModel>();
+        services.AddSingleton<ProfilesViewModel>();
+        services.AddSingleton<LogsViewModel>();
+        services.AddSingleton<ConnectionsViewModel>();
+        services.AddSingleton<RequestsViewModel>();
+        services.AddSingleton<ResourcesViewModel>();
+        services.AddSingleton<ToolsViewModel>();
 
         _provider = services.BuildServiceProvider();
     }
