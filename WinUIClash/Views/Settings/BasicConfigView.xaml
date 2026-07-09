@@ -100,6 +100,27 @@
                 </StackPanel>
             </Border>
 
+            <!-- 核心路径 -->
+            <Border Style="{StaticResource SettingsCardStyle}">
+                <StackPanel Spacing="8">
+                    <StackPanel Spacing="2">
+                        <TextBlock x:Uid="ConfigCoreBinaryPath" FontSize="14" />
+                        <TextBlock x:Uid="ConfigCoreBinaryPathDesc" FontSize="12" Opacity="0.5" />
+                    </StackPanel>
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{x:Bind ViewModel.CoreBinaryPath, Mode=TwoWay}"
+                                 x:Uid="ConfigCoreBinaryPathPlaceholder" />
+                        <Button Grid.Column="1" x:Uid="ConfigBrowse"
+                                Click="BrowseCoreBinary_Click"
+                                Padding="12,6" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <!-- 功能开关 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="0">

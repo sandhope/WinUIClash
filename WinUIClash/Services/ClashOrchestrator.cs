@@ -71,6 +71,10 @@ public class ClashOrchestrator : IClashService
             // 1. Start the core process
             try
             {
+                // Apply custom binary path if configured
+                if (!string.IsNullOrWhiteSpace(_settings.CoreBinaryPath))
+                    _processService.SetBinaryPath(_settings.CoreBinaryPath);
+
                 await _processService.StartAsync();
             }
             catch (FileNotFoundException ex)
