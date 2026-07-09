@@ -256,7 +256,7 @@ public sealed partial class ProfilesView : Page
         var editor = new TextBox
         {
             Text = yaml,
-            IsReadOnly = true,
+            IsReadOnly = false,
             AcceptsReturn = true,
             FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas"),
             FontSize = 12,
@@ -272,15 +272,46 @@ public sealed partial class ProfilesView : Page
             HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
         };
 
+        var capturedPath = configPath;
+        var capturedProfile = profile;
+
         var dialog = new ContentDialog
         {
             Title = LocalizationHelper.GetString("ProfilesConfigViewerTitle.Text") + profile.Label,
             XamlRoot = XamlRoot,
+            PrimaryButtonText = LocalizationHelper.GetString("CommonSave.Content"),
+            SecondaryButtonText = LocalizationHelper.GetString("ConfigSaveReload.Text"),
             CloseButtonText = LocalizationHelper.GetString("CommonClose.Content"),
+            DefaultButton = ContentDialogButton.Secondary,
             Content = scrollViewer,
         };
 
-        await dialog.ShowAsync();
+        var result = await dialog.ShowAsync();
+
+        if (result == ContentDialogResult.Primary || result == ContentDialogResult.Secondary)
+        {
+            try
+            {
+                // Save to file
+                await File.WriteAllTextAsync(capturedPath, editor.Text);
+                capturedProfile.Path = capturedPath;
+
+                // If secondary (Save & Reload), also reload config in the running core
+                if (result == ContentDialogResult.Secondary)
+                {
+                    try
+                    {
+                        var clash = ServiceLocator.Get<IClashService>();
+                        await clash.SwitchProfileAsync(capturedProfile.Id, capturedPath);
+                    }
+                    catch { }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Profiles] Config save error: {ex.Message}");
+            }
+        }
     }
 
     private async Task ShowEditNameDialogAsync(Profile profile)

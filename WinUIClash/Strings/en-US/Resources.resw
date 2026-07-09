@@ -296,6 +296,7 @@
   <data name="ProfilesEditProfileTitle.Text" xml:space="preserve"><value>Edit Profile</value></data>
   <data name="ProfilesAutoUpdate.Text" xml:space="preserve"><value>Auto Update</value></data>
   <data name="ProfilesConfigViewerTitle.Text" xml:space="preserve"><value>Config: </value></data>
+  <data name="ConfigSaveReload.Text" xml:space="preserve"><value>Save &amp; Reload</value></data>
 
   <!-- Connections - Additional -->
   <data name="ConnSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search connections…</value></data>
