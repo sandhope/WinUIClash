@@ -282,10 +282,15 @@
   <data name="LogsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search logs…</value></data>
   <data name="LogsAutoScroll.Content" xml:space="preserve"><value>Auto Scroll</value></data>
   <data name="LogsCountSuffix.Text" xml:space="preserve"><value> log entries</value></data>
+  <data name="LogsCopyPayload.Text" xml:space="preserve"><value>Copy Payload</value></data>
+  <data name="LogsCopyFull.Text" xml:space="preserve"><value>Copy Full Line</value></data>
 
   <!-- Requests - Additional -->
   <data name="RequestsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search requests…</value></data>
   <data name="RequestsAutoScroll.Content" xml:space="preserve"><value>Auto Scroll</value></data>
+  <data name="RequestsCopyHost.Text" xml:space="preserve"><value>Copy Host</value></data>
+  <data name="RequestsCopyRule.Text" xml:space="preserve"><value>Copy Rule</value></data>
+  <data name="RequestsCopyAll.Text" xml:space="preserve"><value>Copy Full Request</value></data>
 
   <!-- Connection Sort Modes -->
   <data name="ConnSortNone.Text" xml:space="preserve"><value>Default</value></data>

@@ -11,7 +11,7 @@ namespace WinUIClash.ViewModels;
 /// <summary>
 /// 连接页 ViewModel — 活跃连接列表 + 自动刷新 + 排序 + 暂停
 /// </summary>
-public partial class ConnectionsViewModel : ObservableObject
+public partial class ConnectionsViewModel : ObservableObject, IDisposable
 {
     private readonly IClashService _clash;
     private readonly NotificationService _notification;
@@ -38,7 +38,11 @@ public partial class ConnectionsViewModel : ObservableObject
     [ObservableProperty] private string _pauseLabel = "";
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
-    partial void OnCurrentSortChanged(ConnSortMode value) => ApplyFilter();
+    partial void OnCurrentSortChanged(ConnSortMode value)
+    {
+        OnPropertyChanged(nameof(SortModeLabel));
+        ApplyFilter();
+    }
     partial void OnIsPausedChanged(bool value)
     {
         PauseLabel = value
@@ -177,5 +181,11 @@ public partial class ConnectionsViewModel : ObservableObject
 
         // 每 2 秒自动刷新
         _refreshTimer = new Timer(async _ => await RefreshAsync(), null, 0, 2000);
+    }
+
+    public void Dispose()
+    {
+        _refreshTimer?.Dispose();
+        _refreshTimer = null;
     }
 }

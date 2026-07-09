@@ -10,7 +10,7 @@ namespace WinUIClash.ViewModels;
 /// <summary>
 /// 日志页 ViewModel — 实时日志流 + 搜索过滤 + 暂停/导出
 /// </summary>
-public partial class LogsViewModel : ObservableObject
+public partial class LogsViewModel : ObservableObject, IDisposable
 {
     private readonly IClashService _clash;
     private readonly DispatcherQueue _dispatcher;
@@ -155,5 +155,10 @@ public partial class LogsViewModel : ObservableObject
             await Windows.Storage.FileIO.WriteTextAsync(file, content);
         }
         catch { /* 用户取消或导出失败时静默 */ }
+    }
+
+    public void Dispose()
+    {
+        _clash.LogReceived -= OnLogReceived;
     }
 }
