@@ -66,6 +66,8 @@ public class SettingsService
             _settings.AutoCheckUpdate = dto.AutoCheckUpdate;
             _settings.CloseConnections = dto.CloseConnections;
             _settings.OnlyStatisticsProxy = dto.OnlyStatisticsProxy;
+            _settings.ShowNotifications = dto.ShowNotifications;
+            if (dto.Language != null) _settings.Language = dto.Language;
 
             // 主题
             if (dto.ThemeMode != null) _settings.ThemeMode = dto.ThemeMode;
@@ -138,6 +140,8 @@ public class SettingsService
                 AutoCheckUpdate = _settings.AutoCheckUpdate,
                 CloseConnections = _settings.CloseConnections,
                 OnlyStatisticsProxy = _settings.OnlyStatisticsProxy,
+                ShowNotifications = _settings.ShowNotifications,
+                Language = _settings.Language,
 
                 // 主题
                 ThemeMode = _settings.ThemeMode,
@@ -204,6 +208,8 @@ internal class SettingsDto
     public bool AutoCheckUpdate { get; set; } = true;
     public bool CloseConnections { get; set; }
     public bool OnlyStatisticsProxy { get; set; }
+    public bool ShowNotifications { get; set; } = true;
+    public string Language { get; set; } = "zh-CN";
 
     // 主题
     public string ThemeMode { get; set; } = "System";

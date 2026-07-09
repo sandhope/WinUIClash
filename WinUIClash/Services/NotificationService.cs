@@ -1,5 +1,6 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
+using WinUIClash.Models;
 
 namespace WinUIClash.Services;
 
@@ -9,11 +10,13 @@ namespace WinUIClash.Services;
 public class NotificationService
 {
     private readonly DispatcherQueue _dispatcher;
+    private readonly AppSettings _settings;
     private InfoBar? _infoBar;
 
-    public NotificationService()
+    public NotificationService(AppSettings settings)
     {
         _dispatcher = DispatcherQueue.GetForCurrentThread()!;
+        _settings = settings;
     }
 
     /// <summary>注册 InfoBar 控件（由 MainWindow 调用）</summary>
@@ -34,12 +37,16 @@ public class NotificationService
     public void Warning(string title, string message, int durationMs = 5000)
         => Show(title, message, InfoBarSeverity.Warning, durationMs);
 
-    /// <summary>显示错误通知</summary>
+    /// <summary>显示错误通知（始终显示）</summary>
     public void Error(string title, string message, int durationMs = 5000)
         => Show(title, message, InfoBarSeverity.Error, durationMs);
 
     private void Show(string title, string message, InfoBarSeverity severity, int durationMs)
     {
+        // 当通知被禁用时，只显示错误通知
+        if (!_settings.ShowNotifications && severity != InfoBarSeverity.Error)
+            return;
+
         _dispatcher.TryEnqueue(async () =>
         {
             if (_infoBar == null) return;

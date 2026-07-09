@@ -68,6 +68,18 @@ public partial class AppSettingsViewModel : ObservableObject
         set { if (_settings.OnlyStatisticsProxy != value) { _settings.OnlyStatisticsProxy = value; OnPropertyChanged(); } }
     }
 
+    public bool AutoRestart
+    {
+        get => _settings.AutoRestart;
+        set { if (_settings.AutoRestart != value) { _settings.AutoRestart = value; OnPropertyChanged(); } }
+    }
+
+    public bool ShowNotifications
+    {
+        get => _settings.ShowNotifications;
+        set { if (_settings.ShowNotifications != value) { _settings.ShowNotifications = value; OnPropertyChanged(); } }
+    }
+
     // 系统代理
     public bool SystemProxy
     {
