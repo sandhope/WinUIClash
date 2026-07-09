@@ -45,6 +45,7 @@ public sealed partial class MainWindow : Window
     // 托盘菜单项（需要动态更新状态）
     private ToggleMenuFlyoutItem? _trayProxyItem;
     private ToggleMenuFlyoutItem? _trayRunItem;
+    private MenuFlyoutSubItem? _trayProfileMenu;
 
     // 状态栏连接数轮询定时器
     private DispatcherTimer? _statusBarConnTimer;
@@ -726,6 +727,14 @@ public sealed partial class MainWindow : Window
         modeItem.Items.Add(modeDirect);
         menu.Items.Add(modeItem);
 
+        // ── 配置切换子菜单 ──
+        var profileItem = new MenuFlyoutSubItem { Text = Services.LocalizationHelper.GetString("NavProfiles.Content") };
+        _trayProfileMenu = profileItem;
+        menu.Items.Add(profileItem);
+
+        // Populate profiles asynchronously
+        _ = PopulateTrayProfilesAsync();
+
         menu.Items.Add(new MenuFlyoutSeparator());
 
         // ── 退出 ──
@@ -743,6 +752,54 @@ public sealed partial class MainWindow : Window
         {
             var clash = ServiceLocator.Get<IClashService>();
             _trayRunItem.IsChecked = clash.CoreState == CoreState.Running;
+        }
+        catch { }
+    }
+
+    private async Task PopulateTrayProfilesAsync()
+    {
+        if (_trayProfileMenu == null) return;
+
+        try
+        {
+            var storage = new Services.ProfileStorageService();
+            var profiles = await storage.LoadProfileListAsync();
+            if (profiles.Count == 0) return;
+
+            // Get active profile from the clash service
+            var clash = ServiceLocator.Get<IClashService>();
+            var apiProfiles = await clash.GetProfilesAsync();
+            var activeId = apiProfiles.FirstOrDefault(p => p.IsActive)?.Id ?? "";
+
+            _dispatcher.TryEnqueue(() =>
+            {
+                _trayProfileMenu.Items.Clear();
+                foreach (var profile in profiles)
+                {
+                    var toggleItem = new ToggleMenuFlyoutItem
+                    {
+                        Text = string.IsNullOrWhiteSpace(profile.Label) ? profile.Id : profile.Label,
+                        IsChecked = profile.Id == activeId,
+                    };
+                    var capturedProfile = profile;
+                    toggleItem.Click += async (_, _) =>
+                    {
+                        try
+                        {
+                            var c = ServiceLocator.Get<IClashService>();
+                            var configPath = storage.GetConfigPath(capturedProfile.Id);
+                            await c.SwitchProfileAsync(capturedProfile.Id, configPath);
+
+                            // Update checkmarks
+                            foreach (var item in _trayProfileMenu.Items.OfType<ToggleMenuFlyoutItem>())
+                                item.IsChecked = false;
+                            toggleItem.IsChecked = true;
+                        }
+                        catch { }
+                    };
+                    _trayProfileMenu.Items.Add(toggleItem);
+                }
+            });
         }
         catch { }
     }
