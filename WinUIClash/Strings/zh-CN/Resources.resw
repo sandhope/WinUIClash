@@ -422,6 +422,7 @@
   <data name="ProfilesSwitching.Text" xml:space="preserve"><value>正在切换配置…</value></data>
   <data name="DashFlushFakeIp.Content" xml:space="preserve"><value>清除 Fake-IP 缓存</value></data>
   <data name="DashFlushFakeIp.ToolTip" xml:space="preserve"><value>清除 fake-ip DNS 缓存</value></data>
+  <data name="ProfilesCopyPath.Text" xml:space="preserve"><value>复制文件路径</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>规则</value></data>
