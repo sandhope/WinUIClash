@@ -22,6 +22,11 @@ public class ClashOrchestrator : IClashService
     private int _restartAttempts;
     private const int MaxRestartAttempts = 3;
 
+    // ── Network change detection ──
+    private bool _wasRunningBeforeNetworkLoss;
+    private bool _networkLost;
+    private CancellationTokenSource? _networkDebounceCts;
+
     // ── Events (forwarded from active service) ──
     public event Action<Traffic>? TrafficUpdated;
     public event Action<CoreState>? CoreStateChanged;
@@ -49,6 +54,16 @@ public class ClashOrchestrator : IClashService
 
         // Watch for unexpected core process exits
         _processService.ProcessStateChanged += OnProcessStateChanged;
+
+        // Watch for network connectivity changes
+        try
+        {
+            Windows.Networking.Connectivity.NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to subscribe to network status changes");
+        }
     }
 
     /// <summary>Whether the real ClashMeta core process is running and connected.</summary>
@@ -361,5 +376,91 @@ public class ClashOrchestrator : IClashService
 
         // Attempt restart
         await StartAsync();
+    }
+
+    /// <summary>
+    /// Network change detection: when connectivity is lost, remember core state.
+    /// When connectivity is restored, auto-restart the core if it was previously running.
+    /// Uses a debounce delay to avoid reacting to transient changes.
+    /// </summary>
+    private async void OnNetworkStatusChanged(object? sender)
+    {
+        // Cancel any pending debounce
+        _networkDebounceCts?.Cancel();
+        _networkDebounceCts = new CancellationTokenSource();
+        var token = _networkDebounceCts.Token;
+
+        try
+        {
+            // Debounce: wait 3 seconds before reacting
+            await Task.Delay(TimeSpan.FromSeconds(3), token);
+            if (token.IsCancellationRequested) return;
+
+            var hasInternet = HasInternetConnectivity();
+
+            if (!hasInternet && IsRealCore && !_networkLost)
+            {
+                // Network lost while core was running
+                _networkLost = true;
+                _wasRunningBeforeNetworkLoss = true;
+                _logger.LogWarning("Network connectivity lost, core may become unreachable");
+                _notificationService.Warning(
+                    LocalizationHelper.GetString("NetworkChanged.Text"),
+                    LocalizationHelper.GetString("NetworkChangedMsg.Text"));
+            }
+            else if (hasInternet && _networkLost)
+            {
+                // Network restored
+                _networkLost = false;
+                _logger.LogInformation("Network connectivity restored");
+
+                if (_wasRunningBeforeNetworkLoss && !IsRealCore)
+                {
+                    _wasRunningBeforeNetworkLoss = false;
+                    _notificationService.Info(
+                        LocalizationHelper.GetString("NetworkRestored.Text"),
+                        LocalizationHelper.GetString("NetworkRestoredMsg.Text"));
+
+                    // Wait a bit for the network to stabilize, then restart
+                    await Task.Delay(TimeSpan.FromSeconds(2), token);
+                    if (token.IsCancellationRequested) return;
+
+                    _restartAttempts = 0; // Reset restart counter
+                    await StartAsync();
+                }
+                else
+                {
+                    _wasRunningBeforeNetworkLoss = false;
+                    _notificationService.Info(
+                        LocalizationHelper.GetString("NetworkRestored.Text"),
+                        LocalizationHelper.GetString("NetworkRestoredMsg.Text"));
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Debounce cancelled, ignore
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error handling network status change");
+        }
+    }
+
+    private static bool HasInternetConnectivity()
+    {
+        try
+        {
+            var profile = Windows.Networking.Connectivity.NetworkInformation.GetInternetConnectionProfile();
+            if (profile == null) return false;
+
+            var level = profile.GetNetworkConnectivityLevel();
+            return level == Windows.Networking.Connectivity.NetworkConnectivityLevel.InternetAccess
+                || level == Windows.Networking.Connectivity.NetworkConnectivityLevel.ConstrainedInternetAccess;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

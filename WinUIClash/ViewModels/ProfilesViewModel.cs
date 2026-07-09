@@ -78,6 +78,15 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             _notification.Success(
                 LocalizationHelper.GetString("ProfilesSwitchedTitle.Text"),
                 profile.Label);
+
+            // Auto-start core if not running
+            if (_clash.CoreState == CoreState.Stopped)
+            {
+                _notification.Info(
+                    LocalizationHelper.GetString("ProfilesAutoStartTitle.Text"),
+                    LocalizationHelper.GetString("ProfilesAutoStartMsg.Text"));
+                await _clash.StartAsync();
+            }
         }
         catch (Exception ex)
         {

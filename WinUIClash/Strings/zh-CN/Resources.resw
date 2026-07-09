@@ -450,8 +450,19 @@
   <data name="DashSpeedTestStart.Text" xml:space="preserve"><value>开始</value></data>
   <data name="DashSpeedTestRunning.Text" xml:space="preserve"><value>测试中…</value></data>
   <data name="DashSpeedTestFailed.Text" xml:space="preserve"><value>测试失败</value></data>
+  <data name="DashQuickActions.Text" xml:space="preserve"><value>快捷操作</value></data>
+  <data name="DashCloseAllConns.Text" xml:space="preserve"><value>关闭全部</value></data>
+  <data name="DashForceGc.Text" xml:space="preserve"><value>内存回收</value></data>
+  <data name="DashFlushFakeIp.Text" xml:space="preserve"><value>清除缓存</value></data>
+  <data name="DashResetTraffic.Text" xml:space="preserve"><value>重置</value></data>
+  <data name="NetworkChanged.Text" xml:space="preserve"><value>网络变化</value></data>
+  <data name="NetworkChangedMsg.Text" xml:space="preserve"><value>网络连接已变化，正在重新连接…</value></data>
+  <data name="NetworkRestored.Text" xml:space="preserve"><value>网络已恢复</value></data>
+  <data name="NetworkRestoredMsg.Text" xml:space="preserve"><value>网络连接已恢复</value></data>
   <data name="ProfilesCopyPath.Text" xml:space="preserve"><value>复制文件路径</value></data>
   <data name="ProfilesOpenInExplorer.Text" xml:space="preserve"><value>在文件管理器中打开</value></data>
+  <data name="ProfilesAutoStartTitle.Text" xml:space="preserve"><value>启动核心</value></data>
+  <data name="ProfilesAutoStartMsg.Text" xml:space="preserve"><value>核心未运行，正在自动启动…</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>规则</value></data>
@@ -543,6 +554,7 @@
   <data name="HelpCoreToggle.Text" xml:space="preserve"><value>启动 / 停止核心</value></data>
   <data name="HelpProxyToggle.Text" xml:space="preserve"><value>切换系统代理</value></data>
   <data name="HelpThemeToggle.Text" xml:space="preserve"><value>切换明暗主题</value></data>
+  <data name="HelpCloseAllConns.Text" xml:space="preserve"><value>关闭所有连接</value></data>
   <data name="HelpQuit.Text" xml:space="preserve"><value>退出应用</value></data>
   <data name="HelpShowHelp.Text" xml:space="preserve"><value>显示此帮助</value></data>
   <data name="HelpCyclePage.Text" xml:space="preserve"><value>切换页面</value></data>
