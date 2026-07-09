@@ -1,9 +1,16 @@
-﻿namespace WinUIClash.Views;
+using Microsoft.UI.Xaml.Controls;
+using WinUIClash.ViewModels;
 
-public sealed partial class ProfilesView : Microsoft.UI.Xaml.Controls.Page
+namespace WinUIClash.Views;
+
+public sealed partial class ProfilesView : Page
 {
+    public ProfilesViewModel ViewModel { get; }
+
     public ProfilesView()
     {
+        ViewModel = ServiceLocator.Get<ProfilesViewModel>();
         InitializeComponent();
+        Loaded += async (_, _) => await ViewModel.InitializeAsync();
     }
 }

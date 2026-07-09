@@ -1,9 +1,16 @@
-﻿namespace WinUIClash.Views;
+using Microsoft.UI.Xaml.Controls;
+using WinUIClash.ViewModels;
 
-public sealed partial class ProxiesView : Microsoft.UI.Xaml.Controls.Page
+namespace WinUIClash.Views;
+
+public sealed partial class ProxiesView : Page
 {
+    public ProxiesViewModel ViewModel { get; }
+
     public ProxiesView()
     {
+        ViewModel = ServiceLocator.Get<ProxiesViewModel>();
         InitializeComponent();
+        Loaded += async (_, _) => await ViewModel.InitializeAsync();
     }
 }

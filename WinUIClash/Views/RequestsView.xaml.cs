@@ -1,9 +1,16 @@
-﻿namespace WinUIClash.Views;
+using Microsoft.UI.Xaml.Controls;
+using WinUIClash.ViewModels;
 
-public sealed partial class RequestsView : Microsoft.UI.Xaml.Controls.Page
+namespace WinUIClash.Views;
+
+public sealed partial class RequestsView : Page
 {
+    public RequestsViewModel ViewModel { get; }
+
     public RequestsView()
     {
+        ViewModel = ServiceLocator.Get<RequestsViewModel>();
         InitializeComponent();
+        Loaded += async (_, _) => await ViewModel.InitializeAsync();
     }
 }
