@@ -51,6 +51,12 @@ public sealed partial class RequestsView : Page
         menu.ShowAt(element, e.GetPosition(element));
     }
 
+    private void RequestItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: ConnectionInfo conn })
+            CopyToClipboard(conn.Metadata.Host);
+    }
+
     private static void CopyToClipboard(string text)
     {
         var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();

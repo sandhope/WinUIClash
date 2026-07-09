@@ -74,6 +74,7 @@
                 <DataTemplate x:DataType="models:ConnectionInfo">
                     <Grid Padding="4,6" ColumnSpacing="12"
                           RightTapped="RequestItem_RightTapped"
+                          DoubleTapped="RequestItem_DoubleTapped"
                           Tag="{x:Bind}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />

@@ -423,6 +423,7 @@
   <data name="DashFlushFakeIp.Content" xml:space="preserve"><value>Flush Fake-IP Cache</value></data>
   <data name="DashFlushFakeIp.ToolTip" xml:space="preserve"><value>Clear the fake-ip DNS cache</value></data>
   <data name="ProfilesCopyPath.Text" xml:space="preserve"><value>Copy File Path</value></data>
+  <data name="ProfilesOpenInExplorer.Text" xml:space="preserve"><value>Open in Explorer</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>Rules</value></data>

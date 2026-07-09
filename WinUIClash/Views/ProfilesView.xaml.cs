@@ -219,6 +219,32 @@ public sealed partial class ProfilesView : Page
         };
         menu.Items.Add(copyPath);
 
+        // 在文件管理器中打开
+        var openInExplorer = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesOpenInExplorer.Text") };
+        openInExplorer.Click += async (_, _) =>
+        {
+            try
+            {
+                var path = profile.Path;
+                if (string.IsNullOrWhiteSpace(path))
+                    path = new ProfileStorageService().GetConfigPath(profile.Id);
+                if (File.Exists(path))
+                {
+                    var folder = System.IO.Path.GetDirectoryName(path);
+                    if (!string.IsNullOrEmpty(folder))
+                    {
+                        var storageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(folder);
+                        await Windows.System.Launcher.LaunchFolderAsync(storageFolder);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Profiles] Open in Explorer error: {ex.Message}");
+            }
+        };
+        menu.Items.Add(openInExplorer);
+
         // 自动更新开关
         var autoUpdate = new ToggleMenuFlyoutItem
         {
