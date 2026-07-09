@@ -112,6 +112,32 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
 
     public ObservableCollection<Traffic> TrafficHistory { get; } = new();
 
+    private static readonly int[] ChartRangeOptions = [60, 120, 300];
+
+    [ObservableProperty] private int _chartTimeRange = 120;
+
+    public string ChartTimeRangeLabel => ChartTimeRange switch
+    {
+        60 => "1m",
+        300 => "5m",
+        _ => "2m",
+    };
+
+    partial void OnChartTimeRangeChanged(int value)
+    {
+        OnPropertyChanged(nameof(ChartTimeRangeLabel));
+        // Trim excess data points when shrinking the window
+        while (TrafficHistory.Count > value)
+            TrafficHistory.RemoveAt(0);
+    }
+
+    [RelayCommand]
+    private void CycleChartRange()
+    {
+        var idx = Array.IndexOf(ChartRangeOptions, ChartTimeRange);
+        ChartTimeRange = ChartRangeOptions[(idx + 1) % ChartRangeOptions.Length];
+    }
+
     private void OnTrafficUpdated(Traffic t)
     {
         _dispatcher.TryEnqueue(() =>
@@ -122,7 +148,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
             DownloadSpeed = Converters.ByteFormatter.FormatSpeed(t.Down);
 
             TrafficHistory.Add(t);
-            if (TrafficHistory.Count > 120) TrafficHistory.RemoveAt(0);
+            while (TrafficHistory.Count > ChartTimeRange) TrafficHistory.RemoveAt(0);
 
             if (_startTime.HasValue)
             {
@@ -361,6 +387,10 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         }
     }
 
+    // ── TUN 模式状态 ──
+
+    [ObservableProperty] private bool _isTunEnabled;
+
     // ── 初始化 ──
 
     public async Task InitializeAsync()
@@ -377,6 +407,10 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         await RefreshTotalTrafficAsync();
         await RefreshConnectionCountAsync();
         await RefreshActiveProxyNodeAsync();
+
+        try { IsTunEnabled = await _clash.GetTunEnabledAsync(); }
+        catch { IsTunEnabled = false; }
+
         await CheckIpAsync();
         await RefreshLocalIpAsync();
         await RefreshMemoryAsync();

@@ -86,4 +86,50 @@ public sealed partial class ResourcesView : Page
                 "GeoSite");
         }
     }
+
+    private async void UpdateMmdb_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var notification = ServiceLocator.Get<NotificationService>();
+            notification.Info(
+                LocalizationHelper.GetString("ResGeoUpdating.Text"),
+                LocalizationHelper.GetString("ResGeoUpdateMmdb.Text"));
+            var clash = ServiceLocator.Get<IClashService>();
+            await clash.UpdateGeoDatabaseAsync("Country");
+            notification.Success(
+                LocalizationHelper.GetString("ResGeoUpdateSuccess.Text"),
+                "Country.mmdb");
+        }
+        catch
+        {
+            var notification = ServiceLocator.Get<NotificationService>();
+            notification.Error(
+                LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
+                "Country.mmdb");
+        }
+    }
+
+    private async void UpdateAsn_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var notification = ServiceLocator.Get<NotificationService>();
+            notification.Info(
+                LocalizationHelper.GetString("ResGeoUpdating.Text"),
+                LocalizationHelper.GetString("ResGeoUpdateAsn.Text"));
+            var clash = ServiceLocator.Get<IClashService>();
+            await clash.UpdateGeoDatabaseAsync("ASN");
+            notification.Success(
+                LocalizationHelper.GetString("ResGeoUpdateSuccess.Text"),
+                "ASN");
+        }
+        catch
+        {
+            var notification = ServiceLocator.Get<NotificationService>();
+            notification.Error(
+                LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
+                "ASN");
+        }
+    }
 }

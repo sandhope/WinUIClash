@@ -56,55 +56,64 @@
 
             <NavigationView.MenuItems>
                 <!-- 仪表盘 -->
-                <NavigationViewItem x:Uid="NavDashboard" Tag="Dashboard">
+                <NavigationViewItem x:Uid="NavDashboard" Tag="Dashboard"
+                                    ToolTipService.ToolTip="Ctrl+1">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Home" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 代理 -->
-                <NavigationViewItem x:Uid="NavProxies" Tag="Proxies">
+                <NavigationViewItem x:Uid="NavProxies" Tag="Proxies"
+                                    ToolTipService.ToolTip="Ctrl+2">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Globe" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 配置 -->
-                <NavigationViewItem x:Uid="NavProfiles" Tag="Profiles">
+                <NavigationViewItem x:Uid="NavProfiles" Tag="Profiles"
+                                    ToolTipService.ToolTip="Ctrl+3">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Folder" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 请求 -->
-                <NavigationViewItem x:Uid="NavRequests" Tag="Requests">
+                <NavigationViewItem x:Uid="NavRequests" Tag="Requests"
+                                    ToolTipService.ToolTip="Ctrl+4">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="List" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 连接 -->
-                <NavigationViewItem x:Uid="NavConnections" Tag="Connections">
+                <NavigationViewItem x:Uid="NavConnections" Tag="Connections"
+                                    ToolTipService.ToolTip="Ctrl+5">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Link" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 资源 -->
-                <NavigationViewItem x:Uid="NavResources" Tag="Resources">
+                <NavigationViewItem x:Uid="NavResources" Tag="Resources"
+                                    ToolTipService.ToolTip="Ctrl+6">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Library" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 规则 -->
-                <NavigationViewItem x:Uid="NavRules" Tag="Rules">
+                <NavigationViewItem x:Uid="NavRules" Tag="Rules"
+                                    ToolTipService.ToolTip="Ctrl+7">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Filter" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 日志 -->
-                <NavigationViewItem x:Uid="NavLogs" Tag="Logs">
+                <NavigationViewItem x:Uid="NavLogs" Tag="Logs"
+                                    ToolTipService.ToolTip="Ctrl+8">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Notepad" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 工具 -->
-                <NavigationViewItem x:Uid="NavTools" Tag="Tools">
+                <NavigationViewItem x:Uid="NavTools" Tag="Tools"
+                                    ToolTipService.ToolTip="Ctrl+9">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Wrench" />
                     </NavigationViewItem.Icon>

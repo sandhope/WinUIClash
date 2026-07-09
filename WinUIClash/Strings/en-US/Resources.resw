@@ -410,6 +410,10 @@
   <data name="ResGeoUpdateGeoSite.Text" xml:space="preserve"><value>Update GeoSite Database</value></data>
   <data name="ResGeoUpdating.Text" xml:space="preserve"><value>Updating Geo Database</value></data>
   <data name="ResGeoUpdateSuccess.Text" xml:space="preserve"><value>Geo Database Updated</value></data>
+  <data name="ResGeoUpdateMmdb.Text" xml:space="preserve"><value>Update Country.mmdb</value></data>
+  <data name="ResGeoUpdateAsn.Text" xml:space="preserve"><value>Update ASN Database</value></data>
+  <data name="ResUpdating.Text" xml:space="preserve"><value>Updating</value></data>
+  <data name="ResUpdateAllDone.Text" xml:space="preserve"><value>Update complete</value></data>
   <data name="ResHealthCheck.ToolTip" xml:space="preserve"><value>Health Check</value></data>
   <data name="ResHealthCheckDone.Text" xml:space="preserve"><value>Health Check Complete</value></data>
   <data name="BasicConfigAppliedTitle.Text" xml:space="preserve"><value>Settings Applied</value></data>
@@ -511,4 +515,5 @@
   <data name="HelpProxyToggle.Text" xml:space="preserve"><value>Toggle system proxy</value></data>
   <data name="HelpQuit.Text" xml:space="preserve"><value>Quit application</value></data>
   <data name="HelpShowHelp.Text" xml:space="preserve"><value>Show this help</value></data>
+  <data name="HelpCyclePage.Text" xml:space="preserve"><value>Cycle through pages</value></data>
 </root>

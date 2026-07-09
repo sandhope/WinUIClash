@@ -44,6 +44,9 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
     /// <summary>上次全量更新时间</summary>
     [ObservableProperty] private DateTime? _lastUpdateAllTime;
 
+    [ObservableProperty] private bool _isUpdatingAll;
+    [ObservableProperty] private string _updateAllProgressText = "";
+
     partial void OnSearchTextChanged(string value) => ApplyFilter();
     partial void OnTypeFilterChanged(string value) => ApplyFilter();
 
@@ -61,6 +64,13 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
 
         // 启动自动更新定时器
         _autoUpdateTimer.Change(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(5));
+    }
+
+    [RelayCommand]
+    private async Task RefreshAsync()
+    {
+        _initialized = false;
+        await InitializeAsync();
     }
 
     [RelayCommand]
@@ -83,21 +93,32 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private async Task UpdateAllAsync()
     {
-        foreach (var p in Providers)
+        IsUpdatingAll = true;
+        var total = Providers.Count;
+        var updated = 0;
+        var failed = 0;
+
+        for (int i = 0; i < total; i++)
         {
+            var p = Providers[i];
+            UpdateAllProgressText = $"{LocalizationHelper.GetString("ResUpdating.Text")} {i + 1}/{total}";
             try
             {
                 await _clash.UpdateExternalProviderAsync(p.Name, p.Category);
                 p.UpdateAt = DateTime.Now;
+                updated++;
             }
-            catch (Exception ex)
+            catch
             {
-                _notification.Warning(
-                    LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
-                    $"{p.Name}: {ex.Message}");
+                failed++;
             }
         }
+
         LastUpdateAllTime = DateTime.Now;
+        UpdateAllProgressText = failed > 0
+            ? $"{LocalizationHelper.GetString("ResUpdateAllDone.Text")} ({updated}✓ {failed}✗)"
+            : $"{LocalizationHelper.GetString("ResUpdateAllDone.Text")} ({updated}✓)";
+        IsUpdatingAll = false;
     }
 
     [RelayCommand]

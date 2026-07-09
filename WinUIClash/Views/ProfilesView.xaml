@@ -8,7 +8,10 @@
     xmlns:models="using:WinUIClash.Models"
     mc:Ignorable="d">
 
-    <Grid Padding="24,16" RowSpacing="12">
+    <Grid Padding="24,16" RowSpacing="12"
+          AllowDrop="True"
+          DragOver="Page_DragOver"
+          Drop="Page_Drop">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />

@@ -17,7 +17,8 @@
 
                 <!-- 设置区域 -->
                 <TextBlock x:Uid="ToolsSettingsSection" FontSize="14" Opacity="0.6" Margin="0,0,0,-8" />
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.SettingsItems}">
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.SettingsItems}"
+                               ElementPrepared="ToolItem_ElementPrepared">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="4" />
                     </ItemsRepeater.Layout>
@@ -33,7 +34,7 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <fluent:SymbolIcon Symbol="Settings" FontSize="18"
+                                        <fluent:SymbolIcon x:Name="ItemIcon" Symbol="Settings" FontSize="18"
                                                            VerticalAlignment="Center" Opacity="0.7" />
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
                                             <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" />
@@ -51,7 +52,8 @@
 
                 <!-- 其他区域 -->
                 <TextBlock x:Uid="ToolsOtherSection" FontSize="14" Opacity="0.6" Margin="0,8,0,-8" />
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.OtherItems}">
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.OtherItems}"
+                               ElementPrepared="ToolItem_ElementPrepared">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="4" />
                     </ItemsRepeater.Layout>
@@ -67,7 +69,7 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <fluent:SymbolIcon Symbol="Info" FontSize="18"
+                                        <fluent:SymbolIcon x:Name="ItemIcon" Symbol="Info" FontSize="18"
                                                            VerticalAlignment="Center" Opacity="0.7" />
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
                                             <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" />
