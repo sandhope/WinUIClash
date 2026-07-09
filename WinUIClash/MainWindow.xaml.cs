@@ -48,6 +48,8 @@ public sealed partial class MainWindow : Window
 
     // 状态栏连接数轮询定时器
     private DispatcherTimer? _statusBarConnTimer;
+    private Traffic _lastTraffic = new();
+    private int _lastConnectionCount;
 
     public MainWindow()
     {
@@ -429,10 +431,13 @@ public sealed partial class MainWindow : Window
                 try
                 {
                     var connections = await _clash.GetConnectionsAsync();
+                    _lastConnectionCount = connections.Count;
                     ConnectionCountText.Text = connections.Count.ToString();
+                    UpdateTrayTooltip();
                 }
                 catch
                 {
+                    _lastConnectionCount = 0;
                     ConnectionCountText.Text = "0";
                 }
             };
@@ -469,14 +474,18 @@ public sealed partial class MainWindow : Window
         // 同步托盘菜单的核心开关状态
         if (_trayRunItem != null)
             _trayRunItem.IsChecked = state == CoreState.Running;
+
+        UpdateTrayTooltip();
     }
 
     private void OnTrafficUpdated(Traffic t)
     {
         _dispatcher.TryEnqueue(() =>
         {
+            _lastTraffic = t;
             UploadSpeedText.Text = Converters.ByteFormatter.FormatSpeed(t.Up);
             DownloadSpeedText.Text = Converters.ByteFormatter.FormatSpeed(t.Down);
+            UpdateTrayTooltip();
         });
     }
 
@@ -507,6 +516,28 @@ public sealed partial class MainWindow : Window
         // 同步托盘菜单
         if (_trayProxyItem != null)
             _trayProxyItem.IsChecked = isProxyOn;
+
+        UpdateTrayTooltip();
+    }
+
+    private void UpdateTrayTooltip()
+    {
+        if (_trayIcon == null) return;
+
+        var state = _clash?.CoreState ?? CoreState.Stopped;
+        var stateText = state switch
+        {
+            CoreState.Running => LocalizationHelper.GetString("DashRunning.Text"),
+            CoreState.Starting => LocalizationHelper.GetString("DashStarting.Text"),
+            CoreState.Stopping => LocalizationHelper.GetString("DashStopping.Text"),
+            _ => LocalizationHelper.GetString("DashStopped.Text"),
+        };
+
+        var up = Converters.ByteFormatter.FormatSpeed(_lastTraffic.Up);
+        var down = Converters.ByteFormatter.FormatSpeed(_lastTraffic.Down);
+        var proxy = _appSettings?.SystemProxy == true ? "ON" : "OFF";
+
+        _trayIcon.ToolTipText = $"WinUIClash\n{stateText}\n↑{up}  ↓{down}\n{LocalizationHelper.GetString("ConnCountSuffix.Text").Trim()}: {_lastConnectionCount}\n{LocalizationHelper.GetString("ProxyLabel.Text")}: {proxy}";
     }
 
     private async void StatusDot_Click(object sender, RoutedEventArgs e)
