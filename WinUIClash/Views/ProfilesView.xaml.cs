@@ -13,7 +13,59 @@ public sealed partial class ProfilesView : Page
     {
         ViewModel = ServiceLocator.Get<ProfilesViewModel>();
         InitializeComponent();
-        Loaded += async (_, _) => await ViewModel.InitializeAsync();
+        Loaded += OnLoaded;
+    }
+
+    private async void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.InitializeAsync();
+        await TryClipboardImportAsync();
+    }
+
+    private async Task TryClipboardImportAsync()
+    {
+        try
+        {
+            var dp = Windows.ApplicationModel.DataTransfer.Clipboard.GetContent();
+            if (!dp.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.Text))
+                return;
+
+            var text = await dp.GetTextAsync();
+            if (string.IsNullOrWhiteSpace(text)) return;
+
+            text = text.Trim();
+
+            // 检测是否是订阅链接（常见格式）
+            if (!IsSubscriptionUrl(text)) return;
+
+            var dialog = new ContentDialog
+            {
+                Title = "检测到订阅链接",
+                Content = $"剪贴板中发现订阅链接:\n\n{text}\n\n是否导入？",
+                PrimaryButtonText = "导入",
+                CloseButtonText = "取消",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = XamlRoot,
+            };
+
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                await ViewModel.ImportProfileAsync(text, null);
+            }
+        }
+        catch { /* 剪贴板访问失败时静默 */ }
+    }
+
+    private static bool IsSubscriptionUrl(string text)
+    {
+        if (!text.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+            !text.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        // 检查是否包含常见订阅关键词
+        var lower = text.ToLowerInvariant();
+        string[] keywords = ["sub", "subscribe", "clash", "token", "profile", "config", "yaml"];
+        return keywords.Any(k => lower.Contains(k));
     }
 
     private void ProfileGrid_ItemClick(object sender, ItemClickEventArgs e)

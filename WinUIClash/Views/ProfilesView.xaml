@@ -89,6 +89,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <ProgressBar Maximum="100" Value="{x:Bind UsedPercent, Mode=OneWay}" Height="4" />
                                 <Grid Grid.Row="1">
@@ -101,6 +102,9 @@
                                     <TextBlock Grid.Column="1" Text="{x:Bind RemainingText, Mode=OneWay}"
                                                FontSize="10" Opacity="0.5" />
                                 </Grid>
+                                <TextBlock Grid.Row="2" Text="{x:Bind ExpiryText, Mode=OneWay}"
+                                           FontSize="10" Opacity="0.5"
+                                           Foreground="{x:Bind ExpiryBrush, Mode=OneWay}" />
                             </Grid>
 
                             <!-- 底部操作 -->
