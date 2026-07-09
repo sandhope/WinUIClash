@@ -413,6 +413,8 @@
   <data name="ProxyCtxTestDelay.Text" xml:space="preserve"><value>测试延迟</value></data>
   <data name="ProxyCtxSelect.Text" xml:space="preserve"><value>选择此节点</value></data>
   <data name="ProxyCtxCopyName.Text" xml:space="preserve"><value>复制名称</value></data>
+  <data name="ProxyCtxCopyType.Text" xml:space="preserve"><value>复制类型</value></data>
+  <data name="ProxyCtxCopyAll.Text" xml:space="preserve"><value>复制完整信息</value></data>
 
   <!-- App Error Dialog -->
   <data name="AppErrorTitle.Text" xml:space="preserve"><value>发生错误</value></data>
