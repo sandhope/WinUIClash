@@ -524,4 +524,6 @@ public class MockClashService : IClashService
         => Task.FromResult(_rng.NextInt64(30_000_000, 120_000_000));
 
     public Task ForceGcAsync() => Task.CompletedTask;
+
+    public Task FlushFakeIpCacheAsync() => Task.CompletedTask;
 }

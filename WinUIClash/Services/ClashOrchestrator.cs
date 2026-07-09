@@ -261,6 +261,7 @@ public class ClashOrchestrator : IClashService
 
     public Task<long> GetCoreMemoryAsync() => _activeService.GetCoreMemoryAsync();
     public Task ForceGcAsync() => _activeService.ForceGcAsync();
+    public Task FlushFakeIpCacheAsync() => _activeService.FlushFakeIpCacheAsync();
 
     // ── Private helpers ──
 

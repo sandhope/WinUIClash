@@ -601,6 +601,14 @@ public class HttpClashService : IClashService, IDisposable
         await _http.PostAsync("/memory/force-gc", null);
     }
 
+    // ── 缓存 ──
+
+    public async Task FlushFakeIpCacheAsync()
+    {
+        var response = await _http.DeleteAsync("/cache/fakeip");
+        response.EnsureSuccessStatusCode();
+    }
+
     // ── 辅助方法 ──
 
     private string GetToken()
