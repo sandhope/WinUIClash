@@ -14,6 +14,7 @@
             <!-- Converters -->
             <converters:LogLevelToColorConverter x:Key="LogLevelToColorConverter" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:DelayToColorConverter x:Key="DelayToColorConverter" />
             <converters:DelayToTextConverter x:Key="DelayToTextConverter" />
@@ -21,6 +22,15 @@
             <converters:BytesToSpeedConverter x:Key="BytesToSpeedConverter" />
             <converters:DateTimeToRelativeConverter x:Key="DateTimeToRelativeConverter" />
             <converters:DateTimeToTimeConverter x:Key="DateTimeToTimeConverter" />
+            <converters:HexToColorConverter x:Key="HexToColorConverter" />
+            <!-- Settings card style -->
+            <Style x:Key="SettingsCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="16,12" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

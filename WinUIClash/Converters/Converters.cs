@@ -43,6 +43,18 @@ public class BoolToVisibilityConverter : IValueConverter
 }
 
 /// <summary>
+/// Bool → Visibility（取反：true → Collapsed，false → Visible）
+/// </summary>
+public class InverseBoolToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+        => value is true ? Visibility.Collapsed : Visibility.Visible;
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => value is Visibility.Collapsed;
+}
+
+/// <summary>
 /// 非 null → Visible，null → Collapsed
 /// </summary>
 public class NullToVisibilityConverter : IValueConverter
@@ -125,6 +137,34 @@ public class DateTimeToRelativeConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
         => value is DateTime dt ? TimeFormatter.Relative(dt) : "—";
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotImplementedException();
+}
+
+/// <summary>
+/// Hex 颜色字符串 → Windows.UI.Color
+/// </summary>
+public class HexToColorConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is string hex && hex.Length >= 7)
+        {
+            try
+            {
+                hex = hex.TrimStart('#');
+                byte a = hex.Length == 8 ? System.Convert.ToByte(hex[0..2], 16) : (byte)255;
+                int offset = hex.Length == 8 ? 2 : 0;
+                byte r = System.Convert.ToByte(hex[offset..(offset + 2)], 16);
+                byte g = System.Convert.ToByte(hex[(offset + 2)..(offset + 4)], 16);
+                byte b = System.Convert.ToByte(hex[(offset + 4)..(offset + 6)], 16);
+                return Color.FromArgb(a, r, g, b);
+            }
+            catch { }
+        }
+        return Color.FromArgb(255, 0, 0, 0);
+    }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)
         => throw new NotImplementedException();

@@ -20,6 +20,7 @@ public static class ServiceLocator
 
         // ── 服务 ──
         services.AddSingleton<IClashService, MockClashService>();
+        services.AddSingleton<Models.AppSettings>();
 
         // ── ViewModel ──
         services.AddSingleton<DashboardViewModel>();
