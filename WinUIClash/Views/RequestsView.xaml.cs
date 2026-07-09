@@ -38,6 +38,13 @@ public sealed partial class RequestsView : Page
         copyRule.Click += (_, _) => CopyToClipboard($"{conn.Rule} → {string.Join(", ", conn.Chains)}");
         menu.Items.Add(copyRule);
 
+        var copyProcess = new MenuFlyoutItem
+        {
+            Text = LocalizationHelper.GetString("RequestsCopyProcess.Text")
+        };
+        copyProcess.Click += (_, _) => CopyToClipboard(conn.Metadata.Process);
+        menu.Items.Add(copyProcess);
+
         menu.Items.Add(new MenuFlyoutSeparator());
 
         var copyAll = new MenuFlyoutItem

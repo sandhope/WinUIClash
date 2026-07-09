@@ -80,9 +80,12 @@ public partial class LogsViewModel : ObservableObject, IDisposable
             var level = Enum.Parse<LogLevel>(SelectedLevel, ignoreCase: true);
             if (entry.Level != level) return false;
         }
-        if (!string.IsNullOrWhiteSpace(SearchText) &&
-            !entry.Payload.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
-            return false;
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            var keywords = SearchText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (!keywords.All(kw => entry.Payload.Contains(kw, StringComparison.OrdinalIgnoreCase)))
+                return false;
+        }
         return true;
     }
 
@@ -95,7 +98,10 @@ public partial class LogsViewModel : ObservableObject, IDisposable
             filtered = filtered.Where(l => l.Level == level);
         }
         if (!string.IsNullOrWhiteSpace(SearchText))
-            filtered = filtered.Where(l => l.Payload.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        {
+            var keywords = SearchText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            filtered = filtered.Where(l => keywords.All(kw => l.Payload.Contains(kw, StringComparison.OrdinalIgnoreCase)));
+        }
 
         FilteredLogs = new ObservableCollection<LogEntry>(filtered);
         LogCount = FilteredLogs.Count;

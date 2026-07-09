@@ -208,6 +208,17 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _totalUpload = "0 B";
     [ObservableProperty] private string _totalDownload = "0 B";
     [ObservableProperty] private int _activeConnections;
+    [ObservableProperty] private int _ruleCount;
+
+    public async Task RefreshRuleCountAsync()
+    {
+        try
+        {
+            var rules = await _clash.GetRulesAsync();
+            RuleCount = rules.Count;
+        }
+        catch { RuleCount = 0; }
+    }
 
     public async Task RefreshTotalTrafficAsync()
     {
@@ -546,6 +557,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         SyncModeState(_clash.GetOutboundMode());
         await RefreshTotalTrafficAsync();
         await RefreshConnectionCountAsync();
+        await RefreshRuleCountAsync();
         await RefreshActiveProxyNodeAsync();
         await RefreshActiveProfileAsync();
 

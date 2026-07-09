@@ -354,6 +354,7 @@
   <data name="RequestsAutoScroll.Content" xml:space="preserve"><value>Auto Scroll</value></data>
   <data name="RequestsCopyHost.Text" xml:space="preserve"><value>Copy Host</value></data>
   <data name="RequestsCopyRule.Text" xml:space="preserve"><value>Copy Rule</value></data>
+  <data name="RequestsCopyProcess.Text" xml:space="preserve"><value>Copy Process</value></data>
   <data name="RequestsCopyAll.Text" xml:space="preserve"><value>Copy Full Request</value></data>
 
   <!-- Connection Sort Modes -->
