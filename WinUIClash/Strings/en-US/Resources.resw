@@ -127,6 +127,10 @@
   <data name="AppAutoLaunchDesc.Text" xml:space="preserve"><value>Automatically run WinUIClash on system startup</value></data>
   <data name="AppAutoRun.Text" xml:space="preserve"><value>Auto Start Core</value></data>
   <data name="AppAutoRunDesc.Text" xml:space="preserve"><value>Automatically start Clash core after app launches</value></data>
+  <data name="AppAutoRestart.Text" xml:space="preserve"><value>Auto Restart on Crash</value></data>
+  <data name="AppAutoRestartDesc.Text" xml:space="preserve"><value>Automatically restart core if it crashes unexpectedly</value></data>
+  <data name="AppShowNotifications.Text" xml:space="preserve"><value>Show Notifications</value></data>
+  <data name="AppShowNotificationsDesc.Text" xml:space="preserve"><value>Show in-app notifications for status changes (errors always shown)</value></data>
   <data name="AppAutoCheckUpdate.Text" xml:space="preserve"><value>Auto Check Updates</value></data>
   <data name="AppAutoCheckUpdateDesc.Text" xml:space="preserve"><value>Automatically check for new versions on startup</value></data>
   <data name="AppSystemProxy.Text" xml:space="preserve"><value>System Proxy</value></data>

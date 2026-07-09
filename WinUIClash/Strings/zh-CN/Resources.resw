@@ -127,6 +127,10 @@
   <data name="AppAutoLaunchDesc.Text" xml:space="preserve"><value>系统启动时自动运行 WinUIClash</value></data>
   <data name="AppAutoRun.Text" xml:space="preserve"><value>自动启动核心</value></data>
   <data name="AppAutoRunDesc.Text" xml:space="preserve"><value>应用启动后自动运行 Clash 核心</value></data>
+  <data name="AppAutoRestart.Text" xml:space="preserve"><value>崩溃自动重启</value></data>
+  <data name="AppAutoRestartDesc.Text" xml:space="preserve"><value>核心进程意外退出时自动重启</value></data>
+  <data name="AppShowNotifications.Text" xml:space="preserve"><value>显示通知</value></data>
+  <data name="AppShowNotificationsDesc.Text" xml:space="preserve"><value>显示状态变更的应用内通知（错误通知始终显示）</value></data>
   <data name="AppAutoCheckUpdate.Text" xml:space="preserve"><value>自动检查更新</value></data>
   <data name="AppAutoCheckUpdateDesc.Text" xml:space="preserve"><value>启动时自动检查新版本</value></data>
   <data name="AppSystemProxy.Text" xml:space="preserve"><value>系统代理</value></data>
