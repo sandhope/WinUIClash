@@ -1,0 +1,65 @@
+<UserControl
+    x:Class="WinUIClash.Views.Settings.AboutView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:fluent="using:FluentIcons.WinUI"
+    mc:Ignorable="d">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="16" Padding="0,0,16,24">
+            <TextBlock Text="关于" FontSize="20" FontWeight="SemiBold" />
+
+            <!-- 应用信息 -->
+            <Border Style="{StaticResource SettingsCardStyle}">
+                <StackPanel Spacing="12" HorizontalAlignment="Center" Padding="24">
+                    <fluent:SymbolIcon Symbol="Shield" FontSize="48" Foreground="{ThemeResource AccentFillColorDefaultBrush}" />
+                    <TextBlock Text="WinUIClash" FontSize="20" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="版本 0.1.0 (开发版)" FontSize="12" Opacity="0.5"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="基于 FlClash UI 设计的 ClashMeta 客户端"
+                               FontSize="12" Opacity="0.6" HorizontalAlignment="Center"
+                               TextAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <!-- 技术栈 -->
+            <Border Style="{StaticResource SettingsCardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="技术栈" FontSize="14" FontWeight="SemiBold" />
+                    <Grid ColumnSpacing="12" RowSpacing="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="框架" Opacity="0.5" FontSize="12" />
+                        <TextBlock Grid.Column="1" Text=".NET 10 + Windows App SDK 2.2" FontSize="12" />
+                        <TextBlock Grid.Row="1" Text="UI" Opacity="0.5" FontSize="12" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="WinUI 3 (XAML) + Mica" FontSize="12" />
+                        <TextBlock Grid.Row="2" Text="MVVM" Opacity="0.5" FontSize="12" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="CommunityToolkit.Mvvm 8.4" FontSize="12" />
+                        <TextBlock Grid.Row="3" Text="核心" Opacity="0.5" FontSize="12" />
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="ClashMeta (Mihomo)" FontSize="12" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- 链接 -->
+            <Border Style="{StaticResource SettingsCardStyle}">
+                <StackPanel Spacing="4">
+                    <HyperlinkButton Content="FlClash 原项目" NavigateUri="https://github.com/chen08209/FlClash" />
+                    <HyperlinkButton Content="ClashMeta 核心 (Mihomo)" NavigateUri="https://github.com/MetaCubeX/mihomo" />
+                    <HyperlinkButton Content="Windows App SDK 文档" NavigateUri="https://learn.microsoft.com/windows/apps/winui/" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

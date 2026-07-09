@@ -7,75 +7,113 @@
     xmlns:fluent="using:FluentIcons.WinUI"
     mc:Ignorable="d">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,16">
-        <StackPanel Spacing="24">
-            <TextBlock Text="工具" FontSize="20" FontWeight="SemiBold" />
+    <Grid Padding="24,16">
+        <!-- 主页：设置列表 -->
+        <ScrollViewer x:Name="MainPanel"
+                      VerticalScrollBarVisibility="Auto"
+                      Visibility="{x:Bind ViewModel.IsSubPage, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <StackPanel Spacing="24">
+                <TextBlock Text="工具" FontSize="20" FontWeight="SemiBold" />
 
-            <!-- 设置区域 -->
-            <TextBlock Text="设置" FontSize="14" Opacity="0.6" Margin="0,0,0,-8" />
-            <ItemsRepeater ItemsSource="{x:Bind ViewModel.SettingsItems}">
-                <ItemsRepeater.Layout>
-                    <StackLayout Spacing="4" />
-                </ItemsRepeater.Layout>
-                <ItemsRepeater.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                CornerRadius="8" Padding="16,12"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1">
-                            <Grid ColumnSpacing="12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <fluent:SymbolIcon Symbol="Settings" FontSize="18"
-                                                   VerticalAlignment="Center" Opacity="0.7" />
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                    <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" />
-                                    <TextBlock Text="{Binding Subtitle}" FontSize="11" Opacity="0.5" />
-                                </StackPanel>
-                                <fluent:SymbolIcon Grid.Column="2" Symbol="ChevronRight"
-                                                   FontSize="12" Opacity="0.4"
-                                                   VerticalAlignment="Center" />
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsRepeater.ItemTemplate>
-            </ItemsRepeater>
+                <!-- 设置区域 -->
+                <TextBlock Text="设置" FontSize="14" Opacity="0.6" Margin="0,0,0,-8" />
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.SettingsItems}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="4" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                    Click="SettingItem_Click" Tag="{Binding}"
+                                    Padding="0" Background="Transparent" BorderThickness="0">
+                                <Border Style="{StaticResource SettingsCardStyle}">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <fluent:SymbolIcon Symbol="Settings" FontSize="18"
+                                                           VerticalAlignment="Center" Opacity="0.7" />
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                            <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Subtitle}" FontSize="11" Opacity="0.5" />
+                                        </StackPanel>
+                                        <fluent:SymbolIcon Grid.Column="2" Symbol="ChevronRight"
+                                                           FontSize="12" Opacity="0.4"
+                                                           VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
 
-            <!-- 其他区域 -->
-            <TextBlock Text="其他" FontSize="14" Opacity="0.6" Margin="0,8,0,-8" />
-            <ItemsRepeater ItemsSource="{x:Bind ViewModel.OtherItems}">
-                <ItemsRepeater.Layout>
-                    <StackLayout Spacing="4" />
-                </ItemsRepeater.Layout>
-                <ItemsRepeater.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                CornerRadius="8" Padding="16,12"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1">
-                            <Grid ColumnSpacing="12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <fluent:SymbolIcon Symbol="Info" FontSize="18"
-                                                   VerticalAlignment="Center" Opacity="0.7" />
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                    <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" />
-                                    <TextBlock Text="{Binding Subtitle}" FontSize="11" Opacity="0.5" />
-                                </StackPanel>
-                                <fluent:SymbolIcon Grid.Column="2" Symbol="ChevronRight"
-                                                   FontSize="12" Opacity="0.4"
-                                                   VerticalAlignment="Center" />
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsRepeater.ItemTemplate>
-            </ItemsRepeater>
-        </StackPanel>
-    </ScrollViewer>
+                <!-- 其他区域 -->
+                <TextBlock Text="其他" FontSize="14" Opacity="0.6" Margin="0,8,0,-8" />
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.OtherItems}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="4" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                    Click="SettingItem_Click" Tag="{Binding}"
+                                    Padding="0" Background="Transparent" BorderThickness="0">
+                                <Border Style="{StaticResource SettingsCardStyle}">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <fluent:SymbolIcon Symbol="Info" FontSize="18"
+                                                           VerticalAlignment="Center" Opacity="0.7" />
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                            <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Subtitle}" FontSize="11" Opacity="0.5" />
+                                        </StackPanel>
+                                        <fluent:SymbolIcon Grid.Column="2" Symbol="ChevronRight"
+                                                           FontSize="12" Opacity="0.4"
+                                                           VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 子页面 -->
+        <Grid x:Name="SubPanel"
+              Visibility="{x:Bind ViewModel.IsSubPage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- 子页面标题栏 -->
+            <Grid Padding="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Command="{x:Bind ViewModel.GoBackCommand}"
+                        Background="Transparent" BorderThickness="0"
+                        Padding="4" Margin="-4,0,8,0"
+                        ToolTipService.ToolTip="返回">
+                    <fluent:SymbolIcon Symbol="ArrowLeft" FontSize="16" />
+                </Button>
+                <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.CurrentTitle, Mode=OneWay}"
+                           FontSize="20" FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+            </Grid>
+
+            <!-- 子页面内容 -->
+            <ContentControl Grid.Row="1" Content="{x:Bind ViewModel.CurrentPage, Mode=OneWay}"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch" />
+        </Grid>
+    </Grid>
 </Page>
