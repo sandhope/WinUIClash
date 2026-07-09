@@ -631,6 +631,16 @@ public sealed partial class MainWindow : Window
         }
     }
 
+    private void StatusProxy_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var settings = ServiceLocator.Get<AppSettings>();
+            settings.SystemProxy = !settings.SystemProxy;
+        }
+        catch { }
+    }
+
     // ── 系统托盘 ──────────────────────────────────────────────────────────────
 
     private void InitTrayIcon()

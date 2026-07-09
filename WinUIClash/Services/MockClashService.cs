@@ -139,6 +139,8 @@ public class MockClashService : IClashService
         return Task.CompletedTask;
     }
 
+    public Task StartTrafficStreamAsync() => Task.CompletedTask;
+
     // ── 出站模式 ──
 
     public OutboundMode GetOutboundMode() => _mode;
@@ -191,6 +193,21 @@ public class MockClashService : IClashService
             _ => _rng.Next(20, 600)
         };
         return Task.FromResult(delay);
+    }
+
+    public Task<Dictionary<string, int>> TestGroupDelayAsync(string groupName, string? testUrl = null)
+    {
+        var result = new Dictionary<string, int>();
+        foreach (var proxy in _proxyNames)
+        {
+            result[proxy] = proxy switch
+            {
+                "DIRECT" => _rng.Next(5, 30),
+                "REJECT" => 0,
+                _ => _rng.Next(20, 600)
+            };
+        }
+        return Task.FromResult(result);
     }
 
     // ── 配置 ──
@@ -400,6 +417,18 @@ public class MockClashService : IClashService
         return Task.FromResult(infos[_rng.Next(infos.Length)]);
     }
 
+    public Task<string> QueryDnsAsync(string name, string type = "A")
+    {
+        var result = type.ToUpperInvariant() switch
+        {
+            "A" => $"{_rng.Next(1, 223)}.{_rng.Next(0, 255)}.{_rng.Next(0, 255)}.{_rng.Next(1, 254)}  (type 1)",
+            "AAAA" => $"2001:db8::{_rng.Next(1, 9999):x4}  (type 28)",
+            "CNAME" => $"cdn.{name}  (type 5)",
+            _ => "No answer"
+        };
+        return Task.FromResult(result);
+    }
+
     // ── 外部提供者 ──
 
     public Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync()
@@ -452,6 +481,8 @@ public class MockClashService : IClashService
 
     public Task UpdateExternalProviderAsync(string name, string category = "proxy") => Task.CompletedTask;
     public Task UpdateGeoDatabaseAsync(string name) => Task.CompletedTask;
+    public Task PatchCoreConfigAsync(AppSettings settings) => Task.CompletedTask;
+    public Task HealthCheckProviderAsync(string name, string category = "proxy") => Task.CompletedTask;
 
     // ── 规则 ──
 

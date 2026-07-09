@@ -320,6 +320,7 @@
   <data name="ConnCopyHost.Text" xml:space="preserve"><value>复制主机</value></data>
   <data name="ConnCloseThis.Content" xml:space="preserve"><value>关闭此连接</value></data>
   <data name="ConnCopyChains.Text" xml:space="preserve"><value>复制代理链</value></data>
+  <data name="ConnCopySource.Text" xml:space="preserve"><value>复制来源</value></data>
 
   <!-- Logs - Additional -->
   <data name="LogsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索日志…</value></data>
@@ -409,6 +410,12 @@
   <data name="ResGeoUpdateGeoSite.Text" xml:space="preserve"><value>更新 GeoSite 数据库</value></data>
   <data name="ResGeoUpdating.Text" xml:space="preserve"><value>正在更新 Geo 数据库</value></data>
   <data name="ResGeoUpdateSuccess.Text" xml:space="preserve"><value>Geo 数据库更新成功</value></data>
+  <data name="ResHealthCheck.ToolTip" xml:space="preserve"><value>健康检查</value></data>
+  <data name="ResHealthCheckDone.Text" xml:space="preserve"><value>健康检查完成</value></data>
+  <data name="BasicConfigAppliedTitle.Text" xml:space="preserve"><value>设置已生效</value></data>
+  <data name="BasicConfigAppliedMsg.Text" xml:space="preserve"><value>配置更改已应用到运行中的核心。</value></data>
+  <data name="DashDnsPlaceholder.PlaceholderText" xml:space="preserve"><value>域名…</value></data>
+  <data name="DashDnsFailed.Text" xml:space="preserve"><value>DNS 查询失败</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>规则</value></data>

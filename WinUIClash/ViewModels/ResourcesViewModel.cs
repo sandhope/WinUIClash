@@ -100,6 +100,30 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
         LastUpdateAllTime = DateTime.Now;
     }
 
+    [RelayCommand]
+    private async Task HealthCheckProviderAsync(ExternalProvider? provider)
+    {
+        if (provider == null) return;
+        provider.IsHealthChecking = true;
+        try
+        {
+            await _clash.HealthCheckProviderAsync(provider.Name, provider.Category);
+            _notification.Success(
+                LocalizationHelper.GetString("ResHealthCheckDone.Text"),
+                provider.Name);
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
+                $"{provider.Name}: {ex.Message}");
+        }
+        finally
+        {
+            provider.IsHealthChecking = false;
+        }
+    }
+
     /// <summary>自动更新：更新超过 24 小时未更新的 provider</summary>
     private async Task AutoUpdateCheckAsync()
     {
