@@ -139,6 +139,15 @@ namespace WinUIClash
             var lang = appSettings.Language;
             Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = lang;
 
+            // 静默启动：如果命令行包含 --silent 或设置中启用了静默启动，则最小化到托盘
+            var cmdArgs = Environment.GetCommandLineArgs();
+            bool isSilent = appSettings.SilentLaunch ||
+                            cmdArgs.Any(a => a.Equals("--silent", StringComparison.OrdinalIgnoreCase));
+            if (isSilent)
+            {
+                CurrentWindow.AppWindow.Hide();
+            }
+
             // 如果设置了自动运行，启动 Clash 核心
             if (appSettings.AutoRun)
             {

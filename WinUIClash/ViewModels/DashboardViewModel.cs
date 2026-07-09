@@ -235,12 +235,27 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     // ── 内存 ──
 
     [ObservableProperty] private string _coreMemory = "--";
+    [ObservableProperty] private string _coreVersion = "--";
 
     [RelayCommand]
     private async Task RefreshMemoryAsync()
     {
         var bytes = await _clash.GetCoreMemoryAsync();
         CoreMemory = Converters.ByteFormatter.Format(bytes);
+    }
+
+    [RelayCommand]
+    private async Task ForceGcAsync()
+    {
+        try
+        {
+            await _clash.ForceGcAsync();
+            await RefreshMemoryAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ForceGC error: {ex.Message}");
+        }
     }
 
     // ── 内网 IP ──
@@ -281,6 +296,9 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         await CheckIpAsync();
         await RefreshLocalIpAsync();
         await RefreshMemoryAsync();
+
+        try { CoreVersion = await _clash.GetVersionAsync(); }
+        catch { CoreVersion = "--"; }
 
         // 连接数轮询（每5秒）
         _connTimer = new DispatcherTimer

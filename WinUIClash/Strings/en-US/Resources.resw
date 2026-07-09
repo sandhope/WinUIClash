@@ -46,6 +46,8 @@
   <data name="DashOutboundMode.Text" xml:space="preserve"><value>Outbound Mode</value></data>
   <data name="DashSystemInfo.Text" xml:space="preserve"><value>System Info</value></data>
   <data name="DashRefreshMemory.Content" xml:space="preserve"><value>Recycle Memory</value></data>
+  <data name="DashCoreVersion.Text" xml:space="preserve"><value>Core Version</value></data>
+  <data name="DashForceGc.Content" xml:space="preserve"><value>Force GC</value></data>
   <data name="DashIpLocalFetching.Text" xml:space="preserve"><value>Fetching…</value></data>
   <data name="DashIpLocalFailed.Text" xml:space="preserve"><value>Not available</value></data>
 

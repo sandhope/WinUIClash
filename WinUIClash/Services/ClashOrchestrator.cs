@@ -164,6 +164,8 @@ public class ClashOrchestrator : IClashService
         }
     }
 
+    public Task<string> GetVersionAsync() => _activeService.GetVersionAsync();
+
     // ── Traffic ──
 
     public Traffic GetCurrentTraffic() => _activeService.GetCurrentTraffic();
@@ -208,7 +210,7 @@ public class ClashOrchestrator : IClashService
     // ── External Providers ──
 
     public Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync() => _activeService.GetExternalProvidersAsync();
-    public Task UpdateExternalProviderAsync(string name) => _activeService.UpdateExternalProviderAsync(name);
+    public Task UpdateExternalProviderAsync(string name, string category = "proxy") => _activeService.UpdateExternalProviderAsync(name, category);
 
     // ── Rules ──
 

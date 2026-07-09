@@ -69,7 +69,7 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
         if (provider == null) return;
         try
         {
-            await _clash.UpdateExternalProviderAsync(provider.Name);
+            await _clash.UpdateExternalProviderAsync(provider.Name, provider.Category);
             provider.UpdateAt = DateTime.Now;
         }
         catch (Exception ex)
@@ -87,7 +87,7 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
         {
             try
             {
-                await _clash.UpdateExternalProviderAsync(p.Name);
+                await _clash.UpdateExternalProviderAsync(p.Name, p.Category);
                 p.UpdateAt = DateTime.Now;
             }
             catch (Exception ex)
@@ -110,7 +110,7 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
             {
                 try
                 {
-                    await _clash.UpdateExternalProviderAsync(p.Name);
+                    await _clash.UpdateExternalProviderAsync(p.Name, p.Category);
                     _dispatcher.TryEnqueue(() => p.UpdateAt = DateTime.Now);
                 }
                 catch { /* 自动更新失败静默 */ }
@@ -145,10 +145,9 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
         FilteredProviders = new ObservableCollection<ExternalProvider>(query);
     }
 
-    /// <summary>根据 Type 字段判断是否为代理提供者</summary>
+    /// <summary>根据 Category 字段判断是否为代理提供者</summary>
     public static bool IsProxyProvider(ExternalProvider p) =>
-        p.Type.Contains("Proxy", StringComparison.OrdinalIgnoreCase) ||
-        p.VehicleType.Contains("Proxy", StringComparison.OrdinalIgnoreCase);
+        p.Category == "proxy";
 
     /// <summary>获取提供者类型标签</summary>
     public static string GetProviderTypeLabel(ExternalProvider p) =>
