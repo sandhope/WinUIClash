@@ -37,6 +37,77 @@ namespace WinUIClash
         public App()
         {
             InitializeComponent();
+
+            // 全局异常处理
+            UnhandledException += OnUnhandledException;
+            TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+        }
+
+        private async void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"Unhandled exception: {e.Exception}");
+
+            // 记录到日志文件
+            try
+            {
+                var logDir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WinUIClash");
+                System.IO.Directory.CreateDirectory(logDir);
+                var logFile = System.IO.Path.Combine(logDir, "crash.log");
+                var entry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {e.Exception}\n\n";
+                System.IO.File.AppendAllText(logFile, entry);
+            }
+            catch { }
+
+            // 尝试显示错误对话框（如果窗口可用）
+            if (CurrentWindow?.Content is FrameworkElement root)
+            {
+                try
+                {
+                    var dialog = new ContentDialog
+                    {
+                        Title = "发生错误",
+                        Content = $"应用程序遇到意外错误:\n\n{e.Exception.Message}\n\n错误已记录到日志文件。",
+                        PrimaryButtonText = "继续",
+                        CloseButtonText = "退出",
+                        XamlRoot = root.XamlRoot,
+                    };
+
+                    if (await dialog.ShowAsync() == ContentDialogResult.None)
+                    {
+                        e.Handled = false; // 用户选择退出
+                    }
+                    else
+                    {
+                        e.Handled = true; // 用户选择继续
+                    }
+                }
+                catch
+                {
+                    e.Handled = true;
+                }
+            }
+            else
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"Unobserved task exception: {e.Exception}");
+            e.SetObserved(); // 标记为已处理，防止进程崩溃
+
+            try
+            {
+                var logDir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WinUIClash");
+                System.IO.Directory.CreateDirectory(logDir);
+                var logFile = System.IO.Path.Combine(logDir, "crash.log");
+                var entry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Unobserved: {e.Exception}\n\n";
+                System.IO.File.AppendAllText(logFile, entry);
+            }
+            catch { }
         }
 
         /// <summary>

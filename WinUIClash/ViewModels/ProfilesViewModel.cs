@@ -12,6 +12,7 @@ namespace WinUIClash.ViewModels;
 public partial class ProfilesViewModel : ObservableObject
 {
     private readonly IClashService _clash;
+    private Timer? _autoUpdateTimer;
     private bool _initialized;
 
     public ProfilesViewModel(IClashService clash)
@@ -116,5 +117,23 @@ public partial class ProfilesViewModel : ObservableObject
         if (_initialized) return;
         _initialized = true;
         await LoadAsync();
+
+        // 每分钟检查一次是否有需要自动更新的订阅
+        _autoUpdateTimer = new Timer(async _ =>
+        {
+            var now = DateTime.Now;
+            foreach (var p in Profiles.Where(p => p.AutoUpdate && !string.IsNullOrEmpty(p.Url)))
+            {
+                if (now - p.LastUpdate >= p.AutoUpdateInterval)
+                {
+                    try
+                    {
+                        await _clash.SyncProfileAsync(p.Id);
+                        p.LastUpdate = now;
+                    }
+                    catch { /* 自动更新失败静默 */ }
+                }
+            }
+        }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
     }
 }

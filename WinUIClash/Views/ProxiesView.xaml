@@ -73,10 +73,12 @@
                   ItemsSource="{x:Bind ViewModel.FilteredProxies, Mode=OneWay}"
                   SelectionMode="Single"
                   IsItemClickEnabled="True"
-                  ItemClick="ProxyGrid_ItemClick">
+                  ItemClick="ProxyGrid_ItemClick"
+                  ContainerContentChanging="ProxyGrid_ContainerContentChanging">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="models:Proxy">
-                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    <Border x:Name="CardBorder"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                             CornerRadius="8" Padding="12,10"
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
@@ -89,9 +91,19 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock Text="{x:Bind Name}" FontSize="13"
-                                       TextTrimming="CharacterEllipsis"
-                                       FontWeight="SemiBold" />
+                            <Grid ColumnSpacing="6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{x:Bind Name}" FontSize="13"
+                                           TextTrimming="CharacterEllipsis"
+                                           FontWeight="SemiBold" />
+                                <fluent:SymbolIcon x:Name="SelectedIcon" Grid.Column="1"
+                                                    Symbol="CheckmarkCircle" FontSize="14"
+                                                    Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                                    Visibility="Collapsed" />
+                            </Grid>
                             <TextBlock Grid.Row="1" Text="{x:Bind Type}" FontSize="11"
                                        Opacity="0.5" />
                             <TextBlock Grid.Row="2"

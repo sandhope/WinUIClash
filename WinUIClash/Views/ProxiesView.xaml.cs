@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using WinUIClash.Models;
 using WinUIClash.ViewModels;
 
@@ -14,6 +15,13 @@ public sealed partial class ProxiesView : Page
         ViewModel = ServiceLocator.Get<ProxiesViewModel>();
         InitializeComponent();
         Loaded += async (_, _) => await ViewModel.InitializeAsync();
+
+        // 当选中组变化时刷新高亮
+        ViewModel.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(ProxiesViewModel.SelectedGroup))
+                RefreshSelectionHighlights();
+        };
     }
 
     private void GroupTab_Click(object sender, RoutedEventArgs e)
@@ -28,6 +36,40 @@ public sealed partial class ProxiesView : Page
             ViewModel.SelectProxyCommand.Execute(proxy);
     }
 
+    private void ProxyGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+    {
+        if (args.ItemContainer.ContentTemplateRoot is not Border cardBorder) return;
+        if (args.Item is not Proxy proxy) return;
+
+        var isSelected = ViewModel.SelectedGroup?.Now == proxy.Name;
+
+        // 更新边框颜色
+        if (isSelected)
+        {
+            cardBorder.BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["AccentFillColorDefaultBrush"];
+            cardBorder.BorderThickness = new Thickness(2);
+        }
+        else
+        {
+            cardBorder.BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"];
+            cardBorder.BorderThickness = new Thickness(1);
+        }
+
+        // 更新选中标记图标
+        if (cardBorder.FindName("SelectedIcon") is FluentIcons.WinUI.SymbolIcon selectedIcon)
+        {
+            selectedIcon.Visibility = isSelected ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
+
+    private void RefreshSelectionHighlights()
+    {
+        // 触发 GridView 重新渲染所有项
+        var itemsSource = ProxyGrid.ItemsSource;
+        ProxyGrid.ItemsSource = null;
+        ProxyGrid.ItemsSource = itemsSource;
+    }
+
     private async void ProxyCard_RightTapped(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)
     {
         if (sender is not FrameworkElement { Tag: Proxy proxy } border) return;
@@ -36,12 +78,18 @@ public sealed partial class ProxiesView : Page
 
         var testItem = new MenuFlyoutItem { Text = "测试延迟" };
         testItem.Click += async (_, _) =>
+        {
             await ViewModel.TestDelayCommand.ExecuteAsync(proxy);
+            RefreshSelectionHighlights();
+        };
         menu.Items.Add(testItem);
 
         var selectItem = new MenuFlyoutItem { Text = "选择此节点" };
         selectItem.Click += async (_, _) =>
+        {
             await ViewModel.SelectProxyCommand.ExecuteAsync(proxy);
+            RefreshSelectionHighlights();
+        };
         menu.Items.Add(selectItem);
 
         menu.Items.Add(new MenuFlyoutSeparator());
