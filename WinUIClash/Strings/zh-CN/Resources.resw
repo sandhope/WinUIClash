@@ -420,6 +420,8 @@
   <data name="ProfilesSyncAllDoneMsg.Text" xml:space="preserve"><value>所有订阅已更新</value></data>
   <data name="ProfilesSwitchedTitle.Text" xml:space="preserve"><value>配置已切换</value></data>
   <data name="ProfilesSwitching.Text" xml:space="preserve"><value>正在切换配置…</value></data>
+  <data name="DashFlushFakeIp.Content" xml:space="preserve"><value>清除 Fake-IP 缓存</value></data>
+  <data name="DashFlushFakeIp.ToolTip" xml:space="preserve"><value>清除 fake-ip DNS 缓存</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>规则</value></data>

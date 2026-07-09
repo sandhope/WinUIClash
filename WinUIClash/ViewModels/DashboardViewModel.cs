@@ -245,7 +245,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
 
     [ObservableProperty] private string _dnsQueryName = "";
     [ObservableProperty] private string _dnsQueryType = "A";
-    [ObservableProperty] private string _dnsResult = "";
+    [ObservableProperty] private string? _dnsResult;
     public string[] DnsTypeOptions { get; } = ["A", "AAAA", "CNAME", "MX", "TXT", "NS"];
 
     [RelayCommand]
@@ -287,6 +287,39 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         {
             System.Diagnostics.Debug.WriteLine($"ForceGC error: {ex.Message}");
         }
+    }
+
+    // ── Fake-IP 缓存 ──
+
+    [ObservableProperty] private bool _isFlushingCache;
+
+    [RelayCommand]
+    private async Task FlushFakeIpCacheAsync()
+    {
+        IsFlushingCache = true;
+        try
+        {
+            await _clash.FlushFakeIpCacheAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Flush fake-ip cache error: {ex.Message}");
+        }
+        finally
+        {
+            IsFlushingCache = false;
+        }
+    }
+
+    // ── 复制 DNS 结果 ──
+
+    [RelayCommand]
+    private void CopyDnsResult()
+    {
+        if (string.IsNullOrEmpty(DnsResult)) return;
+        var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
+        dp.SetText(DnsResult);
+        Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
     }
 
     // ── 内网 IP ──

@@ -191,12 +191,24 @@
                             <fluent:SymbolIcon Symbol="Search" FontSize="13" />
                         </Button>
                     </Grid>
-                    <TextBlock Grid.Row="4"
-                               Text="{x:Bind ViewModel.DnsResult, Mode=OneWay}"
-                               FontSize="11" FontFamily="Consolas"
-                               TextWrapping="Wrap" Opacity="0.7"
-                               MaxHeight="60"
-                               IsTextSelectionEnabled="True" />
+                    <Grid Grid.Row="4" ColumnSpacing="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{x:Bind ViewModel.DnsResult, Mode=OneWay}"
+                                   FontSize="11" FontFamily="Consolas"
+                                   TextWrapping="Wrap" Opacity="0.7"
+                                   MaxHeight="60"
+                                   IsTextSelectionEnabled="True" />
+                        <Button Grid.Column="1" Padding="4"
+                                Background="Transparent" BorderThickness="0"
+                                VerticalAlignment="Top"
+                                Command="{x:Bind ViewModel.CopyDnsResultCommand}"
+                                Visibility="{x:Bind ViewModel.DnsResult, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                            <fluent:SymbolIcon Symbol="Copy" FontSize="11" />
+                        </Button>
+                    </Grid>
                 </Grid>
             </Border>
 
@@ -248,6 +260,9 @@
                                 Command="{x:Bind ViewModel.ForceGcCommand}"
                                 HorizontalAlignment="Stretch" />
                     </Grid>
+                    <Button Grid.Row="5" x:Uid="DashFlushFakeIp" FontSize="12"
+                            Command="{x:Bind ViewModel.FlushFakeIpCacheCommand}"
+                            HorizontalAlignment="Stretch" Margin="0,4,0,0" />
                 </Grid>
             </Border>
         </Grid>
