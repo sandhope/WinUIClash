@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUIClash.Models;
+using WinUIClash.Services;
 using WinUIClash.ViewModels;
 
 namespace WinUIClash.Views;
@@ -54,7 +55,7 @@ public sealed partial class ConnectionsView : Page
 
         DetailChains.Text = conn.Chains.Count > 0
             ? string.Join(" → ", conn.Chains)
-            : "直连";
+            : LocalizationHelper.GetString("ConnDirect.Text");
 
         DetailRule.Text = string.IsNullOrEmpty(conn.RulePayload)
             ? conn.Rule

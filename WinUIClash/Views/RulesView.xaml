@@ -15,19 +15,38 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- 顶部 -->
+        <!-- 顶部工具栏 -->
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                 <TextBlock Text="规则" FontSize="20" FontWeight="SemiBold" />
-                <TextBlock FontSize="12" Opacity="0.5" VerticalAlignment="Bottom"
-                           Text="{x:Bind ViewModel.TotalCount, Mode=OneWay}" />
+                <TextBlock FontSize="12" Opacity="0.5" VerticalAlignment="Bottom">
+                    <Run Text="{x:Bind ViewModel.FilteredCount, Mode=OneWay}" />
+                    <Run Text="/" />
+                    <Run Text="{x:Bind ViewModel.TotalCount, Mode=OneWay}" />
+                </TextBlock>
             </StackPanel>
-            <TextBox Grid.Column="2" Width="200"
+            <!-- 类型筛选 -->
+            <ComboBox Grid.Column="1" Width="180" Margin="12,0,0,0"
+                      ItemsSource="{x:Bind ViewModel.RuleTypes, Mode=OneWay}"
+                      SelectedValue="{x:Bind ViewModel.SelectedTypeFilter, Mode=TwoWay}"
+                      SelectedValuePath="Value"
+                      DisplayMemberPath="Label"
+                      FontSize="12" />
+            <!-- 目标代理筛选 -->
+            <ComboBox Grid.Column="3" Width="160" Margin="8,0,0,0"
+                      x:Name="ProxyFilterCombo"
+                      SelectionChanged="ProxyFilter_SelectionChanged"
+                      FontSize="12" />
+            <!-- 搜索框 -->
+            <TextBox Grid.Column="5" Width="200"
                      PlaceholderText="搜索规则..."
                      Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
         </Grid>
