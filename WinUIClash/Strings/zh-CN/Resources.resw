@@ -419,6 +419,7 @@
   <data name="ProfilesSyncDoneTitle.Text" xml:space="preserve"><value>同步完成</value></data>
   <data name="ProfilesSyncAllDoneMsg.Text" xml:space="preserve"><value>所有订阅已更新</value></data>
   <data name="ProfilesSwitchedTitle.Text" xml:space="preserve"><value>配置已切换</value></data>
+  <data name="ProfilesSwitching.Text" xml:space="preserve"><value>正在切换配置…</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>规则</value></data>

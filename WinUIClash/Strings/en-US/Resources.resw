@@ -419,6 +419,7 @@
   <data name="ProfilesSyncDoneTitle.Text" xml:space="preserve"><value>Sync Complete</value></data>
   <data name="ProfilesSyncAllDoneMsg.Text" xml:space="preserve"><value>All subscriptions updated</value></data>
   <data name="ProfilesSwitchedTitle.Text" xml:space="preserve"><value>Profile Switched</value></data>
+  <data name="ProfilesSwitching.Text" xml:space="preserve"><value>Switching profile…</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>Rules</value></data>
