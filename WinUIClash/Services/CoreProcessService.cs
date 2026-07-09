@@ -97,10 +97,10 @@ public class CoreProcessService : IDisposable
         if (IsRunning) return Task.CompletedTask;
 
         if (string.IsNullOrEmpty(_binaryPath))
-            throw new FileNotFoundException("未找到 mihomo 可执行文件，请在设置中指定路径");
+            throw new FileNotFoundException(LocalizationHelper.GetString("ErrorCoreBinaryNotFound.Text"));
 
         if (!File.Exists(_configPath))
-            throw new FileNotFoundException($"配置文件不存在: {_configPath}");
+            throw new FileNotFoundException(string.Format(LocalizationHelper.GetString("ErrorConfigNotFound.Text"), _configPath));
 
         var startInfo = new ProcessStartInfo
         {

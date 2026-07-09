@@ -159,22 +159,6 @@
   <data name="ConnDirect.Text" xml:space="preserve"><value>Direct</value></data>
 
   <!-- Rules -->
-  <data name="RulesTitle.Text" xml:space="preserve"><value>Rules</value></data>
-  <data name="RulesTypeHeader.Text" xml:space="preserve"><value>Type</value></data>
-  <data name="RulesPayloadHeader.Text" xml:space="preserve"><value>Payload</value></data>
-  <data name="RulesProxyHeader.Text" xml:space="preserve"><value>Proxy</value></data>
-  <data name="RulesSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search rules...</value></data>
-  <data name="RulesAllTypes.Text" xml:space="preserve"><value>All Types</value></data>
-  <data name="RulesAllProxies.Text" xml:space="preserve"><value>All Proxies</value></data>
-
-  <!-- Resources -->
-  <data name="ResTitle.Text" xml:space="preserve"><value>Resources</value></data>
-  <data name="ResSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search resources...</value></data>
-  <data name="ResAll.Text" xml:space="preserve"><value>All</value></data>
-  <data name="ResProxyProvider.Text" xml:space="preserve"><value>Proxy Providers</value></data>
-  <data name="ResRuleProvider.Text" xml:space="preserve"><value>Rule Providers</value></data>
-  <data name="ResItemCount.Text" xml:space="preserve"><value>Items: </value></data>
-  <data name="ResVehicleType.Text" xml:space="preserve"><value>Source: </value></data>
 
   <!-- Profiles -->
   <data name="ProfilesTitle.Text" xml:space="preserve"><value>Profiles</value></data>
@@ -359,4 +343,67 @@
   <data name="ConnPause.Content" xml:space="preserve"><value>Pause</value></data>
   <data name="ConnResume.Content" xml:space="preserve"><value>Resume</value></data>
   <data name="ConnPause.ToolTip" xml:space="preserve"><value>Pause/Resume auto-refresh</value></data>
+
+  <!-- Resources Page -->
+  <data name="ResTitle.Text" xml:space="preserve"><value>Resources</value></data>
+  <data name="ResCountSuffix.Text" xml:space="preserve"><value>providers</value></data>
+  <data name="ResFilterAll.Content" xml:space="preserve"><value>All</value></data>
+  <data name="ResFilterProxy.Content" xml:space="preserve"><value>Proxy Providers</value></data>
+  <data name="ResFilterRule.Content" xml:space="preserve"><value>Rule Providers</value></data>
+  <data name="ResSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search resources…</value></data>
+  <data name="ResUpdateAll.Text" xml:space="preserve"><value>Update All</value></data>
+  <data name="ResUpdateAll.ToolTip" xml:space="preserve"><value>Update All</value></data>
+  <data name="ResEntries.Text" xml:space="preserve"><value>Entries: </value></data>
+  <data name="ResSource.Text" xml:space="preserve"><value>Source: </value></data>
+  <data name="ResUpdate.ToolTip" xml:space="preserve"><value>Update</value></data>
+
+  <!-- Rules Page -->
+  <data name="RulesTitle.Text" xml:space="preserve"><value>Rules</value></data>
+  <data name="RulesSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search rules…</value></data>
+  <data name="RulesTypeCol.Text" xml:space="preserve"><value>Type</value></data>
+  <data name="RulesPayloadCol.Text" xml:space="preserve"><value>Payload</value></data>
+  <data name="RulesTargetCol.Text" xml:space="preserve"><value>Target</value></data>
+  <data name="RulesAllProxiesFilter.Text" xml:space="preserve"><value>All Targets</value></data>
+  <data name="RulesCopyType.Text" xml:space="preserve"><value>Copy Type</value></data>
+  <data name="RulesCopyPayload.Text" xml:space="preserve"><value>Copy Payload</value></data>
+  <data name="RulesCopyProxy.Text" xml:space="preserve"><value>Copy Target Proxy</value></data>
+  <data name="RulesCopyAll.Text" xml:space="preserve"><value>Copy Full Rule</value></data>
+
+  <!-- Proxy Context Menu -->
+  <data name="ProxyCtxTestDelay.Text" xml:space="preserve"><value>Test Delay</value></data>
+  <data name="ProxyCtxSelect.Text" xml:space="preserve"><value>Select Node</value></data>
+  <data name="ProxyCtxCopyName.Text" xml:space="preserve"><value>Copy Name</value></data>
+
+  <!-- App Error Dialog -->
+  <data name="AppErrorTitle.Text" xml:space="preserve"><value>Error Occurred</value></data>
+  <data name="AppErrorContent.Text" xml:space="preserve"><value>The application encountered an unexpected error:\n\n{0}\n\nThe error has been logged.</value></data>
+  <data name="AppErrorContinue.Content" xml:space="preserve"><value>Continue</value></data>
+  <data name="AppErrorExit.Content" xml:space="preserve"><value>Exit</value></data>
+  <data name="AppUpdateFound.Text" xml:space="preserve"><value>New Version Available</value></data>
+  <data name="AppUpdateMsg.Text" xml:space="preserve"><value>WinUIClash {0} has been released. Check the Tools page.</value></data>
+
+  <!-- MainWindow Status Bar -->
+  <data name="StatusToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Click to toggle core</value></data>
+  <data name="StatusStopped.Text" xml:space="preserve"><value>Stopped</value></data>
+  <data name="StatusProxyLabel.Text" xml:space="preserve"><value>Proxy</value></data>
+
+  <!-- Theme Mode Names -->
+  <data name="ThemeModeSystem.Text" xml:space="preserve"><value>Follow System</value></data>
+  <data name="ThemeModeLight.Text" xml:space="preserve"><value>Light Mode</value></data>
+  <data name="ThemeModeDark.Text" xml:space="preserve"><value>Dark Mode</value></data>
+
+  <!-- Color Preset Names -->
+  <data name="ColorBlue.Text" xml:space="preserve"><value>Blue</value></data>
+  <data name="ColorCyan.Text" xml:space="preserve"><value>Cyan</value></data>
+  <data name="ColorGreen.Text" xml:space="preserve"><value>Green</value></data>
+  <data name="ColorOrange.Text" xml:space="preserve"><value>Orange</value></data>
+  <data name="ColorRed.Text" xml:space="preserve"><value>Red</value></data>
+  <data name="ColorPurple.Text" xml:space="preserve"><value>Purple</value></data>
+  <data name="ColorPink.Text" xml:space="preserve"><value>Pink</value></data>
+  <data name="ColorIndigo.Text" xml:space="preserve"><value>Indigo</value></data>
+
+  <!-- Service Error Messages -->
+  <data name="ErrorCoreBinaryNotFound.Text" xml:space="preserve"><value>mihomo executable not found. Please specify the path in settings.</value></data>
+  <data name="ErrorConfigNotFound.Text" xml:space="preserve"><value>Configuration file not found: {0}</value></data>
+  <data name="ErrorRegistryAccess.Text" xml:space="preserve"><value>Unable to open Internet Settings registry key</value></data>
 </root>

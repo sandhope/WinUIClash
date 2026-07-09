@@ -24,10 +24,10 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <TextBlock Text="资源" FontSize="20" FontWeight="SemiBold" />
+                <TextBlock x:Uid="ResTitle" FontSize="20" FontWeight="SemiBold" />
                 <TextBlock FontSize="12" Opacity="0.5" VerticalAlignment="Bottom">
                     <Run Text="{x:Bind ViewModel.TotalCount, Mode=OneWay}" />
-                    <Run Text=" 个提供者" />
+                    <Run x:Uid="ResCountSuffix" />
                 </TextBlock>
             </StackPanel>
             <!-- 类型筛选 -->
@@ -35,21 +35,21 @@
                       x:Name="TypeFilterCombo"
                       SelectionChanged="TypeFilter_SelectionChanged"
                       FontSize="12" SelectedIndex="0">
-                <ComboBoxItem Content="全部" Tag="ALL" />
-                <ComboBoxItem Content="代理提供者" Tag="Proxy" />
-                <ComboBoxItem Content="规则提供者" Tag="Rule" />
+                <ComboBoxItem x:Uid="ResFilterAll" Tag="ALL" />
+                <ComboBoxItem x:Uid="ResFilterProxy" Tag="Proxy" />
+                <ComboBoxItem x:Uid="ResFilterRule" Tag="Rule" />
             </ComboBox>
             <!-- 搜索框 -->
             <TextBox Grid.Column="3" Width="200" Margin="8,0,0,0"
-                     PlaceholderText="搜索资源..."
+                     x:Uid="ResSearchPlaceholder"
                      Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <!-- 全部更新 -->
             <Button Grid.Column="4" Margin="8,0,0,0"
                     Command="{x:Bind ViewModel.UpdateAllCommand}"
-                    ToolTipService.ToolTip="全部更新">
+                    x:Uid="ResUpdateAll">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
-                    <TextBlock Text="全部更新" FontSize="12" />
+                    <TextBlock x:Uid="ResUpdateAll" FontSize="12" />
                 </StackPanel>
             </Button>
         </Grid>
@@ -85,11 +85,11 @@
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Spacing="16">
                                     <TextBlock FontSize="11" Opacity="0.5">
-                                        <Run Text="条目: " />
+                                        <Run x:Uid="ResEntries" />
                                         <Run Text="{x:Bind Count}" />
                                     </TextBlock>
                                     <TextBlock FontSize="11" Opacity="0.4">
-                                        <Run Text="来源: " />
+                                        <Run x:Uid="ResSource" />
                                         <Run Text="{x:Bind VehicleType}" />
                                     </TextBlock>
                                     <TextBlock FontSize="11" Opacity="0.3"
@@ -102,7 +102,7 @@
                                        Text="{x:Bind UpdateAt, Mode=OneWay, Converter={StaticResource DateTimeToRelativeConverter}}"
                                        VerticalAlignment="Center" />
                             <Button Grid.Column="2" Padding="8,4"
-                                    ToolTipService.ToolTip="更新"
+                                    x:Uid="ResUpdate"
                                     Click="UpdateProvider_Click"
                                     Tag="{x:Bind}">
                                 <fluent:SymbolIcon Symbol="ArrowSync" FontSize="13" />

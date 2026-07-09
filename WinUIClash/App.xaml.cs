@@ -66,10 +66,10 @@ namespace WinUIClash
                 {
                     var dialog = new ContentDialog
                     {
-                        Title = "发生错误",
-                        Content = $"应用程序遇到意外错误:\n\n{e.Exception.Message}\n\n错误已记录到日志文件。",
-                        PrimaryButtonText = "继续",
-                        CloseButtonText = "退出",
+                        Title = Services.LocalizationHelper.GetString("AppErrorTitle.Text"),
+                        Content = string.Format(Services.LocalizationHelper.GetString("AppErrorContent.Text").Replace("\\n", "\n"), e.Exception.Message),
+                        PrimaryButtonText = Services.LocalizationHelper.GetString("AppErrorContinue.Content"),
+                        CloseButtonText = Services.LocalizationHelper.GetString("AppErrorExit.Content"),
                         XamlRoot = root.XamlRoot,
                     };
 
@@ -164,7 +164,9 @@ namespace WinUIClash
                         if (update != null)
                         {
                             var notification = ServiceLocator.Get<Services.NotificationService>();
-                            notification.Info("发现新版本", $"WinUIClash {update.TagName} 已发布，前往工具页查看。");
+                            notification.Info(
+                                Services.LocalizationHelper.GetString("AppUpdateFound.Text"),
+                                string.Format(Services.LocalizationHelper.GetString("AppUpdateMsg.Text"), update.TagName));
                         }
                     }
                     catch (Exception ex)

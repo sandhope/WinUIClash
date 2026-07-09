@@ -29,7 +29,7 @@ public class SystemProxyService
     public void Enable()
     {
         using var key = Registry.CurrentUser.OpenSubKey(InternetSettingsKey, true)
-            ?? throw new InvalidOperationException("无法打开 Internet Settings 注册表项");
+            ?? throw new InvalidOperationException(LocalizationHelper.GetString("ErrorRegistryAccess.Text"));
 
         key.SetValue("ProxyEnable", 1, RegistryValueKind.DWord);
         key.SetValue("ProxyServer", $"127.0.0.1:{_settings.HttpPort}", RegistryValueKind.String);
