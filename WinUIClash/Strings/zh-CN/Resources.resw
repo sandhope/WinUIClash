@@ -286,6 +286,8 @@
   <data name="ProxyTitle.Text" xml:space="preserve"><value>代理</value></data>
   <data name="ProxyTestAll.Text" xml:space="preserve"><value>全部测速</value></data>
   <data name="ProxySwitchSort.ToolTip" xml:space="preserve"><value>切换排序</value></data>
+  <data name="ProxyTestSummary.Text" xml:space="preserve"><value>平均: {0}ms | 最低: {1}ms | 最高: {2}ms | 成功: {3} | 失败: {4}</value></data>
+  <data name="ProxyTestSummaryFailed.Text" xml:space="preserve"><value>全部 {0} 个测试失败</value></data>
 
   <!-- Profiles - Additional -->
   <data name="ProfilesImport.Content" xml:space="preserve"><value>导入</value></data>

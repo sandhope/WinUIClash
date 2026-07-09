@@ -29,6 +29,8 @@ public partial class ProxiesViewModel : ObservableObject
     [ObservableProperty] private bool _isTesting;
     [ObservableProperty] private int _testProgress;
     [ObservableProperty] private int _testTotal;
+    [ObservableProperty] private string _testSummaryText = "";
+    [ObservableProperty] private bool _hasTestSummary;
 
     public enum SortMode { Default, Name, Delay, Type }
 
@@ -147,6 +149,8 @@ public partial class ProxiesViewModel : ObservableObject
     {
         if (SelectedGroup == null) return;
         IsTesting = true;
+        HasTestSummary = false;
+        TestSummaryText = "";
 
         var testable = SelectedGroup.Proxies
             .Where(p => p.Type is not ("Direct" or "Reject"))
@@ -192,6 +196,26 @@ public partial class ProxiesViewModel : ObservableObject
             });
             await Task.WhenAll(tasks);
         }
+
+        // Compute summary stats
+        var delays = testable.Where(p => p.Delay > 0).Select(p => p.Delay).ToList();
+        var failed = testable.Count - delays.Count;
+        if (delays.Count > 0)
+        {
+            var avg = (int)delays.Average();
+            var min = delays.Min();
+            var max = delays.Max();
+            TestSummaryText = string.Format(
+                LocalizationHelper.GetString("ProxyTestSummary.Text"),
+                avg, min, max, delays.Count, failed);
+        }
+        else
+        {
+            TestSummaryText = string.Format(
+                LocalizationHelper.GetString("ProxyTestSummaryFailed.Text"),
+                failed);
+        }
+        HasTestSummary = true;
 
         IsTesting = false;
         OnPropertyChanged(nameof(FilteredProxies));

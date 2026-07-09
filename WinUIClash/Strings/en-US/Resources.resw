@@ -286,6 +286,8 @@
   <data name="ProxyTitle.Text" xml:space="preserve"><value>Proxies</value></data>
   <data name="ProxyTestAll.Text" xml:space="preserve"><value>Test All</value></data>
   <data name="ProxySwitchSort.ToolTip" xml:space="preserve"><value>Switch Sort</value></data>
+  <data name="ProxyTestSummary.Text" xml:space="preserve"><value>Avg: {0}ms | Min: {1}ms | Max: {2}ms | OK: {3} | Failed: {4}</value></data>
+  <data name="ProxyTestSummaryFailed.Text" xml:space="preserve"><value>All {0} tests failed</value></data>
 
   <!-- Profiles - Additional -->
   <data name="ProfilesImport.Content" xml:space="preserve"><value>Import</value></data>

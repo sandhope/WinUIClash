@@ -13,6 +13,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -94,8 +95,13 @@
                      Value="{x:Bind ViewModel.TestProgress, Mode=OneWay}"
                      Visibility="{x:Bind ViewModel.IsTesting, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
 
+        <!-- 延迟测试摘要 -->
+        <TextBlock Grid.Row="3" FontSize="11" Opacity="0.5" Margin="0,-4,0,0"
+                   Text="{x:Bind ViewModel.TestSummaryText, Mode=OneWay}"
+                   Visibility="{x:Bind ViewModel.HasTestSummary, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
         <!-- 代理卡片网格 -->
-        <GridView Grid.Row="3" x:Name="ProxyGrid"
+        <GridView Grid.Row="4" x:Name="ProxyGrid"
                   ItemsSource="{x:Bind ViewModel.FilteredProxies, Mode=OneWay}"
                   SelectionMode="Single"
                   IsItemClickEnabled="True"
@@ -153,7 +159,7 @@
         </GridView>
 
         <!-- 空状态 -->
-        <StackPanel Grid.Row="3"
+        <StackPanel Grid.Row="4"
                     Visibility="{x:Bind ViewModel.FilteredProxies, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
                     HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
             <fluent:SymbolIcon Symbol="Globe" FontSize="32" Opacity="0.3" />
