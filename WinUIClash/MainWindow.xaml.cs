@@ -645,6 +645,15 @@ public sealed partial class MainWindow : Window
         var tun = _appSettings?.TunMode == true ? "ON" : "OFF";
 
         _trayIcon.ToolTipText = $"WinUIClash\n{stateText}\n↑{up}  ↓{down}\n{LocalizationHelper.GetString("ConnCountSuffix.Text").Trim()}: {_lastConnectionCount}\n{LocalizationHelper.GetString("ProxyLabel.Text")}: {proxy}\nTUN: {tun}";
+
+        // Append active profile name if available
+        try
+        {
+            var profilesVm = ServiceLocator.Get<ViewModels.ProfilesViewModel>();
+            if (profilesVm.ActiveProfile != null)
+                _trayIcon.ToolTipText += $"\n{LocalizationHelper.GetString("NavProfiles.Content")}: {profilesVm.ActiveProfile.Label}";
+        }
+        catch { }
     }
 
     private async void StatusDot_Click(object sender, RoutedEventArgs e)
