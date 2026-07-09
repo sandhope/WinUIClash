@@ -330,6 +330,7 @@
   <data name="ConnSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search connections…</value></data>
   <data name="ConnCountSuffix.Text" xml:space="preserve"><value> connections</value></data>
   <data name="ConnClose.ToolTip" xml:space="preserve"><value>Close Connection</value></data>
+  <data name="ConnCloseSimilar.Text" xml:space="preserve"><value>Close Same Host</value></data>
   <data name="ConnDetailHost.Text" xml:space="preserve"><value>Host</value></data>
   <data name="ConnDetailSource.Text" xml:space="preserve"><value>Source</value></data>
   <data name="ConnDetailDest.Text" xml:space="preserve"><value>Destination</value></data>
@@ -377,6 +378,7 @@
   <data name="ProxySortDelay.Text" xml:space="preserve"><value>By Delay</value></data>
   <data name="ProxySortType.Text" xml:space="preserve"><value>By Type</value></data>
   <data name="ProxyTestAll.Content" xml:space="preserve"><value>Test All</value></data>
+  <data name="ProxySelectBest.Text" xml:space="preserve"><value>Select Best</value></data>
   <data name="ProxySearch.PlaceholderText" xml:space="preserve"><value>Search proxies…</value></data>
 
   <!-- Provider Type Labels -->

@@ -123,6 +123,10 @@ public sealed partial class ConnectionsView : Page
 
         menu.Items.Add(new MenuFlyoutSeparator());
 
+        var closeSimilar = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ConnCloseSimilar.Text") };
+        closeSimilar.Click += (_, _) => ViewModel.CloseSimilarCommand.Execute(conn);
+        menu.Items.Add(closeSimilar);
+
         var close = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ConnClose.ToolTip") };
         close.Click += (_, _) => ViewModel.CloseConnectionCommand.Execute(conn);
         menu.Items.Add(close);

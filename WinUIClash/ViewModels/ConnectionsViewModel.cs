@@ -160,6 +160,37 @@ public partial class ConnectionsViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>Close all connections to the same host</summary>
+    [RelayCommand]
+    private async Task CloseSimilarAsync(ConnectionInfo? connection)
+    {
+        if (connection == null) return;
+        try
+        {
+            var host = connection.Metadata.Host;
+            var toClose = Connections.Where(c => c.Metadata.Host == host).ToList();
+            foreach (var c in toClose)
+            {
+                try { await _clash.CloseConnectionAsync(c.Id); }
+                catch { /* individual close may fail */ }
+            }
+            _dispatcher.TryEnqueue(() =>
+            {
+                foreach (var c in toClose) Connections.Remove(c);
+                ApplyFilter();
+                ConnectionCount = Connections.Count;
+                OnPropertyChanged(nameof(TotalUploadText));
+                OnPropertyChanged(nameof(TotalDownloadText));
+            });
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorCloseTitle.Text"),
+                ex.Message);
+        }
+    }
+
     [RelayCommand]
     private void TogglePause()
     {

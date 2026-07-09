@@ -258,6 +258,21 @@ public partial class ProxiesViewModel : ObservableObject
         };
     }
 
+    /// <summary>自动选择延迟最低的代理节点</summary>
+    [RelayCommand]
+    private async Task SelectBestAsync()
+    {
+        if (SelectedGroup == null) return;
+        var best = SelectedGroup.Proxies
+            .Where(p => p.Delay > 0 && p.Type is not ("Direct" or "Reject"))
+            .OrderBy(p => p.Delay)
+            .FirstOrDefault();
+
+        if (best == null) return;
+        await SelectProxyAsync(best);
+        OnPropertyChanged(nameof(FilteredProxies));
+    }
+
     /// <summary>重新加载代理数据</summary>
     [RelayCommand]
     private async Task RefreshAsync()
