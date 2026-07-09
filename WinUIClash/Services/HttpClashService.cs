@@ -308,11 +308,8 @@ public class HttpClashService : IClashService, IDisposable
         if (!string.IsNullOrWhiteSpace(url))
         {
             var storage = new ProfileStorageService();
-            var path = await storage.DownloadAndSaveAsync(profileId, url);
-
-            // If configPath is provided or this is the active profile, reload the core config
-            if (!string.IsNullOrWhiteSpace(configPath) || string.IsNullOrWhiteSpace(configPath))
-                configPath = path;
+            var result = await storage.DownloadAndSaveAsync(profileId, url);
+            configPath = result.Path;
         }
 
         // Reload config via PUT /configs if we have a path

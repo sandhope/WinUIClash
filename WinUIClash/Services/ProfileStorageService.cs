@@ -35,16 +35,56 @@ public class ProfileStorageService
         return Path.Combine(ProfilesDir, $"{profileId}.yaml");
     }
 
-    /// <summary>从订阅 URL 下载配置并保存到本地</summary>
-    public async Task<string> DownloadAndSaveAsync(string profileId, string url)
+    /// <summary>从订阅 URL 下载配置并保存到本地，返回 (路径, 订阅信息)</summary>
+    public async Task<(string Path, SubscriptionInfo? SubInfo)> DownloadAndSaveAsync(string profileId, string url)
     {
         Directory.CreateDirectory(ProfilesDir);
         var path = GetConfigPath(profileId);
 
-        var yaml = await _httpClient.GetStringAsync(url);
+        var response = await _httpClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+
+        var yaml = await response.Content.ReadAsStringAsync();
         await File.WriteAllTextAsync(path, yaml);
 
-        return path;
+        // 解析 subscription-userinfo 响应头
+        var subInfo = ParseSubscriptionInfo(response.Headers);
+
+        return (path, subInfo);
+    }
+
+    /// <summary>从 HTTP 响应头解析 subscription-userinfo</summary>
+    private static SubscriptionInfo? ParseSubscriptionInfo(System.Net.Http.Headers.HttpResponseHeaders headers)
+    {
+        if (!headers.TryGetValues("subscription-userinfo", out var values))
+            return null;
+
+        var raw = string.Join("", values);
+        if (string.IsNullOrWhiteSpace(raw)) return null;
+
+        var info = new SubscriptionInfo();
+        var parts = raw.Split(';', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var part in parts)
+        {
+            var kv = part.Split('=', 2);
+            if (kv.Length != 2) continue;
+
+            var key = kv[0].Trim().ToLowerInvariant();
+            if (!long.TryParse(kv[1].Trim(), out var val)) continue;
+
+            switch (key)
+            {
+                case "upload": info.Upload = val; break;
+                case "download": info.Download = val; break;
+                case "total": info.Total = val; break;
+                case "expire":
+                    if (val > 0)
+                        info.Expire = DateTimeOffset.FromUnixTimeSeconds(val).LocalDateTime;
+                    break;
+            }
+        }
+
+        return info.Total > 0 ? info : null;
     }
 
     /// <summary>将 YAML 内容直接保存到本地</summary>
@@ -82,6 +122,10 @@ public class ProfileStorageService
             AutoUpdateIntervalSeconds = (int)p.AutoUpdateInterval.TotalSeconds,
             IsActive = p.IsActive,
             Order = p.Order,
+            SubUpload = p.SubscriptionInfo?.Upload ?? 0,
+            SubDownload = p.SubscriptionInfo?.Download ?? 0,
+            SubTotal = p.SubscriptionInfo?.Total ?? 0,
+            SubExpire = p.SubscriptionInfo?.Expire,
         }).ToList();
 
         var json = JsonSerializer.Serialize(dtos, JsonOpts);
@@ -100,17 +144,33 @@ public class ProfileStorageService
             var entries = JsonSerializer.Deserialize<List<ProfileListEntry>>(json, JsonOpts);
             if (entries == null) return new List<Profile>();
 
-            return entries.Select(e => new Profile
+            return entries.Select(e =>
             {
-                Id = e.Id,
-                Label = e.Label,
-                Url = e.Url,
-                Path = e.Path,
-                LastUpdate = e.LastUpdate,
-                AutoUpdate = e.AutoUpdate,
-                AutoUpdateInterval = TimeSpan.FromSeconds(e.AutoUpdateIntervalSeconds),
-                IsActive = e.IsActive,
-                Order = e.Order,
+                var profile = new Profile
+                {
+                    Id = e.Id,
+                    Label = e.Label,
+                    Url = e.Url,
+                    Path = e.Path,
+                    LastUpdate = e.LastUpdate,
+                    AutoUpdate = e.AutoUpdate,
+                    AutoUpdateInterval = TimeSpan.FromSeconds(e.AutoUpdateIntervalSeconds),
+                    IsActive = e.IsActive,
+                    Order = e.Order,
+                };
+
+                if (e.SubTotal > 0)
+                {
+                    profile.SubscriptionInfo = new SubscriptionInfo
+                    {
+                        Upload = e.SubUpload,
+                        Download = e.SubDownload,
+                        Total = e.SubTotal,
+                        Expire = e.SubExpire,
+                    };
+                }
+
+                return profile;
             }).ToList();
         }
         catch
@@ -132,4 +192,8 @@ internal class ProfileListEntry
     public int AutoUpdateIntervalSeconds { get; set; } = 86400;
     public bool IsActive { get; set; }
     public int Order { get; set; }
+    public long SubUpload { get; set; }
+    public long SubDownload { get; set; }
+    public long SubTotal { get; set; }
+    public DateTime? SubExpire { get; set; }
 }

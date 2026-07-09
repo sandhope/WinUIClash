@@ -86,7 +86,19 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
                 configPath = _storage.GetConfigPath(profile.Id);
 
             // If this profile has a subscription URL, download the latest config
-            await _clash.SyncProfileAsync(profile.Id, profile.Url, configPath);
+            if (!string.IsNullOrEmpty(profile.Url))
+            {
+                var result = await _storage.DownloadAndSaveAsync(profile.Id, profile.Url);
+                if (result.SubInfo != null)
+                {
+                    profile.SubscriptionInfo = result.SubInfo;
+                    profile.NotifySubscriptionChanged();
+                }
+            }
+            else
+            {
+                await _clash.SyncProfileAsync(profile.Id, profile.Url, configPath);
+            }
 
             // Update local path reference
             if (string.IsNullOrWhiteSpace(profile.Path))
@@ -114,7 +126,12 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
                 if (string.IsNullOrWhiteSpace(configPath))
                     configPath = _storage.GetConfigPath(p.Id);
 
-                await _clash.SyncProfileAsync(p.Id, p.Url, configPath);
+                var result = await _storage.DownloadAndSaveAsync(p.Id, p.Url!);
+                if (result.SubInfo != null)
+                {
+                    p.SubscriptionInfo = result.SubInfo;
+                    p.NotifySubscriptionChanged();
+                }
 
                 if (string.IsNullOrWhiteSpace(p.Path))
                     p.Path = configPath;
@@ -199,7 +216,12 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         // 首次导入尝试下载订阅配置
         try
         {
-            await _storage.DownloadAndSaveAsync(profileId, url);
+            var result = await _storage.DownloadAndSaveAsync(profileId, url);
+            if (result.SubInfo != null)
+            {
+                profile.SubscriptionInfo = result.SubInfo;
+                profile.NotifySubscriptionChanged();
+            }
             await _clash.SyncProfileAsync(profileId, url, configPath);
         }
         catch (Exception ex)
@@ -230,7 +252,12 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             {
                 try
                 {
-                    await _storage.DownloadAndSaveAsync(profileId, newUrl);
+                    var result = await _storage.DownloadAndSaveAsync(profileId, newUrl);
+                    if (result.SubInfo != null)
+                    {
+                        profile.SubscriptionInfo = result.SubInfo;
+                        profile.NotifySubscriptionChanged();
+                    }
                     profile.LastUpdate = DateTime.Now;
                 }
                 catch (Exception ex)
