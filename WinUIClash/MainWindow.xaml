@@ -139,14 +139,17 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!-- 核心状态 -->
-            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
-                        Margin="12,0,16,0">
-                <Ellipse Width="8" Height="8" x:Name="StatusDot"
-                         Fill="{ThemeResource SystemFillColorCritical}" />
-                <TextBlock Text="已停止" FontSize="11" x:Name="StatusText"
-                           Opacity="0.6" />
-            </StackPanel>
+            <!-- 核心状态 (可点击切换) -->
+            <Button Background="Transparent" BorderThickness="0" Padding="0"
+                    Click="StatusDot_Click" ToolTipService.ToolTip="点击切换核心状态">
+                <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
+                            Margin="12,0,16,0">
+                    <Ellipse Width="8" Height="8" x:Name="StatusDot"
+                             Fill="{ThemeResource SystemFillColorCritical}" />
+                    <TextBlock Text="已停止" FontSize="11" x:Name="StatusText"
+                               Opacity="0.6" />
+                </StackPanel>
+            </Button>
 
             <Border Grid.Column="1" Width="1" Margin="4,4"
                     Background="{ThemeResource DividerStrokeColorDefaultBrush}" />

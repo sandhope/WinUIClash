@@ -60,6 +60,33 @@
                     <HyperlinkButton Content="Windows App SDK 文档" NavigateUri="https://learn.microsoft.com/windows/apps/winui/" />
                 </StackPanel>
             </Border>
+
+            <!-- 操作 -->
+            <Border Style="{StaticResource SettingsCardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="操作" FontSize="14" FontWeight="SemiBold" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Click="OpenDataFolder_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <fluent:SymbolIcon Symbol="FolderOpen" FontSize="14" />
+                                <TextBlock Text="打开数据目录" FontSize="12" />
+                            </StackPanel>
+                        </Button>
+                        <Button Click="CopyVersion_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <fluent:SymbolIcon Symbol="Copy" FontSize="14" />
+                                <TextBlock Text="复制版本信息" FontSize="12" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- 许可证 -->
+            <Border Style="{StaticResource SettingsCardStyle}">
+                <TextBlock FontSize="11" Opacity="0.4" TextWrapping="Wrap"
+                           Text="WinUIClash is open source software licensed under the GPL-3.0 License. This project is not affiliated with Clash or ClashMeta." />
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>
