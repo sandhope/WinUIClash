@@ -59,4 +59,5 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private int _windowX;
     [ObservableProperty] private int _windowY;
     [ObservableProperty] private bool _isSidebarCompact;
+    [ObservableProperty] private bool _isMaximized;
 }

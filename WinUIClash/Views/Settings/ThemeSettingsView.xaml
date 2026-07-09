@@ -47,6 +47,21 @@
                             </DataTemplate>
                         </ItemsRepeater.ItemTemplate>
                     </ItemsRepeater>
+                    <!-- 自定义颜色选择器 -->
+                    <Expander x:Uid="ThemeCustomColor" HorizontalAlignment="Stretch"
+                              HorizontalContentAlignment="Stretch">
+                        <StackPanel Spacing="8">
+                            <ColorPicker x:Name="CustomColorPicker"
+                                         ColorSpectrumShape="Ring"
+                                         IsColorChannelTextInputVisible="True"
+                                         IsColorPreviewVisible="True"
+                                         IsMoreButtonVisible="False"
+                                         IsColorSliderVisible="True"
+                                         ColorChanged="CustomColorPicker_ColorChanged" />
+                            <Button x:Uid="ThemeApplyCustomColor" Click="ApplyCustomColor_Click"
+                                    HorizontalAlignment="Stretch" />
+                        </StackPanel>
+                    </Expander>
                 </StackPanel>
             </Border>
         </StackPanel>

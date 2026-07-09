@@ -130,6 +130,12 @@ public sealed partial class MainWindow : Window
             {
                 RootNavigation.PaneDisplayMode = NavigationViewPaneDisplayMode.LeftCompact;
             }
+
+            // 恢复最大化状态
+            if (settings.IsMaximized && AppWindow.Presenter is Microsoft.UI.Windowing.OverlappedPresenter presenter)
+            {
+                presenter.Maximize();
+            }
         }
         catch { /* ServiceLocator 未初始化时忽略 */ }
     }
@@ -140,6 +146,9 @@ public sealed partial class MainWindow : Window
         {
             var settings = ServiceLocator.Get<AppSettings>();
             var presenter = AppWindow.Presenter as Microsoft.UI.Windowing.OverlappedPresenter;
+
+            // 保存最大化状态
+            settings.IsMaximized = presenter?.State == Microsoft.UI.Windowing.OverlappedPresenterState.Maximized;
 
             // 只在 Normal 状态下保存尺寸和位置
             if (presenter?.State == Microsoft.UI.Windowing.OverlappedPresenterState.Restored)

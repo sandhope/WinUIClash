@@ -81,7 +81,11 @@
                         </Button>
                         <Button x:Name="CheckUpdateBtn" Click="CheckUpdate_Click">
                             <StackPanel Orientation="Horizontal" Spacing="6">
-                                <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
+                                <Grid Width="14" Height="14">
+                                    <fluent:SymbolIcon x:Name="UpdateIcon" Symbol="ArrowSync" FontSize="14" />
+                                    <ProgressRing x:Name="UpdateProgressRing" IsActive="False"
+                                                  Width="14" Height="14" Visibility="Collapsed" />
+                                </Grid>
                                 <TextBlock x:Name="CheckUpdateLabel" x:Uid="AboutCheckUpdate" FontSize="12" />
                             </StackPanel>
                         </Button>
