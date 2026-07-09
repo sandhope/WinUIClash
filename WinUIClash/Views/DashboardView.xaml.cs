@@ -13,25 +13,30 @@ namespace WinUIClash.Views;
 public sealed partial class DashboardView : Page
 {
     public ViewModels.DashboardViewModel ViewModel { get; }
+    private readonly NotifyCollectionChangedEventHandler _chartChangedHandler;
 
     public DashboardView()
     {
         ViewModel = ServiceLocator.Get<ViewModels.DashboardViewModel>();
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            await ViewModel.InitializeAsync();
-            DrawChart();
-        };
 
-        // 流量数据变化时重绘图表
-        ViewModel.TrafficHistory.CollectionChanged += (_, e) =>
+        _chartChangedHandler = (_, e) =>
         {
             if (e.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Remove)
             {
                 DispatcherQueue.TryEnqueue(DrawChart);
             }
         };
+
+        Loaded += async (_, _) =>
+        {
+            await ViewModel.InitializeAsync();
+            DrawChart();
+        };
+        Unloaded += (_, _) => ViewModel.TrafficHistory.CollectionChanged -= _chartChangedHandler;
+
+        // 流量数据变化时重绘图表
+        ViewModel.TrafficHistory.CollectionChanged += _chartChangedHandler;
     }
 
     // ── 网速面积图绘制 ──

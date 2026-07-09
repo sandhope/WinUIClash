@@ -12,6 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -73,8 +74,16 @@
             </Button>
         </Grid>
 
+        <!-- 测试进度条 -->
+        <ProgressBar Grid.Row="2"
+                     IsIndeterminate="False"
+                     Minimum="0"
+                     Maximum="{x:Bind ViewModel.TestTotal, Mode=OneWay}"
+                     Value="{x:Bind ViewModel.TestProgress, Mode=OneWay}"
+                     Visibility="{x:Bind ViewModel.IsTesting, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
         <!-- 代理卡片网格 -->
-        <GridView Grid.Row="2" x:Name="ProxyGrid"
+        <GridView Grid.Row="3" x:Name="ProxyGrid"
                   ItemsSource="{x:Bind ViewModel.FilteredProxies, Mode=OneWay}"
                   SelectionMode="Single"
                   IsItemClickEnabled="True"
