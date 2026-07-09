@@ -96,4 +96,22 @@ public partial class Profile : ObservableObject
         OnPropertyChanged(nameof(ExpiryText));
         OnPropertyChanged(nameof(ExpiryBrush));
     }
+
+    /// <summary>Config file size display, e.g. "12.3 KB"</summary>
+    public string FileSizeText
+    {
+        get
+        {
+            try
+            {
+                var path = Path;
+                if (string.IsNullOrWhiteSpace(path))
+                    path = new ProfileStorageService().GetConfigPath(Id);
+                if (File.Exists(path))
+                    return Converters.ByteFormatter.Format(new FileInfo(path).Length);
+            }
+            catch { }
+            return "";
+        }
+    }
 }
