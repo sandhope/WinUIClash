@@ -16,5 +16,6 @@ public partial class ExternalProvider : ObservableObject
     public string Category { get; set; } = "proxy";
 
     [ObservableProperty] private DateTime _updateAt;
+    [ObservableProperty] private bool _isHealthChecking;
     public SubscriptionInfo? SubscriptionInfo { get; set; }
 }

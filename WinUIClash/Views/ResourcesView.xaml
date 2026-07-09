@@ -93,6 +93,7 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="4" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
@@ -140,6 +141,16 @@
                                     Tag="{x:Bind}">
                                 <fluent:SymbolIcon Symbol="ArrowSync" FontSize="13" />
                             </Button>
+                            <Button Grid.Column="3" Padding="8,4"
+                                    x:Uid="ResHealthCheck"
+                                    Click="HealthCheck_Click"
+                                    Tag="{x:Bind}"
+                                    Visibility="{x:Bind IsHealthChecking, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <fluent:SymbolIcon Symbol="HeartPulse" FontSize="13" />
+                            </Button>
+                            <ProgressRing Grid.Column="3" IsActive="{x:Bind IsHealthChecking, Mode=OneWay}"
+                                          Visibility="{x:Bind IsHealthChecking, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                          Width="22" Height="22" />
                         </Grid>
                     </Border>
                 </DataTemplate>

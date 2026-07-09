@@ -232,6 +232,28 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         }
     }
 
+    // ── DNS 查询 ──
+
+    [ObservableProperty] private string _dnsQueryName = "";
+    [ObservableProperty] private string _dnsQueryType = "A";
+    [ObservableProperty] private string _dnsResult = "";
+    public string[] DnsTypeOptions { get; } = ["A", "AAAA", "CNAME", "MX", "TXT", "NS"];
+
+    [RelayCommand]
+    private async Task QueryDnsAsync()
+    {
+        if (string.IsNullOrWhiteSpace(DnsQueryName)) return;
+        try
+        {
+            DnsResult = "…";
+            DnsResult = await _clash.QueryDnsAsync(DnsQueryName.Trim(), DnsQueryType);
+        }
+        catch
+        {
+            DnsResult = LocalizationHelper.GetString("DashDnsFailed.Text");
+        }
+    }
+
     // ── 内存 ──
 
     [ObservableProperty] private string _coreMemory = "--";

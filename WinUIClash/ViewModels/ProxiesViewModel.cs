@@ -141,7 +141,7 @@ public partial class ProxiesViewModel : ObservableObject
         }
     }
 
-    /// <summary>对当前组所有代理并行测速（节流：最多5个并发）</summary>
+    /// <summary>对当前组所有代理并行测速（优先使用批量 API，失败回退到逐个测试）</summary>
     [RelayCommand]
     private async Task TestAllDelaysAsync()
     {
@@ -154,27 +154,45 @@ public partial class ProxiesViewModel : ObservableObject
         TestTotal = testable.Count;
         TestProgress = 0;
 
-        var tasks = testable.Select(async p =>
-        {
-            p.IsTestingDelay = true;
-            await _testSemaphore.WaitAsync();
-            try
-            {
-                p.Delay = await _clash.TestDelayAsync(p.Name);
-            }
-            catch
-            {
-                p.Delay = -1;
-            }
-            finally
-            {
-                _testSemaphore.Release();
-                TestProgress++;
-                p.IsTestingDelay = false;
-            }
-        });
+        // Mark all as testing
+        foreach (var p in testable) p.IsTestingDelay = true;
 
-        await Task.WhenAll(tasks);
+        try
+        {
+            // Try batch group delay API first
+            var results = await _clash.TestGroupDelayAsync(SelectedGroup.Name);
+            foreach (var p in testable)
+            {
+                p.Delay = results.TryGetValue(p.Name, out var delay) ? delay : -1;
+                p.IsTestingDelay = false;
+                TestProgress++;
+            }
+        }
+        catch
+        {
+            // Fallback: individual testing with semaphore throttling
+            TestProgress = 0;
+            var tasks = testable.Select(async p =>
+            {
+                await _testSemaphore.WaitAsync();
+                try
+                {
+                    p.Delay = await _clash.TestDelayAsync(p.Name);
+                }
+                catch
+                {
+                    p.Delay = -1;
+                }
+                finally
+                {
+                    _testSemaphore.Release();
+                    TestProgress++;
+                    p.IsTestingDelay = false;
+                }
+            });
+            await Task.WhenAll(tasks);
+        }
+
         IsTesting = false;
         OnPropertyChanged(nameof(FilteredProxies));
     }

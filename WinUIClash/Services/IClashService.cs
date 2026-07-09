@@ -17,6 +17,7 @@ public interface IClashService
     Traffic GetCurrentTraffic();
     Traffic GetTotalTraffic();
     Task ResetTrafficAsync();
+    Task StartTrafficStreamAsync();
 
     // ── 出站模式 ──
     OutboundMode GetOutboundMode();
@@ -31,6 +32,7 @@ public interface IClashService
     Task<IReadOnlyList<ProxyGroup>> GetProxyGroupsAsync();
     Task ChangeProxyAsync(string groupName, string proxyName);
     Task<int> TestDelayAsync(string proxyName, string? testUrl = null);
+    Task<Dictionary<string, int>> TestGroupDelayAsync(string groupName, string? testUrl = null);
 
     // ── 配置 ──
     Task<IReadOnlyList<Profile>> GetProfilesAsync();
@@ -52,6 +54,7 @@ public interface IClashService
 
     // ── 网络检测 ──
     Task<IpInfo> GetIpInfoAsync();
+    Task<string> QueryDnsAsync(string name, string type = "A");
 
     // ── 外部提供者 ──
     Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync();
@@ -59,6 +62,12 @@ public interface IClashService
 
     // ── GeoIP/GeoSite 数据库 ──
     Task UpdateGeoDatabaseAsync(string name);
+
+    // ── 运行时配置 ──
+    Task PatchCoreConfigAsync(AppSettings settings);
+
+    // ── 提供者健康检查 ──
+    Task HealthCheckProviderAsync(string name, string category = "proxy");
 
     // ── 规则 ──
     Task<IReadOnlyList<Rule>> GetRulesAsync();

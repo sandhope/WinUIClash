@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Windows.UI;
@@ -14,6 +15,17 @@ public sealed partial class DashboardView : Page
 {
     public ViewModels.DashboardViewModel ViewModel { get; }
     private readonly NotifyCollectionChangedEventHandler _chartChangedHandler;
+
+    // Chart state for hit-testing
+    private long _chartMaxVal;
+    private double _chartStepX;
+
+    // Reusable tooltip elements
+    private Line? _tooltipLine;
+    private Border? _tooltipPanel;
+    private TextBlock? _tooltipTime;
+    private TextBlock? _tooltipUp;
+    private TextBlock? _tooltipDown;
 
     public DashboardView()
     {
@@ -67,6 +79,10 @@ public sealed partial class DashboardView : Page
 
         double stepX = w / (history.Count - 1);
 
+        // Save chart state for hit-testing
+        _chartMaxVal = maxVal;
+        _chartStepX = stepX;
+
         // 绘制网格线（3条水平线）
         var gridColor = new SolidColorBrush(Windows.UI.Color.FromArgb(30, 128, 128, 128));
         for (int i = 1; i <= 3; i++)
@@ -111,6 +127,120 @@ public sealed partial class DashboardView : Page
         SpeedChart.Children.Add(upFill);
         SpeedChart.Children.Add(downLine);
         SpeedChart.Children.Add(upLine);
+
+        // Tooltip overlay (created once, reused on hover)
+        EnsureTooltipElements();
+    }
+
+    private void EnsureTooltipElements()
+    {
+        double h = SpeedChart.ActualHeight;
+
+        if (_tooltipLine == null)
+        {
+            _tooltipLine = new Line
+            {
+                Y1 = 0, Y2 = h,
+                Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(80, 255, 255, 255)),
+                StrokeThickness = 1,
+                StrokeDashArray = new DoubleCollection { 3, 3 },
+                Visibility = Visibility.Collapsed,
+                IsHitTestVisible = false,
+            };
+        }
+        else
+        {
+            _tooltipLine.Y2 = h;
+        }
+
+        if (_tooltipPanel == null)
+        {
+            _tooltipTime = new TextBlock { FontSize = 10, Opacity = 0.7, FontFamily = new FontFamily("Consolas") };
+            _tooltipUp = new TextBlock { FontSize = 11, Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 79, 195, 247)) };
+            _tooltipDown = new TextBlock { FontSize = 11, Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 129, 199, 132)) };
+
+            var stack = new StackPanel { Spacing = 2 };
+            stack.Children.Add(_tooltipTime);
+            stack.Children.Add(_tooltipUp);
+            stack.Children.Add(_tooltipDown);
+
+            _tooltipPanel = new Border
+            {
+                Background = new SolidColorBrush(Windows.UI.Color.FromArgb(220, 30, 30, 30)),
+                CornerRadius = new CornerRadius(6),
+                Padding = new Thickness(8, 6, 8, 6),
+                Child = stack,
+                Visibility = Visibility.Collapsed,
+                IsHitTestVisible = false,
+            };
+        }
+
+        // Add to canvas if not already present
+        if (!SpeedChart.Children.Contains(_tooltipLine))
+            SpeedChart.Children.Add(_tooltipLine);
+        if (!SpeedChart.Children.Contains(_tooltipPanel))
+            SpeedChart.Children.Add(_tooltipPanel);
+    }
+
+    // ── Chart hover tooltip ──
+
+    private void SpeedChart_PointerMoved(object sender, PointerRoutedEventArgs e)
+    {
+        var history = ViewModel.TrafficHistory;
+        if (history.Count < 2 || _tooltipLine == null || _tooltipPanel == null) return;
+
+        var pos = e.GetCurrentPoint(SpeedChart).Position;
+        double w = SpeedChart.ActualWidth;
+        double h = SpeedChart.ActualHeight;
+
+        if (pos.X < 0 || pos.X > w || pos.Y < 0 || pos.Y > h)
+        {
+            HideTooltip();
+            return;
+        }
+
+        // Find nearest data point index
+        int index = (int)Math.Round(pos.X / _chartStepX);
+        index = Math.Clamp(index, 0, history.Count - 1);
+
+        var traffic = history[index];
+        double snapX = index * _chartStepX;
+
+        // Update vertical line position
+        _tooltipLine.X1 = snapX;
+        _tooltipLine.X2 = snapX;
+        _tooltipLine.Y2 = h;
+        _tooltipLine.Visibility = Visibility.Visible;
+
+        // Update tooltip text
+        _tooltipTime!.Text = traffic.Timestamp.ToString("HH:mm:ss");
+        _tooltipUp!.Text = "↑ " + Converters.ByteFormatter.FormatSpeed(traffic.Up);
+        _tooltipDown!.Text = "↓ " + Converters.ByteFormatter.FormatSpeed(traffic.Down);
+
+        // Position tooltip panel — flip side when near right edge
+        _tooltipPanel.Visibility = Visibility.Visible;
+        _tooltipPanel.UpdateLayout();
+        double panelW = _tooltipPanel.ActualWidth;
+        double panelH = _tooltipPanel.ActualHeight;
+
+        double tooltipX = snapX + 10;
+        if (tooltipX + panelW > w)
+            tooltipX = snapX - panelW - 10;
+
+        double tooltipY = Math.Max(0, pos.Y - panelH / 2);
+        if (tooltipY + panelH > h)
+            tooltipY = h - panelH;
+
+        Canvas.SetLeft(_tooltipPanel, tooltipX);
+        Canvas.SetTop(_tooltipPanel, tooltipY);
+    }
+
+    private void SpeedChart_PointerExited(object sender, PointerRoutedEventArgs e) => HideTooltip();
+
+    private void HideTooltip()
+    {
+        if (_tooltipLine != null) _tooltipLine.Visibility = Visibility.Collapsed;
+        if (_tooltipPanel != null) _tooltipPanel.Visibility = Visibility.Collapsed;
     }
 
     private static Polygon BuildFill(

@@ -274,6 +274,18 @@ public class HttpClashService : IClashService, IDisposable
         return dto?.Delay ?? 0;
     }
 
+    public async Task<Dictionary<string, int>> TestGroupDelayAsync(string groupName, string? testUrl = null)
+    {
+        var url = testUrl ?? "https://www.gstatic.com/generate_204";
+        var resp = await _http.GetAsync(
+            $"/group/{Uri.EscapeDataString(groupName)}/delay?url={Uri.EscapeDataString(url)}&timeout=5000");
+        if (!resp.IsSuccessStatusCode) return new Dictionary<string, int>();
+
+        var json = await resp.Content.ReadAsStringAsync();
+        var dto = JsonSerializer.Deserialize<Dictionary<string, int>>(json, JsonOpts);
+        return dto ?? new Dictionary<string, int>();
+    }
+
     // ── 配置 ──
 
     public Task<IReadOnlyList<Profile>> GetProfilesAsync()
@@ -434,6 +446,26 @@ public class HttpClashService : IClashService, IDisposable
         }
     }
 
+    public async Task<string> QueryDnsAsync(string name, string type = "A")
+    {
+        var resp = await _http.GetAsync($"/dns?name={Uri.EscapeDataString(name)}&type={Uri.EscapeDataString(type)}");
+        resp.EnsureSuccessStatusCode();
+        var json = await resp.Content.ReadAsStringAsync();
+        using var doc = JsonDocument.Parse(json);
+        if (doc.RootElement.TryGetProperty("Answer", out var answer))
+        {
+            var lines = new List<string>();
+            foreach (var item in answer.EnumerateArray())
+            {
+                var data = item.TryGetProperty("data", out var d) ? d.GetString() ?? "" : "";
+                var rtype = item.TryGetProperty("type", out var t) ? t.GetInt32() : 0;
+                lines.Add($"{data}  (type {rtype})");
+            }
+            return lines.Count > 0 ? string.Join("\n", lines) : "No answer";
+        }
+        return "No answer";
+    }
+
     // ── 外部提供者 ──
 
     public async Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync()
@@ -498,6 +530,37 @@ public class HttpClashService : IClashService, IDisposable
         var payload = JsonSerializer.Serialize(new { name });
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
         await _http.PutAsync("/configs/geo", content);
+    }
+
+    // ── 运行时配置热更新 ──
+
+    public async Task PatchCoreConfigAsync(AppSettings settings)
+    {
+        var payload = JsonSerializer.Serialize(new
+        {
+            mixed_port = settings.MixedPort,
+            socks_port = settings.SocksPort,
+            port = settings.HttpPort,
+            log_level = settings.LogLevel,
+            ipv6 = settings.Ipv6,
+            allow_lan = settings.AllowLan,
+            unified_delay = settings.UnifiedDelay,
+            tcp_concurrent = settings.TcpConcurrent,
+            find_process_mode = settings.FindProcessMode ? "always" : "off",
+            keep_alive_interval = settings.KeepAliveInterval,
+        });
+        var content = new StringContent(payload, Encoding.UTF8, "application/json");
+        await _http.PatchAsync("/configs", content);
+    }
+
+    // ── 提供者健康检查 ──
+
+    public async Task HealthCheckProviderAsync(string name, string category = "proxy")
+    {
+        var endpoint = category == "rule"
+            ? $"/providers/rules/{Uri.EscapeDataString(name)}/health"
+            : $"/providers/proxies/{Uri.EscapeDataString(name)}/health";
+        await _http.GetAsync(endpoint);
     }
 
     // ── 规则 ──

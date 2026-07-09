@@ -102,6 +102,34 @@ public sealed partial class ConnectionsView : Page
             ViewModel.CloseConnectionCommand.Execute(conn);
     }
 
+    private void ConnectionItem_RightTapped(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement element) return;
+        if (element.DataContext is not ConnectionInfo conn) return;
+
+        var menu = new MenuFlyout();
+
+        var copyHost = new MenuFlyoutItem { Text = LocalizationHelper.GetString("RequestsCopyHost.Text") };
+        copyHost.Click += (_, _) => CopyToClipboard(conn.Metadata.Host);
+        menu.Items.Add(copyHost);
+
+        var copySource = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ConnCopySource.Text") };
+        copySource.Click += (_, _) => CopyToClipboard($"{conn.Metadata.SourceIP}:{conn.Metadata.SourcePort}");
+        menu.Items.Add(copySource);
+
+        var copyChains = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ConnCopyChains.Text") };
+        copyChains.Click += (_, _) => CopyToClipboard(string.Join(" → ", conn.Chains));
+        menu.Items.Add(copyChains);
+
+        menu.Items.Add(new MenuFlyoutSeparator());
+
+        var close = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ConnClose.ToolTip") };
+        close.Click += (_, _) => ViewModel.CloseConnectionCommand.Execute(conn);
+        menu.Items.Add(close);
+
+        menu.ShowAt(element, e.GetPosition(element));
+    }
+
     private void CloseSelected_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.SelectedConnection != null)

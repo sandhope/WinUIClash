@@ -200,6 +200,7 @@ public class ClashOrchestrator : IClashService
     public Traffic GetCurrentTraffic() => _activeService.GetCurrentTraffic();
     public Traffic GetTotalTraffic() => _activeService.GetTotalTraffic();
     public Task ResetTrafficAsync() => _activeService.ResetTrafficAsync();
+    public Task StartTrafficStreamAsync() => _activeService.StartTrafficStreamAsync();
 
     // ── Outbound Mode ──
 
@@ -217,6 +218,7 @@ public class ClashOrchestrator : IClashService
     public Task<IReadOnlyList<ProxyGroup>> GetProxyGroupsAsync() => _activeService.GetProxyGroupsAsync();
     public Task ChangeProxyAsync(string groupName, string proxyName) => _activeService.ChangeProxyAsync(groupName, proxyName);
     public Task<int> TestDelayAsync(string proxyName, string? testUrl = null) => _activeService.TestDelayAsync(proxyName, testUrl);
+    public Task<Dictionary<string, int>> TestGroupDelayAsync(string groupName, string? testUrl = null) => _activeService.TestGroupDelayAsync(groupName, testUrl);
 
     // ── Config ──
 
@@ -241,12 +243,15 @@ public class ClashOrchestrator : IClashService
     // ── Network ──
 
     public Task<IpInfo> GetIpInfoAsync() => _activeService.GetIpInfoAsync();
+    public Task<string> QueryDnsAsync(string name, string type = "A") => _activeService.QueryDnsAsync(name, type);
 
     // ── External Providers ──
 
     public Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync() => _activeService.GetExternalProvidersAsync();
     public Task UpdateExternalProviderAsync(string name, string category = "proxy") => _activeService.UpdateExternalProviderAsync(name, category);
     public Task UpdateGeoDatabaseAsync(string name) => _activeService.UpdateGeoDatabaseAsync(name);
+    public Task PatchCoreConfigAsync(AppSettings settings) => _activeService.PatchCoreConfigAsync(settings);
+    public Task HealthCheckProviderAsync(string name, string category = "proxy") => _activeService.HealthCheckProviderAsync(name, category);
 
     // ── Rules ──
 

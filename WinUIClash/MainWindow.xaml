@@ -178,14 +178,17 @@
                 </StackPanel>
             </StackPanel>
 
-            <!-- 系统代理状态 -->
-            <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="6"
-                        VerticalAlignment="Center" Margin="0,0,12,0">
-                <fluent:SymbolIcon Symbol="ShieldCheckmark" FontSize="10"
-                                   x:Name="ProxyIcon" Opacity="0.3" />
-                <TextBlock x:Uid="StatusProxyLabel" FontSize="11" x:Name="ProxyText"
-                           Opacity="0.3" />
-            </StackPanel>
+            <!-- 系统代理状态 (可点击切换) -->
+            <Button Grid.Column="5" Background="Transparent" BorderThickness="0" Padding="0"
+                    Click="StatusProxy_Click">
+                <StackPanel Orientation="Horizontal" Spacing="6"
+                            VerticalAlignment="Center" Margin="4,0,12,0">
+                    <fluent:SymbolIcon Symbol="ShieldCheckmark" FontSize="10"
+                                       x:Name="ProxyIcon" Opacity="0.3" />
+                    <TextBlock x:Uid="StatusProxyLabel" FontSize="11" x:Name="ProxyText"
+                               Opacity="0.3" />
+                </StackPanel>
+            </Button>
         </Grid>
     </Grid>
 </Window>

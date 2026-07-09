@@ -320,6 +320,7 @@
   <data name="ConnCopyHost.Text" xml:space="preserve"><value>Copy Host</value></data>
   <data name="ConnCloseThis.Content" xml:space="preserve"><value>Close This</value></data>
   <data name="ConnCopyChains.Text" xml:space="preserve"><value>Copy Proxy Chain</value></data>
+  <data name="ConnCopySource.Text" xml:space="preserve"><value>Copy Source</value></data>
 
   <!-- Logs - Additional -->
   <data name="LogsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search logs…</value></data>
@@ -409,6 +410,12 @@
   <data name="ResGeoUpdateGeoSite.Text" xml:space="preserve"><value>Update GeoSite Database</value></data>
   <data name="ResGeoUpdating.Text" xml:space="preserve"><value>Updating Geo Database</value></data>
   <data name="ResGeoUpdateSuccess.Text" xml:space="preserve"><value>Geo Database Updated</value></data>
+  <data name="ResHealthCheck.ToolTip" xml:space="preserve"><value>Health Check</value></data>
+  <data name="ResHealthCheckDone.Text" xml:space="preserve"><value>Health Check Complete</value></data>
+  <data name="BasicConfigAppliedTitle.Text" xml:space="preserve"><value>Settings Applied</value></data>
+  <data name="BasicConfigAppliedMsg.Text" xml:space="preserve"><value>Configuration changes have been applied to the running core.</value></data>
+  <data name="DashDnsPlaceholder.PlaceholderText" xml:space="preserve"><value>Domain name…</value></data>
+  <data name="DashDnsFailed.Text" xml:space="preserve"><value>DNS query failed</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>Rules</value></data>

@@ -27,6 +27,12 @@ public sealed partial class ResourcesView : Page
             ViewModel.UpdateProviderCommand.Execute(provider);
     }
 
+    private void HealthCheck_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.Tag is ExternalProvider provider)
+            ViewModel.HealthCheckProviderCommand.Execute(provider);
+    }
+
     private void TypeFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (sender is ComboBox combo && combo.SelectedItem is ComboBoxItem item)
