@@ -131,6 +131,10 @@
   <data name="AppProxyGuardDesc.Text" xml:space="preserve"><value>Periodically check and re-apply proxy settings</value></data>
   <data name="AppProxyGuardInterval.Text" xml:space="preserve"><value>Guard Interval (seconds)</value></data>
   <data name="AppProxyGuardIntervalDesc.Text" xml:space="preserve"><value>How often to check for proxy changes (5-600s)</value></data>
+  <data name="AppTunMode.Text" xml:space="preserve"><value>TUN Mode</value></data>
+  <data name="AppTunModeDesc.Text" xml:space="preserve"><value>Capture all system traffic via virtual network adapter</value></data>
+  <data name="AppTunStack.Text" xml:space="preserve"><value>TUN Stack</value></data>
+  <data name="AppTunStackDesc.Text" xml:space="preserve"><value>Network stack for TUN adapter (mixed recommended)</value></data>
   <data name="AppBypassDomains.Text" xml:space="preserve"><value>Proxy Bypass</value></data>
   <data name="AppBypassDomainsDesc.Text" xml:space="preserve"><value>Domains that bypass proxy (semicolon separated)</value></data>
   <data name="AppBypassPresets.Text" xml:space="preserve"><value>Presets</value></data>
@@ -258,7 +262,7 @@
   <data name="ToolsOtherSection.Text" xml:space="preserve"><value>Other</value></data>
   <data name="ToolsBack.ToolTip" xml:space="preserve"><value>Back</value></data>
   <data name="ToolsBasicConfigSub.Text" xml:space="preserve"><value>Ports, log level, UA, IPv6, etc.</value></data>
-  <data name="ToolsAppSettingsSub.Text" xml:space="preserve"><value>Startup, system proxy, auto update</value></data>
+  <data name="ToolsAppSettingsSub.Text" xml:space="preserve"><value>Startup, system proxy, TUN, auto update</value></data>
   <data name="ToolsThemeSettingsSub.Text" xml:space="preserve"><value>Light/dark mode, accent color</value></data>
   <data name="ToolsAboutSub.Text" xml:space="preserve"><value>Version info, project links</value></data>
 

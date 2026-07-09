@@ -22,6 +22,11 @@ public interface IClashService
     OutboundMode GetOutboundMode();
     Task SetOutboundModeAsync(OutboundMode mode);
 
+    // ── TUN 模式 ──
+    Task<bool> GetTunEnabledAsync();
+    Task SetTunEnabledAsync(bool enabled);
+    Task SetTunStackAsync(string stack);
+
     // ── 代理 ──
     Task<IReadOnlyList<ProxyGroup>> GetProxyGroupsAsync();
     Task ChangeProxyAsync(string groupName, string proxyName);

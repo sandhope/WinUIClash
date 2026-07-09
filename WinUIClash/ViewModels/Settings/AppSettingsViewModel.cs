@@ -93,6 +93,21 @@ public partial class AppSettingsViewModel : ObservableObject
         set { if (_settings.ProxyGuardInterval != value) { _settings.ProxyGuardInterval = value; OnPropertyChanged(); } }
     }
 
+    // TUN 模式
+    public bool TunMode
+    {
+        get => _settings.TunMode;
+        set { if (_settings.TunMode != value) { _settings.TunMode = value; OnPropertyChanged(); } }
+    }
+
+    public string[] TunStackOptions { get; } = ["mixed", "system", "gvisor"];
+
+    public string TunStack
+    {
+        get => _settings.TunStack;
+        set { if (_settings.TunStack != value) { _settings.TunStack = value; OnPropertyChanged(); } }
+    }
+
     public record LanguageOption(string Label, string Value);
 
     public LanguageOption[] Languages { get; } =

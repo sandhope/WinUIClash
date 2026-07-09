@@ -131,6 +131,10 @@
   <data name="AppProxyGuardDesc.Text" xml:space="preserve"><value>定期检查并恢复被篡改的代理设置</value></data>
   <data name="AppProxyGuardInterval.Text" xml:space="preserve"><value>守护间隔（秒）</value></data>
   <data name="AppProxyGuardIntervalDesc.Text" xml:space="preserve"><value>检查代理变化的频率（5-600秒）</value></data>
+  <data name="AppTunMode.Text" xml:space="preserve"><value>TUN 模式</value></data>
+  <data name="AppTunModeDesc.Text" xml:space="preserve"><value>通过虚拟网卡接管所有系统流量</value></data>
+  <data name="AppTunStack.Text" xml:space="preserve"><value>TUN 协议栈</value></data>
+  <data name="AppTunStackDesc.Text" xml:space="preserve"><value>TUN 网卡使用的网络协议栈（推荐 mixed）</value></data>
   <data name="AppBypassDomains.Text" xml:space="preserve"><value>代理绕过</value></data>
   <data name="AppBypassDomainsDesc.Text" xml:space="preserve"><value>不走代理的域名列表（分号分隔）</value></data>
   <data name="AppBypassPresets.Text" xml:space="preserve"><value>预设</value></data>
@@ -258,7 +262,7 @@
   <data name="ToolsOtherSection.Text" xml:space="preserve"><value>其他</value></data>
   <data name="ToolsBack.ToolTip" xml:space="preserve"><value>返回</value></data>
   <data name="ToolsBasicConfigSub.Text" xml:space="preserve"><value>端口、日志级别、UA、IPv6 等</value></data>
-  <data name="ToolsAppSettingsSub.Text" xml:space="preserve"><value>启动行为、系统代理、自动更新</value></data>
+  <data name="ToolsAppSettingsSub.Text" xml:space="preserve"><value>启动行为、系统代理、TUN、自动更新</value></data>
   <data name="ToolsThemeSettingsSub.Text" xml:space="preserve"><value>明暗模式、主题色</value></data>
   <data name="ToolsAboutSub.Text" xml:space="preserve"><value>版本信息、项目链接</value></data>
 

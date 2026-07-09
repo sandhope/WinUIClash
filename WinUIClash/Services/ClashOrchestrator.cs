@@ -112,6 +112,20 @@ public class ClashOrchestrator : IClashService
                 LocalizationHelper.GetString("CoreStartedTitle.Text"),
                 LocalizationHelper.GetString("CoreStartedMsg.Text"));
 
+            // 7. Apply saved TUN mode if enabled
+            if (_settings.TunMode)
+            {
+                try
+                {
+                    await _httpClashService.SetTunEnabledAsync(true);
+                    await _httpClashService.SetTunStackAsync(_settings.TunStack);
+                }
+                catch (Exception tunEx)
+                {
+                    _logger.LogWarning(tunEx, "Failed to apply TUN mode on startup");
+                }
+            }
+
             _logger.LogInformation("ClashOrchestrator: switched to HttpClashService");
         }
         catch (Exception ex)
@@ -187,6 +201,12 @@ public class ClashOrchestrator : IClashService
 
     public OutboundMode GetOutboundMode() => _activeService.GetOutboundMode();
     public Task SetOutboundModeAsync(OutboundMode mode) => _activeService.SetOutboundModeAsync(mode);
+
+    // ── TUN Mode ──
+
+    public Task<bool> GetTunEnabledAsync() => _activeService.GetTunEnabledAsync();
+    public Task SetTunEnabledAsync(bool enabled) => _activeService.SetTunEnabledAsync(enabled);
+    public Task SetTunStackAsync(string stack) => _activeService.SetTunStackAsync(stack);
 
     // ── Proxy ──
 
