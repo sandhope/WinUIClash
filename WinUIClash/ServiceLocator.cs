@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using WinUIClash.Services;
 using WinUIClash.ViewModels;
 
@@ -18,14 +19,23 @@ public static class ServiceLocator
     {
         var services = new ServiceCollection();
 
+        // ── 日志 ──
+        services.AddLogging(builder =>
+        {
+            builder.SetMinimumLevel(LogLevel.Information);
+        });
+
         // ── 服务 ──
-        services.AddSingleton<IClashService, MockClashService>();
         services.AddSingleton<Models.AppSettings>();
-        services.AddSingleton<Services.SettingsService>();
-        services.AddSingleton<Services.SystemProxyService>();
-        services.AddSingleton<Services.NotificationService>();
-        services.AddSingleton<Services.AutoLaunchService>();
-        services.AddSingleton<Services.CoreProcessService>();
+        services.AddSingleton<SettingsService>();
+        services.AddSingleton<SystemProxyService>();
+        services.AddSingleton<NotificationService>();
+        services.AddSingleton<AutoLaunchService>();
+        services.AddSingleton<CoreProcessService>();
+        services.AddSingleton<MockClashService>();
+        services.AddSingleton<HttpClashService>();
+        services.AddSingleton<ClashOrchestrator>();
+        services.AddSingleton<IClashService>(sp => sp.GetRequiredService<ClashOrchestrator>());
 
         // ── ViewModel ──
         services.AddSingleton<DashboardViewModel>();
@@ -37,6 +47,10 @@ public static class ServiceLocator
         services.AddSingleton<ResourcesViewModel>();
         services.AddSingleton<RulesViewModel>();
         services.AddSingleton<ToolsViewModel>();
+
+        services.AddSingleton<ViewModels.Settings.BasicConfigViewModel>();
+        services.AddSingleton<ViewModels.Settings.AppSettingsViewModel>();
+        services.AddSingleton<ViewModels.Settings.ThemeSettingsViewModel>();
 
         _provider = services.BuildServiceProvider();
     }

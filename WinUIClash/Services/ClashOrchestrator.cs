@@ -1,0 +1,269 @@
+using System.Net.Http;
+using Microsoft.Extensions.Logging;
+using WinUIClash.Models;
+
+namespace WinUIClash.Services;
+
+/// <summary>
+/// Coordinates CoreProcessService (process lifecycle) and IClashService (API client).
+/// Delegates all IClashService calls to either HttpClashService (real core) or MockClashService (fallback).
+/// </summary>
+public class ClashOrchestrator : IClashService
+{
+    private readonly CoreProcessService _processService;
+    private readonly HttpClashService _httpClashService;
+    private readonly MockClashService _mockClashService;
+    private readonly NotificationService _notificationService;
+    private readonly AppSettings _settings;
+    private readonly ILogger<ClashOrchestrator> _logger;
+
+    private IClashService _activeService;
+
+    // ── Events (forwarded from active service) ──
+    public event Action<Traffic>? TrafficUpdated;
+    public event Action<CoreState>? CoreStateChanged;
+    public event Action<LogEntry>? LogReceived;
+
+    public ClashOrchestrator(
+        CoreProcessService processService,
+        HttpClashService httpClashService,
+        MockClashService mockClashService,
+        NotificationService notificationService,
+        AppSettings settings,
+        ILogger<ClashOrchestrator> logger)
+    {
+        _processService = processService;
+        _httpClashService = httpClashService;
+        _mockClashService = mockClashService;
+        _notificationService = notificationService;
+        _settings = settings;
+        _logger = logger;
+
+        // Start with mock service as the active backend
+        _activeService = _mockClashService;
+        SubscribeToEvents(_mockClashService);
+    }
+
+    /// <summary>Whether the real ClashMeta core process is running and connected.</summary>
+    public bool IsRealCore => _activeService == _httpClashService;
+
+    /// <summary>
+    /// Current core state: Running when the real core is active,
+    /// otherwise delegates to the mock service's state.
+    /// </summary>
+    public CoreState CoreState => IsRealCore ? CoreState.Running : _mockClashService.CoreState;
+
+    // ── Lifecycle ──
+
+    public async Task StartAsync()
+    {
+        try
+        {
+            // 1. Start the core process
+            try
+            {
+                await _processService.StartAsync();
+            }
+            catch (FileNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "ClashMeta core binary not found");
+                _notificationService.Error(
+                    "Core Not Found",
+                    "mihomo executable was not found. Please specify the path in settings.");
+                return;
+            }
+
+            _logger.LogInformation("ClashMeta core process started");
+
+            // 2. Wait for the REST API to become available (up to 5 seconds)
+            int apiPort = _settings.HttpPort + 1900;
+            bool apiReady = await WaitForApiAsync(apiPort, TimeSpan.FromSeconds(5));
+
+            if (!apiReady)
+            {
+                throw new TimeoutException(
+                    $"ClashMeta REST API did not respond within 5 seconds on port {apiPort}");
+            }
+
+            _logger.LogInformation("ClashMeta REST API is ready on port {Port}", apiPort);
+
+            // 3. Configure the HTTP client endpoint and start (connects WebSockets)
+            _httpClashService.SetApiEndpoint("127.0.0.1", apiPort);
+            await _httpClashService.StartAsync();
+
+            // 4. Switch active service to the real backend
+            SwitchActiveService(_httpClashService);
+
+            // 5. Fire state change and notify
+            CoreStateChanged?.Invoke(CoreState.Running);
+            _notificationService.Success("Core Started", "ClashMeta core is running.");
+
+            _logger.LogInformation("ClashOrchestrator: switched to HttpClashService");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to start ClashMeta core, falling back to mock service");
+
+            // Clean up: stop the process if it was started
+            try
+            {
+                await _processService.StopAsync();
+            }
+            catch (Exception stopEx)
+            {
+                _logger.LogWarning(stopEx, "Error stopping core process during fallback");
+            }
+
+            // Fall back to mock
+            SwitchActiveService(_mockClashService);
+            CoreStateChanged?.Invoke(_mockClashService.CoreState);
+
+            _notificationService.Error(
+                "Core Start Failed",
+                $"Could not start ClashMeta core: {ex.Message}. Using mock data.");
+        }
+    }
+
+    public async Task StopAsync()
+    {
+        try
+        {
+            // 1. Disconnect HttpClashService WebSockets
+            if (IsRealCore)
+            {
+                await _httpClashService.StopAsync();
+            }
+
+            // 2. Stop the core process
+            await _processService.StopAsync();
+
+            // 3. Switch back to mock service
+            SwitchActiveService(_mockClashService);
+
+            // 4. Fire state change
+            CoreStateChanged?.Invoke(_mockClashService.CoreState);
+
+            // 5. Notify
+            _notificationService.Info("Core Stopped", "ClashMeta core has been stopped.");
+
+            _logger.LogInformation("ClashOrchestrator: stopped core, switched to MockClashService");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during stop");
+            _notificationService.Error("Stop Error", $"Error stopping core: {ex.Message}");
+        }
+    }
+
+    // ── Traffic ──
+
+    public Traffic GetCurrentTraffic() => _activeService.GetCurrentTraffic();
+    public Traffic GetTotalTraffic() => _activeService.GetTotalTraffic();
+    public Task ResetTrafficAsync() => _activeService.ResetTrafficAsync();
+
+    // ── Outbound Mode ──
+
+    public OutboundMode GetOutboundMode() => _activeService.GetOutboundMode();
+    public Task SetOutboundModeAsync(OutboundMode mode) => _activeService.SetOutboundModeAsync(mode);
+
+    // ── Proxy ──
+
+    public Task<IReadOnlyList<ProxyGroup>> GetProxyGroupsAsync() => _activeService.GetProxyGroupsAsync();
+    public Task ChangeProxyAsync(string groupName, string proxyName) => _activeService.ChangeProxyAsync(groupName, proxyName);
+    public Task<int> TestDelayAsync(string proxyName, string? testUrl = null) => _activeService.TestDelayAsync(proxyName, testUrl);
+
+    // ── Config ──
+
+    public Task<IReadOnlyList<Profile>> GetProfilesAsync() => _activeService.GetProfilesAsync();
+    public Task AddProfileAsync(Profile profile) => _activeService.AddProfileAsync(profile);
+    public Task UpdateProfileAsync(Profile profile) => _activeService.UpdateProfileAsync(profile);
+    public Task DeleteProfileAsync(string profileId) => _activeService.DeleteProfileAsync(profileId);
+    public Task SwitchProfileAsync(string profileId) => _activeService.SwitchProfileAsync(profileId);
+    public Task SyncProfileAsync(string profileId) => _activeService.SyncProfileAsync(profileId);
+
+    // ── Connections ──
+
+    public Task<IReadOnlyList<ConnectionInfo>> GetConnectionsAsync() => _activeService.GetConnectionsAsync();
+    public Task CloseConnectionAsync(string connectionId) => _activeService.CloseConnectionAsync(connectionId);
+    public Task CloseAllConnectionsAsync() => _activeService.CloseAllConnectionsAsync();
+
+    // ── Log ──
+
+    public Task StartLogAsync() => _activeService.StartLogAsync();
+    public Task StopLogAsync() => _activeService.StopLogAsync();
+
+    // ── Network ──
+
+    public Task<IpInfo> GetIpInfoAsync() => _activeService.GetIpInfoAsync();
+
+    // ── External Providers ──
+
+    public Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync() => _activeService.GetExternalProvidersAsync();
+    public Task UpdateExternalProviderAsync(string name) => _activeService.UpdateExternalProviderAsync(name);
+
+    // ── Rules ──
+
+    public Task<IReadOnlyList<Rule>> GetRulesAsync() => _activeService.GetRulesAsync();
+
+    // ── Memory ──
+
+    public Task<long> GetCoreMemoryAsync() => _activeService.GetCoreMemoryAsync();
+    public Task ForceGcAsync() => _activeService.ForceGcAsync();
+
+    // ── Private helpers ──
+
+    /// <summary>
+    /// Polls the /version endpoint until it responds or the timeout expires.
+    /// </summary>
+    private async Task<bool> WaitForApiAsync(int port, TimeSpan timeout)
+    {
+        using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(2) };
+        var deadline = DateTime.UtcNow + timeout;
+
+        while (DateTime.UtcNow < deadline)
+        {
+            try
+            {
+                var resp = await http.GetAsync($"http://127.0.0.1:{port}/version");
+                if (resp.IsSuccessStatusCode)
+                    return true;
+            }
+            catch
+            {
+                // API not ready yet
+            }
+
+            await Task.Delay(300);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Switches the active service, unsubscribing from the old one and subscribing to the new one.
+    /// </summary>
+    private void SwitchActiveService(IClashService newService)
+    {
+        UnsubscribeFromEvents(_activeService);
+        _activeService = newService;
+        SubscribeToEvents(newService);
+    }
+
+    private void SubscribeToEvents(IClashService service)
+    {
+        service.TrafficUpdated += OnTrafficUpdated;
+        service.CoreStateChanged += OnCoreStateChanged;
+        service.LogReceived += OnLogReceived;
+    }
+
+    private void UnsubscribeFromEvents(IClashService service)
+    {
+        service.TrafficUpdated -= OnTrafficUpdated;
+        service.CoreStateChanged -= OnCoreStateChanged;
+        service.LogReceived -= OnLogReceived;
+    }
+
+    private void OnTrafficUpdated(Traffic traffic) => TrafficUpdated?.Invoke(traffic);
+    private void OnCoreStateChanged(CoreState state) => CoreStateChanged?.Invoke(state);
+    private void OnLogReceived(LogEntry entry) => LogReceived?.Invoke(entry);
+}

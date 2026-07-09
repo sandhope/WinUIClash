@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
+using Windows.UI;
 using WinUIClash.Models;
 
 namespace WinUIClash.ViewModels.Settings;
@@ -80,10 +81,18 @@ public partial class ThemeSettingsViewModel : ObservableObject
     public int PrimaryColorIndex
     {
         get => _settings.PrimaryColorIndex;
-        set { if (_settings.PrimaryColorIndex != value) { _settings.PrimaryColorIndex = value; OnPropertyChanged(); } }
+        set
+        {
+            if (_settings.PrimaryColorIndex != value)
+            {
+                _settings.PrimaryColorIndex = value;
+                OnPropertyChanged();
+                ApplyAccentColor();
+            }
+        }
     }
 
-    private static void ApplyTheme(string mode)
+    private void ApplyTheme(string mode)
     {
         // WinUI 3 中 Application.RequestedTheme 是只读的，
         // 必须设置到窗口根 FrameworkElement 上才能生效
@@ -102,6 +111,76 @@ public partial class ThemeSettingsViewModel : ObservableObject
                 _ => ElementTheme.Default
             };
         }
+
+        ApplyAccentColor();
+    }
+
+    /// <summary>
+    /// 将当前选择的主题色应用到窗口资源，覆盖系统默认 Accent 色系
+    /// </summary>
+    private void ApplyAccentColor()
+    {
+        var hex = PrimaryColors[_settings.PrimaryColorIndex].Hex;
+        var color = ParseHexColor(hex);
+
+        if (App.CurrentWindow?.Content is FrameworkElement element)
+        {
+            element.Resources["SystemAccentColor"] = color;
+            element.Resources["SystemAccentColorLight1"] = LightenColor(color, 0.2);
+            element.Resources["SystemAccentColorLight2"] = LightenColor(color, 0.4);
+            element.Resources["SystemAccentColorLight3"] = LightenColor(color, 0.6);
+            element.Resources["SystemAccentColorDark1"] = DarkenColor(color, 0.2);
+            element.Resources["SystemAccentColorDark2"] = DarkenColor(color, 0.4);
+            element.Resources["SystemAccentColorDark3"] = DarkenColor(color, 0.6);
+        }
+    }
+
+    /// <summary>
+    /// 应用启动时调用一次，恢复保存的主题和主题色
+    /// </summary>
+    public static void InitializeTheme()
+    {
+        var vm = ServiceLocator.Get<ThemeSettingsViewModel>();
+        vm.ApplyTheme(vm._settings.ThemeMode);
+        vm.ApplyAccentColor();
+    }
+
+    private static Color ParseHexColor(string hex)
+    {
+        hex = hex.TrimStart('#');
+        byte a = 255, r = 0, g = 0, b = 0;
+        if (hex.Length == 8)
+        {
+            a = Convert.ToByte(hex[..2], 16);
+            r = Convert.ToByte(hex[2..4], 16);
+            g = Convert.ToByte(hex[4..6], 16);
+            b = Convert.ToByte(hex[6..8], 16);
+        }
+        else if (hex.Length == 6)
+        {
+            r = Convert.ToByte(hex[..2], 16);
+            g = Convert.ToByte(hex[2..4], 16);
+            b = Convert.ToByte(hex[4..6], 16);
+        }
+        return Color.FromArgb(a, r, g, b);
+    }
+
+    private static Color LightenColor(Color color, double amount)
+    {
+        return Color.FromArgb(
+            color.A,
+            (byte)(color.R + (255 - color.R) * amount),
+            (byte)(color.G + (255 - color.G) * amount),
+            (byte)(color.B + (255 - color.B) * amount));
+    }
+
+    private static Color DarkenColor(Color color, double amount)
+    {
+        return Color.FromArgb(
+            color.A,
+            (byte)(color.R * (1 - amount)),
+            (byte)(color.G * (1 - amount)),
+            (byte)(color.B * (1 - amount)));
     }
 
     private static ApplicationTheme GetSystemTheme()

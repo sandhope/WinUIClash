@@ -35,6 +35,7 @@ public sealed partial class MainWindow : Window
 
     private TaskbarIcon? _trayIcon;
     private bool _isExiting;
+    private bool _cleanedUp;
     private readonly DispatcherQueue _dispatcher;
 
     // 状态栏引用的服务
@@ -557,12 +558,28 @@ public sealed partial class MainWindow : Window
         PInvoke.SetForegroundWindow(new HandleRef(null, hwnd));
     }
 
-    private void ExitApp()
+    private async void ExitApp()
     {
         _isExiting = true;
 
-        // 确保系统代理已关闭，防止代理残留
-        try { ServiceLocator.Get<SystemProxyService>().EnsureDisabledOnExit(); } catch { }
+        if (!_cleanedUp)
+        {
+            _cleanedUp = true;
+            try
+            {
+                // Stop core process
+                var core = ServiceLocator.Get<Services.CoreProcessService>();
+                await core.StopAsync();
+                core.Dispose();
+
+                // Disable system proxy
+                ServiceLocator.Get<Services.SystemProxyService>().Disable();
+
+                // Save settings
+                ServiceLocator.Get<Services.SettingsService>().SaveImmediate();
+            }
+            catch { }
+        }
 
         _trayIcon?.Dispose();
         _trayIcon = null;
@@ -570,7 +587,7 @@ public sealed partial class MainWindow : Window
         Application.Current.Exit();
     }
 
-    private void OnWindowClosed(object sender, WindowEventArgs args)
+    private async void OnWindowClosed(object sender, WindowEventArgs args)
     {
         if (_isExiting) return;
 
@@ -590,7 +607,22 @@ public sealed partial class MainWindow : Window
         }
         catch { /* ServiceLocator 未初始化时忽略 */ }
 
-        // 正常退出
+        // 正常关闭 — 执行清理（与 ExitApp 共享，防止重复）
+        if (!_cleanedUp)
+        {
+            _cleanedUp = true;
+            try
+            {
+                var core = ServiceLocator.Get<Services.CoreProcessService>();
+                await core.StopAsync();
+                core.Dispose();
+
+                ServiceLocator.Get<Services.SystemProxyService>().Disable();
+                ServiceLocator.Get<Services.SettingsService>().SaveImmediate();
+            }
+            catch { }
+        }
+
         _trayIcon?.Dispose();
         _trayIcon = null;
     }
