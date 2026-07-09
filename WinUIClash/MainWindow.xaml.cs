@@ -416,6 +416,19 @@ public sealed partial class MainWindow : Window
             _trayProxyItem.IsChecked = isProxyOn;
     }
 
+    private async void StatusDot_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var clash = ServiceLocator.Get<IClashService>();
+            if (clash.CoreState == CoreState.Running)
+                await clash.StopAsync();
+            else if (clash.CoreState == CoreState.Stopped)
+                await clash.StartAsync();
+        }
+        catch { }
+    }
+
     // ── 系统托盘 ──────────────────────────────────────────────────────────────
 
     private void InitTrayIcon()
