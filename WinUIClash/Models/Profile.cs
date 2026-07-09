@@ -24,6 +24,7 @@ public partial class Profile : ObservableObject
     public string Id { get; set; } = Guid.NewGuid().ToString();
     [ObservableProperty] private string _label = string.Empty;
     public string? Url { get; set; }
+    public string Path { get; set; } = string.Empty;
 
     [ObservableProperty] private DateTime _lastUpdate = DateTime.Now;
     public bool AutoUpdate { get; set; }

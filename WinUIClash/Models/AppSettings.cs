@@ -45,6 +45,8 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private bool _systemProxy = false;
     [ObservableProperty] private string _bypassDomains = "localhost;127.0.0.1;<local>";
+    [ObservableProperty] private bool _proxyGuardEnabled = true;
+    [ObservableProperty] private int _proxyGuardInterval = 30;
 
     // ── 窗口状态 ──
 

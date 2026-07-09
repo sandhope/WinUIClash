@@ -124,9 +124,14 @@ namespace WinUIClash
             settingsService.EnableAutoSave();
 
             // 初始化系统代理
+            var appSettings = ServiceLocator.Get<Models.AppSettings>();
             var proxyService = ServiceLocator.Get<Services.SystemProxyService>();
             proxyService.ApplyCurrentState();
             proxyService.WatchSettings();
+            if (appSettings.SystemProxy && appSettings.ProxyGuardEnabled)
+            {
+                proxyService.StartGuard();
+            }
 
             CurrentWindow = new MainWindow();
             CurrentWindow.Activate();
@@ -135,7 +140,6 @@ namespace WinUIClash
             ViewModels.Settings.ThemeSettingsViewModel.InitializeTheme();
 
             // 应用语言设置
-            var appSettings = ServiceLocator.Get<Models.AppSettings>();
             var lang = appSettings.Language;
             Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = lang;
 

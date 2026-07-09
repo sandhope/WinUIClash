@@ -112,6 +112,33 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
+                            <TextBlock x:Uid="AppProxyGuard" FontSize="13" />
+                            <TextBlock x:Uid="AppProxyGuardDesc" FontSize="11" Opacity="0.5" />
+                        </StackPanel>
+                        <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.ProxyGuardEnabled, Mode=TwoWay}"
+                                      OffContent="" OnContent="" />
+                    </Grid>
+                    <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                          BorderThickness="0,0,0,1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                            <TextBlock x:Uid="AppProxyGuardInterval" FontSize="13" />
+                            <TextBlock x:Uid="AppProxyGuardIntervalDesc" FontSize="11" Opacity="0.5" />
+                        </StackPanel>
+                        <NumberBox Grid.Column="1" Value="{x:Bind ViewModel.ProxyGuardInterval, Mode=TwoWay}"
+                                   Minimum="5" Maximum="600" SmallChange="5" LargeChange="30"
+                                   SpinButtonPlacementMode="Compact" MinWidth="120" />
+                    </Grid>
+                    <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                          BorderThickness="0,0,0,1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
                             <TextBlock x:Uid="AppCloseConnections" FontSize="13" />
                             <TextBlock x:Uid="AppCloseConnectionsDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>

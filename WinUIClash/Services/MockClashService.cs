@@ -236,13 +236,13 @@ public class MockClashService : IClashService
         return Task.CompletedTask;
     }
 
-    public Task SwitchProfileAsync(string profileId)
+    public Task SwitchProfileAsync(string profileId, string configPath = "")
     {
         foreach (var p in _profiles) p.IsActive = p.Id == profileId;
         return Task.CompletedTask;
     }
 
-    public Task SyncProfileAsync(string profileId)
+    public Task SyncProfileAsync(string profileId, string? url = null, string configPath = "")
     {
         var p = _profiles.FirstOrDefault(x => x.Id == profileId);
         if (p != null) p.LastUpdate = DateTime.Now;
@@ -326,11 +326,18 @@ public class MockClashService : IClashService
         "[UDP] 127.0.0.1:53 --> 8.8.8.8:53 using nameserver policy"
     ];
 
-    public Task StartLogAsync()
+    public Task StartLogAsync(string level = "info")
     {
+        _logTimer?.Dispose();
+
+        // Parse minimum level threshold
+        var minLevel = Models.LogLevel.Info;
+        if (Enum.TryParse<Models.LogLevel>(level, ignoreCase: true, out var parsed))
+            minLevel = parsed;
+
         _logTimer = new Timer(_ =>
         {
-            var level = _rng.Next(10) switch
+            var level_ = _rng.Next(10) switch
             {
                 < 5 => Models.LogLevel.Info,
                 < 8 => Models.LogLevel.Debug,
@@ -338,9 +345,12 @@ public class MockClashService : IClashService
                 _ => Models.LogLevel.Error
             };
 
+            // Server-side filtering: only emit logs at or above the requested level
+            if (level_ < minLevel) return;
+
             var entry = new LogEntry
             {
-                Level = level,
+                Level = level_,
                 Payload = _logMessages[_rng.Next(_logMessages.Length)],
                 Timestamp = DateTime.Now
             };

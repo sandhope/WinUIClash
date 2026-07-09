@@ -54,12 +54,14 @@ public class SettingsService
             _settings.TcpConcurrent = dto.TcpConcurrent;
             _settings.FindProcessMode = dto.FindProcessMode;
             _settings.ExternalController = dto.ExternalController;
+            if (dto.ApiSecret != null) _settings.ApiSecret = dto.ApiSecret;
 
             // 应用设置
             _settings.MinimizeOnExit = dto.MinimizeOnExit;
             _settings.AutoLaunch = dto.AutoLaunch;
             _settings.SilentLaunch = dto.SilentLaunch;
             _settings.AutoRun = dto.AutoRun;
+            _settings.AutoRestart = dto.AutoRestart;
             _settings.AutoCheckUpdate = dto.AutoCheckUpdate;
             _settings.CloseConnections = dto.CloseConnections;
             _settings.OnlyStatisticsProxy = dto.OnlyStatisticsProxy;
@@ -71,6 +73,8 @@ public class SettingsService
             // 系统代理
             _settings.SystemProxy = dto.SystemProxy;
             if (dto.BypassDomains != null) _settings.BypassDomains = dto.BypassDomains;
+            _settings.ProxyGuardEnabled = dto.ProxyGuardEnabled;
+            _settings.ProxyGuardInterval = dto.ProxyGuardInterval > 0 ? dto.ProxyGuardInterval : 30;
 
             // 窗口状态
             _settings.WindowWidth = dto.WindowWidth > 0 ? dto.WindowWidth : 1280;
@@ -119,12 +123,14 @@ public class SettingsService
                 TcpConcurrent = _settings.TcpConcurrent,
                 FindProcessMode = _settings.FindProcessMode,
                 ExternalController = _settings.ExternalController,
+                ApiSecret = _settings.ApiSecret,
 
                 // 应用设置
                 MinimizeOnExit = _settings.MinimizeOnExit,
                 AutoLaunch = _settings.AutoLaunch,
                 SilentLaunch = _settings.SilentLaunch,
                 AutoRun = _settings.AutoRun,
+                AutoRestart = _settings.AutoRestart,
                 AutoCheckUpdate = _settings.AutoCheckUpdate,
                 CloseConnections = _settings.CloseConnections,
                 OnlyStatisticsProxy = _settings.OnlyStatisticsProxy,
@@ -136,6 +142,8 @@ public class SettingsService
                 // 系统代理
                 SystemProxy = _settings.SystemProxy,
                 BypassDomains = _settings.BypassDomains,
+                ProxyGuardEnabled = _settings.ProxyGuardEnabled,
+                ProxyGuardInterval = _settings.ProxyGuardInterval,
 
                 // 窗口状态
                 WindowWidth = _settings.WindowWidth,
@@ -178,12 +186,14 @@ internal class SettingsDto
     public bool TcpConcurrent { get; set; }
     public bool FindProcessMode { get; set; }
     public bool ExternalController { get; set; } = true;
+    public string ApiSecret { get; set; } = "";
 
     // 应用设置
     public bool MinimizeOnExit { get; set; } = true;
     public bool AutoLaunch { get; set; }
     public bool SilentLaunch { get; set; }
     public bool AutoRun { get; set; }
+    public bool AutoRestart { get; set; } = true;
     public bool AutoCheckUpdate { get; set; } = true;
     public bool CloseConnections { get; set; }
     public bool OnlyStatisticsProxy { get; set; }
@@ -195,6 +205,8 @@ internal class SettingsDto
     // 系统代理
     public bool SystemProxy { get; set; }
     public string BypassDomains { get; set; } = "localhost;127.0.0.1;<local>";
+    public bool ProxyGuardEnabled { get; set; } = true;
+    public int ProxyGuardInterval { get; set; } = 30;
 
     // 窗口状态
     public int WindowWidth { get; set; } = 1280;

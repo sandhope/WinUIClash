@@ -244,14 +244,43 @@ public class HttpClashService : IClashService, IDisposable
     public Task AddProfileAsync(Profile profile) => Task.CompletedTask;
     public Task UpdateProfileAsync(Profile profile) => Task.CompletedTask;
     public Task DeleteProfileAsync(string profileId) => Task.CompletedTask;
-    public Task SwitchProfileAsync(string profileId) => Task.CompletedTask;
 
-    public async Task SyncProfileAsync(string profileId)
+    public async Task SwitchProfileAsync(string profileId, string configPath = "")
     {
-        // Trigger config reload via PUT /configs
-        var json = JsonSerializer.Serialize(new { path = "" });
+        if (string.IsNullOrWhiteSpace(configPath)) return;
+
+        // Normalize to absolute path
+        configPath = Path.GetFullPath(configPath);
+        if (!File.Exists(configPath)) return;
+
+        // Normalize backslashes for the ClashMeta API (it expects forward slashes)
+        var normalizedPath = configPath.Replace('\\', '/');
+        var json = JsonSerializer.Serialize(new { path = normalizedPath });
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         await _http.PutAsync("/configs", content);
+    }
+
+    public async Task SyncProfileAsync(string profileId, string? url = null, string configPath = "")
+    {
+        // If a subscription URL is provided, download the config first
+        if (!string.IsNullOrWhiteSpace(url))
+        {
+            var storage = new ProfileStorageService();
+            var path = await storage.DownloadAndSaveAsync(profileId, url);
+
+            // If configPath is provided or this is the active profile, reload the core config
+            if (!string.IsNullOrWhiteSpace(configPath) || string.IsNullOrWhiteSpace(configPath))
+                configPath = path;
+        }
+
+        // Reload config via PUT /configs if we have a path
+        if (!string.IsNullOrWhiteSpace(configPath))
+        {
+            var normalizedPath = Path.GetFullPath(configPath).Replace('\\', '/');
+            var json = JsonSerializer.Serialize(new { path = normalizedPath });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            await _http.PutAsync("/configs", content);
+        }
     }
 
     // ── 连接 ──
@@ -299,12 +328,15 @@ public class HttpClashService : IClashService, IDisposable
 
     // ── 日志 ──
 
-    public async Task StartLogAsync()
+    public async Task StartLogAsync(string level = "info")
     {
+        await StopLogAsync();
+
         _logCts = new CancellationTokenSource();
         _logWs = new ClientWebSocket();
 
-        var wsUri = new Uri($"ws://{_http.BaseAddress!.Authority}/logs?token={GetToken()}&level=info");
+        var wsLevel = string.IsNullOrWhiteSpace(level) ? "info" : level.ToLowerInvariant();
+        var wsUri = new Uri($"ws://{_http.BaseAddress!.Authority}/logs?token={GetToken()}&level={wsLevel}");
         try
         {
             await _logWs.ConnectAsync(wsUri, _logCts.Token);
@@ -319,11 +351,11 @@ public class HttpClashService : IClashService, IDisposable
                 var dto = JsonSerializer.Deserialize<LogDto>(json, JsonOpts);
                 if (dto != null)
                 {
-                    var level = Enum.TryParse<LogLevel>(dto.Type, true, out var l) ? l : LogLevel.Info;
+                    var parsedLevel = Enum.TryParse<LogLevel>(dto.Type, true, out var l) ? l : LogLevel.Info;
                     LogReceived?.Invoke(new LogEntry
                     {
                         Timestamp = DateTime.Now,
-                        Level = level,
+                        Level = parsedLevel,
                         Payload = dto.Payload ?? "",
                     });
                 }
