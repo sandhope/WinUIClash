@@ -45,7 +45,9 @@
             </Grid.ColumnDefinitions>
             <ScrollViewer HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Disabled">
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Groups, Mode=OneWay}">
+                <ItemsRepeater x:Name="GroupTabsRepeater"
+                               ItemsSource="{x:Bind ViewModel.Groups, Mode=OneWay}"
+                               ElementPrepared="GroupTabsRepeater_ElementPrepared">
                     <ItemsRepeater.Layout>
                         <StackLayout Orientation="Horizontal" Spacing="4" />
                     </ItemsRepeater.Layout>

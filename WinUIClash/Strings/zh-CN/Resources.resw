@@ -276,6 +276,7 @@
   <data name="ConnDetailDest.Text" xml:space="preserve"><value>目标地址</value></data>
   <data name="ConnDetailTransfer.Text" xml:space="preserve"><value>总上传 / 下载</value></data>
   <data name="ConnCloseThis.Content" xml:space="preserve"><value>关闭此连接</value></data>
+  <data name="ConnCopyChains.Text" xml:space="preserve"><value>复制代理链</value></data>
 
   <!-- Logs - Additional -->
   <data name="LogsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索日志…</value></data>

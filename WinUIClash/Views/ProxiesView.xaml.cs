@@ -32,6 +32,24 @@ public sealed partial class ProxiesView : Page
             ViewModel.SelectGroupCommand.Execute(group);
     }
 
+    private void GroupTabsRepeater_ElementPrepared(ItemsRepeater sender, ItemsRepeaterElementPreparedEventArgs args)
+    {
+        if (args.Element is not Button btn) return;
+        if (btn.Tag is not ProxyGroup group) return;
+
+        var isSelected = ViewModel.SelectedGroup?.Name == group.Name;
+        if (isSelected)
+        {
+            btn.Background = (Brush)Application.Current.Resources["AccentFillColorDefaultBrush"];
+            btn.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255));
+        }
+        else
+        {
+            btn.Background = (Brush)Application.Current.Resources["SubtleFillColorSecondary"];
+            btn.Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"];
+        }
+    }
+
     private void ProxyGrid_ItemClick(object sender, ItemClickEventArgs e)
     {
         if (e.ClickedItem is Proxy proxy)
@@ -70,6 +88,11 @@ public sealed partial class ProxiesView : Page
         var itemsSource = ProxyGrid.ItemsSource;
         ProxyGrid.ItemsSource = null;
         ProxyGrid.ItemsSource = itemsSource;
+
+        // 刷新代理组 Tab 高亮
+        var tabSource = GroupTabsRepeater.ItemsSource;
+        GroupTabsRepeater.ItemsSource = null;
+        GroupTabsRepeater.ItemsSource = tabSource;
     }
 
     private async void ProxyCard_RightTapped(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)
