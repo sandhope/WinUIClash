@@ -77,6 +77,7 @@ public class SettingsService
             // 主题
             if (dto.ThemeMode != null) _settings.ThemeMode = dto.ThemeMode;
             _settings.PrimaryColorIndex = dto.PrimaryColorIndex;
+            _settings.UseSystemAccentColor = dto.UseSystemAccentColor;
 
             // 系统代理
             _settings.SystemProxy = dto.SystemProxy;
@@ -151,6 +152,7 @@ public class SettingsService
                 // 主题
                 ThemeMode = _settings.ThemeMode,
                 PrimaryColorIndex = _settings.PrimaryColorIndex,
+                UseSystemAccentColor = _settings.UseSystemAccentColor,
 
                 // 系统代理
                 SystemProxy = _settings.SystemProxy,
@@ -219,6 +221,7 @@ internal class SettingsDto
     // 主题
     public string ThemeMode { get; set; } = "System";
     public int PrimaryColorIndex { get; set; }
+    public bool UseSystemAccentColor { get; set; }
 
     // 系统代理
     public bool SystemProxy { get; set; }

@@ -22,15 +22,42 @@ public partial class ThemeSettingsViewModel : ObservableObject
         _dispatcher = DispatcherQueue.GetForCurrentThread()!;
         _uiSettings = new Windows.UI.ViewManagement.UISettings();
 
-        // 监听系统主题变化，实时跟随
+        // 监听系统主题和颜色变化，实时跟随
         _uiSettings.ColorValuesChanged += (_, _) =>
         {
-            if (_settings.ThemeMode == "System")
+            _dispatcher.TryEnqueue(() =>
             {
-                _dispatcher.TryEnqueue(() => ApplyTheme("System"));
-            }
+                if (_settings.ThemeMode == "System")
+                    ApplyTheme("System");
+
+                if (_settings.UseSystemAccentColor)
+                    ApplySystemAccentColor();
+            });
         };
     }
+
+    // ── 使用系统主题色 ──
+
+    public bool UseSystemAccentColor
+    {
+        get => _settings.UseSystemAccentColor;
+        set
+        {
+            if (_settings.UseSystemAccentColor != value)
+            {
+                _settings.UseSystemAccentColor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(UsePresetColors));
+                if (value)
+                    ApplySystemAccentColor();
+                else
+                    ApplyAccentColor();
+            }
+        }
+    }
+
+    /// <summary>当启用系统色时禁用预设色板</summary>
+    public bool UsePresetColors => !_settings.UseSystemAccentColor;
 
     public record ThemeOption(string Label, string Value);
 
@@ -137,9 +164,24 @@ public partial class ThemeSettingsViewModel : ObservableObject
     /// </summary>
     private void ApplyAccentColor()
     {
+        if (_settings.UseSystemAccentColor)
+        {
+            ApplySystemAccentColor();
+            return;
+        }
+
         var hex = PrimaryColors[_settings.PrimaryColorIndex].Hex;
         var color = ParseHexColor(hex);
         ApplyAccentColorInternal(color);
+    }
+
+    /// <summary>
+    /// 读取 Windows 系统主题色并应用
+    /// </summary>
+    private void ApplySystemAccentColor()
+    {
+        var accentColor = _uiSettings.GetColorValue(Windows.UI.ViewManagement.UIColorType.Accent);
+        ApplyAccentColorInternal(accentColor);
     }
 
     /// <summary>

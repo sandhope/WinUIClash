@@ -29,27 +29,48 @@
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="12">
                     <TextBlock x:Uid="ThemeAccentColor" FontSize="14" FontWeight="SemiBold" />
-                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.PrimaryColors}">
-                        <ItemsRepeater.Layout>
-                            <UniformGridLayout MinItemWidth="48" MinItemHeight="48"
-                                               MinRowSpacing="8" MinColumnSpacing="8"
-                                               MaximumRowsOrColumns="8" />
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate>
-                                <Button Width="48" Height="48" Padding="0"
-                                        Tag="{Binding}" Click="Color_Click"
-                                        ToolTipService.ToolTip="{Binding Name}">
-                                    <Button.Background>
-                                        <SolidColorBrush Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
-                                    </Button.Background>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
-                    <!-- 自定义颜色选择器 -->
+
+                    <!-- 使用系统主题色 -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                            <TextBlock x:Uid="ThemeUseSystemAccent" FontSize="13" />
+                            <TextBlock x:Uid="ThemeUseSystemAccentDesc" FontSize="11" Opacity="0.5" />
+                        </StackPanel>
+                        <ToggleSwitch Grid.Column="1"
+                                      IsOn="{x:Bind ViewModel.UseSystemAccentColor, Mode=TwoWay}"
+                                      OffContent="" OnContent="" />
+                    </Grid>
+
+                    <!-- 预设色板 (系统色启用时禁用) -->
+                    <ContentControl IsEnabled="{x:Bind ViewModel.UsePresetColors, Mode=OneWay}"
+                                    HorizontalContentAlignment="Stretch">
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.PrimaryColors}">
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout MinItemWidth="48" MinItemHeight="48"
+                                                   MinRowSpacing="8" MinColumnSpacing="8"
+                                                   MaximumRowsOrColumns="8" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Width="48" Height="48" Padding="0"
+                                            Tag="{Binding}" Click="Color_Click"
+                                            ToolTipService.ToolTip="{Binding Name}">
+                                        <Button.Background>
+                                            <SolidColorBrush Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
+                                        </Button.Background>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </ContentControl>
+                    <!-- 自定义颜色选择器 (系统色启用时禁用) -->
                     <Expander x:Uid="ThemeCustomColor" HorizontalAlignment="Stretch"
-                              HorizontalContentAlignment="Stretch">
+                              HorizontalContentAlignment="Stretch"
+                              IsEnabled="{x:Bind ViewModel.UsePresetColors, Mode=OneWay}">
                         <StackPanel Spacing="8">
                             <ColorPicker x:Name="CustomColorPicker"
                                          ColorSpectrumShape="Ring"
