@@ -16,16 +16,19 @@ namespace WinUIClash.ViewModels;
 public partial class DashboardViewModel : ObservableObject, IDisposable
 {
     private readonly IClashService _clash;
+    private readonly AppSettings _settings;
     private readonly DispatcherQueue _dispatcher;
     private bool _initialized;
     private DispatcherTimer? _connTimer;
 
-    public DashboardViewModel(IClashService clash)
+    public DashboardViewModel(IClashService clash, AppSettings settings)
     {
         _clash = clash;
+        _settings = settings;
         _dispatcher = DispatcherQueue.GetForCurrentThread()!;
         _clash.TrafficUpdated += OnTrafficUpdated;
         _clash.CoreStateChanged += HandleCoreStateChanged;
+        _settings.PropertyChanged += OnSettingsPropertyChanged;
 
         // 初始化历史数据（60秒模拟）
         var rng = new Random();
@@ -391,6 +394,38 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
 
     [ObservableProperty] private bool _isTunEnabled;
 
+    // ── 快速切换 ──
+
+    public bool IsSystemProxyOn
+    {
+        get => _settings.SystemProxy;
+        set { if (_settings.SystemProxy != value) { _settings.SystemProxy = value; OnPropertyChanged(); } }
+    }
+
+    private void OnSettingsPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(AppSettings.SystemProxy))
+            _dispatcher.TryEnqueue(() => OnPropertyChanged(nameof(IsSystemProxyOn)));
+        if (e.PropertyName == nameof(AppSettings.TunMode))
+            _dispatcher.TryEnqueue(() => IsTunEnabled = _settings.TunMode);
+    }
+
+    [RelayCommand]
+    private async Task ToggleTunModeAsync()
+    {
+        try
+        {
+            var newState = !IsTunEnabled;
+            await _clash.SetTunEnabledAsync(newState);
+            IsTunEnabled = newState;
+            _settings.TunMode = newState;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Toggle TUN error: {ex.Message}");
+        }
+    }
+
     // ── 初始化 ──
 
     public async Task InitializeAsync()
@@ -433,6 +468,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         _connTimer = null;
         _clash.TrafficUpdated -= OnTrafficUpdated;
         _clash.CoreStateChanged -= HandleCoreStateChanged;
+        _settings.PropertyChanged -= OnSettingsPropertyChanged;
     }
 
     private static string CountryCodeToFlag(string code)

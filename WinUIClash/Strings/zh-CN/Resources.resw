@@ -44,6 +44,7 @@
   <data name="DashCoreStop.Text" xml:space="preserve"><value>停止</value></data>
   <data name="DashRuntime.Text" xml:space="preserve"><value>运行 </value></data>
   <data name="DashOutboundMode.Text" xml:space="preserve"><value>出站模式</value></data>
+  <data name="DashSystemProxy.Text" xml:space="preserve"><value>系统代理</value></data>
   <data name="DashSystemInfo.Text" xml:space="preserve"><value>系统信息</value></data>
   <data name="DashRefreshMemory.Content" xml:space="preserve"><value>回收内存</value></data>
   <data name="DashCoreVersion.Text" xml:space="preserve"><value>核心版本</value></data>
