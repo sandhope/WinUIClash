@@ -43,7 +43,27 @@
                 <Button Command="{x:Bind ViewModel.RefreshCommand}" x:Uid="CommonRefresh">
                     <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
                 </Button>
-                <Button Command="{x:Bind ViewModel.CloseAllCommand}" x:Uid="ConnCloseAll">
+                <Grid>
+                    <Button Command="{x:Bind ViewModel.TogglePauseCommand}"
+                            ToolTipService.ToolTip="{x:Bind ViewModel.PauseLabel, Mode=OneWay}"
+                            Padding="8,4" Background="Transparent" BorderThickness="0"
+                            Visibility="{x:Bind ViewModel.IsPaused, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <fluent:SymbolIcon Symbol="Pause" FontSize="12" />
+                            <TextBlock Text="{x:Bind ViewModel.PauseLabel, Mode=OneWay}" FontSize="11" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{x:Bind ViewModel.TogglePauseCommand}"
+                            ToolTipService.ToolTip="{x:Bind ViewModel.PauseLabel, Mode=OneWay}"
+                            Padding="8,4" Background="Transparent" BorderThickness="0"
+                            Visibility="{x:Bind ViewModel.IsPaused, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <fluent:SymbolIcon Symbol="Play" FontSize="12" />
+                            <TextBlock Text="{x:Bind ViewModel.PauseLabel, Mode=OneWay}" FontSize="11" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+                <Button Click="CloseAll_Click" x:Uid="ConnCloseAll">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <fluent:SymbolIcon Symbol="DismissCircle" FontSize="14" />
                         <TextBlock x:Uid="ConnCloseAll" FontSize="12" />

@@ -81,9 +81,21 @@ public sealed partial class ProfilesView : Page
             ViewModel.SyncProfileCommand.Execute(profile);
     }
 
-    private void DeleteButton_Click(object sender, RoutedEventArgs e)
+    private async void DeleteButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button btn && btn.Tag is Profile profile)
+        if (sender is not Button btn || btn.Tag is not Profile profile) return;
+
+        var dialog = new ContentDialog
+        {
+            Title = LocalizationHelper.GetString("ProfilesDeleteConfirmTitle.Text"),
+            Content = string.Format(LocalizationHelper.GetString("ProfilesDeleteConfirmContent.Text"), profile.Label),
+            PrimaryButtonText = LocalizationHelper.GetString("CommonDelete.Content"),
+            CloseButtonText = LocalizationHelper.GetString("CommonCancel.Content"),
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = XamlRoot,
+        };
+
+        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             ViewModel.DeleteProfileCommand.Execute(profile);
     }
 

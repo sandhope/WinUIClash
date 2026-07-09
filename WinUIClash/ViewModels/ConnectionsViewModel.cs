@@ -9,20 +9,22 @@ using WinUIClash.Services;
 namespace WinUIClash.ViewModels;
 
 /// <summary>
-/// 连接页 ViewModel — 活跃连接列表 + 自动刷新 + 排序
+/// 连接页 ViewModel — 活跃连接列表 + 自动刷新 + 排序 + 暂停
 /// </summary>
 public partial class ConnectionsViewModel : ObservableObject
 {
     private readonly IClashService _clash;
+    private readonly NotificationService _notification;
     private readonly DispatcherQueue _dispatcher;
     private Timer? _refreshTimer;
     private bool _initialized;
 
     public enum ConnSortMode { None, Host, Upload, Download, Duration }
 
-    public ConnectionsViewModel(IClashService clash)
+    public ConnectionsViewModel(IClashService clash, NotificationService notification)
     {
         _clash = clash;
+        _notification = notification;
         _dispatcher = DispatcherQueue.GetForCurrentThread()!;
     }
 
@@ -32,9 +34,21 @@ public partial class ConnectionsViewModel : ObservableObject
     [ObservableProperty] private ConnectionInfo? _selectedConnection;
     [ObservableProperty] private ConnSortMode _currentSort = ConnSortMode.None;
     [ObservableProperty] private int _connectionCount;
+    [ObservableProperty] private bool _isPaused;
+    [ObservableProperty] private string _pauseLabel = "";
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
     partial void OnCurrentSortChanged(ConnSortMode value) => ApplyFilter();
+    partial void OnIsPausedChanged(bool value)
+    {
+        PauseLabel = value
+            ? LocalizationHelper.GetString("ConnResume.Content")
+            : LocalizationHelper.GetString("ConnPause.Content");
+        if (value)
+            _refreshTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+        else
+            _refreshTimer?.Change(0, 2000);
+    }
 
     private void ApplyFilter()
     {
@@ -67,38 +81,69 @@ public partial class ConnectionsViewModel : ObservableObject
     [RelayCommand]
     private async Task RefreshAsync()
     {
-        var list = await _clash.GetConnectionsAsync();
-        _dispatcher.TryEnqueue(() =>
+        try
         {
-            Connections = new ObservableCollection<ConnectionInfo>(list);
-            ConnectionCount = list.Count;
-            ApplyFilter();
-        });
+            var list = await _clash.GetConnectionsAsync();
+            _dispatcher.TryEnqueue(() =>
+            {
+                Connections = new ObservableCollection<ConnectionInfo>(list);
+                ConnectionCount = list.Count;
+                ApplyFilter();
+            });
+        }
+        catch
+        {
+            // Silently ignore refresh errors (core may be stopped)
+        }
     }
 
     [RelayCommand]
     private async Task CloseConnectionAsync(ConnectionInfo? connection)
     {
         if (connection == null) return;
-        await _clash.CloseConnectionAsync(connection.Id);
-        _dispatcher.TryEnqueue(() =>
+        try
         {
-            Connections.Remove(connection);
-            ApplyFilter();
-            ConnectionCount = Connections.Count;
-        });
+            await _clash.CloseConnectionAsync(connection.Id);
+            _dispatcher.TryEnqueue(() =>
+            {
+                Connections.Remove(connection);
+                ApplyFilter();
+                ConnectionCount = Connections.Count;
+            });
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorCloseTitle.Text"),
+                ex.Message);
+        }
     }
 
     [RelayCommand]
     private async Task CloseAllAsync()
     {
-        await _clash.CloseAllConnectionsAsync();
-        _dispatcher.TryEnqueue(() =>
+        try
         {
-            Connections.Clear();
-            FilteredConnections.Clear();
-            ConnectionCount = 0;
-        });
+            await _clash.CloseAllConnectionsAsync();
+            _dispatcher.TryEnqueue(() =>
+            {
+                Connections.Clear();
+                FilteredConnections.Clear();
+                ConnectionCount = 0;
+            });
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorCloseTitle.Text"),
+                ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private void TogglePause()
+    {
+        IsPaused = !IsPaused;
     }
 
     [RelayCommand]
@@ -127,6 +172,7 @@ public partial class ConnectionsViewModel : ObservableObject
     {
         if (_initialized) return;
         _initialized = true;
+        PauseLabel = LocalizationHelper.GetString("ConnPause.Content");
         await RefreshAsync();
 
         // 每 2 秒自动刷新

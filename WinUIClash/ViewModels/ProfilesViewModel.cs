@@ -12,12 +12,14 @@ namespace WinUIClash.ViewModels;
 public partial class ProfilesViewModel : ObservableObject
 {
     private readonly IClashService _clash;
+    private readonly NotificationService _notification;
     private Timer? _autoUpdateTimer;
     private bool _initialized;
 
-    public ProfilesViewModel(IClashService clash)
+    public ProfilesViewModel(IClashService clash, NotificationService notification)
     {
         _clash = clash;
+        _notification = notification;
     }
 
     [ObservableProperty] private ObservableCollection<Profile> _profiles = new();
@@ -38,17 +40,35 @@ public partial class ProfilesViewModel : ObservableObject
     private async Task SelectProfileAsync(Profile? profile)
     {
         if (profile == null) return;
-        await _clash.SwitchProfileAsync(profile.Id);
-        foreach (var p in Profiles) p.IsActive = p.Id == profile.Id;
-        ActiveProfile = Profiles.FirstOrDefault(p => p.IsActive);
+        try
+        {
+            await _clash.SwitchProfileAsync(profile.Id);
+            foreach (var p in Profiles) p.IsActive = p.Id == profile.Id;
+            ActiveProfile = Profiles.FirstOrDefault(p => p.IsActive);
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorCloseTitle.Text"),
+                ex.Message);
+        }
     }
 
     [RelayCommand]
     private async Task SyncProfileAsync(Profile? profile)
     {
         if (profile == null) return;
-        await _clash.SyncProfileAsync(profile.Id);
-        profile.LastUpdate = DateTime.Now;
+        try
+        {
+            await _clash.SyncProfileAsync(profile.Id);
+            profile.LastUpdate = DateTime.Now;
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorSyncTitle.Text"),
+                $"{profile.Label}: {ex.Message}");
+        }
     }
 
     [RelayCommand]
@@ -61,7 +81,12 @@ public partial class ProfilesViewModel : ObservableObject
                 await _clash.SyncProfileAsync(p.Id);
                 p.LastUpdate = DateTime.Now;
             }
-            catch { /* 单个失败不影响其余 */ }
+            catch (Exception ex)
+            {
+                _notification.Warning(
+                    LocalizationHelper.GetString("ErrorSyncTitle.Text"),
+                    $"{p.Label}: {ex.Message}");
+            }
         }
     }
 
@@ -69,15 +94,37 @@ public partial class ProfilesViewModel : ObservableObject
     private async Task DeleteProfileAsync(Profile? profile)
     {
         if (profile == null) return;
-        await _clash.DeleteProfileAsync(profile.Id);
-        Profiles.Remove(profile);
+        try
+        {
+            await _clash.DeleteProfileAsync(profile.Id);
+            Profiles.Remove(profile);
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorDeleteTitle.Text"),
+                $"{profile.Label}: {ex.Message}");
+        }
     }
+
+    /// <summary>检查 URL 是否已存在</summary>
+    public bool HasProfileWithUrl(string url) =>
+        Profiles.Any(p => p.Url == url);
 
     /// <summary>
     /// 从 URL 导入订阅配置
     /// </summary>
     public async Task ImportProfileAsync(string url, string? name)
     {
+        // 检查重复 URL
+        if (HasProfileWithUrl(url))
+        {
+            _notification.Warning(
+                LocalizationHelper.GetString("ProfilesImportTitle.Text"),
+                LocalizationHelper.GetString("ProfilesDuplicateUrl.Text"));
+            return;
+        }
+
         // 从 URL 提取名称或使用用户指定的名称
         var label = name;
         if (string.IsNullOrEmpty(label))
@@ -107,7 +154,12 @@ public partial class ProfilesViewModel : ObservableObject
         {
             await _clash.SyncProfileAsync(profile.Id);
         }
-        catch { /* 首次同步失败不阻止导入 */ }
+        catch (Exception ex)
+        {
+            _notification.Warning(
+                LocalizationHelper.GetString("ErrorSyncTitle.Text"),
+                ex.Message);
+        }
 
         Profiles.Add(profile);
     }

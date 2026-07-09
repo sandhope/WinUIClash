@@ -82,4 +82,20 @@ public sealed partial class ConnectionsView : Page
         if (ViewModel.SelectedConnection != null)
             ViewModel.CloseConnectionCommand.Execute(ViewModel.SelectedConnection);
     }
+
+    private async void CloseAll_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = LocalizationHelper.GetString("ConnCloseAllConfirmTitle.Text"),
+            Content = LocalizationHelper.GetString("ConnCloseAllConfirmContent.Text"),
+            PrimaryButtonText = LocalizationHelper.GetString("CommonDelete.Content"),
+            CloseButtonText = LocalizationHelper.GetString("CommonCancel.Content"),
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = XamlRoot,
+        };
+
+        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+            ViewModel.CloseAllCommand.Execute(null);
+    }
 }

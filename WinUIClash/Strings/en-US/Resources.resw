@@ -324,4 +324,39 @@
   <data name="ProxySortType.Text" xml:space="preserve"><value>By Type</value></data>
   <data name="ProxyTestAll.Content" xml:space="preserve"><value>Test All</value></data>
   <data name="ProxySearch.PlaceholderText" xml:space="preserve"><value>Search proxies…</value></data>
+
+  <!-- Provider Type Labels -->
+  <data name="ProviderTypeProxy.Text" xml:space="preserve"><value>Proxy</value></data>
+  <data name="ProviderTypeRule.Text" xml:space="preserve"><value>Rule</value></data>
+  <data name="ProfilesDuplicateUrl.Text" xml:space="preserve"><value>This subscription URL already exists</value></data>
+
+  <!-- Error Notifications -->
+  <data name="ErrorUpdateTitle.Text" xml:space="preserve"><value>Update Failed</value></data>
+  <data name="ErrorSyncTitle.Text" xml:space="preserve"><value>Sync Failed</value></data>
+  <data name="ErrorDeleteTitle.Text" xml:space="preserve"><value>Delete Failed</value></data>
+  <data name="ErrorCloseTitle.Text" xml:space="preserve"><value>Close Failed</value></data>
+
+  <!-- Confirmation Dialogs -->
+  <data name="ProfilesDeleteConfirmTitle.Text" xml:space="preserve"><value>Confirm Delete</value></data>
+  <data name="ProfilesDeleteConfirmContent.Text" xml:space="preserve"><value>Are you sure you want to delete profile "{0}"?</value></data>
+  <data name="ConnCloseAllConfirmTitle.Text" xml:space="preserve"><value>Close All Connections</value></data>
+  <data name="ConnCloseAllConfirmContent.Text" xml:space="preserve"><value>Are you sure you want to close all active connections?</value></data>
+
+  <!-- Requests Sort -->
+  <data name="ReqSortNone.Text" xml:space="preserve"><value>Default</value></data>
+  <data name="ReqSortHost.Text" xml:space="preserve"><value>By Host</value></data>
+  <data name="ReqSortTime.Text" xml:space="preserve"><value>By Time</value></data>
+  <data name="RequestsExport.Content" xml:space="preserve"><value>Export</value></data>
+  <data name="RequestsExport.ToolTip" xml:space="preserve"><value>Export request log</value></data>
+  <data name="RequestsExportSuccessTitle.Text" xml:space="preserve"><value>Export Successful</value></data>
+  <data name="RequestsExportSuccessMsg.Text" xml:space="preserve"><value>Request log exported</value></data>
+  <data name="RequestsExportFailTitle.Text" xml:space="preserve"><value>Export Failed</value></data>
+  <data name="RequestsPause.Content" xml:space="preserve"><value>Pause</value></data>
+  <data name="RequestsResume.Content" xml:space="preserve"><value>Resume</value></data>
+  <data name="RequestsPause.ToolTip" xml:space="preserve"><value>Pause/Resume auto-refresh</value></data>
+
+  <!-- Connection Pause -->
+  <data name="ConnPause.Content" xml:space="preserve"><value>Pause</value></data>
+  <data name="ConnResume.Content" xml:space="preserve"><value>Resume</value></data>
+  <data name="ConnPause.ToolTip" xml:space="preserve"><value>Pause/Resume auto-refresh</value></data>
 </root>
