@@ -128,6 +128,9 @@
                                 <Run Text=" · " />
                                 <Run Text="{x:Bind Rule}" />
                             </TextBlock>
+                            <TextBlock FontSize="10" Opacity="0.35" VerticalAlignment="Center"
+                                       Text="{x:Bind Start, Converter={StaticResource DateTimeToTimeConverter}}"
+                                       FontFamily="Consolas" />
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
