@@ -243,6 +243,26 @@ public sealed partial class DashboardView : Page
         if (_tooltipPanel != null) _tooltipPanel.Visibility = Visibility.Collapsed;
     }
 
+    // ── Copy IP handlers ──
+
+    private void CopyExternalIp_Click(object sender, RoutedEventArgs e)
+    {
+        var ip = ViewModel.ExternalIp;
+        if (string.IsNullOrEmpty(ip)) return;
+        var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
+        dp.SetText(ip);
+        Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
+    }
+
+    private void CopyLocalIp_Click(object sender, RoutedEventArgs e)
+    {
+        var ip = ViewModel.LocalIp;
+        if (string.IsNullOrEmpty(ip)) return;
+        var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
+        dp.SetText(ip);
+        Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
+    }
+
     private static Polygon BuildFill(
         System.Collections.ObjectModel.ObservableCollection<Traffic> data,
         Func<Traffic, long> selector,

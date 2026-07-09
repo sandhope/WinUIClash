@@ -21,7 +21,11 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock x:Uid="ProfilesTitle" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock x:Uid="ProfilesTitle" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <TextBlock Text="{x:Bind ViewModel.ProfileCountText, Mode=OneWay}"
+                           FontSize="14" Opacity="0.5" VerticalAlignment="Center" />
+            </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
                 <Button x:Uid="ProfilesImport">
                     <StackPanel Orientation="Horizontal" Spacing="6">
@@ -169,5 +173,16 @@
         <ProgressRing Grid.Row="1"
                       IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- 切换配置中指示 -->
+        <Border Grid.Row="1"
+                Visibility="{x:Bind ViewModel.IsSwitching, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                Background="#80000000" CornerRadius="8"
+                IsHitTestVisible="True">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+                <ProgressRing IsActive="True" Width="40" Height="40" />
+                <TextBlock x:Uid="ProfilesSwitching" HorizontalAlignment="Center" Foreground="White" FontSize="13" />
+            </StackPanel>
+        </Border>
     </Grid>
 </Page>

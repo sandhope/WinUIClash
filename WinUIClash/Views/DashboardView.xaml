@@ -161,7 +161,14 @@
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
                         <TextBlock Text="{x:Bind ViewModel.CountryFlag, Mode=OneWay}" FontSize="24" />
                         <TextBlock Text="{x:Bind ViewModel.ExternalIp, Mode=OneWay}"
-                                   VerticalAlignment="Center" FontSize="13" />
+                                   VerticalAlignment="Center" FontSize="13"
+                                   IsTextSelectionEnabled="True" />
+                        <Button Padding="4" Background="Transparent" BorderThickness="0"
+                                VerticalAlignment="Center"
+                                Click="CopyExternalIp_Click"
+                                ToolTipService.ToolTip="{x:Bind ViewModel.ExternalIp, Mode=OneWay}">
+                            <fluent:SymbolIcon Symbol="Copy" FontSize="12" />
+                        </Button>
                     </StackPanel>
                     <Button Grid.Row="2" x:Uid="DashCheckIp" FontSize="12"
                             Command="{x:Bind ViewModel.CheckIpCommand}"
@@ -210,7 +217,13 @@
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
                         <fluent:SymbolIcon Symbol="Wifi1" FontSize="14" Opacity="0.6" />
                         <TextBlock x:Uid="DashLocalIp" FontSize="12" Opacity="0.7" />
-                        <TextBlock Text="{x:Bind ViewModel.LocalIp, Mode=OneWay}" FontSize="13" Margin="8,0,0,0" />
+                        <TextBlock Text="{x:Bind ViewModel.LocalIp, Mode=OneWay}" FontSize="13" Margin="8,0,0,0"
+                                   IsTextSelectionEnabled="True" />
+                        <Button Padding="4" Background="Transparent" BorderThickness="0"
+                                VerticalAlignment="Center"
+                                Click="CopyLocalIp_Click">
+                            <fluent:SymbolIcon Symbol="Copy" FontSize="12" />
+                        </Button>
                     </StackPanel>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
                         <fluent:SymbolIcon Symbol="Storage" FontSize="14" Opacity="0.6" />

@@ -27,6 +27,10 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
     [ObservableProperty] private ObservableCollection<Profile> _profiles = new();
     [ObservableProperty] private Profile? _activeProfile;
     [ObservableProperty] private bool _isLoading;
+    [ObservableProperty] private bool _isSwitching;
+
+    /// <summary>Profile count label for the page header, e.g. "(3)"</summary>
+    public string ProfileCountText => Profiles.Count > 0 ? $"({Profiles.Count})" : "";
 
     [RelayCommand]
     private async Task LoadAsync()
@@ -46,7 +50,9 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         }
 
         Profiles = new ObservableCollection<Profile>(merged.Values.OrderBy(p => p.Order));
+        Profiles.CollectionChanged += (_, _) => OnPropertyChanged(nameof(ProfileCountText));
         ActiveProfile = Profiles.FirstOrDefault(p => p.IsActive);
+        OnPropertyChanged(nameof(ProfileCountText));
         IsLoading = false;
     }
 
@@ -56,6 +62,8 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         if (profile == null) return;
         try
         {
+            IsSwitching = true;
+
             // Ensure config file exists locally
             var configPath = profile.Path;
             if (string.IsNullOrWhiteSpace(configPath))
@@ -76,6 +84,10 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             _notification.Error(
                 LocalizationHelper.GetString("ErrorCloseTitle.Text"),
                 ex.Message);
+        }
+        finally
+        {
+            IsSwitching = false;
         }
     }
 
