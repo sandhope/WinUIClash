@@ -324,4 +324,39 @@
   <data name="ProxySortType.Text" xml:space="preserve"><value>按类型</value></data>
   <data name="ProxyTestAll.Content" xml:space="preserve"><value>全部测速</value></data>
   <data name="ProxySearch.PlaceholderText" xml:space="preserve"><value>搜索代理…</value></data>
+
+  <!-- Provider Type Labels -->
+  <data name="ProviderTypeProxy.Text" xml:space="preserve"><value>代理</value></data>
+  <data name="ProviderTypeRule.Text" xml:space="preserve"><value>规则</value></data>
+  <data name="ProfilesDuplicateUrl.Text" xml:space="preserve"><value>该订阅地址已存在</value></data>
+
+  <!-- Error Notifications -->
+  <data name="ErrorUpdateTitle.Text" xml:space="preserve"><value>更新失败</value></data>
+  <data name="ErrorSyncTitle.Text" xml:space="preserve"><value>同步失败</value></data>
+  <data name="ErrorDeleteTitle.Text" xml:space="preserve"><value>删除失败</value></data>
+  <data name="ErrorCloseTitle.Text" xml:space="preserve"><value>关闭失败</value></data>
+
+  <!-- Confirmation Dialogs -->
+  <data name="ProfilesDeleteConfirmTitle.Text" xml:space="preserve"><value>确认删除</value></data>
+  <data name="ProfilesDeleteConfirmContent.Text" xml:space="preserve"><value>确定要删除配置 "{0}" 吗？</value></data>
+  <data name="ConnCloseAllConfirmTitle.Text" xml:space="preserve"><value>关闭全部连接</value></data>
+  <data name="ConnCloseAllConfirmContent.Text" xml:space="preserve"><value>确定要关闭所有活跃连接吗？</value></data>
+
+  <!-- Requests Sort -->
+  <data name="ReqSortNone.Text" xml:space="preserve"><value>默认排序</value></data>
+  <data name="ReqSortHost.Text" xml:space="preserve"><value>按主机</value></data>
+  <data name="ReqSortTime.Text" xml:space="preserve"><value>按时间</value></data>
+  <data name="RequestsExport.Content" xml:space="preserve"><value>导出</value></data>
+  <data name="RequestsExport.ToolTip" xml:space="preserve"><value>导出请求记录</value></data>
+  <data name="RequestsExportSuccessTitle.Text" xml:space="preserve"><value>导出成功</value></data>
+  <data name="RequestsExportSuccessMsg.Text" xml:space="preserve"><value>请求记录已导出</value></data>
+  <data name="RequestsExportFailTitle.Text" xml:space="preserve"><value>导出失败</value></data>
+  <data name="RequestsPause.Content" xml:space="preserve"><value>暂停</value></data>
+  <data name="RequestsResume.Content" xml:space="preserve"><value>继续</value></data>
+  <data name="RequestsPause.ToolTip" xml:space="preserve"><value>暂停/恢复自动刷新</value></data>
+
+  <!-- Connection Pause -->
+  <data name="ConnPause.Content" xml:space="preserve"><value>暂停</value></data>
+  <data name="ConnResume.Content" xml:space="preserve"><value>继续</value></data>
+  <data name="ConnPause.ToolTip" xml:space="preserve"><value>暂停/恢复自动刷新</value></data>
 </root>

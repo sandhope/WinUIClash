@@ -12,11 +12,14 @@ namespace WinUIClash.ViewModels;
 public partial class ProxiesViewModel : ObservableObject
 {
     private readonly IClashService _clash;
+    private readonly NotificationService _notification;
+    private readonly SemaphoreSlim _testSemaphore = new(5, 5);
     private bool _initialized;
 
-    public ProxiesViewModel(IClashService clash)
+    public ProxiesViewModel(IClashService clash, NotificationService notification)
     {
         _clash = clash;
+        _notification = notification;
     }
 
     [ObservableProperty] private ObservableCollection<ProxyGroup> _groups = new();
@@ -24,6 +27,8 @@ public partial class ProxiesViewModel : ObservableObject
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private bool _isTesting;
+    [ObservableProperty] private int _testProgress;
+    [ObservableProperty] private int _testTotal;
 
     public enum SortMode { Default, Name, Delay, Type }
 
@@ -87,8 +92,17 @@ public partial class ProxiesViewModel : ObservableObject
     private async Task SelectProxyAsync(Proxy? proxy)
     {
         if (SelectedGroup == null || proxy == null) return;
-        await _clash.ChangeProxyAsync(SelectedGroup.Name, proxy.Name);
-        SelectedGroup.Now = proxy.Name;
+        try
+        {
+            await _clash.ChangeProxyAsync(SelectedGroup.Name, proxy.Name);
+            SelectedGroup.Now = proxy.Name;
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorCloseTitle.Text"),
+                ex.Message);
+        }
     }
 
     /// <summary>测试单个代理延迟</summary>
@@ -96,19 +110,51 @@ public partial class ProxiesViewModel : ObservableObject
     private async Task TestDelayAsync(Proxy? proxy)
     {
         if (proxy == null || proxy.Type is "Direct" or "Reject") return;
-        proxy.Delay = await _clash.TestDelayAsync(proxy.Name);
-        OnPropertyChanged(nameof(FilteredProxies)); // 延迟值变化后重新排序
+        try
+        {
+            proxy.Delay = await _clash.TestDelayAsync(proxy.Name);
+            OnPropertyChanged(nameof(FilteredProxies));
+        }
+        catch (Exception ex)
+        {
+            proxy.Delay = -1;
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
+                $"{proxy.Name}: {ex.Message}");
+        }
     }
 
-    /// <summary>对当前组所有代理并行测速</summary>
+    /// <summary>对当前组所有代理并行测速（节流：最多5个并发）</summary>
     [RelayCommand]
     private async Task TestAllDelaysAsync()
     {
         if (SelectedGroup == null) return;
         IsTesting = true;
-        var tasks = SelectedGroup.Proxies
+
+        var testable = SelectedGroup.Proxies
             .Where(p => p.Type is not ("Direct" or "Reject"))
-            .Select(async p => { p.Delay = await _clash.TestDelayAsync(p.Name); });
+            .ToList();
+        TestTotal = testable.Count;
+        TestProgress = 0;
+
+        var tasks = testable.Select(async p =>
+        {
+            await _testSemaphore.WaitAsync();
+            try
+            {
+                p.Delay = await _clash.TestDelayAsync(p.Name);
+            }
+            catch
+            {
+                p.Delay = -1;
+            }
+            finally
+            {
+                _testSemaphore.Release();
+                TestProgress++;
+            }
+        });
+
         await Task.WhenAll(tasks);
         IsTesting = false;
         OnPropertyChanged(nameof(FilteredProxies));

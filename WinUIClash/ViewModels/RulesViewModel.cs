@@ -37,7 +37,7 @@ public partial class RulesViewModel : ObservableObject
     /// <summary>可选的目标代理列表</summary>
     [ObservableProperty] private ObservableCollection<string> _proxyOptions = new();
 
-    /// <summary>当前选中的目标代理筛选（"" = 全部）</summary>
+    /// <summary>当前选中的目标代理筛选（localized "All" label = show all）</summary>
     [ObservableProperty] private string _selectedProxyFilter = "";
 
     /// <summary>筛选后的规则数</summary>
@@ -64,7 +64,7 @@ public partial class RulesViewModel : ObservableObject
 
         var types = new ObservableCollection<RuleTypeOption>
         {
-            new("全部类型", "ALL", list.Count)
+            new(LocalizationHelper.GetString("RulesAllTypes.Text"), "ALL", list.Count)
         };
         foreach (var g in typeGroups)
         {
@@ -77,7 +77,7 @@ public partial class RulesViewModel : ObservableObject
             .Distinct()
             .OrderBy(p => p)
             .ToList();
-        var proxyOpts = new ObservableCollection<string> { "" };
+        var proxyOpts = new ObservableCollection<string> { LocalizationHelper.GetString("RulesAllProxies.Text") };
         foreach (var p in proxies)
         {
             proxyOpts.Add(p);
@@ -98,8 +98,9 @@ public partial class RulesViewModel : ObservableObject
             query = query.Where(r => r.Type == SelectedTypeFilter);
         }
 
-        // 按目标代理筛选
-        if (!string.IsNullOrEmpty(SelectedProxyFilter))
+        // 按目标代理筛选 (skip if first "all proxies" label)
+        if (!string.IsNullOrEmpty(SelectedProxyFilter) &&
+            SelectedProxyFilter != LocalizationHelper.GetString("RulesAllProxies.Text"))
         {
             query = query.Where(r => r.Proxy == SelectedProxyFilter);
         }

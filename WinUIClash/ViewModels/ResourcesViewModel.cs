@@ -13,13 +13,15 @@ namespace WinUIClash.ViewModels;
 public partial class ResourcesViewModel : ObservableObject, IDisposable
 {
     private readonly IClashService _clash;
+    private readonly NotificationService _notification;
     private readonly DispatcherQueue _dispatcher;
     private readonly System.Threading.Timer _autoUpdateTimer;
     private bool _initialized;
 
-    public ResourcesViewModel(IClashService clash)
+    public ResourcesViewModel(IClashService clash, NotificationService notification)
     {
         _clash = clash;
+        _notification = notification;
         _dispatcher = DispatcherQueue.GetForCurrentThread()!;
 
         // 自动更新定时器：每 5 分钟检查一次
@@ -65,8 +67,17 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
     private async Task UpdateProviderAsync(ExternalProvider? provider)
     {
         if (provider == null) return;
-        await _clash.UpdateExternalProviderAsync(provider.Name);
-        provider.UpdateAt = DateTime.Now;
+        try
+        {
+            await _clash.UpdateExternalProviderAsync(provider.Name);
+            provider.UpdateAt = DateTime.Now;
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
+                $"{provider.Name}: {ex.Message}");
+        }
     }
 
     [RelayCommand]
@@ -79,7 +90,12 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
                 await _clash.UpdateExternalProviderAsync(p.Name);
                 p.UpdateAt = DateTime.Now;
             }
-            catch { /* 单个失败不影响其余 */ }
+            catch (Exception ex)
+            {
+                _notification.Warning(
+                    LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
+                    $"{p.Name}: {ex.Message}");
+            }
         }
         LastUpdateAllTime = DateTime.Now;
     }
@@ -136,7 +152,9 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
 
     /// <summary>获取提供者类型标签</summary>
     public static string GetProviderTypeLabel(ExternalProvider p) =>
-        IsProxyProvider(p) ? "代理" : "规则";
+        IsProxyProvider(p)
+            ? LocalizationHelper.GetString("ProviderTypeProxy.Text")
+            : LocalizationHelper.GetString("ProviderTypeRule.Text");
 
     public async Task InitializeAsync()
     {
