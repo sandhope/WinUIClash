@@ -175,7 +175,8 @@
                                       OffContent="" OnContent="" />
                     </Grid>
                     <!-- External Controller -->
-                    <Grid Padding="0,8">
+                    <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                          BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -185,6 +186,34 @@
                             <TextBlock x:Uid="ConfigExternalControllerDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.ExternalController, Mode=TwoWay}"
+                                      OffContent="" OnContent="" />
+                    </Grid>
+                    <!-- API Secret -->
+                    <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                          BorderThickness="0,0,0,1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                            <TextBlock x:Uid="ConfigApiSecret" FontSize="13" />
+                            <TextBlock x:Uid="ConfigApiSecretDesc" FontSize="11" Opacity="0.5" />
+                        </StackPanel>
+                        <TextBox Grid.Column="1" Width="200"
+                                 Text="{x:Bind ViewModel.ApiSecret, Mode=TwoWay}"
+                                 x:Uid="ConfigApiSecretPlaceholder" />
+                    </Grid>
+                    <!-- Auto Restart -->
+                    <Grid Padding="0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                            <TextBlock x:Uid="ConfigAutoRestart" FontSize="13" />
+                            <TextBlock x:Uid="ConfigAutoRestartDesc" FontSize="11" Opacity="0.5" />
+                        </StackPanel>
+                        <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.AutoRestart, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
                     </Grid>
                 </StackPanel>

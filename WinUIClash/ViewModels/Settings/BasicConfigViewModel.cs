@@ -102,4 +102,16 @@ public partial class BasicConfigViewModel : ObservableObject
         get => _settings.ExternalController;
         set { if (_settings.ExternalController != value) { _settings.ExternalController = value; OnPropertyChanged(); } }
     }
+
+    public string ApiSecret
+    {
+        get => _settings.ApiSecret;
+        set { if (_settings.ApiSecret != value) { _settings.ApiSecret = value; OnPropertyChanged(); } }
+    }
+
+    public bool AutoRestart
+    {
+        get => _settings.AutoRestart;
+        set { if (_settings.AutoRestart != value) { _settings.AutoRestart = value; OnPropertyChanged(); } }
+    }
 }
