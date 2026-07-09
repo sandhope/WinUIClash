@@ -387,10 +387,10 @@ public sealed partial class MainWindow : Window
 
         StatusText.Text = state switch
         {
-            CoreState.Running  => "运行中",
-            CoreState.Starting => "启动中…",
-            CoreState.Stopping => "停止中…",
-            _                  => "已停止",
+            CoreState.Running  => Services.LocalizationHelper.GetString("DashRunning.Text"),
+            CoreState.Starting => Services.LocalizationHelper.GetString("DashStarting.Text"),
+            CoreState.Stopping => Services.LocalizationHelper.GetString("DashStopping.Text"),
+            _                  => Services.LocalizationHelper.GetString("DashStopped.Text"),
         };
 
         StatusText.Opacity = state == CoreState.Running ? 0.8 : 0.6;
@@ -429,7 +429,9 @@ public sealed partial class MainWindow : Window
     {
         ProxyIcon.Opacity = isProxyOn ? 1.0 : 0.3;
         ProxyText.Opacity = isProxyOn ? 0.8 : 0.3;
-        ProxyText.Text = isProxyOn ? "代理已开启" : "代理";
+        ProxyText.Text = isProxyOn
+            ? Services.LocalizationHelper.GetString("StatusRunning.Text")
+            : Services.LocalizationHelper.GetString("ProxyLabel.Text");
 
         // 同步托盘菜单
         if (_trayProxyItem != null)
@@ -466,14 +468,14 @@ public sealed partial class MainWindow : Window
         var menu = new MenuFlyout();
 
         // ── 显示主窗口 ──
-        var showItem = new MenuFlyoutItem { Text = "显示主窗口" };
+        var showItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayShow.Text") };
         showItem.Click += (_, _) => ShowWindow();
         menu.Items.Add(showItem);
 
         menu.Items.Add(new MenuFlyoutSeparator());
 
         // ── 核心开关 ──
-        _trayRunItem = new ToggleMenuFlyoutItem { Text = "运行内核" };
+        _trayRunItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayRun.Text") };
         _trayRunItem.Click += async (_, _) =>
         {
             try
@@ -489,7 +491,7 @@ public sealed partial class MainWindow : Window
         menu.Items.Add(_trayRunItem);
 
         // ── 系统代理 ──
-        _trayProxyItem = new ToggleMenuFlyoutItem { Text = "系统代理" };
+        _trayProxyItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TraySystemProxy.Text") };
         try
         {
             var settings = ServiceLocator.Get<AppSettings>();
@@ -510,11 +512,11 @@ public sealed partial class MainWindow : Window
         menu.Items.Add(new MenuFlyoutSeparator());
 
         // ── 出站模式子菜单 ──
-        var modeItem = new MenuFlyoutSubItem { Text = "出站模式" };
+        var modeItem = new MenuFlyoutSubItem { Text = Services.LocalizationHelper.GetString("TrayOutboundMode.Text") };
 
-        var modeRule = new ToggleMenuFlyoutItem { Text = "规则", IsChecked = true };
-        var modeGlobal = new ToggleMenuFlyoutItem { Text = "全局" };
-        var modeDirect = new ToggleMenuFlyoutItem { Text = "直连" };
+        var modeRule = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeRule.Content"), IsChecked = true };
+        var modeGlobal = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeGlobal.Content") };
+        var modeDirect = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeDirect.Content") };
 
         void ClearModeChecks()
         {
@@ -550,7 +552,7 @@ public sealed partial class MainWindow : Window
         menu.Items.Add(new MenuFlyoutSeparator());
 
         // ── 退出 ──
-        var exitItem = new MenuFlyoutItem { Text = "退出" };
+        var exitItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayExit.Text") };
         exitItem.Click += (_, _) => ExitApp();
         menu.Items.Add(exitItem);
 

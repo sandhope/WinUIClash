@@ -221,4 +221,12 @@
   <data name="SubExpired.Text" xml:space="preserve"><value>已过期</value></data>
   <data name="SubHoursRemaining.Text" xml:space="preserve"><value>小时</value></data>
   <data name="SubDaysRemaining.Text" xml:space="preserve"><value>天</value></data>
+
+  <!-- Proxies -->
+  <data name="ProxySortDefault.Text" xml:space="preserve"><value>默认</value></data>
+  <data name="ProxySortName.Text" xml:space="preserve"><value>按名称</value></data>
+  <data name="ProxySortDelay.Text" xml:space="preserve"><value>按延迟</value></data>
+  <data name="ProxySortType.Text" xml:space="preserve"><value>按类型</value></data>
+  <data name="ProxyTestAll.Content" xml:space="preserve"><value>全部测速</value></data>
+  <data name="ProxySearch.PlaceholderText" xml:space="preserve"><value>搜索代理…</value></data>
 </root>

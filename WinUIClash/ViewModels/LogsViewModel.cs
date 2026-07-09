@@ -29,11 +29,15 @@ public partial class LogsViewModel : ObservableObject
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private bool _autoScroll = true;
     [ObservableProperty] private bool _isPaused;
-    [ObservableProperty] private string _selectedLevel = "全部";
+    [ObservableProperty] private string _selectedLevel = "ALL";
     [ObservableProperty] private int _logCount;
+    [ObservableProperty] private bool _hasLogs;
 
     /// <summary>有新日志追加时触发（供 View 层滚动到底部）</summary>
     public event Action? LogAppended;
+
+    /// <summary>日志级别过滤选项</summary>
+    public string[] LevelOptions { get; } = ["ALL", "Debug", "Info", "Warning", "Error"];
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
     partial void OnSelectedLevelChanged(string value) => ApplyFilter();
@@ -45,6 +49,7 @@ public partial class LogsViewModel : ObservableObject
         _dispatcher.TryEnqueue(() =>
         {
             Logs.Add(entry);
+            HasLogs = true;
             if (Logs.Count > MaxLogEntries) Logs.RemoveAt(0);
 
             if (MatchesFilter(entry))
@@ -59,7 +64,7 @@ public partial class LogsViewModel : ObservableObject
 
     private bool MatchesFilter(LogEntry entry)
     {
-        if (SelectedLevel != "全部")
+        if (SelectedLevel != "ALL")
         {
             var level = Enum.Parse<LogLevel>(SelectedLevel, ignoreCase: true);
             if (entry.Level != level) return false;
@@ -73,7 +78,7 @@ public partial class LogsViewModel : ObservableObject
     private void ApplyFilter()
     {
         var filtered = Logs.AsEnumerable();
-        if (SelectedLevel != "全部")
+        if (SelectedLevel != "ALL")
         {
             var level = Enum.Parse<LogLevel>(SelectedLevel, ignoreCase: true);
             filtered = filtered.Where(l => l.Level == level);
@@ -106,6 +111,7 @@ public partial class LogsViewModel : ObservableObject
         Logs.Clear();
         FilteredLogs.Clear();
         LogCount = 0;
+        HasLogs = false;
     }
 
     /// <summary>切换暂停/恢复日志流</summary>
@@ -115,7 +121,9 @@ public partial class LogsViewModel : ObservableObject
         IsPaused = !IsPaused;
     }
 
-    public string PauseLabel => IsPaused ? "继续" : "暂停";
+    public string PauseLabel => IsPaused
+        ? LocalizationHelper.GetString("LogsResume.Content")
+        : LocalizationHelper.GetString("LogsPause.Content");
 
     partial void OnIsPausedChanged(bool value) => OnPropertyChanged(nameof(PauseLabel));
 
