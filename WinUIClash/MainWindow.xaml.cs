@@ -345,6 +345,24 @@ public sealed partial class MainWindow : Window
         };
         prevAccel.Invoked += (_, _) => CyclePage(-1);
         RootGrid.KeyboardAccelerators.Add(prevAccel);
+
+        // Escape 清除搜索框或关闭通知栏
+        var escAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.Escape,
+        };
+        escAccel.Invoked += (_, _) =>
+        {
+            if (!string.IsNullOrEmpty(SearchBox.Text))
+            {
+                SearchBox.Text = "";
+            }
+            else if (NotificationBar.IsOpen)
+            {
+                NotificationBar.IsOpen = false;
+            }
+        };
+        RootGrid.KeyboardAccelerators.Add(escAccel);
     }
 
     private void CyclePage(int direction)
@@ -373,6 +391,7 @@ public sealed partial class MainWindow : Window
             ("Ctrl+P", LocalizationHelper.GetString("HelpCoreToggle.Text")),
             ("Ctrl+Shift+S", LocalizationHelper.GetString("HelpProxyToggle.Text")),
             ("Ctrl+Q", LocalizationHelper.GetString("HelpQuit.Text")),
+            ("Escape", LocalizationHelper.GetString("HelpEscape.Text")),
             ("F1", LocalizationHelper.GetString("HelpShowHelp.Text")),
         };
 

@@ -89,6 +89,12 @@
                                 <TextBlock x:Name="CheckUpdateLabel" x:Uid="AboutCheckUpdate" FontSize="12" />
                             </StackPanel>
                         </Button>
+                        <Button Click="ExportLogs_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
+                                <TextBlock x:Uid="AboutExportLogs" FontSize="12" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                     <TextBlock x:Name="UpdateStatusText" FontSize="11" Opacity="0.6"
                                Visibility="Collapsed" TextWrapping="Wrap" />

@@ -94,4 +94,49 @@ public sealed partial class AboutView : UserControl
             CheckUpdateLabel.Text = LocalizationHelper.GetString("AboutCheckUpdate.Content");
         }
     }
+
+    private async void ExportLogs_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var dataDir = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "WinUIClash");
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"WinUIClash Diagnostic Report");
+            sb.AppendLine($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            sb.AppendLine($"Version: {UpdateService.CurrentVersion}");
+            sb.AppendLine($"OS: {Environment.OSVersion}");
+            sb.AppendLine($".NET: {Environment.Version}");
+            sb.AppendLine();
+
+            // Append crash log if it exists
+            var crashLog = System.IO.Path.Combine(dataDir, "crash.log");
+            if (File.Exists(crashLog))
+            {
+                sb.AppendLine("=== crash.log ===");
+                sb.AppendLine(await File.ReadAllTextAsync(crashLog));
+            }
+            else
+            {
+                sb.AppendLine("(No crash.log found)");
+            }
+
+            // Save to desktop
+            var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            var exportPath = System.IO.Path.Combine(desktopPath, $"WinUIClash_Diagnostic_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
+            await File.WriteAllTextAsync(exportPath, sb.ToString());
+
+            var notification = ServiceLocator.Get<NotificationService>();
+            notification.Success(
+                LocalizationHelper.GetString("AboutExportLogs.Text"),
+                exportPath);
+        }
+        catch (Exception ex)
+        {
+            var notification = ServiceLocator.Get<NotificationService>();
+            notification.Error("Export Failed", ex.Message);
+        }
+    }
 }
