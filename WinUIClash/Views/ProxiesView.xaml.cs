@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
 using WinUIClash.Models;
 using WinUIClash.ViewModels;
 
@@ -48,6 +49,25 @@ public sealed partial class ProxiesView : Page
             btn.Background = (Brush)Application.Current.Resources["SubtleFillColorSecondary"];
             btn.Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"];
         }
+
+        // Inject group type icon if not already present
+        if (btn.Content is StackPanel panel && panel.Children.Count > 0)
+        {
+            if (panel.Children[0] is not FluentIcons.WinUI.SymbolIcon)
+            {
+                var symbol = group.Type switch
+                {
+                    ProxyGroupType.Selector => FluentIcons.Common.Symbol.TargetArrow,
+                    ProxyGroupType.URLTest => FluentIcons.Common.Symbol.Gauge,
+                    ProxyGroupType.Fallback => FluentIcons.Common.Symbol.ArrowReset,
+                    ProxyGroupType.LoadBalance => FluentIcons.Common.Symbol.ArrowBidirectionalUpDown,
+                    ProxyGroupType.Relay => FluentIcons.Common.Symbol.ArrowForward,
+                    _ => FluentIcons.Common.Symbol.List,
+                };
+                var icon = new FluentIcons.WinUI.SymbolIcon { Symbol = symbol, FontSize = 12, Opacity = 0.6 };
+                panel.Children.Insert(0, icon);
+            }
+        }
     }
 
     private void ProxyGrid_ItemClick(object sender, ItemClickEventArgs e)
@@ -80,6 +100,30 @@ public sealed partial class ProxiesView : Page
         {
             selectedIcon.Visibility = isSelected ? Visibility.Visible : Visibility.Collapsed;
         }
+
+        // Color the type dot based on protocol
+        if (cardBorder.FindName("TypeDot") is Ellipse typeDot)
+        {
+            typeDot.Fill = GetProtocolBrush(proxy.Type);
+        }
+    }
+
+    private static Brush GetProtocolBrush(string type)
+    {
+        var t = type.ToLowerInvariant();
+        return t switch
+        {
+            "direct" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 76, 175, 80)),    // Green
+            "reject" or "reject-drop" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 244, 67, 54)), // Red
+            "vmess" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 33, 150, 243)),    // Blue
+            "trojan" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 156, 39, 176)),   // Purple
+            "shadowsocks" or "ss" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 152, 0)), // Orange
+            "hysteria" or "hysteria2" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 188, 212)), // Cyan
+            "vless" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 63, 81, 181)),     // Indigo
+            "tuic" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 233, 30, 99)),      // Pink
+            "wireguard" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 139, 195, 74)), // Light green
+            _ => (Brush)Application.Current.Resources["AccentFillColorDefaultBrush"],
+        };
     }
 
     private void RefreshSelectionHighlights()
