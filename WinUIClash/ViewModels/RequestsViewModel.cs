@@ -47,7 +47,11 @@ public partial class RequestsViewModel : ObservableObject, IDisposable
     [ObservableProperty] private ReqSortMode _currentSort = ReqSortMode.None;
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
-    partial void OnCurrentSortChanged(ReqSortMode value) => ApplyFilter();
+    partial void OnCurrentSortChanged(ReqSortMode value)
+    {
+        OnPropertyChanged(nameof(SortModeLabel));
+        ApplyFilter();
+    }
     partial void OnIsPausedChanged(bool value)
     {
         PauseLabel = value

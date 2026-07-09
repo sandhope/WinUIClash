@@ -46,6 +46,9 @@ public sealed partial class MainWindow : Window
     private ToggleMenuFlyoutItem? _trayProxyItem;
     private ToggleMenuFlyoutItem? _trayRunItem;
 
+    // 状态栏连接数轮询定时器
+    private DispatcherTimer? _statusBarConnTimer;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -230,6 +233,31 @@ public sealed partial class MainWindow : Window
                     : NavigationViewPaneDisplayMode.Left;
         };
         RootGrid.KeyboardAccelerators.Add(sidebarAccel);
+
+        // F5 刷新当前页面
+        var refreshAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.F5,
+        };
+        refreshAccel.Invoked += (_, _) => RefreshCurrentPage();
+        RootGrid.KeyboardAccelerators.Add(refreshAccel);
+
+        // Ctrl+R 刷新当前页面
+        var refreshCtrlAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.R,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control,
+        };
+        refreshCtrlAccel.Invoked += (_, _) => RefreshCurrentPage();
+        RootGrid.KeyboardAccelerators.Add(refreshCtrlAccel);
+    }
+
+    private void RefreshCurrentPage()
+    {
+        if (ContentFrame.CurrentSourcePageType is { } pageType)
+        {
+            ContentFrame.Navigate(pageType);
+        }
     }
 
     // ── 搜索 ──────────────────────────────────────────────────────────────────
@@ -350,11 +378,11 @@ public sealed partial class MainWindow : Window
             UpdateProxyStatusUI(_appSettings.SystemProxy);
 
             // 连接数轮询（每5秒）
-            var connTimer = new DispatcherTimer
+            _statusBarConnTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(5),
             };
-            connTimer.Tick += async (_, _) =>
+            _statusBarConnTimer.Tick += async (_, _) =>
             {
                 try
                 {
@@ -366,7 +394,7 @@ public sealed partial class MainWindow : Window
                     ConnectionCountText.Text = "0";
                 }
             };
-            connTimer.Start();
+            _statusBarConnTimer.Start();
         }
         catch { /* ServiceLocator 未初始化时忽略 */ }
     }
@@ -589,6 +617,10 @@ public sealed partial class MainWindow : Window
             _cleanedUp = true;
             try
             {
+                // Stop timers
+                _statusBarConnTimer?.Stop();
+                _statusBarConnTimer = null;
+
                 // Stop core process
                 var core = ServiceLocator.Get<Services.CoreProcessService>();
                 await core.StopAsync();
@@ -635,6 +667,9 @@ public sealed partial class MainWindow : Window
             _cleanedUp = true;
             try
             {
+                _statusBarConnTimer?.Stop();
+                _statusBarConnTimer = null;
+
                 var core = ServiceLocator.Get<Services.CoreProcessService>();
                 await core.StopAsync();
                 core.Dispose();

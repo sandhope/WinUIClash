@@ -13,11 +13,12 @@ namespace WinUIClash.ViewModels;
 /// <summary>
 /// 仪表盘 ViewModel — 网速图表、出站模式、流量统计、网络检测等
 /// </summary>
-public partial class DashboardViewModel : ObservableObject
+public partial class DashboardViewModel : ObservableObject, IDisposable
 {
     private readonly IClashService _clash;
     private readonly DispatcherQueue _dispatcher;
     private bool _initialized;
+    private DispatcherTimer? _connTimer;
 
     public DashboardViewModel(IClashService clash)
     {
@@ -273,12 +274,20 @@ public partial class DashboardViewModel : ObservableObject
         await RefreshMemoryAsync();
 
         // 连接数轮询（每5秒）
-        var connTimer = new DispatcherTimer
+        _connTimer = new DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(5),
         };
-        connTimer.Tick += async (_, _) => await RefreshConnectionCountAsync();
-        connTimer.Start();
+        _connTimer.Tick += async (_, _) => await RefreshConnectionCountAsync();
+        _connTimer.Start();
+    }
+
+    public void Dispose()
+    {
+        _connTimer?.Stop();
+        _connTimer = null;
+        _clash.TrafficUpdated -= OnTrafficUpdated;
+        _clash.CoreStateChanged -= HandleCoreStateChanged;
     }
 
     private static string CountryCodeToFlag(string code)

@@ -282,10 +282,15 @@
   <data name="LogsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索日志…</value></data>
   <data name="LogsAutoScroll.Content" xml:space="preserve"><value>自动滚动</value></data>
   <data name="LogsCountSuffix.Text" xml:space="preserve"><value> 条日志</value></data>
+  <data name="LogsCopyPayload.Text" xml:space="preserve"><value>复制内容</value></data>
+  <data name="LogsCopyFull.Text" xml:space="preserve"><value>复制完整行</value></data>
 
   <!-- Requests - Additional -->
   <data name="RequestsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索请求…</value></data>
   <data name="RequestsAutoScroll.Content" xml:space="preserve"><value>自动滚动</value></data>
+  <data name="RequestsCopyHost.Text" xml:space="preserve"><value>复制主机</value></data>
+  <data name="RequestsCopyRule.Text" xml:space="preserve"><value>复制规则</value></data>
+  <data name="RequestsCopyAll.Text" xml:space="preserve"><value>复制整条请求</value></data>
 
   <!-- Connection Sort Modes -->
   <data name="ConnSortNone.Text" xml:space="preserve"><value>默认排序</value></data>

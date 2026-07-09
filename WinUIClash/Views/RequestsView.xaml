@@ -72,7 +72,9 @@
                   SelectionMode="None">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:ConnectionInfo">
-                    <Grid Padding="4,6" ColumnSpacing="12">
+                    <Grid Padding="4,6" ColumnSpacing="12"
+                          RightTapped="RequestItem_RightTapped"
+                          Tag="{x:Bind}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
