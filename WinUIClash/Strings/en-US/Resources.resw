@@ -170,6 +170,8 @@
   <data name="AboutCheckUpdate.Content" xml:space="preserve"><value>Check for Updates</value></data>
   <data name="AboutOpenDataFolder.Content" xml:space="preserve"><value>Open Data Folder</value></data>
   <data name="AboutCopyVersion.Content" xml:space="preserve"><value>Copy Version Info</value></data>
+  <data name="AboutExportLogs.Content" xml:space="preserve"><value>Export Diagnostics</value></data>
+  <data name="AboutExportLogs.Text" xml:space="preserve"><value>Diagnostics Exported</value></data>
   <data name="AboutCheckingUpdate.Text" xml:space="preserve"><value>Checking…</value></data>
   <data name="AboutNoUpdate.Text" xml:space="preserve"><value>You are up to date</value></data>
   <data name="AboutNewVersion.Text" xml:space="preserve"><value>New version available</value></data>
@@ -518,4 +520,5 @@
   <data name="HelpQuit.Text" xml:space="preserve"><value>Quit application</value></data>
   <data name="HelpShowHelp.Text" xml:space="preserve"><value>Show this help</value></data>
   <data name="HelpCyclePage.Text" xml:space="preserve"><value>Cycle through pages</value></data>
+  <data name="HelpEscape.Text" xml:space="preserve"><value>Clear search / dismiss notification</value></data>
 </root>

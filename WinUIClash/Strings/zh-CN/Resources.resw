@@ -170,6 +170,8 @@
   <data name="AboutCheckUpdate.Content" xml:space="preserve"><value>检查更新</value></data>
   <data name="AboutOpenDataFolder.Content" xml:space="preserve"><value>打开数据目录</value></data>
   <data name="AboutCopyVersion.Content" xml:space="preserve"><value>复制版本信息</value></data>
+  <data name="AboutExportLogs.Content" xml:space="preserve"><value>导出诊断信息</value></data>
+  <data name="AboutExportLogs.Text" xml:space="preserve"><value>诊断信息已导出</value></data>
   <data name="AboutCheckingUpdate.Text" xml:space="preserve"><value>正在检查…</value></data>
   <data name="AboutNoUpdate.Text" xml:space="preserve"><value>已是最新版本</value></data>
   <data name="AboutNewVersion.Text" xml:space="preserve"><value>发现新版本</value></data>
@@ -518,4 +520,5 @@
   <data name="HelpQuit.Text" xml:space="preserve"><value>退出应用</value></data>
   <data name="HelpShowHelp.Text" xml:space="preserve"><value>显示此帮助</value></data>
   <data name="HelpCyclePage.Text" xml:space="preserve"><value>切换页面</value></data>
+  <data name="HelpEscape.Text" xml:space="preserve"><value>清除搜索 / 关闭通知</value></data>
 </root>
