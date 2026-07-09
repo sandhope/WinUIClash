@@ -404,6 +404,11 @@
   <data name="ResEntries.Text" xml:space="preserve"><value>条目: </value></data>
   <data name="ResSource.Text" xml:space="preserve"><value>来源: </value></data>
   <data name="ResUpdate.ToolTip" xml:space="preserve"><value>更新</value></data>
+  <data name="ResGeoUpdate.Text" xml:space="preserve"><value>GeoIP/GeoSite 数据库</value></data>
+  <data name="ResGeoUpdateGeoIp.Text" xml:space="preserve"><value>更新 GeoIP 数据库</value></data>
+  <data name="ResGeoUpdateGeoSite.Text" xml:space="preserve"><value>更新 GeoSite 数据库</value></data>
+  <data name="ResGeoUpdating.Text" xml:space="preserve"><value>正在更新 Geo 数据库</value></data>
+  <data name="ResGeoUpdateSuccess.Text" xml:space="preserve"><value>Geo 数据库更新成功</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>规则</value></data>

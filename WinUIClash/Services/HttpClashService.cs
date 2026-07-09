@@ -491,6 +491,15 @@ public class HttpClashService : IClashService, IDisposable
         await _http.PutAsync(endpoint, null);
     }
 
+    // ── GeoIP/GeoSite 数据库 ──
+
+    public async Task UpdateGeoDatabaseAsync(string name)
+    {
+        var payload = JsonSerializer.Serialize(new { name });
+        var content = new StringContent(payload, Encoding.UTF8, "application/json");
+        await _http.PutAsync("/configs/geo", content);
+    }
+
     // ── 规则 ──
 
     public async Task<IReadOnlyList<Rule>> GetRulesAsync()

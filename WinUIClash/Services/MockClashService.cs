@@ -451,6 +451,7 @@ public class MockClashService : IClashService
     }
 
     public Task UpdateExternalProviderAsync(string name, string category = "proxy") => Task.CompletedTask;
+    public Task UpdateGeoDatabaseAsync(string name) => Task.CompletedTask;
 
     // ── 规则 ──
 

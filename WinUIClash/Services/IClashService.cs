@@ -57,6 +57,9 @@ public interface IClashService
     Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync();
     Task UpdateExternalProviderAsync(string name, string category = "proxy");
 
+    // ── GeoIP/GeoSite 数据库 ──
+    Task UpdateGeoDatabaseAsync(string name);
+
     // ── 规则 ──
     Task<IReadOnlyList<Rule>> GetRulesAsync();
 

@@ -404,6 +404,11 @@
   <data name="ResEntries.Text" xml:space="preserve"><value>Entries: </value></data>
   <data name="ResSource.Text" xml:space="preserve"><value>Source: </value></data>
   <data name="ResUpdate.ToolTip" xml:space="preserve"><value>Update</value></data>
+  <data name="ResGeoUpdate.Text" xml:space="preserve"><value>Geo Database</value></data>
+  <data name="ResGeoUpdateGeoIp.Text" xml:space="preserve"><value>Update GeoIP Database</value></data>
+  <data name="ResGeoUpdateGeoSite.Text" xml:space="preserve"><value>Update GeoSite Database</value></data>
+  <data name="ResGeoUpdating.Text" xml:space="preserve"><value>Updating Geo Database</value></data>
+  <data name="ResGeoUpdateSuccess.Text" xml:space="preserve"><value>Geo Database Updated</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>Rules</value></data>
