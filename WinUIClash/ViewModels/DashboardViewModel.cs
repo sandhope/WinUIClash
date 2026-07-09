@@ -209,6 +209,17 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _totalDownload = "0 B";
     [ObservableProperty] private int _activeConnections;
     [ObservableProperty] private int _ruleCount;
+    [ObservableProperty] private int _providerCount;
+
+    public async Task RefreshProviderCountAsync()
+    {
+        try
+        {
+            var providers = await _clash.GetExternalProvidersAsync();
+            ProviderCount = providers.Count;
+        }
+        catch { ProviderCount = 0; }
+    }
 
     public async Task RefreshRuleCountAsync()
     {
@@ -558,6 +569,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         await RefreshTotalTrafficAsync();
         await RefreshConnectionCountAsync();
         await RefreshRuleCountAsync();
+        await RefreshProviderCountAsync();
         await RefreshActiveProxyNodeAsync();
         await RefreshActiveProfileAsync();
 

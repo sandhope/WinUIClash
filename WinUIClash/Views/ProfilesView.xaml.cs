@@ -320,6 +320,42 @@ public sealed partial class ProfilesView : Page
         };
         menu.Items.Add(duplicate);
 
+        // 导出配置
+        var exportConfig = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesExportConfig.Text") };
+        exportConfig.Click += async (_, _) =>
+        {
+            try
+            {
+                var srcPath = profile.Path;
+                if (string.IsNullOrWhiteSpace(srcPath))
+                    srcPath = new ProfileStorageService().GetConfigPath(profile.Id);
+
+                if (!File.Exists(srcPath)) return;
+
+                var picker = new Windows.Storage.Pickers.FileSavePicker
+                {
+                    SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+                    SuggestedFileName = $"{profile.Label}.yaml",
+                };
+                picker.FileTypeChoices.Add("YAML", [".yaml", ".yml"]);
+                picker.FileTypeChoices.Add("Text file", [".txt"]);
+
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.CurrentWindow);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+                var file = await picker.PickSaveFileAsync();
+                if (file == null) return;
+
+                var content = await File.ReadAllTextAsync(srcPath);
+                await Windows.Storage.FileIO.WriteTextAsync(file, content);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Profiles] Export error: {ex.Message}");
+            }
+        };
+        menu.Items.Add(exportConfig);
+
         // 自动更新开关
         var autoUpdate = new ToggleMenuFlyoutItem
         {

@@ -466,6 +466,7 @@
   <data name="ProfilesCopyPath.Text" xml:space="preserve"><value>复制文件路径</value></data>
   <data name="ProfilesOpenInExplorer.Text" xml:space="preserve"><value>在文件管理器中打开</value></data>
   <data name="ProfilesDuplicate.Text" xml:space="preserve"><value>复制配置</value></data>
+  <data name="ProfilesExportConfig.Text" xml:space="preserve"><value>导出配置</value></data>
   <data name="ProfilesAutoStartTitle.Text" xml:space="preserve"><value>启动核心</value></data>
   <data name="ProfilesAutoStartMsg.Text" xml:space="preserve"><value>核心未运行，正在自动启动…</value></data>
 
