@@ -460,4 +460,16 @@
   <data name="EmptyResources.Text" xml:space="preserve"><value>No external resources</value></data>
   <data name="EmptyRules.Text" xml:space="preserve"><value>No rules</value></data>
   <data name="EmptyLogs.Text" xml:space="preserve"><value>No logs yet. Waiting for core output…</value></data>
+
+  <!-- Keyboard Help (F1) -->
+  <data name="HelpTitle.Text" xml:space="preserve"><value>Keyboard Shortcuts</value></data>
+  <data name="HelpNav.Text" xml:space="preserve"><value>Navigate to page</value></data>
+  <data name="HelpSearch.Text" xml:space="preserve"><value>Focus search box</value></data>
+  <data name="HelpRefresh.Text" xml:space="preserve"><value>Refresh current page</value></data>
+  <data name="HelpSidebar.Text" xml:space="preserve"><value>Toggle sidebar</value></data>
+  <data name="HelpMinimize.Text" xml:space="preserve"><value>Minimize to tray</value></data>
+  <data name="HelpCoreToggle.Text" xml:space="preserve"><value>Start / Stop core</value></data>
+  <data name="HelpProxyToggle.Text" xml:space="preserve"><value>Toggle system proxy</value></data>
+  <data name="HelpQuit.Text" xml:space="preserve"><value>Quit application</value></data>
+  <data name="HelpShowHelp.Text" xml:space="preserve"><value>Show this help</value></data>
 </root>

@@ -460,4 +460,16 @@
   <data name="EmptyResources.Text" xml:space="preserve"><value>暂无外部资源</value></data>
   <data name="EmptyRules.Text" xml:space="preserve"><value>暂无规则</value></data>
   <data name="EmptyLogs.Text" xml:space="preserve"><value>暂无日志，等待核心输出…</value></data>
+
+  <!-- Keyboard Help (F1) -->
+  <data name="HelpTitle.Text" xml:space="preserve"><value>键盘快捷键</value></data>
+  <data name="HelpNav.Text" xml:space="preserve"><value>导航到对应页面</value></data>
+  <data name="HelpSearch.Text" xml:space="preserve"><value>聚焦搜索框</value></data>
+  <data name="HelpRefresh.Text" xml:space="preserve"><value>刷新当前页面</value></data>
+  <data name="HelpSidebar.Text" xml:space="preserve"><value>切换侧边栏</value></data>
+  <data name="HelpMinimize.Text" xml:space="preserve"><value>最小化到托盘</value></data>
+  <data name="HelpCoreToggle.Text" xml:space="preserve"><value>启动 / 停止核心</value></data>
+  <data name="HelpProxyToggle.Text" xml:space="preserve"><value>切换系统代理</value></data>
+  <data name="HelpQuit.Text" xml:space="preserve"><value>退出应用</value></data>
+  <data name="HelpShowHelp.Text" xml:space="preserve"><value>显示此帮助</value></data>
 </root>
