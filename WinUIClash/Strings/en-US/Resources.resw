@@ -300,6 +300,8 @@
   <data name="ProfilesEditNameTitle.Text" xml:space="preserve"><value>Edit Name</value></data>
   <data name="ProfilesEditProfile.Text" xml:space="preserve"><value>Edit Profile</value></data>
   <data name="ProfilesEditProfileTitle.Text" xml:space="preserve"><value>Edit Profile</value></data>
+  <data name="ProfilesMoveUp.Text" xml:space="preserve"><value>Move Up</value></data>
+  <data name="ProfilesMoveDown.Text" xml:space="preserve"><value>Move Down</value></data>
   <data name="ProfilesAutoUpdate.Text" xml:space="preserve"><value>Auto Update</value></data>
   <data name="ProfilesConfigViewerTitle.Text" xml:space="preserve"><value>Config: </value></data>
   <data name="ConfigSaveReload.Text" xml:space="preserve"><value>Save &amp; Reload</value></data>

@@ -225,6 +225,35 @@ public sealed partial class ProfilesView : Page
         editName.Click += async (_, _) => await ShowEditNameDialogAsync(profile);
         menu.Items.Add(editName);
 
+        menu.Items.Add(new MenuFlyoutSeparator());
+
+        // Move Up / Move Down
+        var index = ViewModel.Profiles.IndexOf(profile);
+        if (index > 0)
+        {
+            var moveUp = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesMoveUp.Text") };
+            moveUp.Click += async (_, _) =>
+            {
+                ViewModel.Profiles.Move(index, index - 1);
+                for (int i = 0; i < ViewModel.Profiles.Count; i++)
+                    ViewModel.Profiles[i].Order = i;
+                await ViewModel.SaveProfileListAsync();
+            };
+            menu.Items.Add(moveUp);
+        }
+        if (index >= 0 && index < ViewModel.Profiles.Count - 1)
+        {
+            var moveDown = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesMoveDown.Text") };
+            moveDown.Click += async (_, _) =>
+            {
+                ViewModel.Profiles.Move(index, index + 1);
+                for (int i = 0; i < ViewModel.Profiles.Count; i++)
+                    ViewModel.Profiles[i].Order = i;
+                await ViewModel.SaveProfileListAsync();
+            };
+            menu.Items.Add(moveDown);
+        }
+
         menu.ShowAt(btn);
     }
 

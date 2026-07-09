@@ -300,6 +300,8 @@
   <data name="ProfilesEditNameTitle.Text" xml:space="preserve"><value>编辑名称</value></data>
   <data name="ProfilesEditProfile.Text" xml:space="preserve"><value>编辑档案</value></data>
   <data name="ProfilesEditProfileTitle.Text" xml:space="preserve"><value>编辑档案</value></data>
+  <data name="ProfilesMoveUp.Text" xml:space="preserve"><value>上移</value></data>
+  <data name="ProfilesMoveDown.Text" xml:space="preserve"><value>下移</value></data>
   <data name="ProfilesAutoUpdate.Text" xml:space="preserve"><value>自动更新</value></data>
   <data name="ProfilesConfigViewerTitle.Text" xml:space="preserve"><value>配置: </value></data>
   <data name="ConfigSaveReload.Text" xml:space="preserve"><value>保存并重载</value></data>
