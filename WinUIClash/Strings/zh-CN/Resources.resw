@@ -399,6 +399,9 @@
   <data name="ReqSortNone.Text" xml:space="preserve"><value>默认排序</value></data>
   <data name="ReqSortHost.Text" xml:space="preserve"><value>按主机</value></data>
   <data name="ReqSortTime.Text" xml:space="preserve"><value>按时间</value></data>
+  <data name="ReqSortUpload.Text" xml:space="preserve"><value>按上传</value></data>
+  <data name="ReqSortDownload.Text" xml:space="preserve"><value>按下载</value></data>
+  <data name="ReqSortRule.Text" xml:space="preserve"><value>按规则</value></data>
   <data name="RequestsExport.Content" xml:space="preserve"><value>导出</value></data>
   <data name="RequestsExport.ToolTip" xml:space="preserve"><value>导出请求记录</value></data>
   <data name="RequestsExportSuccessTitle.Text" xml:space="preserve"><value>导出成功</value></data>
@@ -461,6 +464,7 @@
   <data name="NetworkRestoredMsg.Text" xml:space="preserve"><value>网络连接已恢复</value></data>
   <data name="ProfilesCopyPath.Text" xml:space="preserve"><value>复制文件路径</value></data>
   <data name="ProfilesOpenInExplorer.Text" xml:space="preserve"><value>在文件管理器中打开</value></data>
+  <data name="ProfilesDuplicate.Text" xml:space="preserve"><value>复制配置</value></data>
   <data name="ProfilesAutoStartTitle.Text" xml:space="preserve"><value>启动核心</value></data>
   <data name="ProfilesAutoStartMsg.Text" xml:space="preserve"><value>核心未运行，正在自动启动…</value></data>
 
@@ -555,6 +559,8 @@
   <data name="HelpProxyToggle.Text" xml:space="preserve"><value>切换系统代理</value></data>
   <data name="HelpThemeToggle.Text" xml:space="preserve"><value>切换明暗主题</value></data>
   <data name="HelpCloseAllConns.Text" xml:space="preserve"><value>关闭所有连接</value></data>
+  <data name="HelpExport.Text" xml:space="preserve"><value>导出当前页面数据</value></data>
+  <data name="HelpSettings.Text" xml:space="preserve"><value>打开设置</value></data>
   <data name="HelpQuit.Text" xml:space="preserve"><value>退出应用</value></data>
   <data name="HelpShowHelp.Text" xml:space="preserve"><value>显示此帮助</value></data>
   <data name="HelpCyclePage.Text" xml:space="preserve"><value>切换页面</value></data>
