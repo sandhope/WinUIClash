@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
+using WinUIClash.Services;
 
 namespace WinUIClash.ViewModels;
 
@@ -13,14 +14,14 @@ public partial class ToolsViewModel : ObservableObject
 
     public IReadOnlyList<SettingItem> SettingsItems { get; } =
     [
-        new("基础配置", "端口、日志级别、UA、IPv6 等", "BasicConfig"),
-        new("应用设置", "启动行为、系统代理、自动更新", "AppSettings"),
-        new("主题设置", "明暗模式、主题色", "ThemeSettings"),
+        new(LocalizationHelper.GetString("SettingsBasicConfig.Text"), LocalizationHelper.GetString("ToolsBasicConfigSub.Text"), "BasicConfig"),
+        new(LocalizationHelper.GetString("SettingsApp.Text"), LocalizationHelper.GetString("ToolsAppSettingsSub.Text"), "AppSettings"),
+        new(LocalizationHelper.GetString("SettingsTheme.Text"), LocalizationHelper.GetString("ToolsThemeSettingsSub.Text"), "ThemeSettings"),
     ];
 
     public IReadOnlyList<SettingItem> OtherItems { get; } =
     [
-        new("关于", "版本信息、项目链接", "About"),
+        new(LocalizationHelper.GetString("SettingsAbout.Text"), LocalizationHelper.GetString("ToolsAboutSub.Text"), "About"),
     ];
 
     // ── 导航 ──

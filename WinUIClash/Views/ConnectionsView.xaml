@@ -22,31 +22,31 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Text="连接" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <TextBlock x:Uid="ConnTitle" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
             <AutoSuggestBox Grid.Column="1" Margin="16,0"
-                            PlaceholderText="搜索连接…"
+                            x:Uid="ConnSearchPlaceholder"
                             QueryIcon="Find"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" />
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
                 <TextBlock VerticalAlignment="Center" FontSize="11" Opacity="0.5">
                     <Run Text="{x:Bind ViewModel.ConnectionCount, Mode=OneWay}" />
-                    <Run Text=" 个连接" />
+                    <Run x:Uid="ConnCountSuffix" />
                 </TextBlock>
                 <Button Command="{x:Bind ViewModel.CycleSortModeCommand}"
-                        ToolTipService.ToolTip="切换排序"
+                        x:Uid="ProxySwitchSort"
                         Padding="8,4" Background="Transparent" BorderThickness="0">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <fluent:SymbolIcon Symbol="ArrowSort" FontSize="12" />
                         <TextBlock Text="{x:Bind ViewModel.SortModeLabel, Mode=OneWay}" FontSize="11" />
                     </StackPanel>
                 </Button>
-                <Button Command="{x:Bind ViewModel.RefreshCommand}" ToolTipService.ToolTip="刷新">
+                <Button Command="{x:Bind ViewModel.RefreshCommand}" x:Uid="CommonRefresh">
                     <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
                 </Button>
-                <Button Command="{x:Bind ViewModel.CloseAllCommand}" ToolTipService.ToolTip="关闭全部">
+                <Button Command="{x:Bind ViewModel.CloseAllCommand}" x:Uid="ConnCloseAll">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <fluent:SymbolIcon Symbol="DismissCircle" FontSize="14" />
-                        <TextBlock Text="关闭全部" FontSize="12" />
+                        <TextBlock x:Uid="ConnCloseAll" FontSize="12" />
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -91,7 +91,7 @@
                         <!-- 关闭按钮 -->
                         <Button Grid.Column="2" Padding="4"
                                 Background="Transparent" BorderThickness="0"
-                                ToolTipService.ToolTip="关闭连接"
+                                x:Uid="ConnClose"
                                 Click="CloseConnection_Click"
                                 Tag="{x:Bind}">
                             <fluent:SymbolIcon Symbol="Dismiss" FontSize="12" />
@@ -134,37 +134,37 @@
 
                 <!-- 列 1: 连接基本信息 -->
                 <StackPanel Spacing="4">
-                    <TextBlock FontSize="11" Opacity="0.5" Text="目标主机" />
+                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailHost" />
                     <TextBlock x:Name="DetailHost" FontSize="13" FontWeight="SemiBold"
                                TextTrimming="CharacterEllipsis" />
-                    <TextBlock FontSize="11" Opacity="0.5" Text="源地址" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailSource" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailSource" FontSize="12" FontFamily="Consolas" />
-                    <TextBlock FontSize="11" Opacity="0.5" Text="目标地址" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailDest" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailDest" FontSize="12" FontFamily="Consolas" />
                 </StackPanel>
 
                 <!-- 列 2: 流量和代理链 -->
                 <StackPanel Grid.Column="1" Spacing="4">
-                    <TextBlock FontSize="11" Opacity="0.5" Text="总上传 / 下载" />
+                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailTransfer" />
                     <TextBlock x:Name="DetailTransfer" FontSize="13" FontWeight="SemiBold" />
-                    <TextBlock FontSize="11" Opacity="0.5" Text="代理链" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnChain" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailChains" FontSize="12" TextWrapping="Wrap" />
-                    <TextBlock FontSize="11" Opacity="0.5" Text="匹配规则" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnRule" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailRule" FontSize="12" />
                 </StackPanel>
 
                 <!-- 列 3: 时间和操作 -->
                 <StackPanel Grid.Column="2" Spacing="4">
-                    <TextBlock FontSize="11" Opacity="0.5" Text="开始时间" />
+                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnStartTime" />
                     <TextBlock x:Name="DetailStart" FontSize="12" />
-                    <TextBlock FontSize="11" Opacity="0.5" Text="持续时长" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDuration" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailDuration" FontSize="13" FontWeight="SemiBold" />
                     <Button Margin="0,8,0,0"
                             Click="CloseSelected_Click"
                             HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <fluent:SymbolIcon Symbol="DismissCircle" FontSize="12" />
-                            <TextBlock Text="关闭此连接" FontSize="11" />
+                            <TextBlock x:Uid="ConnCloseThis" FontSize="11" />
                         </StackPanel>
                     </Button>
                 </StackPanel>

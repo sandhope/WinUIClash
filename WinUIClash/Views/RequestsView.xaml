@@ -21,15 +21,15 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Text="请求" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <TextBlock x:Uid="RequestsTitle" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
             <AutoSuggestBox Grid.Column="1" Margin="16,0"
-                            PlaceholderText="搜索请求…"
+                            x:Uid="RequestsSearchPlaceholder"
                             QueryIcon="Find"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" />
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                <ToggleSwitch OnContent="自动滚动" OffContent="自动滚动"
+                <ToggleSwitch x:Uid="RequestsAutoScroll"
                               IsOn="{x:Bind ViewModel.AutoScroll, Mode=TwoWay}" />
-                <Button Command="{x:Bind ViewModel.ClearCommand}" ToolTipService.ToolTip="清空">
+                <Button Command="{x:Bind ViewModel.ClearCommand}" x:Uid="CommonClear">
                     <fluent:SymbolIcon Symbol="Delete" FontSize="14" />
                 </Button>
             </StackPanel>

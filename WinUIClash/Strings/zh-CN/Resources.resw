@@ -212,6 +212,94 @@
   <data name="StatusBarSystemProxy.Text" xml:space="preserve"><value>系统代理</value></data>
   <data name="SearchBox.PlaceholderText" xml:space="preserve"><value>搜索… (Ctrl+F)</value></data>
 
+  <!-- Basic Config - Section Headers -->
+  <data name="ConfigPortSettings.Text" xml:space="preserve"><value>端口设置</value></data>
+  <data name="ConfigFeatureSwitches.Text" xml:space="preserve"><value>功能开关</value></data>
+
+  <!-- App Settings - Section Headers -->
+  <data name="AppStartupExit.Text" xml:space="preserve"><value>启动与退出</value></data>
+  <data name="AppProxyBehavior.Text" xml:space="preserve"><value>代理行为</value></data>
+  <data name="AppOther.Text" xml:space="preserve"><value>其他</value></data>
+  <data name="AppSilentLaunch.Text" xml:space="preserve"><value>静默启动</value></data>
+  <data name="AppSilentLaunchDesc.Text" xml:space="preserve"><value>启动时最小化，不显示主窗口</value></data>
+  <data name="AppLanguageSwitchDesc.Text" xml:space="preserve"><value>切换语言后需要重启应用</value></data>
+
+  <!-- Theme - RadioButton Content -->
+  <data name="ThemeSystem.Content" xml:space="preserve"><value>跟随系统</value></data>
+  <data name="ThemeLight.Content" xml:space="preserve"><value>浅色</value></data>
+  <data name="ThemeDark.Content" xml:space="preserve"><value>深色</value></data>
+
+  <!-- About - Additional -->
+  <data name="AboutCheckingUpdate.Text" xml:space="preserve"><value>正在检查…</value></data>
+  <data name="AboutCheckingStatus.Text" xml:space="preserve"><value>正在检查更新…</value></data>
+  <data name="AboutUpToDate.Text" xml:space="preserve"><value>✓ 当前已是最新版本 (v{0})</value></data>
+  <data name="AboutNewVersionFound.Text" xml:space="preserve"><value>发现新版本 v{0} — 点击前往下载</value></data>
+  <data name="AboutNewVersionTitle.Text" xml:space="preserve"><value>发现新版本</value></data>
+  <data name="AboutNewVersionContent.Text" xml:space="preserve"><value>新版本: {0}\n\n{1}</value></data>
+  <data name="AboutGoDownload.Content" xml:space="preserve"><value>前往下载</value></data>
+  <data name="AboutLater.Content" xml:space="preserve"><value>稍后</value></data>
+  <data name="AboutCheckFailed.Text" xml:space="preserve"><value>检查失败: {0}</value></data>
+  <data name="AboutVersion.Text" xml:space="preserve"><value>版本 </value></data>
+  <data name="AboutDescription.Text" xml:space="preserve"><value>基于 FlClash UI 设计的 ClashMeta 客户端</value></data>
+  <data name="AboutTechStack.Text" xml:space="preserve"><value>技术栈</value></data>
+  <data name="AboutActions.Text" xml:space="preserve"><value>操作</value></data>
+  <data name="AboutFlClash.Content" xml:space="preserve"><value>FlClash 原项目</value></data>
+  <data name="AboutMihomo.Content" xml:space="preserve"><value>ClashMeta 核心 (Mihomo)</value></data>
+  <data name="AboutWinAppSdk.Content" xml:space="preserve"><value>Windows App SDK 文档</value></data>
+  <data name="AboutFramework.Text" xml:space="preserve"><value>框架</value></data>
+  <data name="AboutCore.Text" xml:space="preserve"><value>核心</value></data>
+
+  <!-- Tools -->
+  <data name="ToolsTitle.Text" xml:space="preserve"><value>工具</value></data>
+  <data name="ToolsSettingsSection.Text" xml:space="preserve"><value>设置</value></data>
+  <data name="ToolsOtherSection.Text" xml:space="preserve"><value>其他</value></data>
+  <data name="ToolsBack.ToolTip" xml:space="preserve"><value>返回</value></data>
+  <data name="ToolsBasicConfigSub.Text" xml:space="preserve"><value>端口、日志级别、UA、IPv6 等</value></data>
+  <data name="ToolsAppSettingsSub.Text" xml:space="preserve"><value>启动行为、系统代理、自动更新</value></data>
+  <data name="ToolsThemeSettingsSub.Text" xml:space="preserve"><value>明暗模式、主题色</value></data>
+  <data name="ToolsAboutSub.Text" xml:space="preserve"><value>版本信息、项目链接</value></data>
+
+  <!-- Proxies - Additional -->
+  <data name="ProxyTitle.Text" xml:space="preserve"><value>代理</value></data>
+  <data name="ProxyTestAll.Text" xml:space="preserve"><value>全部测速</value></data>
+  <data name="ProxySwitchSort.ToolTip" xml:space="preserve"><value>切换排序</value></data>
+
+  <!-- Profiles - Additional -->
+  <data name="ProfilesImport.Content" xml:space="preserve"><value>导入</value></data>
+  <data name="ProfilesImport.ToolTip" xml:space="preserve"><value>导入订阅</value></data>
+  <data name="ProfilesActive.Text" xml:space="preserve"><value>使用中</value></data>
+  <data name="ProfilesMore.ToolTip" xml:space="preserve"><value>更多</value></data>
+  <data name="ProfilesClipboardTitle.Text" xml:space="preserve"><value>检测到订阅链接</value></data>
+  <data name="ProfilesClipboardContent.Text" xml:space="preserve"><value>剪贴板中发现订阅链接:\n\n{0}\n\n是否导入？</value></data>
+  <data name="ProfilesUrlHeader.Text" xml:space="preserve"><value>订阅地址</value></data>
+  <data name="ProfilesNamePlaceholder.Text" xml:space="preserve"><value>自动识别（可手动修改）</value></data>
+  <data name="ProfilesNameHeader.Text" xml:space="preserve"><value>配置名称</value></data>
+  <data name="ProfilesImportTitle.Text" xml:space="preserve"><value>导入订阅</value></data>
+  <data name="ProfilesViewConfig.Text" xml:space="preserve"><value>查看配置</value></data>
+  <data name="ProfilesCopyUrl.Text" xml:space="preserve"><value>复制链接</value></data>
+  <data name="ProfilesEditName.Text" xml:space="preserve"><value>编辑名称</value></data>
+  <data name="ProfilesEditNameTitle.Text" xml:space="preserve"><value>编辑名称</value></data>
+  <data name="ProfilesConfigViewerTitle.Text" xml:space="preserve"><value>配置: </value></data>
+
+  <!-- Connections - Additional -->
+  <data name="ConnSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索连接…</value></data>
+  <data name="ConnCountSuffix.Text" xml:space="preserve"><value> 个连接</value></data>
+  <data name="ConnClose.ToolTip" xml:space="preserve"><value>关闭连接</value></data>
+  <data name="ConnDetailHost.Text" xml:space="preserve"><value>目标主机</value></data>
+  <data name="ConnDetailSource.Text" xml:space="preserve"><value>源地址</value></data>
+  <data name="ConnDetailDest.Text" xml:space="preserve"><value>目标地址</value></data>
+  <data name="ConnDetailTransfer.Text" xml:space="preserve"><value>总上传 / 下载</value></data>
+  <data name="ConnCloseThis.Content" xml:space="preserve"><value>关闭此连接</value></data>
+
+  <!-- Logs - Additional -->
+  <data name="LogsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索日志…</value></data>
+  <data name="LogsAutoScroll.Content" xml:space="preserve"><value>自动滚动</value></data>
+  <data name="LogsCountSuffix.Text" xml:space="preserve"><value> 条日志</value></data>
+
+  <!-- Requests - Additional -->
+  <data name="RequestsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索请求…</value></data>
+  <data name="RequestsAutoScroll.Content" xml:space="preserve"><value>自动滚动</value></data>
+
   <!-- Connection Sort Modes -->
   <data name="ConnSortNone.Text" xml:space="preserve"><value>默认排序</value></data>
   <data name="ConnSortHost.Text" xml:space="preserve"><value>按主机</value></data>

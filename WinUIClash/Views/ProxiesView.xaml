@@ -22,16 +22,16 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Text="代理" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <TextBlock x:Uid="ProxyTitle" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
             <AutoSuggestBox Grid.Column="1" Margin="16,0"
-                            PlaceholderText="搜索代理…"
+                            x:Uid="ProxySearch"
                             QueryIcon="Find"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" />
             <Button Grid.Column="2" Command="{x:Bind ViewModel.TestAllDelaysCommand}"
-                    ToolTipService.ToolTip="全部测速">
+                    x:Uid="ProxyTestAll">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <fluent:SymbolIcon Symbol="Gauge" FontSize="14" />
-                    <TextBlock Text="全部测速" FontSize="12" />
+                    <TextBlock x:Uid="ProxyTestAll" FontSize="12" />
                 </StackPanel>
             </Button>
         </Grid>
@@ -64,7 +64,7 @@
                 </ItemsRepeater>
             </ScrollViewer>
             <Button Grid.Column="1" Command="{x:Bind ViewModel.CycleSortModeCommand}"
-                    ToolTipService.ToolTip="切换排序"
+                    x:Uid="ProxySwitchSort"
                     Padding="8,4" Background="Transparent" BorderThickness="0">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <fluent:SymbolIcon Symbol="ArrowSort" FontSize="12" />

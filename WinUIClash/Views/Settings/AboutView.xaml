@@ -9,7 +9,7 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Padding="0,0,16,24">
-            <TextBlock Text="关于" FontSize="20" FontWeight="SemiBold" />
+            <TextBlock x:Uid="AboutTitle" FontSize="20" FontWeight="SemiBold" />
 
             <!-- 应用信息 -->
             <Border Style="{StaticResource SettingsCardStyle}">
@@ -17,10 +17,10 @@
                     <fluent:SymbolIcon Symbol="Shield" FontSize="48" Foreground="{ThemeResource AccentFillColorDefaultBrush}" />
                     <TextBlock Text="WinUIClash" FontSize="20" FontWeight="SemiBold"
                                HorizontalAlignment="Center" />
-                    <TextBlock Text="版本 0.1.0" FontSize="12" Opacity="0.5"
+                    <TextBlock x:Uid="AboutVersion" FontSize="12" Opacity="0.5"
                                x:Name="VersionText"
                                HorizontalAlignment="Center" />
-                    <TextBlock Text="基于 FlClash UI 设计的 ClashMeta 客户端"
+                    <TextBlock x:Uid="AboutDescription"
                                FontSize="12" Opacity="0.6" HorizontalAlignment="Center"
                                TextAlignment="Center" />
                 </StackPanel>
@@ -29,7 +29,7 @@
             <!-- 技术栈 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="8">
-                    <TextBlock Text="技术栈" FontSize="14" FontWeight="SemiBold" />
+                    <TextBlock x:Uid="AboutTechStack" FontSize="14" FontWeight="SemiBold" />
                     <Grid ColumnSpacing="12" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -41,13 +41,13 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <TextBlock Text="框架" Opacity="0.5" FontSize="12" />
+                        <TextBlock x:Uid="AboutFramework" Opacity="0.5" FontSize="12" />
                         <TextBlock Grid.Column="1" Text=".NET 10 + Windows App SDK 2.2" FontSize="12" />
                         <TextBlock Grid.Row="1" Text="UI" Opacity="0.5" FontSize="12" />
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="WinUI 3 (XAML) + Mica" FontSize="12" />
                         <TextBlock Grid.Row="2" Text="MVVM" Opacity="0.5" FontSize="12" />
                         <TextBlock Grid.Row="2" Grid.Column="1" Text="CommunityToolkit.Mvvm 8.4" FontSize="12" />
-                        <TextBlock Grid.Row="3" Text="核心" Opacity="0.5" FontSize="12" />
+                        <TextBlock Grid.Row="3" x:Uid="AboutCore" Opacity="0.5" FontSize="12" />
                         <TextBlock Grid.Row="3" Grid.Column="1" Text="ClashMeta (Mihomo)" FontSize="12" />
                     </Grid>
                 </StackPanel>
@@ -56,33 +56,33 @@
             <!-- 链接 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="4">
-                    <HyperlinkButton Content="FlClash 原项目" NavigateUri="https://github.com/chen08209/FlClash" />
-                    <HyperlinkButton Content="ClashMeta 核心 (Mihomo)" NavigateUri="https://github.com/MetaCubeX/mihomo" />
-                    <HyperlinkButton Content="Windows App SDK 文档" NavigateUri="https://learn.microsoft.com/windows/apps/winui/" />
+                    <HyperlinkButton x:Uid="AboutFlClash" NavigateUri="https://github.com/chen08209/FlClash" />
+                    <HyperlinkButton x:Uid="AboutMihomo" NavigateUri="https://github.com/MetaCubeX/mihomo" />
+                    <HyperlinkButton x:Uid="AboutWinAppSdk" NavigateUri="https://learn.microsoft.com/windows/apps/winui/" />
                 </StackPanel>
             </Border>
 
             <!-- 操作 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="8">
-                    <TextBlock Text="操作" FontSize="14" FontWeight="SemiBold" />
+                    <TextBlock x:Uid="AboutActions" FontSize="14" FontWeight="SemiBold" />
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <Button Click="OpenDataFolder_Click">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <fluent:SymbolIcon Symbol="FolderOpen" FontSize="14" />
-                                <TextBlock Text="打开数据目录" FontSize="12" />
+                                <TextBlock x:Uid="AboutOpenDataFolder" FontSize="12" />
                             </StackPanel>
                         </Button>
                         <Button Click="CopyVersion_Click">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <fluent:SymbolIcon Symbol="Copy" FontSize="14" />
-                                <TextBlock Text="复制版本信息" FontSize="12" />
+                                <TextBlock x:Uid="AboutCopyVersion" FontSize="12" />
                             </StackPanel>
                         </Button>
                         <Button x:Name="CheckUpdateBtn" Click="CheckUpdate_Click">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
-                                <TextBlock x:Name="CheckUpdateLabel" Text="检查更新" FontSize="12" />
+                                <TextBlock x:Name="CheckUpdateLabel" x:Uid="AboutCheckUpdate" FontSize="12" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
