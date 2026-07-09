@@ -99,6 +99,20 @@ public sealed partial class AboutView : UserControl
     {
         try
         {
+            var picker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+                SuggestedFileName = $"WinUIClash_Diagnostic_{DateTime.Now:yyyyMMdd_HHmmss}.txt",
+            };
+            picker.FileTypeChoices.Add("Text file", [".txt"]);
+            picker.FileTypeChoices.Add("Log file", [".log"]);
+
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.CurrentWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSaveFileAsync();
+            if (file == null) return;
+
             var dataDir = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "WinUIClash");
@@ -123,17 +137,15 @@ public sealed partial class AboutView : UserControl
                 sb.AppendLine("(No crash.log found)");
             }
 
-            // Save to desktop
-            var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var exportPath = System.IO.Path.Combine(desktopPath, $"WinUIClash_Diagnostic_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
-            await File.WriteAllTextAsync(exportPath, sb.ToString());
+            await Windows.Storage.FileIO.WriteTextAsync(file, sb.ToString());
 
             var notification = ServiceLocator.Get<NotificationService>();
             notification.Success(
                 LocalizationHelper.GetString("AboutExportLogs.Text"),
-                exportPath);
+                file.Path);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException
+            && ex.HResult != unchecked((int)0x80004004))
         {
             var notification = ServiceLocator.Get<NotificationService>();
             notification.Error("Export Failed", ex.Message);
