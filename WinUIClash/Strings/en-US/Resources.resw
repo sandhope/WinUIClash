@@ -210,6 +210,7 @@
 
   <!-- StatusBar -->
   <data name="StatusBarSystemProxy.Text" xml:space="preserve"><value>System Proxy</value></data>
+  <data name="SearchBox.PlaceholderText" xml:space="preserve"><value>Search… (Ctrl+F)</value></data>
 
   <!-- Connection Sort Modes -->
   <data name="ConnSortNone.Text" xml:space="preserve"><value>Default</value></data>
