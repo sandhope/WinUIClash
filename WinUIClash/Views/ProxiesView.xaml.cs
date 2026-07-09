@@ -4,6 +4,8 @@ using Microsoft.UI.Xaml.Media;
 using WinUIClash.Models;
 using WinUIClash.ViewModels;
 
+using WinUIClash.Services;
+
 namespace WinUIClash.Views;
 
 public sealed partial class ProxiesView : Page
@@ -76,7 +78,7 @@ public sealed partial class ProxiesView : Page
 
         var menu = new MenuFlyout();
 
-        var testItem = new MenuFlyoutItem { Text = "测试延迟" };
+        var testItem = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProxyCtxTestDelay.Text") };
         testItem.Click += async (_, _) =>
         {
             await ViewModel.TestDelayCommand.ExecuteAsync(proxy);
@@ -84,7 +86,7 @@ public sealed partial class ProxiesView : Page
         };
         menu.Items.Add(testItem);
 
-        var selectItem = new MenuFlyoutItem { Text = "选择此节点" };
+        var selectItem = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProxyCtxSelect.Text") };
         selectItem.Click += async (_, _) =>
         {
             await ViewModel.SelectProxyCommand.ExecuteAsync(proxy);
@@ -94,7 +96,7 @@ public sealed partial class ProxiesView : Page
 
         menu.Items.Add(new MenuFlyoutSeparator());
 
-        var copyItem = new MenuFlyoutItem { Text = "复制名称" };
+        var copyItem = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProxyCtxCopyName.Text") };
         copyItem.Click += (_, _) =>
         {
             var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();

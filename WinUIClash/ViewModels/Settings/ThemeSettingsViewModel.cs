@@ -3,6 +3,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Windows.UI;
 using WinUIClash.Models;
+using WinUIClash.Services;
 
 namespace WinUIClash.ViewModels.Settings;
 
@@ -33,11 +34,12 @@ public partial class ThemeSettingsViewModel : ObservableObject
 
     public record ThemeOption(string Label, string Value);
 
-    public ThemeOption[] ThemeModes { get; } =
+    private ThemeOption[]? _themeModes;
+    public ThemeOption[] ThemeModes => _themeModes ??=
     [
-        new("跟随系统", "System"),
-        new("浅色模式", "Light"),
-        new("深色模式", "Dark"),
+        new(LocalizationHelper.GetString("ThemeModeSystem.Text"), "System"),
+        new(LocalizationHelper.GetString("ThemeModeLight.Text"), "Light"),
+        new(LocalizationHelper.GetString("ThemeModeDark.Text"), "Dark"),
     ];
 
     public string ThemeMode
@@ -80,16 +82,17 @@ public partial class ThemeSettingsViewModel : ObservableObject
     /// <summary>预设主题色板</summary>
     public record ThemeColor(string Name, string Hex);
 
-    public ThemeColor[] PrimaryColors { get; } =
+    private ThemeColor[]? _primaryColors;
+    public ThemeColor[] PrimaryColors => _primaryColors ??=
     [
-        new("蓝色", "#2196F3"),
-        new("青色", "#00BCD4"),
-        new("绿色", "#4CAF50"),
-        new("橙色", "#FF9800"),
-        new("红色", "#F44336"),
-        new("紫色", "#9C27B0"),
-        new("粉色", "#E91E63"),
-        new("靛蓝", "#3F51B5"),
+        new(LocalizationHelper.GetString("ColorBlue.Text"), "#2196F3"),
+        new(LocalizationHelper.GetString("ColorCyan.Text"), "#00BCD4"),
+        new(LocalizationHelper.GetString("ColorGreen.Text"), "#4CAF50"),
+        new(LocalizationHelper.GetString("ColorOrange.Text"), "#FF9800"),
+        new(LocalizationHelper.GetString("ColorRed.Text"), "#F44336"),
+        new(LocalizationHelper.GetString("ColorPurple.Text"), "#9C27B0"),
+        new(LocalizationHelper.GetString("ColorPink.Text"), "#E91E63"),
+        new(LocalizationHelper.GetString("ColorIndigo.Text"), "#3F51B5"),
     ];
 
     public int PrimaryColorIndex

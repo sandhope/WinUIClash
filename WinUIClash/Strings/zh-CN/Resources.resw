@@ -159,22 +159,6 @@
   <data name="ConnDirect.Text" xml:space="preserve"><value>直连</value></data>
 
   <!-- Rules -->
-  <data name="RulesTitle.Text" xml:space="preserve"><value>规则</value></data>
-  <data name="RulesTypeHeader.Text" xml:space="preserve"><value>类型</value></data>
-  <data name="RulesPayloadHeader.Text" xml:space="preserve"><value>匹配内容</value></data>
-  <data name="RulesProxyHeader.Text" xml:space="preserve"><value>目标</value></data>
-  <data name="RulesSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索规则...</value></data>
-  <data name="RulesAllTypes.Text" xml:space="preserve"><value>全部类型</value></data>
-  <data name="RulesAllProxies.Text" xml:space="preserve"><value>全部目标</value></data>
-
-  <!-- Resources -->
-  <data name="ResTitle.Text" xml:space="preserve"><value>资源</value></data>
-  <data name="ResSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索资源...</value></data>
-  <data name="ResAll.Text" xml:space="preserve"><value>全部</value></data>
-  <data name="ResProxyProvider.Text" xml:space="preserve"><value>代理提供者</value></data>
-  <data name="ResRuleProvider.Text" xml:space="preserve"><value>规则提供者</value></data>
-  <data name="ResItemCount.Text" xml:space="preserve"><value>条目: </value></data>
-  <data name="ResVehicleType.Text" xml:space="preserve"><value>来源: </value></data>
 
   <!-- Profiles -->
   <data name="ProfilesTitle.Text" xml:space="preserve"><value>配置</value></data>
@@ -359,4 +343,67 @@
   <data name="ConnPause.Content" xml:space="preserve"><value>暂停</value></data>
   <data name="ConnResume.Content" xml:space="preserve"><value>继续</value></data>
   <data name="ConnPause.ToolTip" xml:space="preserve"><value>暂停/恢复自动刷新</value></data>
+
+  <!-- Resources Page -->
+  <data name="ResTitle.Text" xml:space="preserve"><value>资源</value></data>
+  <data name="ResCountSuffix.Text" xml:space="preserve"><value>个提供者</value></data>
+  <data name="ResFilterAll.Content" xml:space="preserve"><value>全部</value></data>
+  <data name="ResFilterProxy.Content" xml:space="preserve"><value>代理提供者</value></data>
+  <data name="ResFilterRule.Content" xml:space="preserve"><value>规则提供者</value></data>
+  <data name="ResSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索资源…</value></data>
+  <data name="ResUpdateAll.Text" xml:space="preserve"><value>全部更新</value></data>
+  <data name="ResUpdateAll.ToolTip" xml:space="preserve"><value>全部更新</value></data>
+  <data name="ResEntries.Text" xml:space="preserve"><value>条目: </value></data>
+  <data name="ResSource.Text" xml:space="preserve"><value>来源: </value></data>
+  <data name="ResUpdate.ToolTip" xml:space="preserve"><value>更新</value></data>
+
+  <!-- Rules Page -->
+  <data name="RulesTitle.Text" xml:space="preserve"><value>规则</value></data>
+  <data name="RulesSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索规则…</value></data>
+  <data name="RulesTypeCol.Text" xml:space="preserve"><value>类型</value></data>
+  <data name="RulesPayloadCol.Text" xml:space="preserve"><value>匹配内容</value></data>
+  <data name="RulesTargetCol.Text" xml:space="preserve"><value>目标</value></data>
+  <data name="RulesAllProxiesFilter.Text" xml:space="preserve"><value>全部目标</value></data>
+  <data name="RulesCopyType.Text" xml:space="preserve"><value>复制类型</value></data>
+  <data name="RulesCopyPayload.Text" xml:space="preserve"><value>复制匹配内容</value></data>
+  <data name="RulesCopyProxy.Text" xml:space="preserve"><value>复制目标代理</value></data>
+  <data name="RulesCopyAll.Text" xml:space="preserve"><value>复制整条规则</value></data>
+
+  <!-- Proxy Context Menu -->
+  <data name="ProxyCtxTestDelay.Text" xml:space="preserve"><value>测试延迟</value></data>
+  <data name="ProxyCtxSelect.Text" xml:space="preserve"><value>选择此节点</value></data>
+  <data name="ProxyCtxCopyName.Text" xml:space="preserve"><value>复制名称</value></data>
+
+  <!-- App Error Dialog -->
+  <data name="AppErrorTitle.Text" xml:space="preserve"><value>发生错误</value></data>
+  <data name="AppErrorContent.Text" xml:space="preserve"><value>应用程序遇到意外错误:\n\n{0}\n\n错误已记录到日志文件。</value></data>
+  <data name="AppErrorContinue.Content" xml:space="preserve"><value>继续</value></data>
+  <data name="AppErrorExit.Content" xml:space="preserve"><value>退出</value></data>
+  <data name="AppUpdateFound.Text" xml:space="preserve"><value>发现新版本</value></data>
+  <data name="AppUpdateMsg.Text" xml:space="preserve"><value>WinUIClash {0} 已发布，前往工具页查看。</value></data>
+
+  <!-- MainWindow Status Bar -->
+  <data name="StatusToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>点击切换核心状态</value></data>
+  <data name="StatusStopped.Text" xml:space="preserve"><value>已停止</value></data>
+  <data name="StatusProxyLabel.Text" xml:space="preserve"><value>代理</value></data>
+
+  <!-- Theme Mode Names -->
+  <data name="ThemeModeSystem.Text" xml:space="preserve"><value>跟随系统</value></data>
+  <data name="ThemeModeLight.Text" xml:space="preserve"><value>浅色模式</value></data>
+  <data name="ThemeModeDark.Text" xml:space="preserve"><value>深色模式</value></data>
+
+  <!-- Color Preset Names -->
+  <data name="ColorBlue.Text" xml:space="preserve"><value>蓝色</value></data>
+  <data name="ColorCyan.Text" xml:space="preserve"><value>青色</value></data>
+  <data name="ColorGreen.Text" xml:space="preserve"><value>绿色</value></data>
+  <data name="ColorOrange.Text" xml:space="preserve"><value>橙色</value></data>
+  <data name="ColorRed.Text" xml:space="preserve"><value>红色</value></data>
+  <data name="ColorPurple.Text" xml:space="preserve"><value>紫色</value></data>
+  <data name="ColorPink.Text" xml:space="preserve"><value>粉色</value></data>
+  <data name="ColorIndigo.Text" xml:space="preserve"><value>靛蓝</value></data>
+
+  <!-- Service Error Messages -->
+  <data name="ErrorCoreBinaryNotFound.Text" xml:space="preserve"><value>未找到 mihomo 可执行文件，请在设置中指定路径</value></data>
+  <data name="ErrorConfigNotFound.Text" xml:space="preserve"><value>配置文件不存在: {0}</value></data>
+  <data name="ErrorRegistryAccess.Text" xml:space="preserve"><value>无法打开 Internet Settings 注册表项</value></data>
 </root>

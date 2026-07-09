@@ -142,12 +142,12 @@
 
             <!-- 核心状态 (可点击切换) -->
             <Button Background="Transparent" BorderThickness="0" Padding="0"
-                    Click="StatusDot_Click" ToolTipService.ToolTip="点击切换核心状态">
+                    Click="StatusDot_Click" x:Uid="StatusToggle">
                 <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
                             Margin="12,0,16,0">
                     <Ellipse Width="8" Height="8" x:Name="StatusDot"
                              Fill="{ThemeResource SystemFillColorCritical}" />
-                    <TextBlock Text="已停止" FontSize="11" x:Name="StatusText"
+                    <TextBlock x:Uid="StatusStopped" FontSize="11" x:Name="StatusText"
                                Opacity="0.6" />
                 </StackPanel>
             </Button>
@@ -183,7 +183,7 @@
                         VerticalAlignment="Center" Margin="0,0,12,0">
                 <fluent:SymbolIcon Symbol="ShieldCheckmark" FontSize="10"
                                    x:Name="ProxyIcon" Opacity="0.3" />
-                <TextBlock Text="代理" FontSize="11" x:Name="ProxyText"
+                <TextBlock x:Uid="StatusProxyLabel" FontSize="11" x:Name="ProxyText"
                            Opacity="0.3" />
             </StackPanel>
         </Grid>
