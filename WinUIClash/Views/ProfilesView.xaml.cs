@@ -138,6 +138,50 @@ public sealed partial class ProfilesView : Page
         await ViewModel.ImportProfileAsync(url, name);
     }
 
+    private async void ImportFileButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+            };
+            picker.FileTypeFilter.Add(".yaml");
+            picker.FileTypeFilter.Add(".yml");
+
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.CurrentWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSingleFileAsync();
+            if (file == null) return;
+
+            var profileId = Guid.NewGuid().ToString("N")[..8];
+            var storage = new ProfileStorageService();
+            var destPath = storage.GetConfigPath(profileId);
+
+            // Copy the selected file to local profile storage
+            File.Copy(file.Path, destPath, overwrite: true);
+
+            var label = Path.GetFileNameWithoutExtension(file.Name);
+
+            var profile = new Profile
+            {
+                Id = profileId,
+                Label = label,
+                Path = destPath,
+                LastUpdate = DateTime.Now,
+                IsActive = false,
+            };
+
+            ViewModel.Profiles.Add(profile);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException
+            && ex.HResult != unchecked((int)0x80004004))
+        {
+            System.Diagnostics.Debug.WriteLine($"[Profiles] Import file error: {ex.Message}");
+        }
+    }
+
     private void MoreButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Button btn || btn.Tag is not Profile profile) return;
