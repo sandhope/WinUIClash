@@ -26,6 +26,7 @@ public class ClashOrchestrator : IClashService
     public event Action<Traffic>? TrafficUpdated;
     public event Action<CoreState>? CoreStateChanged;
     public event Action<LogEntry>? LogReceived;
+    public event Action<OutboundMode>? OutboundModeChanged;
 
     public ClashOrchestrator(
         CoreProcessService processService,
@@ -307,6 +308,7 @@ public class ClashOrchestrator : IClashService
         service.TrafficUpdated += OnTrafficUpdated;
         service.CoreStateChanged += OnCoreStateChanged;
         service.LogReceived += OnLogReceived;
+        service.OutboundModeChanged += OnOutboundModeChanged;
     }
 
     private void UnsubscribeFromEvents(IClashService service)
@@ -314,11 +316,13 @@ public class ClashOrchestrator : IClashService
         service.TrafficUpdated -= OnTrafficUpdated;
         service.CoreStateChanged -= OnCoreStateChanged;
         service.LogReceived -= OnLogReceived;
+        service.OutboundModeChanged -= OnOutboundModeChanged;
     }
 
     private void OnTrafficUpdated(Traffic traffic) => TrafficUpdated?.Invoke(traffic);
     private void OnCoreStateChanged(CoreState state) => CoreStateChanged?.Invoke(state);
     private void OnLogReceived(LogEntry entry) => LogReceived?.Invoke(entry);
+    private void OnOutboundModeChanged(OutboundMode mode) => OutboundModeChanged?.Invoke(mode);
 
     /// <summary>
     /// Crash recovery watchdog: if the core process exits unexpectedly and auto-restart is enabled,

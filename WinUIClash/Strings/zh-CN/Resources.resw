@@ -465,6 +465,9 @@
   <!-- MainWindow Status Bar -->
   <data name="StatusToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>点击切换核心状态</value></data>
   <data name="StatusProxyLabel.Text" xml:space="preserve"><value>代理</value></data>
+  <data name="StatusModeRule.Text" xml:space="preserve"><value>规则</value></data>
+  <data name="StatusModeGlobal.Text" xml:space="preserve"><value>全局</value></data>
+  <data name="StatusModeDirect.Text" xml:space="preserve"><value>直连</value></data>
 
   <!-- Theme Mode Names -->
   <data name="ThemeModeSystem.Text" xml:space="preserve"><value>跟随系统</value></data>

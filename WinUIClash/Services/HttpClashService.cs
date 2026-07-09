@@ -28,6 +28,7 @@ public class HttpClashService : IClashService, IDisposable
     public CoreState CoreState => _coreState;
     public event Action<Traffic>? TrafficUpdated;
     public event Action<CoreState>? CoreStateChanged;
+    public event Action<OutboundMode>? OutboundModeChanged;
     public event Action<LogEntry>? LogReceived;
 
     private static readonly JsonSerializerOptions JsonOpts = new()
@@ -166,6 +167,7 @@ public class HttpClashService : IClashService, IDisposable
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         await _http.PatchAsync("/configs", content);
         _outboundMode = mode;
+        OutboundModeChanged?.Invoke(mode);
     }
 
     // ── TUN 模式 ──

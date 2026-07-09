@@ -20,6 +20,7 @@ public class MockClashService : IClashService
     public event Action<LogEntry>? LogReceived;
     public event Action<Traffic>? TrafficUpdated;
     public event Action<CoreState>? CoreStateChanged;
+    public event Action<OutboundMode>? OutboundModeChanged;
 
     public CoreState CoreState => _coreState;
 
@@ -148,6 +149,7 @@ public class MockClashService : IClashService
     public Task SetOutboundModeAsync(OutboundMode mode)
     {
         _mode = mode;
+        OutboundModeChanged?.Invoke(mode);
         return Task.CompletedTask;
     }
 

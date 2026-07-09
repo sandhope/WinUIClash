@@ -579,6 +579,10 @@ public sealed partial class MainWindow : Window
             _appSettings.PropertyChanged += OnSettingsPropertyChanged;
             UpdateProxyStatusUI(_appSettings.SystemProxy);
 
+            // 订阅出站模式变化
+            _clash.OutboundModeChanged += OnOutboundModeChanged;
+            UpdateOutboundModeUI(_clash.GetOutboundMode());
+
             // 连接数轮询（每5秒）
             _statusBarConnTimer = new DispatcherTimer
             {
@@ -681,6 +685,22 @@ public sealed partial class MainWindow : Window
             DownloadSpeedText.Text = Converters.ByteFormatter.FormatSpeed(t.Down);
             UpdateTrayTooltip();
         });
+    }
+
+    private void OnOutboundModeChanged(OutboundMode mode)
+    {
+        _dispatcher.TryEnqueue(() => UpdateOutboundModeUI(mode));
+    }
+
+    private void UpdateOutboundModeUI(OutboundMode mode)
+    {
+        OutboundModeText.Text = mode switch
+        {
+            OutboundMode.Rule   => LocalizationHelper.GetString("StatusModeRule.Text"),
+            OutboundMode.Global => LocalizationHelper.GetString("StatusModeGlobal.Text"),
+            OutboundMode.Direct => LocalizationHelper.GetString("StatusModeDirect.Text"),
+            _ => "Rule",
+        };
     }
 
     private void OnSettingsPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -1089,6 +1109,7 @@ public sealed partial class MainWindow : Window
             {
                 _clash.CoreStateChanged -= OnCoreStateChanged;
                 _clash.TrafficUpdated -= OnTrafficUpdated;
+                _clash.OutboundModeChanged -= OnOutboundModeChanged;
             }
             if (_appSettings != null)
             {

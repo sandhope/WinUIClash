@@ -465,6 +465,9 @@
   <!-- MainWindow Status Bar -->
   <data name="StatusToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Click to toggle core</value></data>
   <data name="StatusProxyLabel.Text" xml:space="preserve"><value>Proxy</value></data>
+  <data name="StatusModeRule.Text" xml:space="preserve"><value>Rule</value></data>
+  <data name="StatusModeGlobal.Text" xml:space="preserve"><value>Global</value></data>
+  <data name="StatusModeDirect.Text" xml:space="preserve"><value>Direct</value></data>
 
   <!-- Theme Mode Names -->
   <data name="ThemeModeSystem.Text" xml:space="preserve"><value>Follow System</value></data>

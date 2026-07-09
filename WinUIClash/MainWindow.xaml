@@ -145,6 +145,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -181,8 +182,16 @@
                            FontFamily="Consolas" Opacity="0.5" />
             </StackPanel>
 
+            <!-- 出站模式 -->
+            <Border Grid.Column="4" CornerRadius="3" Padding="6,2"
+                    VerticalAlignment="Center" Margin="4,0"
+                    Background="{ThemeResource SubtleFillColorSecondary}">
+                <TextBlock Text="Rule" FontSize="10" FontWeight="SemiBold"
+                           x:Name="OutboundModeText" Opacity="0.6" />
+            </Border>
+
             <!-- 上传/下载速度 -->
-            <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="12"
+            <StackPanel Grid.Column="6" Orientation="Horizontal" Spacing="12"
                         VerticalAlignment="Center" Margin="12,0">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <fluent:SymbolIcon Symbol="ArrowUp" FontSize="10" />
@@ -197,7 +206,7 @@
             </StackPanel>
 
             <!-- 系统代理状态 (可点击切换) -->
-            <Button Grid.Column="6" Background="Transparent" BorderThickness="0" Padding="0"
+            <Button Grid.Column="7" Background="Transparent" BorderThickness="0" Padding="0"
                     Click="StatusProxy_Click">
                 <StackPanel Orientation="Horizontal" Spacing="6"
                             VerticalAlignment="Center" Margin="4,0,12,0">
