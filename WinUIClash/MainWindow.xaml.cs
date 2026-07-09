@@ -363,6 +363,25 @@ public sealed partial class MainWindow : Window
             }
         };
         RootGrid.KeyboardAccelerators.Add(escAccel);
+
+        // Ctrl+Shift+T 切换明暗主题
+        var themeAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.T,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control | Windows.System.VirtualKeyModifiers.Shift,
+        };
+        themeAccel.Invoked += (_, _) =>
+        {
+            try
+            {
+                var themeVm = ServiceLocator.Get<ViewModels.Settings.ThemeSettingsViewModel>();
+                // Toggle between Light and Dark (skip System)
+                var newMode = RootGrid.ActualTheme == ElementTheme.Dark ? "Light" : "Dark";
+                themeVm.ThemeMode = newMode;
+            }
+            catch { }
+        };
+        RootGrid.KeyboardAccelerators.Add(themeAccel);
     }
 
     private void CyclePage(int direction)
@@ -390,6 +409,7 @@ public sealed partial class MainWindow : Window
             ("Ctrl+W", LocalizationHelper.GetString("HelpMinimize.Text")),
             ("Ctrl+P", LocalizationHelper.GetString("HelpCoreToggle.Text")),
             ("Ctrl+Shift+S", LocalizationHelper.GetString("HelpProxyToggle.Text")),
+            ("Ctrl+Shift+T", LocalizationHelper.GetString("HelpThemeToggle.Text")),
             ("Ctrl+Q", LocalizationHelper.GetString("HelpQuit.Text")),
             ("Escape", LocalizationHelper.GetString("HelpEscape.Text")),
             ("F1", LocalizationHelper.GetString("HelpShowHelp.Text")),
@@ -897,6 +917,24 @@ public sealed partial class MainWindow : Window
             catch (Exception ex) { Debug.WriteLine($"Tray GC error: {ex.Message}"); }
         };
         menu.Items.Add(gcItem);
+
+        // ── 重启核心 ──
+        var restartItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayRestartCore.Text") };
+        restartItem.Click += async (_, _) =>
+        {
+            try
+            {
+                var clash = ServiceLocator.Get<IClashService>();
+                if (clash.CoreState == CoreState.Running)
+                {
+                    await clash.StopAsync();
+                    await Task.Delay(500);
+                    await clash.StartAsync();
+                }
+            }
+            catch (Exception ex) { Debug.WriteLine($"Tray restart error: {ex.Message}"); }
+        };
+        menu.Items.Add(restartItem);
 
         menu.Items.Add(new MenuFlyoutSeparator());
 
