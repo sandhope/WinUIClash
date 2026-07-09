@@ -146,6 +146,20 @@ public partial class RulesViewModel : ObservableObject
     {
         try
         {
+            var picker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+                SuggestedFileName = $"WinUIClash_Rules_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
+            };
+            picker.FileTypeChoices.Add("CSV", [".csv"]);
+            picker.FileTypeChoices.Add("Text file", [".txt"]);
+
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.CurrentWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSaveFileAsync();
+            if (file == null) return;
+
             var sb = new System.Text.StringBuilder();
             sb.AppendLine("Type,Payload,Proxy");
             foreach (var r in FilteredRules)
@@ -153,16 +167,14 @@ public partial class RulesViewModel : ObservableObject
                 sb.AppendLine($"\"{r.Type}\",\"{r.Payload}\",\"{r.Proxy}\"");
             }
 
-            var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var path = System.IO.Path.Combine(desktopPath,
-                $"WinUIClash_Rules_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-            await File.WriteAllTextAsync(path, sb.ToString());
+            await Windows.Storage.FileIO.WriteTextAsync(file, sb.ToString());
 
             _notification.Success(
                 LocalizationHelper.GetString("RequestsExportSuccessTitle.Text"),
-                path);
+                file.Path);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException
+            && ex.HResult != unchecked((int)0x80004004))
         {
             _notification.Error(
                 LocalizationHelper.GetString("RequestsExportFailTitle.Text"),

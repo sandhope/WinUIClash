@@ -459,6 +459,8 @@
   <data name="RulesPayloadCol.Text" xml:space="preserve"><value>匹配内容</value></data>
   <data name="RulesTargetCol.Text" xml:space="preserve"><value>目标</value></data>
   <data name="RulesAllProxiesFilter.Text" xml:space="preserve"><value>全部目标</value></data>
+  <data name="RulesAllTypes.Text" xml:space="preserve"><value>全部类型</value></data>
+  <data name="RulesAllProxies.Text" xml:space="preserve"><value>全部代理</value></data>
   <data name="RulesCopyType.Text" xml:space="preserve"><value>复制类型</value></data>
   <data name="RulesCopyPayload.Text" xml:space="preserve"><value>复制匹配内容</value></data>
   <data name="RulesCopyProxy.Text" xml:space="preserve"><value>复制目标代理</value></data>
