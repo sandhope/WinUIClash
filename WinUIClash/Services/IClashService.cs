@@ -51,6 +51,9 @@ public interface IClashService
     Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync();
     Task UpdateExternalProviderAsync(string name);
 
+    // ── 规则 ──
+    Task<IReadOnlyList<Rule>> GetRulesAsync();
+
     // ── 内存 ──
     Task<long> GetCoreMemoryAsync();
     Task ForceGcAsync();

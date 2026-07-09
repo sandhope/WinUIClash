@@ -408,6 +408,40 @@ public class MockClashService : IClashService
 
     public Task UpdateExternalProviderAsync(string name) => Task.CompletedTask;
 
+    // ── 规则 ──
+
+    public Task<IReadOnlyList<Rule>> GetRulesAsync()
+    {
+        var rules = new List<Rule>
+        {
+            new() { Type = "MATCH", Payload = "", Proxy = "DIRECT" },
+            new() { Type = "GEOIP", Payload = "CN", Proxy = "DIRECT" },
+            new() { Type = "GEOSITE", Payload = "cn", Proxy = "DIRECT" },
+            new() { Type = "GEOSITE", Payload = "geolocation-!cn", Proxy = "PROXY" },
+            new() { Type = "GEOSITE", Payload = "google", Proxy = "PROXY" },
+            new() { Type = "GEOSITE", Payload = "github", Proxy = "PROXY" },
+            new() { Type = "GEOSITE", Payload = "openai", Proxy = "PROXY" },
+            new() { Type = "GEOSITE", Payload = "telegram", Proxy = "PROXY" },
+            new() { Type = "GEOSITE", Payload = "twitter", Proxy = "PROXY" },
+            new() { Type = "GEOSITE", Payload = "youtube", Proxy = "PROXY" },
+            new() { Type = "GEOSITE", Payload = "apple", Proxy = "DIRECT" },
+            new() { Type = "GEOSITE", Payload = "microsoft", Proxy = "DIRECT" },
+            new() { Type = "GEOSITE", Payload = "icloud", Proxy = "DIRECT" },
+            new() { Type = "DOMAIN-SUFFIX", Payload = "local", Proxy = "DIRECT" },
+            new() { Type = "DOMAIN-SUFFIX", Payload = "localhost", Proxy = "DIRECT" },
+            new() { Type = "DOMAIN-KEYWORD", Payload = "google", Proxy = "PROXY" },
+            new() { Type = "DOMAIN-KEYWORD", Payload = "github", Proxy = "PROXY" },
+            new() { Type = "IP-CIDR", Payload = "127.0.0.0/8", Proxy = "DIRECT" },
+            new() { Type = "IP-CIDR", Payload = "10.0.0.0/8", Proxy = "DIRECT" },
+            new() { Type = "IP-CIDR", Payload = "172.16.0.0/12", Proxy = "DIRECT" },
+            new() { Type = "IP-CIDR", Payload = "192.168.0.0/16", Proxy = "DIRECT" },
+            new() { Type = "IP-CIDR6", Payload = "::1/128", Proxy = "DIRECT" },
+            new() { Type = "IP-CIDR6", Payload = "fc00::/7", Proxy = "DIRECT" },
+            new() { Type = "PROCESS-NAME", Payload = "clash", Proxy = "DIRECT" },
+        };
+        return Task.FromResult<IReadOnlyList<Rule>>(rules);
+    }
+
     // ── 内存 ──
 
     public Task<long> GetCoreMemoryAsync()

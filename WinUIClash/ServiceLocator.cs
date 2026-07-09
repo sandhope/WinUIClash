@@ -21,6 +21,9 @@ public static class ServiceLocator
         // ── 服务 ──
         services.AddSingleton<IClashService, MockClashService>();
         services.AddSingleton<Models.AppSettings>();
+        services.AddSingleton<Services.SettingsService>();
+        services.AddSingleton<Services.SystemProxyService>();
+        services.AddSingleton<Services.CoreProcessService>();
 
         // ── ViewModel ──
         services.AddSingleton<DashboardViewModel>();
@@ -30,6 +33,7 @@ public static class ServiceLocator
         services.AddSingleton<ConnectionsViewModel>();
         services.AddSingleton<RequestsViewModel>();
         services.AddSingleton<ResourcesViewModel>();
+        services.AddSingleton<RulesViewModel>();
         services.AddSingleton<ToolsViewModel>();
 
         _provider = services.BuildServiceProvider();

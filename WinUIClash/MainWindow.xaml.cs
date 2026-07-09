@@ -25,6 +25,7 @@ public sealed partial class MainWindow : Window
         ["Requests"]    = typeof(Views.RequestsView),
         ["Connections"] = typeof(Views.ConnectionsView),
         ["Resources"]   = typeof(Views.ResourcesView),
+        ["Rules"]       = typeof(Views.RulesView),
         ["Logs"]        = typeof(Views.LogsView),
         ["Tools"]       = typeof(Views.ToolsView),
     };
@@ -38,7 +39,9 @@ public sealed partial class MainWindow : Window
 
         // 窗口基础配置
         Title = "WinUIClash";
-        AppWindow.Resize(new Windows.Graphics.SizeInt32(1280, 800));
+
+        // 从设置恢复窗口状态
+        RestoreWindowState();
 
         // NavigationView 加载完成后默认选中「仪表盘」
         RootNavigation.Loaded += (_, _) =>
@@ -54,6 +57,58 @@ public sealed partial class MainWindow : Window
 
         // 拦截窗口关闭事件
         Closed += OnWindowClosed;
+    }
+
+    private void RestoreWindowState()
+    {
+        try
+        {
+            var settings = ServiceLocator.Get<AppSettings>();
+
+            // 恢复窗口大小
+            AppWindow.Resize(new Windows.Graphics.SizeInt32(
+                settings.WindowWidth, settings.WindowHeight));
+
+            // 恢复窗口位置（如果之前保存过）
+            if (settings.WindowX != 0 || settings.WindowY != 0)
+            {
+                AppWindow.Move(new Windows.Graphics.PointInt32(
+                    settings.WindowX, settings.WindowY));
+            }
+
+            // 恢复侧边栏状态
+            if (settings.IsSidebarCompact)
+            {
+                RootNavigation.PaneDisplayMode = NavigationViewPaneDisplayMode.LeftCompact;
+            }
+        }
+        catch { /* ServiceLocator 未初始化时忽略 */ }
+    }
+
+    private void SaveWindowState()
+    {
+        try
+        {
+            var settings = ServiceLocator.Get<AppSettings>();
+            var presenter = AppWindow.Presenter as Microsoft.UI.Windowing.OverlappedPresenter;
+
+            // 只在 Normal 状态下保存尺寸和位置
+            if (presenter?.State == Microsoft.UI.Windowing.OverlappedPresenterState.Restored)
+            {
+                settings.WindowWidth = AppWindow.Size.Width;
+                settings.WindowHeight = AppWindow.Size.Height;
+                settings.WindowX = AppWindow.Position.X;
+                settings.WindowY = AppWindow.Position.Y;
+            }
+
+            settings.IsSidebarCompact =
+                RootNavigation.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact;
+
+            // 立即保存到磁盘
+            var settingsService = ServiceLocator.Get<Services.SettingsService>();
+            settingsService.SaveImmediate();
+        }
+        catch { /* 保存失败时静默 */ }
     }
 
     // ── 导航事件 ──────────────────────────────────────────────────────────────
@@ -130,6 +185,10 @@ public sealed partial class MainWindow : Window
     private void ExitApp()
     {
         _isExiting = true;
+
+        // 确保系统代理已关闭，防止代理残留
+        try { ServiceLocator.Get<Services.SystemProxyService>().EnsureDisabledOnExit(); } catch { }
+
         _trayIcon?.Dispose();
         _trayIcon = null;
         Close();
@@ -139,6 +198,9 @@ public sealed partial class MainWindow : Window
     private void OnWindowClosed(object sender, WindowEventArgs args)
     {
         if (_isExiting) return;
+
+        // 保存窗口状态
+        SaveWindowState();
 
         // 读取设置：关闭窗口时是否最小化到托盘
         try
