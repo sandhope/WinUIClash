@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
+using WinUIClash.Services;
 
 namespace WinUIClash.Models;
 
@@ -51,11 +52,12 @@ public partial class Profile : ObservableObject
         Math.Max(0, SubscriptionInfo.Total - SubscriptionInfo.Upload - SubscriptionInfo.Download);
 
     /// <summary>已用流量百分比文本</summary>
-    public string UsedPercentText => SubscriptionInfo == null ? "" : $"已用 {UsedPercent:F0}%";
+    public string UsedPercentText => SubscriptionInfo == null ? "" :
+        $"{LocalizationHelper.GetString("SubUsed.Text")}{UsedPercent:F0}%";
 
     /// <summary>剩余流量文本</summary>
     public string RemainingText => SubscriptionInfo == null ? "" :
-        $"剩余 {Converters.ByteFormatter.Format(RemainingBytes)}";
+        $"{LocalizationHelper.GetString("SubRemaining.Text")}{Converters.ByteFormatter.Format(RemainingBytes)}";
 
     /// <summary>订阅过期显示文本</summary>
     public string ExpiryText
@@ -64,9 +66,9 @@ public partial class Profile : ObservableObject
         {
             if (SubscriptionInfo?.Expire == null) return "";
             var remaining = SubscriptionInfo.Expire.Value - DateTime.Now;
-            if (remaining.TotalDays < 0) return "已过期";
-            if (remaining.TotalDays < 1) return $"剩余 {remaining.Hours}小时";
-            return $"剩余 {(int)remaining.TotalDays}天";
+            if (remaining.TotalDays < 0) return LocalizationHelper.GetString("SubExpired.Text");
+            if (remaining.TotalDays < 1) return $"{LocalizationHelper.GetString("SubRemaining.Text")}{remaining.Hours}{LocalizationHelper.GetString("SubHoursRemaining.Text")}";
+            return $"{LocalizationHelper.GetString("SubRemaining.Text")}{(int)remaining.TotalDays}{LocalizationHelper.GetString("SubDaysRemaining.Text")}";
         }
     }
 

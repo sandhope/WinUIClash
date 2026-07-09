@@ -43,7 +43,7 @@ public partial class DashboardViewModel : ObservableObject
 
     [ObservableProperty] private CoreState _coreState = CoreState.Stopped;
     [ObservableProperty] private bool _isRunning;
-    [ObservableProperty] private string _statusText = "已停止";
+    [ObservableProperty] private string _statusText = "";
     [ObservableProperty] private SolidColorBrush _statusBrush = new(Color.FromArgb(255, 255, 107, 107));
     [ObservableProperty] private string _runtimeText = "";
 
@@ -59,10 +59,10 @@ public partial class DashboardViewModel : ObservableObject
             IsRunning = state == CoreState.Running;
             StatusText = state switch
             {
-                CoreState.Running => "运行中",
-                CoreState.Starting => "启动中…",
-                CoreState.Stopping => "停止中…",
-                _ => "已停止"
+                CoreState.Running => LocalizationHelper.GetString("DashRunning.Text"),
+                CoreState.Starting => LocalizationHelper.GetString("DashStarting.Text"),
+                CoreState.Stopping => LocalizationHelper.GetString("DashStopping.Text"),
+                _ => LocalizationHelper.GetString("DashStopped.Text")
             };
             StatusBrush = state switch
             {
@@ -74,7 +74,7 @@ public partial class DashboardViewModel : ObservableObject
             if (state == CoreState.Running)
             {
                 _startTime = DateTime.Now;
-                RuntimeText = "运行 0s";
+                RuntimeText = LocalizationHelper.GetString("DashRuntime.Text") + Converters.TimeFormatter.Duration(TimeSpan.Zero);
             }
             else
             {
@@ -116,7 +116,7 @@ public partial class DashboardViewModel : ObservableObject
 
             if (_startTime.HasValue)
             {
-                RuntimeText = "运行 " + Converters.TimeFormatter.Duration(DateTime.Now - _startTime.Value);
+                RuntimeText = LocalizationHelper.GetString("DashRuntime.Text") + Converters.TimeFormatter.Duration(DateTime.Now - _startTime.Value);
             }
         });
     }
@@ -160,7 +160,9 @@ public partial class DashboardViewModel : ObservableObject
 
     // ── 核心开关文本 ──
 
-    public string CoreToggleText => IsRunning ? "停止" : "启动";
+    public string CoreToggleText => IsRunning
+        ? LocalizationHelper.GetString("DashCoreStop.Text")
+        : LocalizationHelper.GetString("DashCoreStart.Text");
 
     // ── 流量统计 ──
 
@@ -195,7 +197,7 @@ public partial class DashboardViewModel : ObservableObject
 
     // ── 网络检测 ──
 
-    [ObservableProperty] private string _externalIp = "检测中…";
+    [ObservableProperty] private string _externalIp = "";
     [ObservableProperty] private string _countryFlag = "🌐";
     [ObservableProperty] private bool _isCheckingIp;
 
@@ -211,7 +213,7 @@ public partial class DashboardViewModel : ObservableObject
         }
         catch
         {
-            ExternalIp = "检测失败";
+            ExternalIp = LocalizationHelper.GetString("DashIpFailed.Text");
             CountryFlag = "❌";
         }
         finally
@@ -233,7 +235,7 @@ public partial class DashboardViewModel : ObservableObject
 
     // ── 内网 IP ──
 
-    [ObservableProperty] private string _localIp = "获取中…";
+    [ObservableProperty] private string _localIp = "";
 
     public async Task RefreshLocalIpAsync()
     {
@@ -243,11 +245,11 @@ public partial class DashboardViewModel : ObservableObject
             var addresses = await System.Net.Dns.GetHostAddressesAsync(host);
             var ipv4 = addresses
                 .FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-            LocalIp = ipv4?.ToString() ?? "未获取";
+            LocalIp = ipv4?.ToString() ?? LocalizationHelper.GetString("DashIpLocalFailed.Text");
         }
         catch
         {
-            LocalIp = "未获取";
+            LocalIp = LocalizationHelper.GetString("DashIpLocalFailed.Text");
         }
     }
 
@@ -257,6 +259,11 @@ public partial class DashboardViewModel : ObservableObject
     {
         if (_initialized) return;
         _initialized = true;
+
+        // 初始化本地化默认值
+        StatusText = LocalizationHelper.GetString("DashStopped.Text");
+        ExternalIp = LocalizationHelper.GetString("DashIpChecking.Text");
+        LocalIp = LocalizationHelper.GetString("DashIpLocalFetching.Text");
 
         SyncModeState(_clash.GetOutboundMode());
         await RefreshTotalTrafficAsync();

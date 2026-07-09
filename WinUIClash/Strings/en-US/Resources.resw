@@ -21,6 +21,7 @@
   <data name="DashDownloadSpeed.Text" xml:space="preserve"><value>Download</value></data>
   <data name="DashTotalUpload.Text" xml:space="preserve"><value>Total Upload</value></data>
   <data name="DashTotalDownload.Text" xml:space="preserve"><value>Total Download</value></data>
+  <data name="DashActiveConnections.Text" xml:space="preserve"><value>Active Connections</value></data>
   <data name="DashRunning.Text" xml:space="preserve"><value>Running</value></data>
   <data name="DashStopped.Text" xml:space="preserve"><value>Stopped</value></data>
   <data name="DashStarting.Text" xml:space="preserve"><value>Starting…</value></data>
@@ -28,12 +29,46 @@
   <data name="DashModeRule.Content" xml:space="preserve"><value>Rule Mode</value></data>
   <data name="DashModeGlobal.Content" xml:space="preserve"><value>Global Mode</value></data>
   <data name="DashModeDirect.Content" xml:space="preserve"><value>Direct Mode</value></data>
+  <data name="DashModeRuleDesc.Text" xml:space="preserve"><value>Route traffic by rules</value></data>
+  <data name="DashModeGlobalDesc.Text" xml:space="preserve"><value>All traffic via proxy</value></data>
+  <data name="DashModeDirectDesc.Text" xml:space="preserve"><value>All traffic direct</value></data>
+  <data name="DashTrafficStats.Text" xml:space="preserve"><value>Traffic Statistics</value></data>
+  <data name="DashNetworkInfo.Text" xml:space="preserve"><value>Network Info</value></data>
+  <data name="DashResetTraffic.Content" xml:space="preserve"><value>Reset</value></data>
+  <data name="DashCheckIp.Content" xml:space="preserve"><value>Check IP</value></data>
+  <data name="DashIpChecking.Text" xml:space="preserve"><value>Checking…</value></data>
+  <data name="DashIpFailed.Text" xml:space="preserve"><value>Check failed</value></data>
+  <data name="DashLocalIp.Text" xml:space="preserve"><value>Local IP</value></data>
+  <data name="DashCoreMemory.Text" xml:space="preserve"><value>Core Memory</value></data>
+  <data name="DashCoreStart.Text" xml:space="preserve"><value>Start</value></data>
+  <data name="DashCoreStop.Text" xml:space="preserve"><value>Stop</value></data>
+  <data name="DashRuntime.Text" xml:space="preserve"><value>Running </value></data>
+  <data name="DashIpLocalFetching.Text" xml:space="preserve"><value>Fetching…</value></data>
+  <data name="DashIpLocalFailed.Text" xml:space="preserve"><value>Not available</value></data>
 
   <!-- Common -->
   <data name="SearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search…</value></data>
   <data name="StatusStopped.Text" xml:space="preserve"><value>Stopped</value></data>
   <data name="StatusRunning.Text" xml:space="preserve"><value>Running</value></data>
   <data name="ProxyLabel.Text" xml:space="preserve"><value>Proxy</value></data>
+  <data name="CommonUpdateAll.Content" xml:space="preserve"><value>Update All</value></data>
+  <data name="CommonUpdateAll.ToolTip" xml:space="preserve"><value>Update All</value></data>
+  <data name="CommonUpdate.Content" xml:space="preserve"><value>Update</value></data>
+  <data name="CommonSearch.PlaceholderText" xml:space="preserve"><value>Search…</value></data>
+  <data name="CommonAll.Text" xml:space="preserve"><value>All</value></data>
+  <data name="CommonClear.Content" xml:space="preserve"><value>Clear</value></data>
+  <data name="CommonExport.Content" xml:space="preserve"><value>Export</value></data>
+  <data name="CommonRefresh.Content" xml:space="preserve"><value>Refresh</value></data>
+  <data name="CommonClose.Content" xml:space="preserve"><value>Close</value></data>
+  <data name="CommonCancel.Content" xml:space="preserve"><value>Cancel</value></data>
+  <data name="CommonConfirm.Content" xml:space="preserve"><value>Confirm</value></data>
+  <data name="CommonDelete.Content" xml:space="preserve"><value>Delete</value></data>
+  <data name="CommonSave.Content" xml:space="preserve"><value>Save</value></data>
+  <data name="CommonCopy.Content" xml:space="preserve"><value>Copy</value></data>
+  <data name="CommonSort.Content" xml:space="preserve"><value>Sort</value></data>
+  <data name="CommonFilter.Text" xml:space="preserve"><value>Filter</value></data>
+  <data name="CommonCount.Text" xml:space="preserve"><value> items</value></data>
+  <data name="CommonProviders.Text" xml:space="preserve"><value> providers</value></data>
 
   <!-- Settings -->
   <data name="SettingsBasicConfig.Text" xml:space="preserve"><value>Basic Config</value></data>
@@ -41,9 +76,149 @@
   <data name="SettingsTheme.Text" xml:space="preserve"><value>Theme Settings</value></data>
   <data name="SettingsAbout.Text" xml:space="preserve"><value>About</value></data>
 
+  <!-- Basic Config Settings -->
+  <data name="ConfigPort.Text" xml:space="preserve"><value>Mixed Port</value></data>
+  <data name="ConfigPortDesc.Text" xml:space="preserve"><value>HTTP/SOCKS5 mixed proxy port</value></data>
+  <data name="ConfigSocksPort.Text" xml:space="preserve"><value>SOCKS Port</value></data>
+  <data name="ConfigSocksPortDesc.Text" xml:space="preserve"><value>SOCKS5 proxy listening port</value></data>
+  <data name="ConfigHttpPort.Text" xml:space="preserve"><value>HTTP Port</value></data>
+  <data name="ConfigHttpPortDesc.Text" xml:space="preserve"><value>HTTP proxy listening port</value></data>
+  <data name="ConfigLogLevel.Text" xml:space="preserve"><value>Log Level</value></data>
+  <data name="ConfigLogLevelDesc.Text" xml:space="preserve"><value>Core engine log output level</value></data>
+  <data name="ConfigIpv6.Text" xml:space="preserve"><value>IPv6</value></data>
+  <data name="ConfigIpv6Desc.Text" xml:space="preserve"><value>Enable IPv6 routing support</value></data>
+  <data name="ConfigAllowLan.Text" xml:space="preserve"><value>Allow LAN</value></data>
+  <data name="ConfigAllowLanDesc.Text" xml:space="preserve"><value>Allow other devices on LAN to connect</value></data>
+  <data name="ConfigUnifiedDelay.Text" xml:space="preserve"><value>Unified Delay</value></data>
+  <data name="ConfigUnifiedDelayDesc.Text" xml:space="preserve"><value>Eliminate latency differences from multiple handshakes</value></data>
+  <data name="ConfigTcpConcurrent.Text" xml:space="preserve"><value>TCP Concurrent</value></data>
+  <data name="ConfigTcpConcurrentDesc.Text" xml:space="preserve"><value>Initiate TCP connections to multiple targets simultaneously</value></data>
+  <data name="ConfigFindProcess.Text" xml:space="preserve"><value>Process Matching</value></data>
+  <data name="ConfigFindProcessDesc.Text" xml:space="preserve"><value>Match connections to local processes</value></data>
+  <data name="ConfigExternalController.Text" xml:space="preserve"><value>External Controller</value></data>
+  <data name="ConfigExternalControllerDesc.Text" xml:space="preserve"><value>Enable RESTful API control interface</value></data>
+  <data name="ConfigKeepAlive.Text" xml:space="preserve"><value>Keep-Alive Interval</value></data>
+  <data name="ConfigKeepAliveDesc.Text" xml:space="preserve"><value>TCP connection keep-alive interval (seconds)</value></data>
+  <data name="ConfigTestUrl.Text" xml:space="preserve"><value>Test URL</value></data>
+  <data name="ConfigTestUrlDesc.Text" xml:space="preserve"><value>URL for proxy latency testing</value></data>
+  <data name="ConfigUserAgent.Text" xml:space="preserve"><value>User-Agent</value></data>
+  <data name="ConfigUserAgentDesc.Text" xml:space="preserve"><value>UA used when downloading subscriptions</value></data>
+
+  <!-- App Settings -->
+  <data name="AppLanguage.Text" xml:space="preserve"><value>Language</value></data>
+  <data name="AppLanguageDesc.Text" xml:space="preserve"><value>Interface display language</value></data>
+  <data name="AppMinimizeOnExit.Text" xml:space="preserve"><value>Minimize to Tray</value></data>
+  <data name="AppMinimizeOnExitDesc.Text" xml:space="preserve"><value>Minimize to system tray instead of exiting when closing window</value></data>
+  <data name="AppAutoLaunch.Text" xml:space="preserve"><value>Auto Start</value></data>
+  <data name="AppAutoLaunchDesc.Text" xml:space="preserve"><value>Automatically run WinUIClash on system startup</value></data>
+  <data name="AppAutoRun.Text" xml:space="preserve"><value>Auto Start Core</value></data>
+  <data name="AppAutoRunDesc.Text" xml:space="preserve"><value>Automatically start Clash core after app launches</value></data>
+  <data name="AppAutoCheckUpdate.Text" xml:space="preserve"><value>Auto Check Updates</value></data>
+  <data name="AppAutoCheckUpdateDesc.Text" xml:space="preserve"><value>Automatically check for new versions on startup</value></data>
+  <data name="AppSystemProxy.Text" xml:space="preserve"><value>System Proxy</value></data>
+  <data name="AppSystemProxyDesc.Text" xml:space="preserve"><value>Enable system-level proxy settings</value></data>
+  <data name="AppBypassDomains.Text" xml:space="preserve"><value>Proxy Bypass</value></data>
+  <data name="AppBypassDomainsDesc.Text" xml:space="preserve"><value>Domains that bypass proxy (semicolon separated)</value></data>
+  <data name="AppCloseConnections.Text" xml:space="preserve"><value>Close Connections on Switch</value></data>
+  <data name="AppCloseConnectionsDesc.Text" xml:space="preserve"><value>Automatically close existing connections when switching config or proxy</value></data>
+  <data name="AppOnlyStatisticsProxy.Text" xml:space="preserve"><value>Proxy Traffic Only</value></data>
+  <data name="AppOnlyStatisticsProxyDesc.Text" xml:space="preserve"><value>Only count traffic going through proxy in statistics</value></data>
+
+  <!-- Theme Settings -->
+  <data name="ThemeMode.Text" xml:space="preserve"><value>Appearance</value></data>
+  <data name="ThemeSystem.Text" xml:space="preserve"><value>Follow System</value></data>
+  <data name="ThemeLight.Text" xml:space="preserve"><value>Light Mode</value></data>
+  <data name="ThemeDark.Text" xml:space="preserve"><value>Dark Mode</value></data>
+  <data name="ThemeAccentColor.Text" xml:space="preserve"><value>Accent Color</value></data>
+
   <!-- About -->
   <data name="AboutTitle.Text" xml:space="preserve"><value>About</value></data>
   <data name="AboutCheckUpdate.Content" xml:space="preserve"><value>Check for Updates</value></data>
   <data name="AboutOpenDataFolder.Content" xml:space="preserve"><value>Open Data Folder</value></data>
   <data name="AboutCopyVersion.Content" xml:space="preserve"><value>Copy Version Info</value></data>
+  <data name="AboutCheckingUpdate.Text" xml:space="preserve"><value>Checking…</value></data>
+  <data name="AboutNoUpdate.Text" xml:space="preserve"><value>You are up to date</value></data>
+  <data name="AboutNewVersion.Text" xml:space="preserve"><value>New version available</value></data>
+  <data name="AboutUpdateFailed.Text" xml:space="preserve"><value>Update check failed</value></data>
+
+  <!-- Connections -->
+  <data name="ConnTitle.Text" xml:space="preserve"><value>Connections</value></data>
+  <data name="ConnCloseAll.Content" xml:space="preserve"><value>Close All</value></data>
+  <data name="ConnDetail.Text" xml:space="preserve"><value>Connection Details</value></data>
+  <data name="ConnHost.Text" xml:space="preserve"><value>Host</value></data>
+  <data name="ConnSource.Text" xml:space="preserve"><value>Source</value></data>
+  <data name="ConnDest.Text" xml:space="preserve"><value>Destination</value></data>
+  <data name="ConnTransfer.Text" xml:space="preserve"><value>Transfer</value></data>
+  <data name="ConnChain.Text" xml:space="preserve"><value>Proxy Chain</value></data>
+  <data name="ConnRule.Text" xml:space="preserve"><value>Matched Rule</value></data>
+  <data name="ConnStartTime.Text" xml:space="preserve"><value>Start Time</value></data>
+  <data name="ConnDuration.Text" xml:space="preserve"><value>Duration</value></data>
+  <data name="ConnDirect.Text" xml:space="preserve"><value>Direct</value></data>
+
+  <!-- Rules -->
+  <data name="RulesTitle.Text" xml:space="preserve"><value>Rules</value></data>
+  <data name="RulesTypeHeader.Text" xml:space="preserve"><value>Type</value></data>
+  <data name="RulesPayloadHeader.Text" xml:space="preserve"><value>Payload</value></data>
+  <data name="RulesProxyHeader.Text" xml:space="preserve"><value>Proxy</value></data>
+  <data name="RulesSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search rules...</value></data>
+  <data name="RulesAllTypes.Text" xml:space="preserve"><value>All Types</value></data>
+  <data name="RulesAllProxies.Text" xml:space="preserve"><value>All Proxies</value></data>
+
+  <!-- Resources -->
+  <data name="ResTitle.Text" xml:space="preserve"><value>Resources</value></data>
+  <data name="ResSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search resources...</value></data>
+  <data name="ResAll.Text" xml:space="preserve"><value>All</value></data>
+  <data name="ResProxyProvider.Text" xml:space="preserve"><value>Proxy Providers</value></data>
+  <data name="ResRuleProvider.Text" xml:space="preserve"><value>Rule Providers</value></data>
+  <data name="ResItemCount.Text" xml:space="preserve"><value>Items: </value></data>
+  <data name="ResVehicleType.Text" xml:space="preserve"><value>Source: </value></data>
+
+  <!-- Profiles -->
+  <data name="ProfilesTitle.Text" xml:space="preserve"><value>Profiles</value></data>
+  <data name="ProfilesAdd.Content" xml:space="preserve"><value>Add</value></data>
+  <data name="ProfilesImportUrl.PlaceholderText" xml:space="preserve"><value>Subscription URL</value></data>
+  <data name="ProfilesExpired.Text" xml:space="preserve"><value>Expired</value></data>
+  <data name="ProfilesRemainingDays.Text" xml:space="preserve"><value>Remaining </value></data>
+  <data name="ProfilesDay.Text" xml:space="preserve"><value> days</value></data>
+
+  <!-- Logs -->
+  <data name="LogsTitle.Text" xml:space="preserve"><value>Logs</value></data>
+  <data name="LogsPause.Content" xml:space="preserve"><value>Pause</value></data>
+  <data name="LogsResume.Content" xml:space="preserve"><value>Resume</value></data>
+  <data name="LogsExport.Content" xml:space="preserve"><value>Export Logs</value></data>
+  <data name="LogsAutoScroll.Text" xml:space="preserve"><value>Auto Scroll</value></data>
+  <data name="LogsAllLevels.Text" xml:space="preserve"><value>All Levels</value></data>
+
+  <!-- Requests -->
+  <data name="RequestsTitle.Text" xml:space="preserve"><value>Requests</value></data>
+
+  <!-- Tray -->
+  <data name="TrayShow.Text" xml:space="preserve"><value>Show Window</value></data>
+  <data name="TrayRun.Text" xml:space="preserve"><value>Run Core</value></data>
+  <data name="TraySystemProxy.Text" xml:space="preserve"><value>System Proxy</value></data>
+  <data name="TrayOutboundMode.Text" xml:space="preserve"><value>Outbound Mode</value></data>
+  <data name="TrayExit.Text" xml:space="preserve"><value>Exit</value></data>
+
+  <!-- Time Formatting -->
+  <data name="TimeJustNow.Text" xml:space="preserve"><value>just now</value></data>
+  <data name="TimeMinutesAgo.Text" xml:space="preserve"><value>m ago</value></data>
+  <data name="TimeHoursAgo.Text" xml:space="preserve"><value>h ago</value></data>
+  <data name="TimeDaysAgo.Text" xml:space="preserve"><value>d ago</value></data>
+
+  <!-- StatusBar -->
+  <data name="StatusBarSystemProxy.Text" xml:space="preserve"><value>System Proxy</value></data>
+
+  <!-- Connection Sort Modes -->
+  <data name="ConnSortNone.Text" xml:space="preserve"><value>Default</value></data>
+  <data name="ConnSortHost.Text" xml:space="preserve"><value>By Host</value></data>
+  <data name="ConnSortUpload.Text" xml:space="preserve"><value>By Upload</value></data>
+  <data name="ConnSortDownload.Text" xml:space="preserve"><value>By Download</value></data>
+  <data name="ConnSortDuration.Text" xml:space="preserve"><value>By Duration</value></data>
+
+  <!-- Subscription -->
+  <data name="SubUsed.Text" xml:space="preserve"><value>Used </value></data>
+  <data name="SubRemaining.Text" xml:space="preserve"><value>Remaining </value></data>
+  <data name="SubExpired.Text" xml:space="preserve"><value>Expired</value></data>
+  <data name="SubHoursRemaining.Text" xml:space="preserve"><value>h</value></data>
+  <data name="SubDaysRemaining.Text" xml:space="preserve"><value>d</value></data>
 </root>

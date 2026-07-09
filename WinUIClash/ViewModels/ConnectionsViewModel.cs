@@ -116,11 +116,11 @@ public partial class ConnectionsViewModel : ObservableObject
 
     public string SortModeLabel => CurrentSort switch
     {
-        ConnSortMode.Host => "按主机",
-        ConnSortMode.Upload => "按上传",
-        ConnSortMode.Download => "按下载",
-        ConnSortMode.Duration => "按时长",
-        _ => "默认排序",
+        ConnSortMode.Host => LocalizationHelper.GetString("ConnSortHost.Text"),
+        ConnSortMode.Upload => LocalizationHelper.GetString("ConnSortUpload.Text"),
+        ConnSortMode.Download => LocalizationHelper.GetString("ConnSortDownload.Text"),
+        ConnSortMode.Duration => LocalizationHelper.GetString("ConnSortDuration.Text"),
+        _ => LocalizationHelper.GetString("ConnSortNone.Text"),
     };
 
     public async Task InitializeAsync()
