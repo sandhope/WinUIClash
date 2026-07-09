@@ -152,12 +152,9 @@ public partial class DashboardViewModel : ObservableObject
     private void SyncModeState(OutboundMode mode)
     {
         OutboundMode = mode;
-        _isModeRule = mode == OutboundMode.Rule;
-        _isModeGlobal = mode == OutboundMode.Global;
-        _isModeDirect = mode == OutboundMode.Direct;
-        OnPropertyChanged(nameof(IsModeRule));
-        OnPropertyChanged(nameof(IsModeGlobal));
-        OnPropertyChanged(nameof(IsModeDirect));
+        IsModeRule = mode == OutboundMode.Rule;
+        IsModeGlobal = mode == OutboundMode.Global;
+        IsModeDirect = mode == OutboundMode.Direct;
     }
 
     // ── 核心开关文本 ──
