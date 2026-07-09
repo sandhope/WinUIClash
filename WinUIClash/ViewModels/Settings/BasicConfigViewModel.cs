@@ -124,7 +124,9 @@ public partial class BasicConfigViewModel : ObservableObject
         set { if (_settings.TcpConcurrent != value) { _settings.TcpConcurrent = value; OnPropertyChanged(); SchedulePatchToCore(); } }
     }
 
-    public bool FindProcessMode
+    public string[] FindProcessModeOptions { get; } = ["off", "strict", "always"];
+
+    public string FindProcessMode
     {
         get => _settings.FindProcessMode;
         set { if (_settings.FindProcessMode != value) { _settings.FindProcessMode = value; OnPropertyChanged(); SchedulePatchToCore(); } }

@@ -37,6 +37,11 @@ public class SettingsService
         try
         {
             var json = File.ReadAllText(SettingsPath);
+
+            // Migration: bool FindProcessMode → string ("off"/"strict"/"always")
+            json = json.Replace("\"FindProcessMode\": true", "\"FindProcessMode\": \"always\"")
+                       .Replace("\"FindProcessMode\": false", "\"FindProcessMode\": \"off\"");
+
             var dto = JsonSerializer.Deserialize<SettingsDto>(json, JsonOptions);
             if (dto == null) return;
 
@@ -194,7 +199,7 @@ internal class SettingsDto
     public bool AllowLan { get; set; }
     public bool UnifiedDelay { get; set; }
     public bool TcpConcurrent { get; set; }
-    public bool FindProcessMode { get; set; }
+    public string FindProcessMode { get; set; } = "off";
     public bool ExternalController { get; set; } = true;
     public string ApiSecret { get; set; } = "";
     public string CoreBinaryPath { get; set; } = "";

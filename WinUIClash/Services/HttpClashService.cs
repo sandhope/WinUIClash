@@ -548,7 +548,7 @@ public class HttpClashService : IClashService, IDisposable
             allow_lan = settings.AllowLan,
             unified_delay = settings.UnifiedDelay,
             tcp_concurrent = settings.TcpConcurrent,
-            find_process_mode = settings.FindProcessMode ? "always" : "off",
+            find_process_mode = settings.FindProcessMode,
             keep_alive_interval = settings.KeepAliveInterval,
         });
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
