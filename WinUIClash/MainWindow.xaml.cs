@@ -879,6 +879,9 @@ public sealed partial class MainWindow : Window
         UpdateTrayTooltip();
     }
 
+    private System.Drawing.Icon? _currentTrayIcon;
+    private CoreState _lastTrayIconState = CoreState.Stopped;
+
     private void UpdateTrayTooltip()
     {
         if (_trayIcon == null) return;
@@ -907,6 +910,23 @@ public sealed partial class MainWindow : Window
                 _trayIcon.ToolTipText += $"\n{LocalizationHelper.GetString("NavProfiles.Content")}: {profilesVm.ActiveProfile.Label}";
         }
         catch { }
+
+        // Update tray icon color based on core state
+        if (state != _lastTrayIconState)
+        {
+            _lastTrayIconState = state;
+            var iconColor = state switch
+            {
+                CoreState.Running => System.Drawing.Color.FromArgb(76, 175, 80),   // Green
+                CoreState.Starting => System.Drawing.Color.FromArgb(255, 193, 7),  // Yellow
+                CoreState.Stopping => System.Drawing.Color.FromArgb(255, 152, 0),  // Orange
+                _ => System.Drawing.Color.FromArgb(255, 107, 107),                 // Red
+            };
+            var oldIcon = _currentTrayIcon;
+            _currentTrayIcon = CreateTrayIcon(iconColor);
+            _trayIcon.Icon = _currentTrayIcon;
+            oldIcon?.Dispose();
+        }
     }
 
     private async void StatusDot_Click(object sender, RoutedEventArgs e)
@@ -945,10 +965,12 @@ public sealed partial class MainWindow : Window
 
     private void InitTrayIcon()
     {
+        // Start with red (stopped) icon
+        _currentTrayIcon = CreateTrayIcon(System.Drawing.Color.FromArgb(255, 107, 107));
         _trayIcon = new TaskbarIcon
         {
             ToolTipText = "WinUIClash",
-            Icon = CreateTrayIcon(),
+            Icon = _currentTrayIcon,
         };
 
         // 双击托盘图标 → 显示窗口
@@ -1219,6 +1241,8 @@ public sealed partial class MainWindow : Window
 
         _trayIcon?.Dispose();
         _trayIcon = null;
+        _currentTrayIcon?.Dispose();
+        _currentTrayIcon = null;
         Close();
         Application.Current.Exit();
     }
@@ -1248,6 +1272,8 @@ public sealed partial class MainWindow : Window
 
         _trayIcon?.Dispose();
         _trayIcon = null;
+        _currentTrayIcon?.Dispose();
+        _currentTrayIcon = null;
     }
 
     /// <summary>
@@ -1295,14 +1321,15 @@ public sealed partial class MainWindow : Window
 
     // ── 图标生成 ──────────────────────────────────────────────────────────────
 
-    private static System.Drawing.Icon CreateTrayIcon()
+    private static System.Drawing.Icon CreateTrayIcon(System.Drawing.Color? circleColor = null)
     {
+        var color = circleColor ?? System.Drawing.Color.FromArgb(33, 150, 243);
         using var bmp = new Bitmap(32, 32);
         using (var g = Graphics.FromImage(bmp))
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.Clear(Color.Transparent);
-            using var brush = new SolidBrush(Color.FromArgb(33, 150, 243));
+            using var brush = new SolidBrush(color);
             g.FillEllipse(brush, 1, 1, 30, 30);
             using var font = new Font("Segoe UI", 15f, FontStyle.Bold);
             var size = g.MeasureString("W", font);

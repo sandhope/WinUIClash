@@ -48,6 +48,19 @@ public sealed partial class LogsView : Page
             $"[{entry.Timestamp:HH:mm:ss}] [{entry.Level}] {entry.Payload}");
         menu.Items.Add(copyFull);
 
+        menu.Items.Add(new MenuFlyoutSeparator());
+
+        var filterByLevel = new MenuFlyoutItem
+        {
+            Text = $"{LocalizationHelper.GetString("CommonFilter.Text")}: {entry.Level}"
+        };
+        filterByLevel.Click += (_, _) =>
+        {
+            ViewModel.SelectedLevel = ViewModel.SelectedLevel == entry.Level.ToString()
+                ? "ALL" : entry.Level.ToString();
+        };
+        menu.Items.Add(filterByLevel);
+
         menu.ShowAt(element, e.GetPosition(element));
     }
 
