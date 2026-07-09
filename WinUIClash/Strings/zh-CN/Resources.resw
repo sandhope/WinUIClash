@@ -211,6 +211,9 @@
   <!-- StatusBar -->
   <data name="StatusBarSystemProxy.Text" xml:space="preserve"><value>系统代理</value></data>
   <data name="SearchBox.PlaceholderText" xml:space="preserve"><value>搜索… (Ctrl+F)</value></data>
+  <data name="SearchCategoryPage.Text" xml:space="preserve"><value>页面</value></data>
+  <data name="SearchCategorySettings.Text" xml:space="preserve"><value>设置</value></data>
+  <data name="ProfilesFallbackLabel.Text" xml:space="preserve"><value>订阅</value></data>
 
   <!-- Basic Config - Section Headers -->
   <data name="ConfigPortSettings.Text" xml:space="preserve"><value>端口设置</value></data>

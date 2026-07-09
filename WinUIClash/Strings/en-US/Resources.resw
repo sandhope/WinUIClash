@@ -211,6 +211,9 @@
   <!-- StatusBar -->
   <data name="StatusBarSystemProxy.Text" xml:space="preserve"><value>System Proxy</value></data>
   <data name="SearchBox.PlaceholderText" xml:space="preserve"><value>Search… (Ctrl+F)</value></data>
+  <data name="SearchCategoryPage.Text" xml:space="preserve"><value>Page</value></data>
+  <data name="SearchCategorySettings.Text" xml:space="preserve"><value>Settings</value></data>
+  <data name="ProfilesFallbackLabel.Text" xml:space="preserve"><value>Subscription</value></data>
 
   <!-- Basic Config - Section Headers -->
   <data name="ConfigPortSettings.Text" xml:space="preserve"><value>Port Settings</value></data>

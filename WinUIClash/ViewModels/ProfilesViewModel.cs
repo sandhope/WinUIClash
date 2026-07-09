@@ -85,11 +85,11 @@ public partial class ProfilesViewModel : ObservableObject
             try
             {
                 var uri = new Uri(url);
-                label = uri.Host.Split('.').FirstOrDefault() ?? "订阅";
+                label = uri.Host.Split('.').FirstOrDefault() ?? LocalizationHelper.GetString("ProfilesFallbackLabel.Text");
             }
             catch
             {
-                label = "订阅";
+                label = LocalizationHelper.GetString("ProfilesFallbackLabel.Text");
             }
         }
 

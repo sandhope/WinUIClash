@@ -236,22 +236,23 @@ public sealed partial class MainWindow : Window
 
     private record SearchSuggestion(string Title, string Tag, string Category);
 
-    private static readonly SearchSuggestion[] AllSuggestions =
-    {
-        new("仪表盘", "Dashboard", "页面"),
-        new("代理", "Proxies", "页面"),
-        new("配置", "Profiles", "页面"),
-        new("请求", "Requests", "页面"),
-        new("连接", "Connections", "页面"),
-        new("资源", "Resources", "页面"),
-        new("规则", "Rules", "页面"),
-        new("日志", "Logs", "页面"),
-        new("工具", "Tools", "页面"),
-        new("基础配置", "Tools|BasicConfig", "设置"),
-        new("主题设置", "Tools|ThemeSettings", "设置"),
-        new("应用设置", "Tools|AppSettings", "设置"),
-        new("关于", "Tools|About", "设置"),
-    };
+    private SearchSuggestion[]? _allSuggestions;
+    private SearchSuggestion[] AllSuggestions => _allSuggestions ??=
+    [
+        new(LocalizationHelper.GetString("NavDashboard.Content"), "Dashboard", LocalizationHelper.GetString("SearchCategoryPage.Text")),
+        new(LocalizationHelper.GetString("NavProxies.Content"), "Proxies", LocalizationHelper.GetString("SearchCategoryPage.Text")),
+        new(LocalizationHelper.GetString("NavProfiles.Content"), "Profiles", LocalizationHelper.GetString("SearchCategoryPage.Text")),
+        new(LocalizationHelper.GetString("NavRequests.Content"), "Requests", LocalizationHelper.GetString("SearchCategoryPage.Text")),
+        new(LocalizationHelper.GetString("NavConnections.Content"), "Connections", LocalizationHelper.GetString("SearchCategoryPage.Text")),
+        new(LocalizationHelper.GetString("NavResources.Content"), "Resources", LocalizationHelper.GetString("SearchCategoryPage.Text")),
+        new(LocalizationHelper.GetString("NavRules.Content"), "Rules", LocalizationHelper.GetString("SearchCategoryPage.Text")),
+        new(LocalizationHelper.GetString("NavLogs.Content"), "Logs", LocalizationHelper.GetString("SearchCategoryPage.Text")),
+        new(LocalizationHelper.GetString("NavTools.Content"), "Tools", LocalizationHelper.GetString("SearchCategoryPage.Text")),
+        new(LocalizationHelper.GetString("SettingsBasicConfig.Text"), "Tools|BasicConfig", LocalizationHelper.GetString("SearchCategorySettings.Text")),
+        new(LocalizationHelper.GetString("SettingsTheme.Text"), "Tools|ThemeSettings", LocalizationHelper.GetString("SearchCategorySettings.Text")),
+        new(LocalizationHelper.GetString("SettingsApp.Text"), "Tools|AppSettings", LocalizationHelper.GetString("SearchCategorySettings.Text")),
+        new(LocalizationHelper.GetString("SettingsAbout.Text"), "Tools|About", LocalizationHelper.GetString("SearchCategorySettings.Text")),
+    ];
 
     private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
