@@ -107,6 +107,10 @@
   <data name="ConfigApiSecretPlaceholder.PlaceholderText" xml:space="preserve"><value>无密钥则留空</value></data>
   <data name="ConfigAutoRestart.Text" xml:space="preserve"><value>崩溃自动重启</value></data>
   <data name="ConfigAutoRestartDesc.Text" xml:space="preserve"><value>核心进程意外退出时自动重启</value></data>
+  <data name="ConfigCoreBinaryPath.Text" xml:space="preserve"><value>核心程序路径</value></data>
+  <data name="ConfigCoreBinaryPathDesc.Text" xml:space="preserve"><value>mihomo/clash 可执行文件路径（留空自动检测）</value></data>
+  <data name="ConfigCoreBinaryPathPlaceholder.PlaceholderText" xml:space="preserve"><value>自动检测（留空即可）</value></data>
+  <data name="ConfigBrowse.Content" xml:space="preserve"><value>浏览</value></data>
   <data name="ConfigKeepAlive.Text" xml:space="preserve"><value>Keep-Alive 间隔</value></data>
   <data name="ConfigKeepAliveDesc.Text" xml:space="preserve"><value>TCP 连接保活间隔（秒）</value></data>
   <data name="ConfigTestUrl.Text" xml:space="preserve"><value>测试地址</value></data>

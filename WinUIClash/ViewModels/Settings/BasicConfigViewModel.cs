@@ -114,4 +114,10 @@ public partial class BasicConfigViewModel : ObservableObject
         get => _settings.AutoRestart;
         set { if (_settings.AutoRestart != value) { _settings.AutoRestart = value; OnPropertyChanged(); } }
     }
+
+    public string CoreBinaryPath
+    {
+        get => _settings.CoreBinaryPath;
+        set { if (_settings.CoreBinaryPath != value) { _settings.CoreBinaryPath = value; OnPropertyChanged(); } }
+    }
 }

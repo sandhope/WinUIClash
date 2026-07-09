@@ -55,6 +55,7 @@ public class SettingsService
             _settings.FindProcessMode = dto.FindProcessMode;
             _settings.ExternalController = dto.ExternalController;
             if (dto.ApiSecret != null) _settings.ApiSecret = dto.ApiSecret;
+            if (dto.CoreBinaryPath != null) _settings.CoreBinaryPath = dto.CoreBinaryPath;
 
             // 应用设置
             _settings.MinimizeOnExit = dto.MinimizeOnExit;
@@ -126,6 +127,7 @@ public class SettingsService
                 FindProcessMode = _settings.FindProcessMode,
                 ExternalController = _settings.ExternalController,
                 ApiSecret = _settings.ApiSecret,
+                CoreBinaryPath = _settings.CoreBinaryPath,
 
                 // 应用设置
                 MinimizeOnExit = _settings.MinimizeOnExit,
@@ -191,6 +193,7 @@ internal class SettingsDto
     public bool FindProcessMode { get; set; }
     public bool ExternalController { get; set; } = true;
     public string ApiSecret { get; set; } = "";
+    public string CoreBinaryPath { get; set; } = "";
 
     // 应用设置
     public bool MinimizeOnExit { get; set; } = true;

@@ -107,6 +107,10 @@
   <data name="ConfigApiSecretPlaceholder.PlaceholderText" xml:space="preserve"><value>Leave empty if none</value></data>
   <data name="ConfigAutoRestart.Text" xml:space="preserve"><value>Auto Restart</value></data>
   <data name="ConfigAutoRestartDesc.Text" xml:space="preserve"><value>Automatically restart core if it crashes unexpectedly</value></data>
+  <data name="ConfigCoreBinaryPath.Text" xml:space="preserve"><value>Core Binary Path</value></data>
+  <data name="ConfigCoreBinaryPathDesc.Text" xml:space="preserve"><value>Path to mihomo/clash executable (auto-detected if empty)</value></data>
+  <data name="ConfigCoreBinaryPathPlaceholder.PlaceholderText" xml:space="preserve"><value>Auto-detect (leave empty)</value></data>
+  <data name="ConfigBrowse.Content" xml:space="preserve"><value>Browse</value></data>
   <data name="ConfigKeepAlive.Text" xml:space="preserve"><value>Keep-Alive Interval</value></data>
   <data name="ConfigKeepAliveDesc.Text" xml:space="preserve"><value>TCP connection keep-alive interval (seconds)</value></data>
   <data name="ConfigTestUrl.Text" xml:space="preserve"><value>Test URL</value></data>

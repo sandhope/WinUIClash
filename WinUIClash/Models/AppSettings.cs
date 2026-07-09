@@ -23,6 +23,7 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private bool _findProcessMode = false;
     [ObservableProperty] private bool _externalController = true;
     [ObservableProperty] private string _apiSecret = "";
+    [ObservableProperty] private string _coreBinaryPath = "";
 
     // ── 应用设置 ──
 

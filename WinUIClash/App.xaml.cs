@@ -176,6 +176,11 @@ namespace WinUIClash
             if (appSettings.AutoRun)
             {
                 var coreService = ServiceLocator.Get<Services.CoreProcessService>();
+
+                // Apply custom binary path if set
+                if (!string.IsNullOrWhiteSpace(appSettings.CoreBinaryPath))
+                    coreService.SetBinaryPath(appSettings.CoreBinaryPath);
+
                 _ = Task.Run(async () =>
                 {
                     try { await coreService.StartAsync(); }
