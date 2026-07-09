@@ -603,8 +603,9 @@ public sealed partial class MainWindow : Window
         var up = Converters.ByteFormatter.FormatSpeed(_lastTraffic.Up);
         var down = Converters.ByteFormatter.FormatSpeed(_lastTraffic.Down);
         var proxy = _appSettings?.SystemProxy == true ? "ON" : "OFF";
+        var tun = _appSettings?.TunMode == true ? "ON" : "OFF";
 
-        _trayIcon.ToolTipText = $"WinUIClash\n{stateText}\n↑{up}  ↓{down}\n{LocalizationHelper.GetString("ConnCountSuffix.Text").Trim()}: {_lastConnectionCount}\n{LocalizationHelper.GetString("ProxyLabel.Text")}: {proxy}";
+        _trayIcon.ToolTipText = $"WinUIClash\n{stateText}\n↑{up}  ↓{down}\n{LocalizationHelper.GetString("ConnCountSuffix.Text").Trim()}: {_lastConnectionCount}\n{LocalizationHelper.GetString("ProxyLabel.Text")}: {proxy}\nTUN: {tun}";
     }
 
     private async void StatusDot_Click(object sender, RoutedEventArgs e)
