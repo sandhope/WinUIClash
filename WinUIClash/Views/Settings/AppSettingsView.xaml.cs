@@ -15,6 +15,77 @@ public sealed partial class AppSettingsView : UserControl
         InitializeComponent();
     }
 
+    private async void ExportSettings_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var savePicker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+                SuggestedFileName = $"WinUIClash_Settings_{DateTime.Now:yyyyMMdd}",
+            };
+            savePicker.FileTypeChoices.Add("JSON", [".json"]);
+
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.CurrentWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
+
+            var file = await savePicker.PickSaveFileAsync();
+            if (file == null) return;
+
+            var settingsPath = SettingsService.SettingsPath;
+            if (File.Exists(settingsPath))
+            {
+                var content = await File.ReadAllTextAsync(settingsPath);
+                await File.WriteAllTextAsync(file.Path, content);
+
+                ServiceLocator.Get<NotificationService>().Success(
+                    LocalizationHelper.GetString("SettingsExportDone.Title"),
+                    LocalizationHelper.GetString("SettingsExportDone.Text"));
+            }
+        }
+        catch (Exception ex)
+        {
+            ServiceLocator.Get<NotificationService>().Error(
+                LocalizationHelper.GetString("AppErrorTitle.Text"),
+                ex.Message);
+        }
+    }
+
+    private async void ImportSettings_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+            };
+            picker.FileTypeFilter.Add(".json");
+
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.CurrentWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSingleFileAsync();
+            if (file == null) return;
+
+            var content = await File.ReadAllTextAsync(file.Path);
+            var settingsPath = SettingsService.SettingsPath;
+
+            // Write the imported content to the settings path and reload
+            await File.WriteAllTextAsync(settingsPath, content);
+            ServiceLocator.Get<SettingsService>().Load();
+
+            ServiceLocator.Get<NotificationService>().Success(
+                LocalizationHelper.GetString("SettingsImportDone.Title"),
+                LocalizationHelper.GetString("SettingsImportDone.Text"));
+        }
+        catch (Exception ex)
+        {
+            ServiceLocator.Get<NotificationService>().Error(
+                LocalizationHelper.GetString("AppErrorTitle.Text"),
+                ex.Message);
+        }
+    }
+
     private void BypassPresets_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not FrameworkElement element) return;
