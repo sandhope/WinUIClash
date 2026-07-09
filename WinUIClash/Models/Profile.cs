@@ -1,4 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Xaml.Media;
+using Windows.UI;
 
 namespace WinUIClash.Models;
 
@@ -55,11 +57,40 @@ public partial class Profile : ObservableObject
     public string RemainingText => SubscriptionInfo == null ? "" :
         $"剩余 {Converters.ByteFormatter.Format(RemainingBytes)}";
 
+    /// <summary>订阅过期显示文本</summary>
+    public string ExpiryText
+    {
+        get
+        {
+            if (SubscriptionInfo?.Expire == null) return "";
+            var remaining = SubscriptionInfo.Expire.Value - DateTime.Now;
+            if (remaining.TotalDays < 0) return "已过期";
+            if (remaining.TotalDays < 1) return $"剩余 {remaining.Hours}小时";
+            return $"剩余 {(int)remaining.TotalDays}天";
+        }
+    }
+
+    /// <summary>订阅过期颜色（正常=灰色，即将过期=橙色，已过期=红色）</summary>
+    public SolidColorBrush ExpiryBrush
+    {
+        get
+        {
+            if (SubscriptionInfo?.Expire == null) return new SolidColorBrush(Color.FromArgb(255, 128, 128, 128));
+            var remaining = SubscriptionInfo.Expire.Value - DateTime.Now;
+            if (remaining.TotalDays < 0) return new SolidColorBrush(Color.FromArgb(255, 244, 67, 54));
+            if (remaining.TotalDays < 3) return new SolidColorBrush(Color.FromArgb(255, 255, 152, 0));
+            if (remaining.TotalDays < 7) return new SolidColorBrush(Color.FromArgb(255, 255, 193, 7));
+            return new SolidColorBrush(Color.FromArgb(255, 128, 128, 128));
+        }
+    }
+
     public void NotifySubscriptionChanged()
     {
         OnPropertyChanged(nameof(UsedPercent));
         OnPropertyChanged(nameof(RemainingBytes));
         OnPropertyChanged(nameof(UsedPercentText));
         OnPropertyChanged(nameof(RemainingText));
+        OnPropertyChanged(nameof(ExpiryText));
+        OnPropertyChanged(nameof(ExpiryBrush));
     }
 }
