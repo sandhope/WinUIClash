@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Windows.UI;
 using WinUIClash.Models;
@@ -11,10 +12,23 @@ namespace WinUIClash.ViewModels.Settings;
 public partial class ThemeSettingsViewModel : ObservableObject
 {
     private readonly AppSettings _settings;
+    private readonly Windows.UI.ViewManagement.UISettings _uiSettings;
+    private readonly DispatcherQueue _dispatcher;
 
     public ThemeSettingsViewModel(AppSettings settings)
     {
         _settings = settings;
+        _dispatcher = DispatcherQueue.GetForCurrentThread()!;
+        _uiSettings = new Windows.UI.ViewManagement.UISettings();
+
+        // 监听系统主题变化，实时跟随
+        _uiSettings.ColorValuesChanged += (_, _) =>
+        {
+            if (_settings.ThemeMode == "System")
+            {
+                _dispatcher.TryEnqueue(() => ApplyTheme("System"));
+            }
+        };
     }
 
     public record ThemeOption(string Label, string Value);
@@ -183,10 +197,9 @@ public partial class ThemeSettingsViewModel : ObservableObject
             (byte)(color.B * (1 - amount)));
     }
 
-    private static ApplicationTheme GetSystemTheme()
+    private ApplicationTheme GetSystemTheme()
     {
-        var uiSettings = new Windows.UI.ViewManagement.UISettings();
-        var bgColor = uiSettings.GetColorValue(Windows.UI.ViewManagement.UIColorType.Background);
+        var bgColor = _uiSettings.GetColorValue(Windows.UI.ViewManagement.UIColorType.Background);
         // 系统背景为深色 → 当前是暗色模式
         return bgColor.R < 128 ? ApplicationTheme.Dark : ApplicationTheme.Light;
     }

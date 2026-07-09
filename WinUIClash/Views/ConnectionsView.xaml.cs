@@ -8,6 +8,7 @@ namespace WinUIClash.Views;
 public sealed partial class ConnectionsView : Page
 {
     public ConnectionsViewModel ViewModel { get; }
+    private readonly DispatcherTimer _detailTimer;
 
     public ConnectionsView()
     {
@@ -17,6 +18,18 @@ public sealed partial class ConnectionsView : Page
 
         // 监听选中连接变化 → 更新详情面板
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+        // 详情面板自动刷新（每秒更新持续时长和流量）
+        _detailTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1),
+        };
+        _detailTimer.Tick += (_, _) =>
+        {
+            if (ViewModel.SelectedConnection != null)
+                UpdateDetailPanel(ViewModel.SelectedConnection);
+        };
+        _detailTimer.Start();
     }
 
     private void OnViewModelPropertyChanged(object? sender,
