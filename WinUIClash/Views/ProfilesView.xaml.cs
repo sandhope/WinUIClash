@@ -427,6 +427,53 @@ public sealed partial class ProfilesView : Page
         }
     }
 
+    // ── 拖放导入 ──
+
+    private void Page_DragOver(object sender, DragEventArgs e)
+    {
+        e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Copy;
+        e.DragUIOverride.Caption = LocalizationHelper.GetString("ProfilesImport.Content");
+    }
+
+    private async void Page_Drop(object sender, DragEventArgs e)
+    {
+        try
+        {
+            if (!e.DataView.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.StorageItems))
+                return;
+
+            var items = await e.DataView.GetStorageItemsAsync();
+            foreach (var item in items)
+            {
+                if (item is not Windows.Storage.StorageFile file) continue;
+                var ext = Path.GetExtension(file.Path).ToLowerInvariant();
+                if (ext != ".yaml" && ext != ".yml") continue;
+
+                var profileId = Guid.NewGuid().ToString("N")[..8];
+                var storage = new ProfileStorageService();
+                var destPath = storage.GetConfigPath(profileId);
+
+                File.Copy(file.Path, destPath, overwrite: true);
+
+                var label = Path.GetFileNameWithoutExtension(file.Name);
+                var profile = new Profile
+                {
+                    Id = profileId,
+                    Label = label,
+                    Path = destPath,
+                    LastUpdate = DateTime.Now,
+                    IsActive = false,
+                };
+
+                ViewModel.Profiles.Add(profile);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Profiles] Drop error: {ex.Message}");
+        }
+    }
+
     private static string GenerateMockConfig(Profile profile)
     {
         return $$"""

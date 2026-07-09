@@ -318,6 +318,37 @@ public sealed partial class MainWindow : Window
         };
         helpAccel.Invoked += async (_, _) => await ShowKeyboardHelpAsync();
         RootGrid.KeyboardAccelerators.Add(helpAccel);
+
+        // Ctrl+Tab 下一个页面
+        var nextAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.Tab,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control,
+        };
+        nextAccel.Invoked += (_, _) => CyclePage(1);
+        RootGrid.KeyboardAccelerators.Add(nextAccel);
+
+        // Ctrl+Shift+Tab 上一个页面
+        var prevAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.Tab,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control | Windows.System.VirtualKeyModifiers.Shift,
+        };
+        prevAccel.Invoked += (_, _) => CyclePage(-1);
+        RootGrid.KeyboardAccelerators.Add(prevAccel);
+    }
+
+    private void CyclePage(int direction)
+    {
+        var items = RootNavigation.MenuItems;
+        if (items.Count == 0) return;
+        var currentIdx = RootNavigation.SelectedItem is NavigationViewItem current
+            ? items.IndexOf(current)
+            : -1;
+        var nextIdx = (currentIdx + direction + items.Count) % items.Count;
+        RootNavigation.SelectedItem = items[nextIdx];
+        if (items[nextIdx] is NavigationViewItem nextItem && nextItem.Tag is string tag)
+            NavigateTo(tag);
     }
 
     private async Task ShowKeyboardHelpAsync()
@@ -325,6 +356,7 @@ public sealed partial class MainWindow : Window
         var shortcuts = new (string Key, string Desc)[]
         {
             ("Ctrl+1~9", LocalizationHelper.GetString("HelpNav.Text")),
+            ("Ctrl+Tab", LocalizationHelper.GetString("HelpCyclePage.Text")),
             ("Ctrl+F", LocalizationHelper.GetString("HelpSearch.Text")),
             ("F5 / Ctrl+R", LocalizationHelper.GetString("HelpRefresh.Text")),
             ("Ctrl+B", LocalizationHelper.GetString("HelpSidebar.Text")),

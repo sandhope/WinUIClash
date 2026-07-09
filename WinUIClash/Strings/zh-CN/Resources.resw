@@ -410,6 +410,10 @@
   <data name="ResGeoUpdateGeoSite.Text" xml:space="preserve"><value>更新 GeoSite 数据库</value></data>
   <data name="ResGeoUpdating.Text" xml:space="preserve"><value>正在更新 Geo 数据库</value></data>
   <data name="ResGeoUpdateSuccess.Text" xml:space="preserve"><value>Geo 数据库更新成功</value></data>
+  <data name="ResGeoUpdateMmdb.Text" xml:space="preserve"><value>更新 Country.mmdb</value></data>
+  <data name="ResGeoUpdateAsn.Text" xml:space="preserve"><value>更新 ASN 数据库</value></data>
+  <data name="ResUpdating.Text" xml:space="preserve"><value>正在更新</value></data>
+  <data name="ResUpdateAllDone.Text" xml:space="preserve"><value>更新完成</value></data>
   <data name="ResHealthCheck.ToolTip" xml:space="preserve"><value>健康检查</value></data>
   <data name="ResHealthCheckDone.Text" xml:space="preserve"><value>健康检查完成</value></data>
   <data name="BasicConfigAppliedTitle.Text" xml:space="preserve"><value>设置已生效</value></data>
@@ -511,4 +515,5 @@
   <data name="HelpProxyToggle.Text" xml:space="preserve"><value>切换系统代理</value></data>
   <data name="HelpQuit.Text" xml:space="preserve"><value>退出应用</value></data>
   <data name="HelpShowHelp.Text" xml:space="preserve"><value>显示此帮助</value></data>
+  <data name="HelpCyclePage.Text" xml:space="preserve"><value>切换页面</value></data>
 </root>

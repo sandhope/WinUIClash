@@ -10,18 +10,18 @@ namespace WinUIClash.ViewModels;
 /// </summary>
 public partial class ToolsViewModel : ObservableObject
 {
-    public record SettingItem(string Title, string Subtitle, string PageKey);
+    public record SettingItem(string Title, string Subtitle, string PageKey, string IconName);
 
     public IReadOnlyList<SettingItem> SettingsItems { get; } =
     [
-        new(LocalizationHelper.GetString("SettingsBasicConfig.Text"), LocalizationHelper.GetString("ToolsBasicConfigSub.Text"), "BasicConfig"),
-        new(LocalizationHelper.GetString("SettingsApp.Text"), LocalizationHelper.GetString("ToolsAppSettingsSub.Text"), "AppSettings"),
-        new(LocalizationHelper.GetString("SettingsTheme.Text"), LocalizationHelper.GetString("ToolsThemeSettingsSub.Text"), "ThemeSettings"),
+        new(LocalizationHelper.GetString("SettingsBasicConfig.Text"), LocalizationHelper.GetString("ToolsBasicConfigSub.Text"), "BasicConfig", "Settings"),
+        new(LocalizationHelper.GetString("SettingsApp.Text"), LocalizationHelper.GetString("ToolsAppSettingsSub.Text"), "AppSettings", "AppGeneric"),
+        new(LocalizationHelper.GetString("SettingsTheme.Text"), LocalizationHelper.GetString("ToolsThemeSettingsSub.Text"), "ThemeSettings", "Color"),
     ];
 
     public IReadOnlyList<SettingItem> OtherItems { get; } =
     [
-        new(LocalizationHelper.GetString("SettingsAbout.Text"), LocalizationHelper.GetString("ToolsAboutSub.Text"), "About"),
+        new(LocalizationHelper.GetString("SettingsAbout.Text"), LocalizationHelper.GetString("ToolsAboutSub.Text"), "About", "Info"),
     ];
 
     // ── 导航 ──

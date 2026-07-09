@@ -30,6 +30,8 @@ namespace WinUIClash
         /// <summary>当前主窗口实例，供全局访问（如主题切换）</summary>
         public static Window? CurrentWindow { get; private set; }
 
+        private static System.Threading.Mutex? _instanceMutex;
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -116,6 +118,15 @@ namespace WinUIClash
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            // 单实例检测：防止同时运行多个 WinUIClash 实例
+            _instanceMutex = new System.Threading.Mutex(true, "WinUIClash_SingleInstance", out bool createdNew);
+            if (!createdNew)
+            {
+                // 已有实例在运行，退出当前进程
+                System.Diagnostics.Process.GetCurrentProcess().Kill();
+                return;
+            }
+
             ServiceLocator.Build();
 
             // 加载持久化设置
