@@ -306,7 +306,7 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>持久化档案列表到本地 JSON</summary>
-    private async Task SaveProfileListAsync()
+    public async Task SaveProfileListAsync()
     {
         try
         {
