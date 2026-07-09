@@ -72,7 +72,7 @@
                   SelectionMode="None">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:ConnectionInfo">
-                    <Grid Padding="4,6" ColumnSpacing="12"
+                    <Grid Padding="4,6" ColumnSpacing="10"
                           RightTapped="RequestItem_RightTapped"
                           DoubleTapped="RequestItem_DoubleTapped"
                           Tag="{x:Bind}">
@@ -81,19 +81,46 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
+                        <!-- 时间戳 -->
                         <TextBlock Text="{x:Bind Start, Converter={StaticResource DateTimeToTimeConverter}}"
                                    FontSize="10" Opacity="0.5" FontFamily="Consolas"
                                    VerticalAlignment="Center" Width="65" />
+                        <!-- 主机 -->
                         <TextBlock Grid.Column="1" Text="{x:Bind Metadata.Host}"
                                    FontSize="12" TextTrimming="CharacterEllipsis"
                                    VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="2" Text="{x:Bind Metadata.Network}"
-                                   FontSize="11" Opacity="0.5"
-                                   VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="3" Text="{x:Bind Rule}"
+                        <!-- 进程名 -->
+                        <TextBlock Grid.Column="2" Text="{x:Bind Metadata.Process}"
+                                   FontSize="10" Opacity="0.5"
+                                   VerticalAlignment="Center" MaxWidth="100"
+                                   TextTrimming="CharacterEllipsis" />
+                        <!-- 协议 -->
+                        <Border Grid.Column="3" CornerRadius="3" Padding="4,1"
+                                VerticalAlignment="Center"
+                                Background="{ThemeResource SubtleFillColorSecondary}">
+                            <TextBlock Text="{x:Bind Metadata.Network}"
+                                       FontSize="10" FontWeight="SemiBold" Opacity="0.6" />
+                        </Border>
+                        <!-- 上传/下载 -->
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6"
+                                    VerticalAlignment="Center">
+                            <TextBlock FontSize="10" FontFamily="Consolas" Opacity="0.6"
+                                       VerticalAlignment="Center">
+                                <Run Text="↑" /><Run Text="{x:Bind Upload, Converter={StaticResource BytesToStringConverter}}" />
+                            </TextBlock>
+                            <TextBlock FontSize="10" FontFamily="Consolas" Opacity="0.6"
+                                       VerticalAlignment="Center">
+                                <Run Text="↓" /><Run Text="{x:Bind Download, Converter={StaticResource BytesToStringConverter}}" />
+                            </TextBlock>
+                        </StackPanel>
+                        <!-- 规则 -->
+                        <TextBlock Grid.Column="5" Text="{x:Bind Rule}"
                                    FontSize="11" Opacity="0.6"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center" MaxWidth="120"
+                                   TextTrimming="CharacterEllipsis" />
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
