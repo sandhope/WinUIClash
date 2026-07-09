@@ -66,6 +66,10 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             foreach (var p in Profiles) p.IsActive = p.Id == profile.Id;
             ActiveProfile = Profiles.FirstOrDefault(p => p.IsActive);
             await SaveProfileListAsync();
+
+            _notification.Success(
+                LocalizationHelper.GetString("ProfilesSwitchedTitle.Text"),
+                profile.Label);
         }
         catch (Exception ex)
         {
@@ -106,6 +110,10 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
 
             profile.LastUpdate = DateTime.Now;
             await SaveProfileListAsync();
+
+            _notification.Success(
+                LocalizationHelper.GetString("ProfilesSyncDoneTitle.Text"),
+                profile.Label);
         }
         catch (Exception ex)
         {
@@ -146,6 +154,10 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             }
         }
         await SaveProfileListAsync();
+
+        _notification.Success(
+            LocalizationHelper.GetString("ProfilesSyncDoneTitle.Text"),
+            LocalizationHelper.GetString("ProfilesSyncAllDoneMsg.Text"));
     }
 
     [RelayCommand]

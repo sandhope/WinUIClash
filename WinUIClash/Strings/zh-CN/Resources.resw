@@ -416,6 +416,9 @@
   <data name="BasicConfigAppliedMsg.Text" xml:space="preserve"><value>配置更改已应用到运行中的核心。</value></data>
   <data name="DashDnsPlaceholder.PlaceholderText" xml:space="preserve"><value>域名…</value></data>
   <data name="DashDnsFailed.Text" xml:space="preserve"><value>DNS 查询失败</value></data>
+  <data name="ProfilesSyncDoneTitle.Text" xml:space="preserve"><value>同步完成</value></data>
+  <data name="ProfilesSyncAllDoneMsg.Text" xml:space="preserve"><value>所有订阅已更新</value></data>
+  <data name="ProfilesSwitchedTitle.Text" xml:space="preserve"><value>配置已切换</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>规则</value></data>
