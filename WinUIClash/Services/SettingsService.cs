@@ -13,7 +13,7 @@ public class SettingsService
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "WinUIClash");
 
-    private static readonly string SettingsPath = Path.Combine(SettingsDir, "settings.json");
+    public static readonly string SettingsPath = Path.Combine(SettingsDir, "settings.json");
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

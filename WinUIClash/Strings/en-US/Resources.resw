@@ -156,6 +156,13 @@
   <data name="AppCloseConnectionsDesc.Text" xml:space="preserve"><value>Automatically close existing connections when switching config or proxy</value></data>
   <data name="AppOnlyStatisticsProxy.Text" xml:space="preserve"><value>Proxy Traffic Only</value></data>
   <data name="AppOnlyStatisticsProxyDesc.Text" xml:space="preserve"><value>Only count traffic going through proxy in statistics</value></data>
+  <data name="SettingsBackup.Text" xml:space="preserve"><value>Backup &amp; Restore</value></data>
+  <data name="SettingsExportSettings.Text" xml:space="preserve"><value>Export Settings</value></data>
+  <data name="SettingsImportSettings.Text" xml:space="preserve"><value>Import Settings</value></data>
+  <data name="SettingsExportDone.Title" xml:space="preserve"><value>Export Successful</value></data>
+  <data name="SettingsExportDone.Text" xml:space="preserve"><value>Settings exported successfully</value></data>
+  <data name="SettingsImportDone.Title" xml:space="preserve"><value>Import Successful</value></data>
+  <data name="SettingsImportDone.Text" xml:space="preserve"><value>Settings imported. Some changes may require a restart.</value></data>
 
   <!-- Theme Settings -->
   <data name="ThemeMode.Text" xml:space="preserve"><value>Appearance</value></data>

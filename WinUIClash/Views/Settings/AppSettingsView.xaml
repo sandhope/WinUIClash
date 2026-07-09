@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:fluent="using:FluentIcons.WinUI"
     mc:Ignorable="d">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -256,6 +257,27 @@
                              Text="{x:Bind ViewModel.BypassDomains, Mode=TwoWay}"
                              AcceptsReturn="True" Height="80"
                              TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- 备份/恢复 -->
+            <Border Style="{StaticResource SettingsCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock x:Uid="SettingsBackup" FontSize="14" FontWeight="SemiBold" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button x:Uid="SettingsExportSettings" Click="ExportSettings_Click" Padding="12,6">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
+                                <TextBlock x:Uid="SettingsExportSettings" FontSize="12" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Uid="SettingsImportSettings" Click="ImportSettings_Click" Padding="12,6">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <fluent:SymbolIcon Symbol="ArrowImport" FontSize="14" />
+                                <TextBlock x:Uid="SettingsImportSettings" FontSize="12" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
             </Border>
         </StackPanel>
