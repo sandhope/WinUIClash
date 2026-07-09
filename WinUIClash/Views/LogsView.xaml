@@ -73,7 +73,7 @@
                   SelectionMode="None">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:LogEntry">
-                    <Grid Padding="4,6" ColumnSpacing="10" RightTapped="LogItem_RightTapped" Tag="{x:Bind}">
+                    <Grid Padding="4,6" ColumnSpacing="10" RightTapped="LogItem_RightTapped" DoubleTapped="LogItem_DoubleTapped" Tag="{x:Bind}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />

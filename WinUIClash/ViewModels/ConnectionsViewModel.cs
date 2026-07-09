@@ -37,6 +37,16 @@ public partial class ConnectionsViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _isPaused;
     [ObservableProperty] private string _pauseLabel = "";
 
+    /// <summary>Aggregate upload across all active connections</summary>
+    public string TotalUploadText => Connections.Count > 0
+        ? Converters.ByteFormatter.Format(Connections.Sum(c => c.Upload))
+        : "0 B";
+
+    /// <summary>Aggregate download across all active connections</summary>
+    public string TotalDownloadText => Connections.Count > 0
+        ? Converters.ByteFormatter.Format(Connections.Sum(c => c.Download))
+        : "0 B";
+
     partial void OnSearchTextChanged(string value) => ApplyFilter();
     partial void OnCurrentSortChanged(ConnSortMode value)
     {
@@ -93,6 +103,8 @@ public partial class ConnectionsViewModel : ObservableObject, IDisposable
                 Connections = new ObservableCollection<ConnectionInfo>(list);
                 ConnectionCount = list.Count;
                 ApplyFilter();
+                OnPropertyChanged(nameof(TotalUploadText));
+                OnPropertyChanged(nameof(TotalDownloadText));
             });
         }
         catch
@@ -113,6 +125,8 @@ public partial class ConnectionsViewModel : ObservableObject, IDisposable
                 Connections.Remove(connection);
                 ApplyFilter();
                 ConnectionCount = Connections.Count;
+                OnPropertyChanged(nameof(TotalUploadText));
+                OnPropertyChanged(nameof(TotalDownloadText));
             });
         }
         catch (Exception ex)

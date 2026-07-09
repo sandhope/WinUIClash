@@ -32,6 +32,12 @@
                     <Run Text="{x:Bind ViewModel.ConnectionCount, Mode=OneWay}" />
                     <Run x:Uid="ConnCountSuffix" />
                 </TextBlock>
+                <TextBlock VerticalAlignment="Center" FontSize="10" Opacity="0.4">
+                    <Run Text="↑" />
+                    <Run Text="{x:Bind ViewModel.TotalUploadText, Mode=OneWay}" />
+                    <Run Text=" ↓" />
+                    <Run Text="{x:Bind ViewModel.TotalDownloadText, Mode=OneWay}" />
+                </TextBlock>
                 <Button Command="{x:Bind ViewModel.CycleSortModeCommand}"
                         x:Uid="ProxySwitchSort"
                         Padding="8,4" Background="Transparent" BorderThickness="0">
