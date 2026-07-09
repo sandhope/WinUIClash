@@ -69,9 +69,12 @@ public partial class RequestsViewModel : ObservableObject, IDisposable
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
+            var keywords = SearchText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             query = query.Where(r =>
-                r.Metadata.Host.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                r.Metadata.Process.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+            {
+                var haystack = $"{r.Metadata.Host} {r.Metadata.Process} {r.Rule}";
+                return keywords.All(kw => haystack.Contains(kw, StringComparison.OrdinalIgnoreCase));
+            });
         }
 
         query = CurrentSort switch

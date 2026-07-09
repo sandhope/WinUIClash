@@ -74,10 +74,12 @@ public partial class ConnectionsViewModel : ObservableObject, IDisposable
         }
         else
         {
+            var keywords = SearchText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             filtered = Connections.Where(c =>
-                c.Metadata.Host.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                c.Metadata.Process.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                c.Chains.Any(ch => ch.Contains(SearchText, StringComparison.OrdinalIgnoreCase)));
+            {
+                var haystack = $"{c.Metadata.Host} {c.Metadata.Process} {string.Join(" ", c.Chains)} {c.Rule}";
+                return keywords.All(kw => haystack.Contains(kw, StringComparison.OrdinalIgnoreCase));
+            });
         }
 
         filtered = CurrentSort switch

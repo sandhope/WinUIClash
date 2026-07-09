@@ -82,6 +82,15 @@
                                            TextTrimming="CharacterEllipsis" MaxWidth="120" />
                             </StackPanel>
                         </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                Visibility="{x:Bind ViewModel.RuleCount, Mode=OneWay, Converter={StaticResource NonEmptyCollectionToVisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <fluent:SymbolIcon Symbol="List" FontSize="10" Opacity="0.6" />
+                                <TextBlock Text="{x:Bind ViewModel.RuleCount, Mode=OneWay}"
+                                           FontSize="10" Opacity="0.7" />
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                     <Button Grid.Row="3" Margin="0,12,0,0"
                             Content="{x:Bind ViewModel.CoreToggleText, Mode=OneWay}"
