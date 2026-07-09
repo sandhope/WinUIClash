@@ -347,6 +347,25 @@ public sealed partial class MainWindow : Window
             // 订阅系统代理设置变化
             _appSettings.PropertyChanged += OnSettingsPropertyChanged;
             UpdateProxyStatusUI(_appSettings.SystemProxy);
+
+            // 连接数轮询（每5秒）
+            var connTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(5),
+            };
+            connTimer.Tick += async (_, _) =>
+            {
+                try
+                {
+                    var connections = await _clash.GetConnectionsAsync();
+                    ConnectionCountText.Text = connections.Count.ToString();
+                }
+                catch
+                {
+                    ConnectionCountText.Text = "0";
+                }
+            };
+            connTimer.Start();
         }
         catch { /* ServiceLocator 未初始化时忽略 */ }
     }

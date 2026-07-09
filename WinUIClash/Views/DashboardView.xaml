@@ -111,6 +111,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBlock Text="流量统计" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
@@ -123,7 +124,12 @@
                         <TextBlock Text="下载" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.TotalDownload, Mode=OneWay}" FontWeight="SemiBold" Margin="8,0,0,0" />
                     </StackPanel>
-                    <HyperlinkButton Grid.Row="3" Content="重置统计" FontSize="12" Padding="0" Margin="0,4,0,0"
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="Link" FontSize="14" Opacity="0.6" />
+                        <TextBlock Text="连接" FontSize="12" Opacity="0.7" />
+                        <TextBlock Text="{x:Bind ViewModel.ActiveConnections, Mode=OneWay}" FontWeight="SemiBold" Margin="8,0,0,0" />
+                    </StackPanel>
+                    <HyperlinkButton Grid.Row="4" Content="重置统计" FontSize="12" Padding="0" Margin="0,4,0,0"
                                      Command="{x:Bind ViewModel.ResetTrafficCommand}" />
                 </Grid>
             </Border>

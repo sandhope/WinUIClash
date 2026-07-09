@@ -32,6 +32,7 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private bool _autoCheckUpdate = true;
     [ObservableProperty] private bool _closeConnections = false;
     [ObservableProperty] private bool _onlyStatisticsProxy = false;
+    [ObservableProperty] private string _language = "zh-CN";
 
     // ── 主题设置 ──
 

@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
 using WinUIClash.Models;
@@ -165,12 +166,23 @@ public partial class DashboardViewModel : ObservableObject
 
     [ObservableProperty] private string _totalUpload = "0 B";
     [ObservableProperty] private string _totalDownload = "0 B";
+    [ObservableProperty] private int _activeConnections;
 
     public async Task RefreshTotalTrafficAsync()
     {
         var total = _clash.GetTotalTraffic();
         TotalUpload = Converters.ByteFormatter.Format(total.Up);
         TotalDownload = Converters.ByteFormatter.Format(total.Down);
+    }
+
+    public async Task RefreshConnectionCountAsync()
+    {
+        try
+        {
+            var connections = await _clash.GetConnectionsAsync();
+            ActiveConnections = connections.Count;
+        }
+        catch { ActiveConnections = 0; }
     }
 
     [RelayCommand]
@@ -248,9 +260,18 @@ public partial class DashboardViewModel : ObservableObject
 
         SyncModeState(_clash.GetOutboundMode());
         await RefreshTotalTrafficAsync();
+        await RefreshConnectionCountAsync();
         await CheckIpAsync();
         await RefreshLocalIpAsync();
         await RefreshMemoryAsync();
+
+        // 连接数轮询（每5秒）
+        var connTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(5),
+        };
+        connTimer.Tick += async (_, _) => await RefreshConnectionCountAsync();
+        connTimer.Start();
     }
 
     private static string CountryCodeToFlag(string code)

@@ -63,8 +63,12 @@ namespace WinUIClash
             // 应用主题设置（明暗模式 + 主题色）
             ViewModels.Settings.ThemeSettingsViewModel.InitializeTheme();
 
-            // 如果设置了自动运行，启动 Clash 核心
+            // 应用语言设置
             var appSettings = ServiceLocator.Get<Models.AppSettings>();
+            var lang = appSettings.Language;
+            Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = lang;
+
+            // 如果设置了自动运行，启动 Clash 核心
             if (appSettings.AutoRun)
             {
                 var coreService = ServiceLocator.Get<Services.CoreProcessService>();
@@ -72,6 +76,30 @@ namespace WinUIClash
                 {
                     try { await coreService.StartAsync(); }
                     catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Core auto-start failed: {ex.Message}"); }
+                });
+            }
+
+            // 启动时自动检查更新
+            if (appSettings.AutoCheckUpdate)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        // 等待5秒让应用初始化完成
+                        await Task.Delay(TimeSpan.FromSeconds(5));
+                        var updateService = ServiceLocator.Get<Services.UpdateService>();
+                        var update = await updateService.CheckForUpdateAsync();
+                        if (update != null)
+                        {
+                            var notification = ServiceLocator.Get<Services.NotificationService>();
+                            notification.Info("发现新版本", $"WinUIClash {update.TagName} 已发布，前往工具页查看。");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Auto update check failed: {ex.Message}");
+                    }
                 });
             }
         }
