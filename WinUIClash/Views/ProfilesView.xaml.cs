@@ -289,9 +289,10 @@ public sealed partial class ProfilesView : Page
             Text = LocalizationHelper.GetString("ProfilesAutoUpdate.Text"),
             IsChecked = profile.AutoUpdate,
         };
-        autoUpdate.Click += (_, _) =>
+        autoUpdate.Click += async (_, _) =>
         {
             profile.AutoUpdate = !profile.AutoUpdate;
+            await ViewModel.SaveProfileListAsync();
         };
         menu.Items.Add(autoUpdate);
 

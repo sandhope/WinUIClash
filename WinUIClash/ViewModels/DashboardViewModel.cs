@@ -29,18 +29,6 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         _clash.TrafficUpdated += OnTrafficUpdated;
         _clash.CoreStateChanged += HandleCoreStateChanged;
         _settings.PropertyChanged += OnSettingsPropertyChanged;
-
-        // 初始化历史数据（60秒模拟）
-        var rng = new Random();
-        for (int i = 60; i > 0; i--)
-        {
-            TrafficHistory.Add(new Traffic
-            {
-                Up = rng.NextInt64(50_000, 1_500_000),
-                Down = rng.NextInt64(200_000, 8_000_000),
-                Timestamp = DateTime.Now.AddSeconds(-i)
-            });
-        }
     }
 
     // ── 核心状态 ──
