@@ -20,7 +20,7 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private bool _allowLan = false;
     [ObservableProperty] private bool _unifiedDelay = false;
     [ObservableProperty] private bool _tcpConcurrent = false;
-    [ObservableProperty] private bool _findProcessMode = false;
+    [ObservableProperty] private string _findProcessMode = "off";
     [ObservableProperty] private bool _externalController = true;
     [ObservableProperty] private string _apiSecret = "";
     [ObservableProperty] private string _coreBinaryPath = "";

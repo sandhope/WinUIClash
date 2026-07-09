@@ -192,8 +192,9 @@
                             <TextBlock x:Uid="ConfigFindProcess" FontSize="13" />
                             <TextBlock x:Uid="ConfigFindProcessDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
-                        <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.FindProcessMode, Mode=TwoWay}"
-                                      OffContent="" OnContent="" />
+                        <ComboBox Grid.Column="1" Width="120"
+                                  ItemsSource="{x:Bind ViewModel.FindProcessModeOptions}"
+                                  SelectedItem="{x:Bind ViewModel.FindProcessMode, Mode=TwoWay}" />
                     </Grid>
                     <!-- External Controller -->
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
