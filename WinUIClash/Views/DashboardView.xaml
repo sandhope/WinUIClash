@@ -21,6 +21,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <!-- ═══ 第一行：状态栏 + 网速图表 ═══ -->
@@ -334,6 +335,51 @@
                     <Button Grid.Row="5" x:Uid="DashFlushFakeIp" FontSize="12"
                             Command="{x:Bind ViewModel.FlushFakeIpCacheCommand}"
                             HorizontalAlignment="Stretch" Margin="0,4,0,0" />
+                </Grid>
+            </Border>
+
+            <!-- ═══ 第三行：网速测试 ═══ -->
+            <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8" Padding="16"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <Grid ColumnSpacing="16" RowSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <fluent:SymbolIcon Symbol="Gauge" FontSize="18" Opacity="0.7"
+                                       VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" x:Uid="DashSpeedTest" FontWeight="SemiBold"
+                               FontSize="13" VerticalAlignment="Center" />
+                    <ComboBox Grid.Column="2" Width="160"
+                              ItemsSource="{x:Bind ViewModel.SpeedTestLabels}"
+                              SelectedIndex="{x:Bind ViewModel.SelectedSpeedTestIndex, Mode=TwoWay}"
+                              FontSize="12" />
+                    <ProgressBar Grid.Row="1" Grid.ColumnSpan="5"
+                                 Minimum="0" Maximum="100"
+                                 Value="{x:Bind ViewModel.SpeedTestProgress, Mode=OneWay}"
+                                 Visibility="{x:Bind ViewModel.IsSpeedTesting, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <TextBlock Grid.Column="3" FontSize="13" VerticalAlignment="Center"
+                               Text="{x:Bind ViewModel.SpeedTestResult, Mode=OneWay}"
+                               TextTrimming="CharacterEllipsis" Opacity="0.8"
+                               IsTextSelectionEnabled="True" />
+                    <Button Grid.Column="4"
+                            Command="{x:Bind ViewModel.SpeedTestCommand}"
+                            IsEnabled="{x:Bind ViewModel.IsSpeedTesting, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                            Padding="16,6">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <fluent:SymbolIcon Symbol="Play" FontSize="13" />
+                            <TextBlock x:Uid="DashSpeedTestStart" FontSize="12" />
+                        </StackPanel>
+                    </Button>
                 </Grid>
             </Border>
         </Grid>

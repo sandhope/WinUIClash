@@ -223,3 +223,15 @@ public class NonEmptyCollectionToVisibilityConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, string language)
         => throw new NotImplementedException();
 }
+
+/// <summary>
+/// Bool → Bool（取反：true → false，false → true），用于 IsEnabled 绑定
+/// </summary>
+public class InverseBoolConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+        => value is bool b ? !b : value;
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => value is bool b ? !b : value;
+}

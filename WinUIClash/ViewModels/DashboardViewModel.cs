@@ -340,6 +340,86 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         }
     }
 
+    // ── 网速测试 ──
+
+    [ObservableProperty] private bool _isSpeedTesting;
+    [ObservableProperty] private string _speedTestResult = "";
+    [ObservableProperty] private double _speedTestProgress;
+    [ObservableProperty] private string _speedTestUrl = "https://speed.cloudflare.com/__down?bytes=25000000";
+
+    public string[] SpeedTestUrls { get; } =
+    [
+        "https://speed.cloudflare.com/__down?bytes=25000000",
+        "https://speed.cloudflare.com/__down?bytes=100000000",
+        "https://proof.ovh.net/files/1Mb.dat",
+    ];
+
+    public string[] SpeedTestLabels { get; } =
+    [
+        "Cloudflare 25MB",
+        "Cloudflare 100MB",
+        "OVH 1MB",
+    ];
+
+    [ObservableProperty] private int _selectedSpeedTestIndex = 0;
+
+    partial void OnSelectedSpeedTestIndexChanged(int value)
+    {
+        if (value >= 0 && value < SpeedTestUrls.Length)
+            SpeedTestUrl = SpeedTestUrls[value];
+    }
+
+    [RelayCommand]
+    private async Task SpeedTestAsync()
+    {
+        if (IsSpeedTesting) return;
+        IsSpeedTesting = true;
+        SpeedTestResult = LocalizationHelper.GetString("DashSpeedTestRunning.Text");
+        SpeedTestProgress = 0;
+
+        try
+        {
+            using var httpClient = new System.Net.Http.HttpClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            long totalBytes = 0;
+
+            using var response = await httpClient.GetAsync(SpeedTestUrl, System.Net.Http.HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+
+            using var stream = await response.Content.ReadAsStreamAsync();
+            var buffer = new byte[81920];
+            int bytesRead;
+            long contentLength = response.Content.Headers.ContentLength ?? 0;
+
+            while ((bytesRead = await stream.ReadAsync(buffer)) > 0)
+            {
+                totalBytes += bytesRead;
+                if (contentLength > 0)
+                    SpeedTestProgress = (double)totalBytes / contentLength * 100;
+            }
+
+            sw.Stop();
+            var seconds = sw.Elapsed.TotalSeconds;
+            var bytesPerSec = totalBytes / seconds;
+            var speedMbps = (bytesPerSec * 8) / 1_000_000;
+
+            SpeedTestResult = speedMbps >= 1
+                ? $"{speedMbps:F1} Mbps ({Converters.ByteFormatter.Format(totalBytes)} / {seconds:F1}s)"
+                : $"{bytesPerSec:F0} B/s ({Converters.ByteFormatter.Format(totalBytes)} / {seconds:F1}s)";
+        }
+        catch (Exception ex)
+        {
+            SpeedTestResult = $"{LocalizationHelper.GetString("DashSpeedTestFailed.Text")}: {ex.Message}";
+        }
+        finally
+        {
+            IsSpeedTesting = false;
+            SpeedTestProgress = 0;
+        }
+    }
+
     // ── 复制 DNS 结果 ──
 
     [RelayCommand]
