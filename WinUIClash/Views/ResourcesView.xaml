@@ -22,6 +22,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                 <TextBlock x:Uid="ResTitle" FontSize="20" FontWeight="SemiBold" />
@@ -43,8 +44,30 @@
             <TextBox Grid.Column="3" Width="200" Margin="8,0,0,0"
                      x:Uid="ResSearchPlaceholder"
                      Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <!-- 全部更新 -->
+            <!-- GeoIP/GeoSite 更新 -->
             <Button Grid.Column="4" Margin="8,0,0,0"
+                    x:Uid="ResGeoUpdate">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <fluent:SymbolIcon Symbol="Globe" FontSize="14" />
+                    <TextBlock x:Uid="ResGeoUpdate" FontSize="12" />
+                </StackPanel>
+                <Button.Flyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem x:Uid="ResUpdateGeoIp" Click="UpdateGeoIp_Click">
+                            <MenuFlyoutItem.Icon>
+                                <fluent:SymbolIcon Symbol="GlobeLocation" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem x:Uid="ResUpdateGeoSite" Click="UpdateGeoSite_Click">
+                            <MenuFlyoutItem.Icon>
+                                <fluent:SymbolIcon Symbol="GlobeSurface" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyout>
+                </Button.Flyout>
+            </Button>
+            <!-- 全部更新 -->
+            <Button Grid.Column="5" Margin="8,0,0,0"
                     Command="{x:Bind ViewModel.UpdateAllCommand}"
                     x:Uid="ResUpdateAll">
                 <StackPanel Orientation="Horizontal" Spacing="6">

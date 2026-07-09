@@ -246,6 +246,7 @@ public class ClashOrchestrator : IClashService
 
     public Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync() => _activeService.GetExternalProvidersAsync();
     public Task UpdateExternalProviderAsync(string name, string category = "proxy") => _activeService.UpdateExternalProviderAsync(name, category);
+    public Task UpdateGeoDatabaseAsync(string name) => _activeService.UpdateGeoDatabaseAsync(name);
 
     // ── Rules ──
 

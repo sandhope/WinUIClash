@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUIClash.Models;
+using WinUIClash.Services;
 using WinUIClash.ViewModels;
 
 namespace WinUIClash.Views;
@@ -31,6 +32,52 @@ public sealed partial class ResourcesView : Page
         if (sender is ComboBox combo && combo.SelectedItem is ComboBoxItem item)
         {
             ViewModel.TypeFilter = item.Tag as string ?? "ALL";
+        }
+    }
+
+    private async void UpdateGeoIp_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var notification = ServiceLocator.Get<NotificationService>();
+            notification.Info(
+                LocalizationHelper.GetString("ResGeoUpdating.Text"),
+                LocalizationHelper.GetString("ResGeoUpdateGeoIp.Text"));
+            var clash = ServiceLocator.Get<IClashService>();
+            await clash.UpdateGeoDatabaseAsync("geoip");
+            notification.Success(
+                LocalizationHelper.GetString("ResGeoUpdateSuccess.Text"),
+                "GeoIP");
+        }
+        catch
+        {
+            var notification = ServiceLocator.Get<NotificationService>();
+            notification.Error(
+                LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
+                "GeoIP");
+        }
+    }
+
+    private async void UpdateGeoSite_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var notification = ServiceLocator.Get<NotificationService>();
+            notification.Info(
+                LocalizationHelper.GetString("ResGeoUpdating.Text"),
+                LocalizationHelper.GetString("ResGeoUpdateGeoSite.Text"));
+            var clash = ServiceLocator.Get<IClashService>();
+            await clash.UpdateGeoDatabaseAsync("geosite");
+            notification.Success(
+                LocalizationHelper.GetString("ResGeoUpdateSuccess.Text"),
+                "GeoSite");
+        }
+        catch
+        {
+            var notification = ServiceLocator.Get<NotificationService>();
+            notification.Error(
+                LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
+                "GeoSite");
         }
     }
 }
