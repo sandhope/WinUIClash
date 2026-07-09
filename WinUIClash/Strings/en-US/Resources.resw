@@ -459,6 +459,8 @@
   <data name="RulesPayloadCol.Text" xml:space="preserve"><value>Payload</value></data>
   <data name="RulesTargetCol.Text" xml:space="preserve"><value>Target</value></data>
   <data name="RulesAllProxiesFilter.Text" xml:space="preserve"><value>All Targets</value></data>
+  <data name="RulesAllTypes.Text" xml:space="preserve"><value>All Types</value></data>
+  <data name="RulesAllProxies.Text" xml:space="preserve"><value>All Proxies</value></data>
   <data name="RulesCopyType.Text" xml:space="preserve"><value>Copy Type</value></data>
   <data name="RulesCopyPayload.Text" xml:space="preserve"><value>Copy Payload</value></data>
   <data name="RulesCopyProxy.Text" xml:space="preserve"><value>Copy Target Proxy</value></data>
