@@ -416,6 +416,9 @@
   <data name="BasicConfigAppliedMsg.Text" xml:space="preserve"><value>Configuration changes have been applied to the running core.</value></data>
   <data name="DashDnsPlaceholder.PlaceholderText" xml:space="preserve"><value>Domain name…</value></data>
   <data name="DashDnsFailed.Text" xml:space="preserve"><value>DNS query failed</value></data>
+  <data name="ProfilesSyncDoneTitle.Text" xml:space="preserve"><value>Sync Complete</value></data>
+  <data name="ProfilesSyncAllDoneMsg.Text" xml:space="preserve"><value>All subscriptions updated</value></data>
+  <data name="ProfilesSwitchedTitle.Text" xml:space="preserve"><value>Profile Switched</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>Rules</value></data>
