@@ -97,12 +97,12 @@
                         <!-- 上传/下载速度 -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="11" Foreground="#4FC3F7" />
+                                <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="11" Foreground="{StaticResource UploadIndicatorBrush}" />
                                 <TextBlock Text="{x:Bind UploadSpeed, Converter={StaticResource BytesToSpeedConverter}}"
                                            FontSize="11" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                                <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="11" Foreground="#81C784" />
+                                <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="11" Foreground="{StaticResource DownloadIndicatorBrush}" />
                                 <TextBlock Text="{x:Bind DownloadSpeed, Converter={StaticResource BytesToSpeedConverter}}"
                                            FontSize="11" />
                             </StackPanel>

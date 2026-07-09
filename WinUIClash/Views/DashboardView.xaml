@@ -62,11 +62,11 @@
                     <!-- 速度标签 -->
                     <StackPanel Orientation="Horizontal" Spacing="24">
                         <StackPanel Orientation="Horizontal" Spacing="6">
-                            <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="14" Foreground="#4FC3F7" />
+                            <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="14" Foreground="{StaticResource UploadIndicatorBrush}" />
                             <TextBlock Text="{x:Bind ViewModel.UploadSpeed, Mode=OneWay}" FontSize="13" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="6">
-                            <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="14" Foreground="#81C784" />
+                            <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="14" Foreground="{StaticResource DownloadIndicatorBrush}" />
                             <TextBlock Text="{x:Bind ViewModel.DownloadSpeed, Mode=OneWay}" FontSize="13" />
                         </StackPanel>
                     </StackPanel>
@@ -115,12 +115,12 @@
                     </Grid.RowDefinitions>
                     <TextBlock x:Uid="DashTrafficStats" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
-                        <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="14" Foreground="#4FC3F7" />
+                        <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="14" Foreground="{StaticResource UploadIndicatorBrush}" />
                         <TextBlock x:Uid="DashUploadSpeed" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.TotalUpload, Mode=OneWay}" FontWeight="SemiBold" Margin="8,0,0,0" />
                     </StackPanel>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
-                        <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="14" Foreground="#81C784" />
+                        <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="14" Foreground="{StaticResource DownloadIndicatorBrush}" />
                         <TextBlock x:Uid="DashDownloadSpeed" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.TotalDownload, Mode=OneWay}" FontWeight="SemiBold" Margin="8,0,0,0" />
                     </StackPanel>

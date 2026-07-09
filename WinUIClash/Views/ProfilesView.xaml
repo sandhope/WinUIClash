@@ -72,7 +72,7 @@
                                 <!-- 当前激活标识 -->
                                 <Border Grid.Column="1"
                                         Visibility="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                        Background="#4CAF50" CornerRadius="4"
+                                        Background="{StaticResource ActiveBadgeBrush}" CornerRadius="4"
                                         Padding="6,2"
                                         VerticalAlignment="Center">
                                     <TextBlock x:Uid="ProfilesActive" FontSize="10" Foreground="White" />

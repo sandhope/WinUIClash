@@ -31,6 +31,10 @@
                 <Setter Property="CornerRadius" Value="8" />
                 <Setter Property="Padding" Value="16,12" />
             </Style>
+            <!-- Semantic colors -->
+            <SolidColorBrush x:Key="UploadIndicatorBrush" Color="#4FC3F7" />
+            <SolidColorBrush x:Key="DownloadIndicatorBrush" Color="#81C784" />
+            <SolidColorBrush x:Key="ActiveBadgeBrush" Color="#4CAF50" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
