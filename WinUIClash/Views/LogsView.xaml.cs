@@ -57,6 +57,16 @@ public sealed partial class LogsView : Page
             CopyToClipboard(entry.Payload);
     }
 
+    private void LogLevelBadge_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: LogLevel level })
+        {
+            var levelStr = level.ToString();
+            ViewModel.SelectedLevel = ViewModel.SelectedLevel == levelStr ? "ALL" : levelStr;
+        }
+        e.Handled = true;
+    }
+
     private static void CopyToClipboard(string text)
     {
         var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();

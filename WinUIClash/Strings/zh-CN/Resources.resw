@@ -180,6 +180,8 @@
   <!-- Connections -->
   <data name="ConnTitle.Text" xml:space="preserve"><value>连接</value></data>
   <data name="ConnCloseAll.Content" xml:space="preserve"><value>关闭全部</value></data>
+  <data name="ConnExport.Content" xml:space="preserve"><value>导出</value></data>
+  <data name="ConnExport.ToolTip" xml:space="preserve"><value>导出连接为 CSV</value></data>
   <data name="ConnDetail.Text" xml:space="preserve"><value>连接详情</value></data>
   <data name="ConnHost.Text" xml:space="preserve"><value>目标地址</value></data>
   <data name="ConnSource.Text" xml:space="preserve"><value>来源</value></data>

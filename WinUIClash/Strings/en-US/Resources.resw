@@ -180,6 +180,8 @@
   <!-- Connections -->
   <data name="ConnTitle.Text" xml:space="preserve"><value>Connections</value></data>
   <data name="ConnCloseAll.Content" xml:space="preserve"><value>Close All</value></data>
+  <data name="ConnExport.Content" xml:space="preserve"><value>Export</value></data>
+  <data name="ConnExport.ToolTip" xml:space="preserve"><value>Export connections to CSV</value></data>
   <data name="ConnDetail.Text" xml:space="preserve"><value>Connection Details</value></data>
   <data name="ConnHost.Text" xml:space="preserve"><value>Host</value></data>
   <data name="ConnSource.Text" xml:space="preserve"><value>Source</value></data>

@@ -177,6 +177,43 @@ public partial class ConnectionsViewModel : ObservableObject, IDisposable
         };
     }
 
+    [RelayCommand]
+    private async Task ExportAsync()
+    {
+        try
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("Time,Host,Source,Dest,Upload,Download,Chains,Rule,Process");
+            foreach (var c in Connections)
+            {
+                sb.AppendLine(
+                    $"{c.Start:yyyy-MM-dd HH:mm:ss}," +
+                    $"\"{c.Metadata.Host}\"," +
+                    $"\"{c.Metadata.SourceIP}:{c.Metadata.SourcePort}\"," +
+                    $"\"{c.Metadata.DestinationIP}:{c.Metadata.DestinationPort}\"," +
+                    $"{c.Upload},{c.Download}," +
+                    $"\"{string.Join(" → ", c.Chains)}\"," +
+                    $"\"{c.Rule}\"," +
+                    $"\"{c.Metadata.Process}\"");
+            }
+
+            var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            var path = System.IO.Path.Combine(desktopPath,
+                $"WinUIClash_Connections_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+            await File.WriteAllTextAsync(path, sb.ToString());
+
+            _notification.Success(
+                LocalizationHelper.GetString("RequestsExportSuccessTitle.Text"),
+                path);
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("RequestsExportFailTitle.Text"),
+                ex.Message);
+        }
+    }
+
     public string SortModeLabel => CurrentSort switch
     {
         ConnSortMode.Host => LocalizationHelper.GetString("ConnSortHost.Text"),
