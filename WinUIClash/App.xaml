@@ -23,6 +23,8 @@
             <converters:DateTimeToRelativeConverter x:Key="DateTimeToRelativeConverter" />
             <converters:DateTimeToTimeConverter x:Key="DateTimeToTimeConverter" />
             <converters:HexToColorConverter x:Key="HexToColorConverter" />
+            <converters:EmptyCollectionToVisibilityConverter x:Key="EmptyCollectionToVisibilityConverter" />
+            <converters:NonEmptyCollectionToVisibilityConverter x:Key="NonEmptyCollectionToVisibilityConverter" />
             <!-- Settings card style -->
             <Style x:Key="SettingsCardStyle" TargetType="Border">
                 <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />

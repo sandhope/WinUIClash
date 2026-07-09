@@ -181,3 +181,45 @@ public class DateTimeToTimeConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, string language)
         => throw new NotImplementedException();
 }
+
+/// <summary>
+/// 集合 → 空状态可见性（集合为空时显示，有元素时隐藏）
+/// </summary>
+public class EmptyCollectionToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        bool isEmpty = value switch
+        {
+            System.Collections.ICollection c => c.Count == 0,
+            int count => count == 0,
+            null => true,
+            _ => true,
+        };
+        return isEmpty ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotImplementedException();
+}
+
+/// <summary>
+/// 集合 → 非空可见性（集合有元素时显示，为空时隐藏）
+/// </summary>
+public class NonEmptyCollectionToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        bool hasItems = value switch
+        {
+            System.Collections.ICollection c => c.Count > 0,
+            int count => count > 0,
+            null => false,
+            _ => false,
+        };
+        return hasItems ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotImplementedException();
+}

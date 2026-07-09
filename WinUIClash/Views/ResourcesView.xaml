@@ -113,6 +113,14 @@
             </ListView.ItemTemplate>
         </ListView>
 
+        <!-- 空状态 -->
+        <StackPanel Grid.Row="1"
+                    Visibility="{x:Bind ViewModel.FilteredProviders, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+            <fluent:SymbolIcon Symbol="Database" FontSize="32" Opacity="0.3" />
+            <TextBlock x:Uid="EmptyResources" Opacity="0.5" HorizontalAlignment="Center" />
+        </StackPanel>
+
         <ProgressRing Grid.Row="1"
                       IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                       HorizontalAlignment="Center" VerticalAlignment="Center" />

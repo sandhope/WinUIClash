@@ -133,6 +133,14 @@
             </ListView.ItemTemplate>
         </ListView>
 
+        <!-- 空状态 -->
+        <StackPanel Grid.Row="1"
+                    Visibility="{x:Bind ViewModel.FilteredConnections, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+            <fluent:SymbolIcon Symbol="PlugConnected" FontSize="32" Opacity="0.3" />
+            <TextBlock x:Uid="EmptyConnections" Opacity="0.5" HorizontalAlignment="Center" />
+        </StackPanel>
+
         <!-- 连接详情面板 -->
         <Border Grid.Row="2"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"

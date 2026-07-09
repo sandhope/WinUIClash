@@ -422,4 +422,13 @@
   <data name="ErrorLoadProxies.Text" xml:space="preserve"><value>加载代理失败</value></data>
   <data name="ErrorLoadRules.Text" xml:space="preserve"><value>加载规则失败</value></data>
   <data name="AboutLicense.Text" xml:space="preserve"><value>WinUIClash 是基于 GPL-3.0 许可证的开源软件。本项目与 Clash 或 ClashMeta 无关。</value></data>
+
+  <!-- Empty States -->
+  <data name="EmptyProxies.Text" xml:space="preserve"><value>暂无代理组</value></data>
+  <data name="EmptyProfiles.Text" xml:space="preserve"><value>暂无配置，点击「添加」导入订阅</value></data>
+  <data name="EmptyConnections.Text" xml:space="preserve"><value>暂无活跃连接</value></data>
+  <data name="EmptyRequests.Text" xml:space="preserve"><value>暂无请求记录</value></data>
+  <data name="EmptyResources.Text" xml:space="preserve"><value>暂无外部资源</value></data>
+  <data name="EmptyRules.Text" xml:space="preserve"><value>暂无规则</value></data>
+  <data name="EmptyLogs.Text" xml:space="preserve"><value>暂无日志，等待核心输出…</value></data>
 </root>
