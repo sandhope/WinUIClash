@@ -50,10 +50,15 @@
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="models:ProxyGroup">
-                            <Button Content="{x:Bind Name}"
-                                    Padding="12,6" CornerRadius="6"
+                            <Button Padding="12,6" CornerRadius="6"
                                     Click="GroupTab_Click"
-                                    Tag="{x:Bind}" />
+                                    Tag="{x:Bind}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="{x:Bind Name}" VerticalAlignment="Center" />
+                                    <TextBlock Text="{x:Bind Type}" FontSize="10" Opacity="0.5"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>
