@@ -422,4 +422,13 @@
   <data name="ErrorLoadProxies.Text" xml:space="preserve"><value>Failed to Load Proxies</value></data>
   <data name="ErrorLoadRules.Text" xml:space="preserve"><value>Failed to Load Rules</value></data>
   <data name="AboutLicense.Text" xml:space="preserve"><value>WinUIClash is open source software licensed under the GPL-3.0 License. This project is not affiliated with Clash or ClashMeta.</value></data>
+
+  <!-- Empty States -->
+  <data name="EmptyProxies.Text" xml:space="preserve"><value>No proxy groups</value></data>
+  <data name="EmptyProfiles.Text" xml:space="preserve"><value>No profiles yet. Click Add to import a subscription.</value></data>
+  <data name="EmptyConnections.Text" xml:space="preserve"><value>No active connections</value></data>
+  <data name="EmptyRequests.Text" xml:space="preserve"><value>No requests yet</value></data>
+  <data name="EmptyResources.Text" xml:space="preserve"><value>No external resources</value></data>
+  <data name="EmptyRules.Text" xml:space="preserve"><value>No rules</value></data>
+  <data name="EmptyLogs.Text" xml:space="preserve"><value>No logs yet. Waiting for core output…</value></data>
 </root>

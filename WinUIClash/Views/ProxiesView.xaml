@@ -132,6 +132,14 @@
             </GridView.ItemTemplate>
         </GridView>
 
+        <!-- 空状态 -->
+        <StackPanel Grid.Row="3"
+                    Visibility="{x:Bind ViewModel.FilteredProxies, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+            <fluent:SymbolIcon Symbol="Globe" FontSize="32" Opacity="0.3" />
+            <TextBlock x:Uid="EmptyProxies" Opacity="0.5" HorizontalAlignment="Center" />
+        </StackPanel>
+
         <!-- 加载指示 -->
         <ProgressRing Grid.Row="2"
                       IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
