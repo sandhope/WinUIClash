@@ -17,7 +17,8 @@
                     <fluent:SymbolIcon Symbol="Shield" FontSize="48" Foreground="{ThemeResource AccentFillColorDefaultBrush}" />
                     <TextBlock Text="WinUIClash" FontSize="20" FontWeight="SemiBold"
                                HorizontalAlignment="Center" />
-                    <TextBlock Text="版本 0.1.0 (开发版)" FontSize="12" Opacity="0.5"
+                    <TextBlock Text="版本 0.1.0" FontSize="12" Opacity="0.5"
+                               x:Name="VersionText"
                                HorizontalAlignment="Center" />
                     <TextBlock Text="基于 FlClash UI 设计的 ClashMeta 客户端"
                                FontSize="12" Opacity="0.6" HorizontalAlignment="Center"
@@ -78,7 +79,15 @@
                                 <TextBlock Text="复制版本信息" FontSize="12" />
                             </StackPanel>
                         </Button>
+                        <Button x:Name="CheckUpdateBtn" Click="CheckUpdate_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
+                                <TextBlock x:Name="CheckUpdateLabel" Text="检查更新" FontSize="12" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
+                    <TextBlock x:Name="UpdateStatusText" FontSize="11" Opacity="0.6"
+                               Visibility="Collapsed" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
 

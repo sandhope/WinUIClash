@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+
+  <!-- Navigation -->
+  <data name="NavDashboard.Content" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="NavProxies.Content" xml:space="preserve"><value>Proxies</value></data>
+  <data name="NavProfiles.Content" xml:space="preserve"><value>Profiles</value></data>
+  <data name="NavRequests.Content" xml:space="preserve"><value>Requests</value></data>
+  <data name="NavConnections.Content" xml:space="preserve"><value>Connections</value></data>
+  <data name="NavResources.Content" xml:space="preserve"><value>Resources</value></data>
+  <data name="NavRules.Content" xml:space="preserve"><value>Rules</value></data>
+  <data name="NavLogs.Content" xml:space="preserve"><value>Logs</value></data>
+  <data name="NavTools.Content" xml:space="preserve"><value>Tools</value></data>
+
+  <!-- Dashboard -->
+  <data name="DashUploadSpeed.Text" xml:space="preserve"><value>Upload</value></data>
+  <data name="DashDownloadSpeed.Text" xml:space="preserve"><value>Download</value></data>
+  <data name="DashTotalUpload.Text" xml:space="preserve"><value>Total Upload</value></data>
+  <data name="DashTotalDownload.Text" xml:space="preserve"><value>Total Download</value></data>
+  <data name="DashRunning.Text" xml:space="preserve"><value>Running</value></data>
+  <data name="DashStopped.Text" xml:space="preserve"><value>Stopped</value></data>
+  <data name="DashStarting.Text" xml:space="preserve"><value>Starting…</value></data>
+  <data name="DashStopping.Text" xml:space="preserve"><value>Stopping…</value></data>
+  <data name="DashModeRule.Content" xml:space="preserve"><value>Rule Mode</value></data>
+  <data name="DashModeGlobal.Content" xml:space="preserve"><value>Global Mode</value></data>
+  <data name="DashModeDirect.Content" xml:space="preserve"><value>Direct Mode</value></data>
+
+  <!-- Common -->
+  <data name="SearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search…</value></data>
+  <data name="StatusStopped.Text" xml:space="preserve"><value>Stopped</value></data>
+  <data name="StatusRunning.Text" xml:space="preserve"><value>Running</value></data>
+  <data name="ProxyLabel.Text" xml:space="preserve"><value>Proxy</value></data>
+
+  <!-- Settings -->
+  <data name="SettingsBasicConfig.Text" xml:space="preserve"><value>Basic Config</value></data>
+  <data name="SettingsApp.Text" xml:space="preserve"><value>App Settings</value></data>
+  <data name="SettingsTheme.Text" xml:space="preserve"><value>Theme Settings</value></data>
+  <data name="SettingsAbout.Text" xml:space="preserve"><value>About</value></data>
+
+  <!-- About -->
+  <data name="AboutTitle.Text" xml:space="preserve"><value>About</value></data>
+  <data name="AboutCheckUpdate.Content" xml:space="preserve"><value>Check for Updates</value></data>
+  <data name="AboutOpenDataFolder.Content" xml:space="preserve"><value>Open Data Folder</value></data>
+  <data name="AboutCopyVersion.Content" xml:space="preserve"><value>Copy Version Info</value></data>
+</root>

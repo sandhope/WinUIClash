@@ -80,4 +80,26 @@ public partial class AppSettingsViewModel : ObservableObject
         get => _settings.BypassDomains;
         set { if (_settings.BypassDomains != value) { _settings.BypassDomains = value; OnPropertyChanged(); } }
     }
+
+    public record LanguageOption(string Label, string Value);
+
+    public LanguageOption[] Languages { get; } =
+    [
+        new("简体中文", "zh-CN"),
+        new("English", "en-US"),
+    ];
+
+    public string Language
+    {
+        get => _settings.Language;
+        set
+        {
+            if (_settings.Language != value)
+            {
+                _settings.Language = value;
+                OnPropertyChanged();
+                // Note: language change requires app restart to take full effect
+            }
+        }
+    }
 }
