@@ -75,6 +75,8 @@ public class SettingsService
             if (dto.BypassDomains != null) _settings.BypassDomains = dto.BypassDomains;
             _settings.ProxyGuardEnabled = dto.ProxyGuardEnabled;
             _settings.ProxyGuardInterval = dto.ProxyGuardInterval > 0 ? dto.ProxyGuardInterval : 30;
+            _settings.TunMode = dto.TunMode;
+            if (dto.TunStack != null) _settings.TunStack = dto.TunStack;
 
             // 窗口状态
             _settings.WindowWidth = dto.WindowWidth > 0 ? dto.WindowWidth : 1280;
@@ -144,6 +146,8 @@ public class SettingsService
                 BypassDomains = _settings.BypassDomains,
                 ProxyGuardEnabled = _settings.ProxyGuardEnabled,
                 ProxyGuardInterval = _settings.ProxyGuardInterval,
+                TunMode = _settings.TunMode,
+                TunStack = _settings.TunStack,
 
                 // 窗口状态
                 WindowWidth = _settings.WindowWidth,
@@ -207,6 +211,8 @@ internal class SettingsDto
     public string BypassDomains { get; set; } = "localhost;127.0.0.1;<local>";
     public bool ProxyGuardEnabled { get; set; } = true;
     public int ProxyGuardInterval { get; set; } = 30;
+    public bool TunMode { get; set; }
+    public string TunStack { get; set; } = "mixed";
 
     // 窗口状态
     public int WindowWidth { get; set; } = 1280;

@@ -139,6 +139,33 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
+                            <TextBlock x:Uid="AppTunMode" FontSize="13" />
+                            <TextBlock x:Uid="AppTunModeDesc" FontSize="11" Opacity="0.5" />
+                        </StackPanel>
+                        <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.TunMode, Mode=TwoWay}"
+                                      OffContent="" OnContent="" />
+                    </Grid>
+                    <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                          BorderThickness="0,0,0,1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
+                            <TextBlock x:Uid="AppTunStack" FontSize="13" />
+                            <TextBlock x:Uid="AppTunStackDesc" FontSize="11" Opacity="0.5" />
+                        </StackPanel>
+                        <ComboBox Grid.Column="1" Width="120"
+                                  ItemsSource="{x:Bind ViewModel.TunStackOptions}"
+                                  SelectedItem="{x:Bind ViewModel.TunStack, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                          BorderThickness="0,0,0,1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2" VerticalAlignment="Center">
                             <TextBlock x:Uid="AppCloseConnections" FontSize="13" />
                             <TextBlock x:Uid="AppCloseConnectionsDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>

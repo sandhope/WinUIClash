@@ -47,6 +47,8 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private string _bypassDomains = "localhost;127.0.0.1;<local>";
     [ObservableProperty] private bool _proxyGuardEnabled = true;
     [ObservableProperty] private int _proxyGuardInterval = 30;
+    [ObservableProperty] private bool _tunMode = false;
+    [ObservableProperty] private string _tunStack = "mixed";
 
     // ── 窗口状态 ──
 

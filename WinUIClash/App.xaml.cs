@@ -133,6 +133,26 @@ namespace WinUIClash
                 proxyService.StartGuard();
             }
 
+            // 监听 TUN 模式变化，实时调用核心 API
+            appSettings.PropertyChanged += async (s, e) =>
+            {
+                if (e.PropertyName == nameof(Models.AppSettings.TunMode) ||
+                    e.PropertyName == nameof(Models.AppSettings.TunStack))
+                {
+                    try
+                    {
+                        var clash = ServiceLocator.Get<Services.IClashService>();
+                        if (clash.CoreState == Models.CoreState.Running)
+                        {
+                            await clash.SetTunEnabledAsync(appSettings.TunMode);
+                            if (appSettings.TunMode)
+                                await clash.SetTunStackAsync(appSettings.TunStack);
+                        }
+                    }
+                    catch { }
+                }
+            };
+
             CurrentWindow = new MainWindow();
             CurrentWindow.Activate();
 

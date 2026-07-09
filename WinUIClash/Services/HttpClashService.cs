@@ -168,6 +168,48 @@ public class HttpClashService : IClashService, IDisposable
         _outboundMode = mode;
     }
 
+    // ── TUN 模式 ──
+
+    public async Task<bool> GetTunEnabledAsync()
+    {
+        try
+        {
+            var json = await _http.GetStringAsync("/configs");
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("tun", out var tun))
+                return tun.TryGetProperty("enable", out var en) && en.GetBoolean();
+            return false;
+        }
+        catch { return false; }
+    }
+
+    public async Task SetTunEnabledAsync(bool enabled)
+    {
+        var payload = JsonSerializer.Serialize(new
+        {
+            tun = new
+            {
+                enable = enabled,
+                stack = "mixed",
+                auto_route = true,
+                auto_detect_interface = true,
+                dns_hijack = new[] { "any:53" },
+            }
+        });
+        var content = new StringContent(payload, Encoding.UTF8, "application/json");
+        await _http.PatchAsync("/configs", content);
+    }
+
+    public async Task SetTunStackAsync(string stack)
+    {
+        var payload = JsonSerializer.Serialize(new
+        {
+            tun = new { stack = stack }
+        });
+        var content = new StringContent(payload, Encoding.UTF8, "application/json");
+        await _http.PatchAsync("/configs", content);
+    }
+
     // ── 代理 ──
 
     public async Task<IReadOnlyList<ProxyGroup>> GetProxyGroupsAsync()

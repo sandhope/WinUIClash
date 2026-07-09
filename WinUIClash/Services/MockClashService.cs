@@ -149,6 +149,25 @@ public class MockClashService : IClashService
         return Task.CompletedTask;
     }
 
+    // ── TUN 模式 ──
+
+    private bool _tunEnabled;
+    private string _tunStack = "mixed";
+
+    public Task<bool> GetTunEnabledAsync() => Task.FromResult(_tunEnabled);
+
+    public Task SetTunEnabledAsync(bool enabled)
+    {
+        _tunEnabled = enabled;
+        return Task.CompletedTask;
+    }
+
+    public Task SetTunStackAsync(string stack)
+    {
+        _tunStack = stack;
+        return Task.CompletedTask;
+    }
+
     // ── 代理 ──
 
     public Task<IReadOnlyList<ProxyGroup>> GetProxyGroupsAsync()
