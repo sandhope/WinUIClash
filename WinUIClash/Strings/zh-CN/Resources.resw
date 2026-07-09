@@ -164,6 +164,8 @@
   <data name="ThemeAccentColor.Text" xml:space="preserve"><value>主题色</value></data>
   <data name="ThemeCustomColor.Header" xml:space="preserve"><value>自定义颜色</value></data>
   <data name="ThemeApplyCustomColor.Content" xml:space="preserve"><value>应用自定义颜色</value></data>
+  <data name="ThemeUseSystemAccent.Text" xml:space="preserve"><value>使用系统主题色</value></data>
+  <data name="ThemeUseSystemAccentDesc.Text" xml:space="preserve"><value>跟随 Windows 系统主题色</value></data>
 
   <!-- About -->
   <data name="AboutTitle.Text" xml:space="preserve"><value>关于</value></data>

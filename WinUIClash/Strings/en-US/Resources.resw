@@ -164,6 +164,8 @@
   <data name="ThemeAccentColor.Text" xml:space="preserve"><value>Accent Color</value></data>
   <data name="ThemeCustomColor.Header" xml:space="preserve"><value>Custom Color</value></data>
   <data name="ThemeApplyCustomColor.Content" xml:space="preserve"><value>Apply Custom Color</value></data>
+  <data name="ThemeUseSystemAccent.Text" xml:space="preserve"><value>Use System Accent Color</value></data>
+  <data name="ThemeUseSystemAccentDesc.Text" xml:space="preserve"><value>Follow Windows system accent color</value></data>
 
   <!-- About -->
   <data name="AboutTitle.Text" xml:space="preserve"><value>About</value></data>

@@ -42,6 +42,7 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private string _themeMode = "System";   // Light / Dark / System
     [ObservableProperty] private int _primaryColorIndex = 0;
+    [ObservableProperty] private bool _useSystemAccentColor = false;
 
     // ── 系统代理 ──
 
