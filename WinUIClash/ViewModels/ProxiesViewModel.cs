@@ -32,6 +32,30 @@ public partial class ProxiesViewModel : ObservableObject
     [ObservableProperty] private string _testSummaryText = "";
     [ObservableProperty] private bool _hasTestSummary;
 
+    // Test URL selector
+    public string[] TestUrlOptions { get; } =
+    [
+        "http://www.gstatic.com/generate_204",
+        "https://cp.cloudflare.com/generate_204",
+        "https://www.apple.com/library/test/success.html",
+        "https://connectivitycheck.gstatic.com/generate_204",
+    ];
+
+    public string[] TestUrlLabels { get; } =
+    [
+        "Google",
+        "Cloudflare",
+        "Apple",
+        "Google (alt)",
+    ];
+
+    [ObservableProperty] private int _selectedTestUrlIndex = 0;
+
+    public string SelectedTestUrl =>
+        SelectedTestUrlIndex >= 0 && SelectedTestUrlIndex < TestUrlOptions.Length
+            ? TestUrlOptions[SelectedTestUrlIndex]
+            : TestUrlOptions[0];
+
     public enum SortMode { Default, Name, Delay, Type }
 
     [ObservableProperty] private SortMode _currentSort = SortMode.Default;
@@ -127,7 +151,7 @@ public partial class ProxiesViewModel : ObservableObject
         try
         {
             proxy.IsTestingDelay = true;
-            proxy.Delay = await _clash.TestDelayAsync(proxy.Name);
+            proxy.Delay = await _clash.TestDelayAsync(proxy.Name, SelectedTestUrl);
             OnPropertyChanged(nameof(FilteredProxies));
         }
         catch (Exception ex)
@@ -164,7 +188,7 @@ public partial class ProxiesViewModel : ObservableObject
         try
         {
             // Try batch group delay API first
-            var results = await _clash.TestGroupDelayAsync(SelectedGroup.Name);
+            var results = await _clash.TestGroupDelayAsync(SelectedGroup.Name, SelectedTestUrl);
             foreach (var p in testable)
             {
                 p.Delay = results.TryGetValue(p.Name, out var delay) ? delay : -1;
@@ -181,7 +205,7 @@ public partial class ProxiesViewModel : ObservableObject
                 await _testSemaphore.WaitAsync();
                 try
                 {
-                    p.Delay = await _clash.TestDelayAsync(p.Name);
+                    p.Delay = await _clash.TestDelayAsync(p.Name, SelectedTestUrl);
                 }
                 catch
                 {

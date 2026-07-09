@@ -25,6 +25,7 @@
             <converters:HexToColorConverter x:Key="HexToColorConverter" />
             <converters:EmptyCollectionToVisibilityConverter x:Key="EmptyCollectionToVisibilityConverter" />
             <converters:NonEmptyCollectionToVisibilityConverter x:Key="NonEmptyCollectionToVisibilityConverter" />
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
             <!-- Settings card style -->
             <Style x:Key="SettingsCardStyle" TargetType="Border">
                 <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
