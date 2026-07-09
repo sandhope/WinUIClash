@@ -13,7 +13,7 @@ public sealed partial class AboutView : UserControl
     {
         InitializeComponent();
         _updateService = ServiceLocator.Get<UpdateService>();
-        VersionText.Text = $"版本 {UpdateService.CurrentVersion}";
+        VersionText.Text = LocalizationHelper.GetString("AboutVersion.Text") + UpdateService.CurrentVersion;
     }
 
     private void OpenDataFolder_Click(object sender, RoutedEventArgs e)
@@ -43,9 +43,9 @@ public sealed partial class AboutView : UserControl
     private async void CheckUpdate_Click(object sender, RoutedEventArgs e)
     {
         CheckUpdateBtn.IsEnabled = false;
-        CheckUpdateLabel.Text = "检查中…";
+        CheckUpdateLabel.Text = LocalizationHelper.GetString("AboutCheckingUpdate.Text");
         UpdateStatusText.Visibility = Visibility.Visible;
-        UpdateStatusText.Text = "正在检查更新…";
+        UpdateStatusText.Text = LocalizationHelper.GetString("AboutCheckingStatus.Text");
 
         try
         {
@@ -53,18 +53,18 @@ public sealed partial class AboutView : UserControl
 
             if (update == null)
             {
-                UpdateStatusText.Text = $"✓ 当前已是最新版本 (v{UpdateService.CurrentVersion})";
+                UpdateStatusText.Text = string.Format(LocalizationHelper.GetString("AboutUpToDate.Text"), UpdateService.CurrentVersion);
             }
             else
             {
-                UpdateStatusText.Text = $"发现新版本 v{update.Version} — 点击前往下载";
+                UpdateStatusText.Text = string.Format(LocalizationHelper.GetString("AboutNewVersionFound.Text"), update.Version);
 
                 var dialog = new ContentDialog
                 {
-                    Title = "发现新版本",
-                    Content = $"新版本: {update.TagName}\n\n{update.ReleaseNotes}",
-                    PrimaryButtonText = "前往下载",
-                    CloseButtonText = "稍后",
+                    Title = LocalizationHelper.GetString("AboutNewVersionTitle.Text"),
+                    Content = string.Format(LocalizationHelper.GetString("AboutNewVersionContent.Text"), update.TagName, update.ReleaseNotes),
+                    PrimaryButtonText = LocalizationHelper.GetString("AboutGoDownload.Content"),
+                    CloseButtonText = LocalizationHelper.GetString("AboutLater.Content"),
                     XamlRoot = this.XamlRoot,
                 };
 
@@ -76,16 +76,16 @@ public sealed partial class AboutView : UserControl
         }
         catch (UpdateCheckException ex)
         {
-            UpdateStatusText.Text = $"检查失败: {ex.Message}";
+            UpdateStatusText.Text = string.Format(LocalizationHelper.GetString("AboutCheckFailed.Text"), ex.Message);
         }
         catch (Exception ex)
         {
-            UpdateStatusText.Text = $"检查失败: {ex.Message}";
+            UpdateStatusText.Text = string.Format(LocalizationHelper.GetString("AboutCheckFailed.Text"), ex.Message);
         }
         finally
         {
             CheckUpdateBtn.IsEnabled = true;
-            CheckUpdateLabel.Text = "检查更新";
+            CheckUpdateLabel.Text = LocalizationHelper.GetString("AboutCheckUpdate.Content");
         }
     }
 }

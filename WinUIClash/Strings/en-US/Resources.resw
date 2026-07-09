@@ -212,6 +212,94 @@
   <data name="StatusBarSystemProxy.Text" xml:space="preserve"><value>System Proxy</value></data>
   <data name="SearchBox.PlaceholderText" xml:space="preserve"><value>Search… (Ctrl+F)</value></data>
 
+  <!-- Basic Config - Section Headers -->
+  <data name="ConfigPortSettings.Text" xml:space="preserve"><value>Port Settings</value></data>
+  <data name="ConfigFeatureSwitches.Text" xml:space="preserve"><value>Feature Switches</value></data>
+
+  <!-- App Settings - Section Headers -->
+  <data name="AppStartupExit.Text" xml:space="preserve"><value>Startup &amp; Exit</value></data>
+  <data name="AppProxyBehavior.Text" xml:space="preserve"><value>Proxy Behavior</value></data>
+  <data name="AppOther.Text" xml:space="preserve"><value>Other</value></data>
+  <data name="AppSilentLaunch.Text" xml:space="preserve"><value>Silent Start</value></data>
+  <data name="AppSilentLaunchDesc.Text" xml:space="preserve"><value>Start minimized without showing main window</value></data>
+  <data name="AppLanguageSwitchDesc.Text" xml:space="preserve"><value>Restart required after changing language</value></data>
+
+  <!-- Theme - RadioButton Content -->
+  <data name="ThemeSystem.Content" xml:space="preserve"><value>System</value></data>
+  <data name="ThemeLight.Content" xml:space="preserve"><value>Light</value></data>
+  <data name="ThemeDark.Content" xml:space="preserve"><value>Dark</value></data>
+
+  <!-- About - Additional -->
+  <data name="AboutCheckingUpdate.Text" xml:space="preserve"><value>Checking…</value></data>
+  <data name="AboutCheckingStatus.Text" xml:space="preserve"><value>Checking for updates…</value></data>
+  <data name="AboutUpToDate.Text" xml:space="preserve"><value>✓ You are up to date (v{0})</value></data>
+  <data name="AboutNewVersionFound.Text" xml:space="preserve"><value>New version v{0} available — click to download</value></data>
+  <data name="AboutNewVersionTitle.Text" xml:space="preserve"><value>New Version Available</value></data>
+  <data name="AboutNewVersionContent.Text" xml:space="preserve"><value>New version: {0}\n\n{1}</value></data>
+  <data name="AboutGoDownload.Content" xml:space="preserve"><value>Download</value></data>
+  <data name="AboutLater.Content" xml:space="preserve"><value>Later</value></data>
+  <data name="AboutCheckFailed.Text" xml:space="preserve"><value>Check failed: {0}</value></data>
+  <data name="AboutVersion.Text" xml:space="preserve"><value>Version </value></data>
+  <data name="AboutDescription.Text" xml:space="preserve"><value>ClashMeta client inspired by FlClash UI</value></data>
+  <data name="AboutTechStack.Text" xml:space="preserve"><value>Tech Stack</value></data>
+  <data name="AboutActions.Text" xml:space="preserve"><value>Actions</value></data>
+  <data name="AboutFlClash.Content" xml:space="preserve"><value>FlClash Original Project</value></data>
+  <data name="AboutMihomo.Content" xml:space="preserve"><value>ClashMeta Core (Mihomo)</value></data>
+  <data name="AboutWinAppSdk.Content" xml:space="preserve"><value>Windows App SDK Docs</value></data>
+  <data name="AboutFramework.Text" xml:space="preserve"><value>Framework</value></data>
+  <data name="AboutCore.Text" xml:space="preserve"><value>Core</value></data>
+
+  <!-- Tools -->
+  <data name="ToolsTitle.Text" xml:space="preserve"><value>Tools</value></data>
+  <data name="ToolsSettingsSection.Text" xml:space="preserve"><value>Settings</value></data>
+  <data name="ToolsOtherSection.Text" xml:space="preserve"><value>Other</value></data>
+  <data name="ToolsBack.ToolTip" xml:space="preserve"><value>Back</value></data>
+  <data name="ToolsBasicConfigSub.Text" xml:space="preserve"><value>Ports, log level, UA, IPv6, etc.</value></data>
+  <data name="ToolsAppSettingsSub.Text" xml:space="preserve"><value>Startup, system proxy, auto update</value></data>
+  <data name="ToolsThemeSettingsSub.Text" xml:space="preserve"><value>Light/dark mode, accent color</value></data>
+  <data name="ToolsAboutSub.Text" xml:space="preserve"><value>Version info, project links</value></data>
+
+  <!-- Proxies - Additional -->
+  <data name="ProxyTitle.Text" xml:space="preserve"><value>Proxies</value></data>
+  <data name="ProxyTestAll.Text" xml:space="preserve"><value>Test All</value></data>
+  <data name="ProxySwitchSort.ToolTip" xml:space="preserve"><value>Switch Sort</value></data>
+
+  <!-- Profiles - Additional -->
+  <data name="ProfilesImport.Content" xml:space="preserve"><value>Import</value></data>
+  <data name="ProfilesImport.ToolTip" xml:space="preserve"><value>Import Subscription</value></data>
+  <data name="ProfilesActive.Text" xml:space="preserve"><value>Active</value></data>
+  <data name="ProfilesMore.ToolTip" xml:space="preserve"><value>More</value></data>
+  <data name="ProfilesClipboardTitle.Text" xml:space="preserve"><value>Subscription Link Detected</value></data>
+  <data name="ProfilesClipboardContent.Text" xml:space="preserve"><value>Subscription link found in clipboard:\n\n{0}\n\nImport?</value></data>
+  <data name="ProfilesUrlHeader.Text" xml:space="preserve"><value>Subscription URL</value></data>
+  <data name="ProfilesNamePlaceholder.Text" xml:space="preserve"><value>Auto-detected (can be edited)</value></data>
+  <data name="ProfilesNameHeader.Text" xml:space="preserve"><value>Profile Name</value></data>
+  <data name="ProfilesImportTitle.Text" xml:space="preserve"><value>Import Subscription</value></data>
+  <data name="ProfilesViewConfig.Text" xml:space="preserve"><value>View Config</value></data>
+  <data name="ProfilesCopyUrl.Text" xml:space="preserve"><value>Copy Link</value></data>
+  <data name="ProfilesEditName.Text" xml:space="preserve"><value>Edit Name</value></data>
+  <data name="ProfilesEditNameTitle.Text" xml:space="preserve"><value>Edit Name</value></data>
+  <data name="ProfilesConfigViewerTitle.Text" xml:space="preserve"><value>Config: </value></data>
+
+  <!-- Connections - Additional -->
+  <data name="ConnSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search connections…</value></data>
+  <data name="ConnCountSuffix.Text" xml:space="preserve"><value> connections</value></data>
+  <data name="ConnClose.ToolTip" xml:space="preserve"><value>Close Connection</value></data>
+  <data name="ConnDetailHost.Text" xml:space="preserve"><value>Host</value></data>
+  <data name="ConnDetailSource.Text" xml:space="preserve"><value>Source</value></data>
+  <data name="ConnDetailDest.Text" xml:space="preserve"><value>Destination</value></data>
+  <data name="ConnDetailTransfer.Text" xml:space="preserve"><value>Total Upload / Download</value></data>
+  <data name="ConnCloseThis.Content" xml:space="preserve"><value>Close This</value></data>
+
+  <!-- Logs - Additional -->
+  <data name="LogsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search logs…</value></data>
+  <data name="LogsAutoScroll.Content" xml:space="preserve"><value>Auto Scroll</value></data>
+  <data name="LogsCountSuffix.Text" xml:space="preserve"><value> log entries</value></data>
+
+  <!-- Requests - Additional -->
+  <data name="RequestsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search requests…</value></data>
+  <data name="RequestsAutoScroll.Content" xml:space="preserve"><value>Auto Scroll</value></data>
+
   <!-- Connection Sort Modes -->
   <data name="ConnSortNone.Text" xml:space="preserve"><value>Default</value></data>
   <data name="ConnSortHost.Text" xml:space="preserve"><value>By Host</value></data>

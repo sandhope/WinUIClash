@@ -8,12 +8,12 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Padding="0,0,16,24">
-            <TextBlock Text="基础配置" FontSize="20" FontWeight="SemiBold" />
+            <TextBlock x:Uid="SettingsBasicConfig" FontSize="20" FontWeight="SemiBold" />
 
             <!-- 端口 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="端口设置" FontSize="14" FontWeight="SemiBold" />
+                    <TextBlock x:Uid="ConfigPortSettings" FontSize="14" FontWeight="SemiBold" />
                     <Grid ColumnSpacing="12" RowSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -25,13 +25,13 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <TextBlock Text="混合端口" VerticalAlignment="Center" />
+                        <TextBlock x:Uid="ConfigPort" VerticalAlignment="Center" />
                         <NumberBox Grid.Column="1" Value="{x:Bind ViewModel.MixedPort, Mode=TwoWay}"
                                    Minimum="1024" Maximum="65535" SmallChange="1" />
-                        <TextBlock Grid.Column="2" Text="SOCKS 端口" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="2" x:Uid="ConfigSocksPort" VerticalAlignment="Center" />
                         <NumberBox Grid.Column="3" Value="{x:Bind ViewModel.SocksPort, Mode=TwoWay}"
                                    Minimum="1024" Maximum="65535" SmallChange="1" />
-                        <TextBlock Grid.Row="1" Text="HTTP 端口" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="1" x:Uid="ConfigHttpPort" VerticalAlignment="Center" />
                         <NumberBox Grid.Row="1" Grid.Column="1" Value="{x:Bind ViewModel.HttpPort, Mode=TwoWay}"
                                    Minimum="1024" Maximum="65535" SmallChange="1" />
                     </Grid>
@@ -46,8 +46,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Spacing="2" VerticalAlignment="Center">
-                        <TextBlock Text="日志级别" FontSize="14" />
-                        <TextBlock Text="控制核心日志输出详细程度" FontSize="12" Opacity="0.5" />
+                        <TextBlock x:Uid="ConfigLogLevel" FontSize="14" />
+                        <TextBlock x:Uid="ConfigLogLevelDesc" FontSize="12" Opacity="0.5" />
                     </StackPanel>
                     <ComboBox Grid.Column="1" Width="140"
                               ItemsSource="{x:Bind ViewModel.LogLevelOptions}"
@@ -63,8 +63,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Spacing="2" VerticalAlignment="Center">
-                        <TextBlock Text="User-Agent" FontSize="14" />
-                        <TextBlock Text="订阅请求使用的 UA 标识" FontSize="12" Opacity="0.5" />
+                        <TextBlock x:Uid="ConfigUserAgent" FontSize="14" />
+                        <TextBlock x:Uid="ConfigUserAgentDesc" FontSize="12" Opacity="0.5" />
                     </StackPanel>
                     <ComboBox Grid.Column="1" Width="180"
                               ItemsSource="{x:Bind ViewModel.UserAgentOptions}"
@@ -80,8 +80,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Spacing="2" VerticalAlignment="Center">
-                        <TextBlock Text="Keep-Alive 间隔" FontSize="14" />
-                        <TextBlock Text="TCP 连接保活检测间隔（秒）" FontSize="12" Opacity="0.5" />
+                        <TextBlock x:Uid="ConfigKeepAlive" FontSize="14" />
+                        <TextBlock x:Uid="ConfigKeepAliveDesc" FontSize="12" Opacity="0.5" />
                     </StackPanel>
                     <NumberBox Grid.Column="1" Width="100"
                                Value="{x:Bind ViewModel.KeepAliveInterval, Mode=TwoWay}"
@@ -93,8 +93,8 @@
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="8">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="测速 URL" FontSize="14" />
-                        <TextBlock Text="延迟测试使用的目标 URL" FontSize="12" Opacity="0.5" />
+                        <TextBlock x:Uid="ConfigTestUrl" FontSize="14" />
+                        <TextBlock x:Uid="ConfigTestUrlDesc" FontSize="12" Opacity="0.5" />
                     </StackPanel>
                     <TextBox Text="{x:Bind ViewModel.TestUrl, Mode=TwoWay}" />
                 </StackPanel>
@@ -103,7 +103,7 @@
             <!-- 功能开关 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="0">
-                    <TextBlock Text="功能开关" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
+                    <TextBlock x:Uid="ConfigFeatureSwitches" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
                     <!-- IPv6 -->
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
@@ -112,8 +112,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="IPv6" FontSize="13" />
-                            <TextBlock Text="启用 IPv6 路由支持" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="ConfigIpv6" FontSize="13" />
+                            <TextBlock x:Uid="ConfigIpv6Desc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.Ipv6, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -126,8 +126,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="允许局域网连接" FontSize="13" />
-                            <TextBlock Text="允许局域网内其他设备通过代理上网" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="ConfigAllowLan" FontSize="13" />
+                            <TextBlock x:Uid="ConfigAllowLanDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.AllowLan, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -140,8 +140,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="统一延迟" FontSize="13" />
-                            <TextBlock Text="使用统一的延迟计算方式" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="ConfigUnifiedDelay" FontSize="13" />
+                            <TextBlock x:Uid="ConfigUnifiedDelayDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.UnifiedDelay, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -154,8 +154,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="TCP 并发" FontSize="13" />
-                            <TextBlock Text="启用 TCP 并发连接" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="ConfigTcpConcurrent" FontSize="13" />
+                            <TextBlock x:Uid="ConfigTcpConcurrentDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.TcpConcurrent, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -168,8 +168,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="进程识别" FontSize="13" />
-                            <TextBlock Text="始终识别连接来源进程（可能影响性能）" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="ConfigFindProcess" FontSize="13" />
+                            <TextBlock x:Uid="ConfigFindProcessDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.FindProcessMode, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -181,8 +181,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="外部控制" FontSize="13" />
-                            <TextBlock Text="开启 127.0.0.1:9090 RESTful API" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="ConfigExternalController" FontSize="13" />
+                            <TextBlock x:Uid="ConfigExternalControllerDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.ExternalController, Mode=TwoWay}"
                                       OffContent="" OnContent="" />

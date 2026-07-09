@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUIClash.Models;
+using WinUIClash.Services;
 using WinUIClash.ViewModels;
 
 namespace WinUIClash.Views;
@@ -40,10 +41,10 @@ public sealed partial class ProfilesView : Page
 
             var dialog = new ContentDialog
             {
-                Title = "检测到订阅链接",
-                Content = $"剪贴板中发现订阅链接:\n\n{text}\n\n是否导入？",
-                PrimaryButtonText = "导入",
-                CloseButtonText = "取消",
+                Title = LocalizationHelper.GetString("ProfilesClipboardTitle.Text"),
+                Content = string.Format(LocalizationHelper.GetString("ProfilesClipboardContent.Text"), text),
+                PrimaryButtonText = LocalizationHelper.GetString("ProfilesImport.Content"),
+                CloseButtonText = LocalizationHelper.GetString("CommonCancel.Content"),
                 DefaultButton = ContentDialogButton.Primary,
                 XamlRoot = XamlRoot,
             };
@@ -91,22 +92,22 @@ public sealed partial class ProfilesView : Page
         var urlBox = new TextBox
         {
             PlaceholderText = "https://example.com/sub?token=xxx",
-            Header = "订阅地址",
+            Header = LocalizationHelper.GetString("ProfilesUrlHeader.Text"),
         };
 
         var nameBox = new TextBox
         {
-            PlaceholderText = "自动识别（可手动修改）",
-            Header = "配置名称",
+            PlaceholderText = LocalizationHelper.GetString("ProfilesNamePlaceholder.Text"),
+            Header = LocalizationHelper.GetString("ProfilesNameHeader.Text"),
             Margin = new Thickness(0, 12, 0, 0),
         };
 
         var dialog = new ContentDialog
         {
-            Title = "导入订阅",
+            Title = LocalizationHelper.GetString("ProfilesImportTitle.Text"),
             XamlRoot = XamlRoot,
-            PrimaryButtonText = "导入",
-            CloseButtonText = "取消",
+            PrimaryButtonText = LocalizationHelper.GetString("ProfilesImport.Content"),
+            CloseButtonText = LocalizationHelper.GetString("CommonCancel.Content"),
             DefaultButton = ContentDialogButton.Primary,
             Content = new StackPanel
             {
@@ -132,12 +133,12 @@ public sealed partial class ProfilesView : Page
         var menu = new MenuFlyout();
 
         // 查看配置
-        var viewConfig = new MenuFlyoutItem { Text = "查看配置" };
+        var viewConfig = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesViewConfig.Text") };
         viewConfig.Click += async (_, _) => await ShowConfigViewerAsync(profile);
         menu.Items.Add(viewConfig);
 
         // 复制订阅链接
-        var copyUrl = new MenuFlyoutItem { Text = "复制链接" };
+        var copyUrl = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesCopyUrl.Text") };
         copyUrl.Click += (_, _) =>
         {
             if (!string.IsNullOrEmpty(profile.Url))
@@ -150,7 +151,7 @@ public sealed partial class ProfilesView : Page
         menu.Items.Add(copyUrl);
 
         // 编辑名称
-        var editName = new MenuFlyoutItem { Text = "编辑名称" };
+        var editName = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesEditName.Text") };
         editName.Click += async (_, _) => await ShowEditNameDialogAsync(profile);
         menu.Items.Add(editName);
 
@@ -183,9 +184,9 @@ public sealed partial class ProfilesView : Page
 
         var dialog = new ContentDialog
         {
-            Title = $"配置: {profile.Label}",
+            Title = LocalizationHelper.GetString("ProfilesConfigViewerTitle.Text") + profile.Label,
             XamlRoot = XamlRoot,
-            CloseButtonText = "关闭",
+            CloseButtonText = LocalizationHelper.GetString("CommonClose.Content"),
             Content = scrollViewer,
         };
 
@@ -197,15 +198,15 @@ public sealed partial class ProfilesView : Page
         var nameBox = new TextBox
         {
             Text = profile.Label,
-            Header = "配置名称",
+            Header = LocalizationHelper.GetString("ProfilesNameHeader.Text"),
         };
 
         var dialog = new ContentDialog
         {
-            Title = "编辑名称",
+            Title = LocalizationHelper.GetString("ProfilesEditNameTitle.Text"),
             XamlRoot = XamlRoot,
-            PrimaryButtonText = "保存",
-            CloseButtonText = "取消",
+            PrimaryButtonText = LocalizationHelper.GetString("CommonSave.Content"),
+            CloseButtonText = LocalizationHelper.GetString("CommonCancel.Content"),
             DefaultButton = ContentDialogButton.Primary,
             Content = nameBox,
         };

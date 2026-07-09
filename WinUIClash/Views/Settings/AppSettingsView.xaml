@@ -8,7 +8,7 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Padding="0,0,16,24">
-            <TextBlock Text="应用设置" FontSize="20" FontWeight="SemiBold" />
+            <TextBlock x:Uid="SettingsApp" FontSize="20" FontWeight="SemiBold" />
 
             <!-- 语言 -->
             <Border Style="{StaticResource SettingsCardStyle}">
@@ -18,8 +18,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Spacing="2" VerticalAlignment="Center">
-                        <TextBlock Text="语言 / Language" FontSize="13" />
-                        <TextBlock Text="切换语言后需要重启应用" FontSize="11" Opacity="0.5" />
+                        <TextBlock x:Uid="AppLanguage" FontSize="13" />
+                        <TextBlock x:Uid="AppLanguageSwitchDesc" FontSize="11" Opacity="0.5" />
                     </StackPanel>
                     <ComboBox Grid.Column="1"
                               ItemsSource="{x:Bind ViewModel.Languages}"
@@ -33,7 +33,7 @@
             <!-- 启动与退出 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="0">
-                    <TextBlock Text="启动与退出" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
+                    <TextBlock x:Uid="AppStartupExit" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
@@ -41,8 +41,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="关闭窗口时最小化" FontSize="13" />
-                            <TextBlock Text="不退出程序，最小化到系统托盘" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="AppMinimizeOnExit" FontSize="13" />
+                            <TextBlock x:Uid="AppMinimizeOnExitDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.MinimizeOnExit, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -54,8 +54,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="开机启动" FontSize="13" />
-                            <TextBlock Text="系统启动时自动运行 WinUIClash" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="AppAutoLaunch" FontSize="13" />
+                            <TextBlock x:Uid="AppAutoLaunchDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.AutoLaunch, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -67,8 +67,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="静默启动" FontSize="13" />
-                            <TextBlock Text="启动时最小化，不显示主窗口" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="AppSilentLaunch" FontSize="13" />
+                            <TextBlock x:Uid="AppSilentLaunchDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.SilentLaunch, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -79,8 +79,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="自动运行代理" FontSize="13" />
-                            <TextBlock Text="应用启动后自动启动 Clash 核心" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="AppAutoRun" FontSize="13" />
+                            <TextBlock x:Uid="AppAutoRunDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.AutoRun, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -91,7 +91,7 @@
             <!-- 代理行为 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="0">
-                    <TextBlock Text="代理行为" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
+                    <TextBlock x:Uid="AppProxyBehavior" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
@@ -99,8 +99,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="系统代理" FontSize="13" />
-                            <TextBlock Text="自动设置系统 HTTP 代理" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="AppSystemProxy" FontSize="13" />
+                            <TextBlock x:Uid="AppSystemProxyDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.SystemProxy, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -112,8 +112,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="切换代理时关闭连接" FontSize="13" />
-                            <TextBlock Text="切换代理节点时自动关闭已有连接" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="AppCloseConnections" FontSize="13" />
+                            <TextBlock x:Uid="AppCloseConnectionsDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.CloseConnections, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -124,8 +124,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="仅统计代理流量" FontSize="13" />
-                            <TextBlock Text="仅统计经过代理的流量数据" FontSize="11" Opacity="0.5" />
+                            <TextBlock x:Uid="AppOnlyStatisticsProxy" FontSize="13" />
+                            <TextBlock x:Uid="AppOnlyStatisticsProxyDesc" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.OnlyStatisticsProxy, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -141,8 +141,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Spacing="2" VerticalAlignment="Center">
-                        <TextBlock Text="自动检查更新" FontSize="13" />
-                        <TextBlock Text="启动时自动检查新版本" FontSize="11" Opacity="0.5" />
+                        <TextBlock x:Uid="AppAutoCheckUpdate" FontSize="13" />
+                        <TextBlock x:Uid="AppAutoCheckUpdateDesc" FontSize="11" Opacity="0.5" />
                     </StackPanel>
                     <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.AutoCheckUpdate, Mode=TwoWay}"
                                   OffContent="" OnContent="" />
@@ -153,8 +153,8 @@
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="8">
                     <StackPanel Spacing="2">
-                        <TextBlock Text="代理绕过域名" FontSize="14" />
-                        <TextBlock Text="不走代理的地址列表，用分号分隔" FontSize="12" Opacity="0.5" />
+                        <TextBlock x:Uid="AppBypassDomains" FontSize="14" />
+                        <TextBlock x:Uid="AppBypassDomainsDesc" FontSize="12" Opacity="0.5" />
                     </StackPanel>
                     <TextBox Text="{x:Bind ViewModel.BypassDomains, Mode=TwoWay}"
                              AcceptsReturn="True" Height="80"

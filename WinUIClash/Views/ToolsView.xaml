@@ -13,10 +13,10 @@
                       VerticalScrollBarVisibility="Auto"
                       Visibility="{x:Bind ViewModel.IsSubPage, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
             <StackPanel Spacing="24">
-                <TextBlock Text="工具" FontSize="20" FontWeight="SemiBold" />
+                <TextBlock x:Uid="ToolsTitle" FontSize="20" FontWeight="SemiBold" />
 
                 <!-- 设置区域 -->
-                <TextBlock Text="设置" FontSize="14" Opacity="0.6" Margin="0,0,0,-8" />
+                <TextBlock x:Uid="ToolsSettingsSection" FontSize="14" Opacity="0.6" Margin="0,0,0,-8" />
                 <ItemsRepeater ItemsSource="{x:Bind ViewModel.SettingsItems}">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="4" />
@@ -50,7 +50,7 @@
                 </ItemsRepeater>
 
                 <!-- 其他区域 -->
-                <TextBlock Text="其他" FontSize="14" Opacity="0.6" Margin="0,8,0,-8" />
+                <TextBlock x:Uid="ToolsOtherSection" FontSize="14" Opacity="0.6" Margin="0,8,0,-8" />
                 <ItemsRepeater ItemsSource="{x:Bind ViewModel.OtherItems}">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="4" />
@@ -102,7 +102,7 @@
                 <Button Click="BackButton_Click"
                         Background="Transparent" BorderThickness="0"
                         Padding="4" Margin="-4,0,8,0"
-                        ToolTipService.ToolTip="返回">
+                        x:Uid="ToolsBack">
                     <fluent:SymbolIcon Symbol="ArrowLeft" FontSize="16" />
                 </Button>
                 <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.CurrentTitle, Mode=OneWay}"
