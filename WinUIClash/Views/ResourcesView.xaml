@@ -51,7 +51,7 @@
                                 <TextBlock Text="{x:Bind Name}" FontSize="14" FontWeight="SemiBold" />
                                 <StackPanel Orientation="Horizontal" Spacing="16">
                                     <TextBlock FontSize="11" Opacity="0.5">
-                                        <Run Text="条目:" />
+                                        <Run Text="条目: " />
                                         <Run Text="{x:Bind Count}" />
                                     </TextBlock>
                                     <TextBlock FontSize="11" Opacity="0.5"
@@ -59,10 +59,12 @@
                                 </StackPanel>
                             </StackPanel>
                             <TextBlock Grid.Column="1" FontSize="11" Opacity="0.5"
-                                       Text="{x:Bind UpdateAt, Converter={StaticResource DateTimeToRelativeConverter}}"
+                                       Text="{x:Bind UpdateAt, Mode=OneWay, Converter={StaticResource DateTimeToRelativeConverter}}"
                                        VerticalAlignment="Center" />
                             <Button Grid.Column="2" Padding="8,4"
-                                    ToolTipService.ToolTip="更新">
+                                    ToolTipService.ToolTip="更新"
+                                    Click="UpdateProvider_Click"
+                                    Tag="{x:Bind}">
                                 <fluent:SymbolIcon Symbol="ArrowSync" FontSize="13" />
                             </Button>
                         </Grid>

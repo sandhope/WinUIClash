@@ -47,7 +47,7 @@
                       IsOn="{x:Bind ViewModel.AutoScroll, Mode=TwoWay}" />
 
         <!-- 日志列表 -->
-        <ListView Grid.Row="2"
+        <ListView x:Name="LogList" Grid.Row="2"
                   ItemsSource="{x:Bind ViewModel.FilteredLogs, Mode=OneWay}"
                   SelectionMode="None">
             <ListView.ItemTemplate>
@@ -57,11 +57,10 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <!-- 时间戳 -->
-                        <TextBlock Text="{x:Bind Timestamp}" FontSize="11"
-                                   Opacity="0.5" FontFamily="Consolas"
+                        <TextBlock Text="{x:Bind Timestamp, Converter={StaticResource DateTimeToTimeConverter}}"
+                                   FontSize="11" Opacity="0.5" FontFamily="Consolas"
                                    VerticalAlignment="Center" Width="65" />
                         <!-- 级别标签 -->
                         <Border Grid.Column="1" CornerRadius="3" Padding="6,2"

@@ -1,28 +1,32 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Dispatching;
 using WinUIClash.Models;
 using WinUIClash.Services;
 
 namespace WinUIClash.ViewModels;
 
 /// <summary>
-/// 连接页 ViewModel — 活跃连接列表
+/// 连接页 ViewModel — 活跃连接列表 + 自动刷新
 /// </summary>
 public partial class ConnectionsViewModel : ObservableObject
 {
     private readonly IClashService _clash;
+    private readonly DispatcherQueue _dispatcher;
+    private Timer? _refreshTimer;
+    private bool _initialized;
 
     public ConnectionsViewModel(IClashService clash)
     {
         _clash = clash;
+        _dispatcher = DispatcherQueue.GetForCurrentThread()!;
     }
 
     [ObservableProperty] private ObservableCollection<ConnectionInfo> _connections = new();
     [ObservableProperty] private ObservableCollection<ConnectionInfo> _filteredConnections = new();
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private ConnectionInfo? _selectedConnection;
-    [ObservableProperty] private bool _isAutoRefresh = true;
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
 
@@ -46,29 +50,43 @@ public partial class ConnectionsViewModel : ObservableObject
     private async Task RefreshAsync()
     {
         var list = await _clash.GetConnectionsAsync();
-        Connections = new ObservableCollection<ConnectionInfo>(list);
-        ApplyFilter();
+        _dispatcher.TryEnqueue(() =>
+        {
+            Connections = new ObservableCollection<ConnectionInfo>(list);
+            ApplyFilter();
+        });
     }
 
     [RelayCommand]
-    private async Task CloseConnectionAsync(string id)
+    private async Task CloseConnectionAsync(ConnectionInfo? connection)
     {
-        await _clash.CloseConnectionAsync(id);
-        var conn = Connections.FirstOrDefault(c => c.Id == id);
-        if (conn != null) Connections.Remove(conn);
-        ApplyFilter();
+        if (connection == null) return;
+        await _clash.CloseConnectionAsync(connection.Id);
+        _dispatcher.TryEnqueue(() =>
+        {
+            Connections.Remove(connection);
+            ApplyFilter();
+        });
     }
 
     [RelayCommand]
     private async Task CloseAllAsync()
     {
         await _clash.CloseAllConnectionsAsync();
-        Connections.Clear();
-        FilteredConnections.Clear();
+        _dispatcher.TryEnqueue(() =>
+        {
+            Connections.Clear();
+            FilteredConnections.Clear();
+        });
     }
 
     public async Task InitializeAsync()
     {
+        if (_initialized) return;
+        _initialized = true;
         await RefreshAsync();
+
+        // 每 2 秒自动刷新
+        _refreshTimer = new Timer(async _ => await RefreshAsync(), null, 0, 2000);
     }
 }

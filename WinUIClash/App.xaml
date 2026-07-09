@@ -14,11 +14,13 @@
             <!-- Converters -->
             <converters:LogLevelToColorConverter x:Key="LogLevelToColorConverter" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:DelayToColorConverter x:Key="DelayToColorConverter" />
             <converters:DelayToTextConverter x:Key="DelayToTextConverter" />
             <converters:BytesToStringConverter x:Key="BytesToStringConverter" />
             <converters:BytesToSpeedConverter x:Key="BytesToSpeedConverter" />
             <converters:DateTimeToRelativeConverter x:Key="DateTimeToRelativeConverter" />
+            <converters:DateTimeToTimeConverter x:Key="DateTimeToTimeConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

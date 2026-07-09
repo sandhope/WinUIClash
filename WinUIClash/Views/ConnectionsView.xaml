@@ -78,7 +78,9 @@
                         <!-- 关闭按钮 -->
                         <Button Grid.Column="2" Padding="4"
                                 Background="Transparent" BorderThickness="0"
-                                ToolTipService.ToolTip="关闭连接">
+                                ToolTipService.ToolTip="关闭连接"
+                                Click="CloseConnection_Click"
+                                Tag="{x:Bind}">
                             <fluent:SymbolIcon Symbol="Dismiss" FontSize="12" />
                         </Button>
 

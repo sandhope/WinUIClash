@@ -1,12 +1,14 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace WinUIClash.Models;
 
 /// <summary>
 /// 代理节点
 /// </summary>
-public class Proxy
+public partial class Proxy : ObservableObject
 {
     public string Name { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
-    public int Delay { get; set; } = -1;
-    public string History { get; set; } = string.Empty;
+
+    [ObservableProperty] private int _delay = -1;
 }

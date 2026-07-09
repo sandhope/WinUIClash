@@ -43,6 +43,18 @@ public class BoolToVisibilityConverter : IValueConverter
 }
 
 /// <summary>
+/// 非 null → Visible，null → Collapsed
+/// </summary>
+public class NullToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+        => value != null ? Visibility.Visible : Visibility.Collapsed;
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotImplementedException();
+}
+
+/// <summary>
 /// 代理延迟 → 颜色 (绿/黄/红/灰)
 /// </summary>
 public class DelayToColorConverter : IValueConverter
@@ -113,6 +125,18 @@ public class DateTimeToRelativeConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
         => value is DateTime dt ? TimeFormatter.Relative(dt) : "—";
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotImplementedException();
+}
+
+/// <summary>
+/// DateTime → HH:mm:ss 短时间格式
+/// </summary>
+public class DateTimeToTimeConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+        => value is DateTime dt ? dt.ToString("HH:mm:ss") : "—";
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)
         => throw new NotImplementedException();

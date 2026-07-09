@@ -12,6 +12,7 @@ namespace WinUIClash.ViewModels;
 public partial class ProfilesViewModel : ObservableObject
 {
     private readonly IClashService _clash;
+    private bool _initialized;
 
     public ProfilesViewModel(IClashService clash)
     {
@@ -33,19 +34,20 @@ public partial class ProfilesViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task SelectProfileAsync(string profileId)
+    private async Task SelectProfileAsync(Profile? profile)
     {
-        await _clash.SwitchProfileAsync(profileId);
-        foreach (var p in Profiles) p.IsActive = p.Id == profileId;
+        if (profile == null) return;
+        await _clash.SwitchProfileAsync(profile.Id);
+        foreach (var p in Profiles) p.IsActive = p.Id == profile.Id;
         ActiveProfile = Profiles.FirstOrDefault(p => p.IsActive);
     }
 
     [RelayCommand]
-    private async Task SyncProfileAsync(string profileId)
+    private async Task SyncProfileAsync(Profile? profile)
     {
-        await _clash.SyncProfileAsync(profileId);
-        var p = Profiles.FirstOrDefault(x => x.Id == profileId);
-        if (p != null) p.LastUpdate = DateTime.Now;
+        if (profile == null) return;
+        await _clash.SyncProfileAsync(profile.Id);
+        profile.LastUpdate = DateTime.Now;
     }
 
     [RelayCommand]
@@ -53,21 +55,27 @@ public partial class ProfilesViewModel : ObservableObject
     {
         foreach (var p in Profiles.Where(p => !string.IsNullOrEmpty(p.Url)))
         {
-            await _clash.SyncProfileAsync(p.Id);
-            p.LastUpdate = DateTime.Now;
+            try
+            {
+                await _clash.SyncProfileAsync(p.Id);
+                p.LastUpdate = DateTime.Now;
+            }
+            catch { /* 单个失败不影响其余 */ }
         }
     }
 
     [RelayCommand]
-    private async Task DeleteProfileAsync(string profileId)
+    private async Task DeleteProfileAsync(Profile? profile)
     {
-        await _clash.DeleteProfileAsync(profileId);
-        var toRemove = Profiles.FirstOrDefault(p => p.Id == profileId);
-        if (toRemove != null) Profiles.Remove(toRemove);
+        if (profile == null) return;
+        await _clash.DeleteProfileAsync(profile.Id);
+        Profiles.Remove(profile);
     }
 
     public async Task InitializeAsync()
     {
+        if (_initialized) return;
+        _initialized = true;
         await LoadAsync();
     }
 }

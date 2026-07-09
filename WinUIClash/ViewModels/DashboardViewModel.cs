@@ -1,6 +1,9 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Media;
+using Windows.UI;
 using WinUIClash.Models;
 using WinUIClash.Services;
 
@@ -12,10 +15,13 @@ namespace WinUIClash.ViewModels;
 public partial class DashboardViewModel : ObservableObject
 {
     private readonly IClashService _clash;
+    private readonly DispatcherQueue _dispatcher;
+    private bool _initialized;
 
     public DashboardViewModel(IClashService clash)
     {
         _clash = clash;
+        _dispatcher = DispatcherQueue.GetForCurrentThread()!;
         _clash.TrafficUpdated += OnTrafficUpdated;
         _clash.CoreStateChanged += HandleCoreStateChanged;
 
@@ -37,7 +43,7 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private CoreState _coreState = CoreState.Stopped;
     [ObservableProperty] private bool _isRunning;
     [ObservableProperty] private string _statusText = "已停止";
-    [ObservableProperty] private string _statusColor = "#FF6B6B";
+    [ObservableProperty] private SolidColorBrush _statusBrush = new(Color.FromArgb(255, 255, 107, 107));
     [ObservableProperty] private string _runtimeText = "";
 
     partial void OnIsRunningChanged(bool value) => OnPropertyChanged(nameof(CoreToggleText));
@@ -46,25 +52,35 @@ public partial class DashboardViewModel : ObservableObject
 
     private void HandleCoreStateChanged(CoreState state)
     {
-        CoreState = state;
-        IsRunning = state == CoreState.Running;
-        (StatusText, StatusColor) = state switch
+        _dispatcher.TryEnqueue(() =>
         {
-            CoreState.Running => ("运行中", "#4CAF50"),
-            CoreState.Starting => ("启动中…", "#FFC107"),
-            CoreState.Stopping => ("停止中…", "#FF9800"),
-            _ => ("已停止", "#FF6B6B")
-        };
-        if (state == CoreState.Running)
-        {
-            _startTime = DateTime.Now;
-            RuntimeText = "运行 0s";
-        }
-        else
-        {
-            _startTime = null;
-            RuntimeText = "";
-        }
+            CoreState = state;
+            IsRunning = state == CoreState.Running;
+            StatusText = state switch
+            {
+                CoreState.Running => "运行中",
+                CoreState.Starting => "启动中…",
+                CoreState.Stopping => "停止中…",
+                _ => "已停止"
+            };
+            StatusBrush = state switch
+            {
+                CoreState.Running => new SolidColorBrush(Color.FromArgb(255, 76, 175, 80)),
+                CoreState.Starting => new SolidColorBrush(Color.FromArgb(255, 255, 193, 7)),
+                CoreState.Stopping => new SolidColorBrush(Color.FromArgb(255, 255, 152, 0)),
+                _ => new SolidColorBrush(Color.FromArgb(255, 255, 107, 107))
+            };
+            if (state == CoreState.Running)
+            {
+                _startTime = DateTime.Now;
+                RuntimeText = "运行 0s";
+            }
+            else
+            {
+                _startTime = null;
+                RuntimeText = "";
+            }
+        });
     }
 
     [RelayCommand]
@@ -87,7 +103,7 @@ public partial class DashboardViewModel : ObservableObject
 
     private void OnTrafficUpdated(Traffic t)
     {
-        Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread()?.TryEnqueue(() =>
+        _dispatcher.TryEnqueue(() =>
         {
             UploadValue = t.Up;
             DownloadValue = t.Down;
@@ -97,7 +113,6 @@ public partial class DashboardViewModel : ObservableObject
             TrafficHistory.Add(t);
             if (TrafficHistory.Count > 120) TrafficHistory.RemoveAt(0);
 
-            // 更新运行时间
             if (_startTime.HasValue)
             {
                 RuntimeText = "运行 " + Converters.TimeFormatter.Duration(DateTime.Now - _startTime.Value);
@@ -108,21 +123,35 @@ public partial class DashboardViewModel : ObservableObject
     // ── 出站模式 ──
 
     [ObservableProperty] private OutboundMode _outboundMode = OutboundMode.Rule;
-
     [ObservableProperty] private bool _isModeRule = true;
     [ObservableProperty] private bool _isModeGlobal;
     [ObservableProperty] private bool _isModeDirect;
 
-    partial void OnIsModeRuleChanged(bool value) { if (value) _ = SetModeAsync(OutboundMode.Rule); }
-    partial void OnIsModeGlobalChanged(bool value) { if (value) _ = SetModeAsync(OutboundMode.Global); }
-    partial void OnIsModeDirectChanged(bool value) { if (value) _ = SetModeAsync(OutboundMode.Direct); }
+    partial void OnIsModeRuleChanged(bool value)
+    {
+        if (value && OutboundMode != OutboundMode.Rule)
+            _ = SetModeInternalAsync(OutboundMode.Rule);
+    }
+    partial void OnIsModeGlobalChanged(bool value)
+    {
+        if (value && OutboundMode != OutboundMode.Global)
+            _ = SetModeInternalAsync(OutboundMode.Global);
+    }
+    partial void OnIsModeDirectChanged(bool value)
+    {
+        if (value && OutboundMode != OutboundMode.Direct)
+            _ = SetModeInternalAsync(OutboundMode.Direct);
+    }
 
-    [RelayCommand]
-    private async Task SetModeAsync(OutboundMode mode)
+    private async Task SetModeInternalAsync(OutboundMode mode)
     {
         await _clash.SetOutboundModeAsync(mode);
+        SyncModeState(mode);
+    }
+
+    private void SyncModeState(OutboundMode mode)
+    {
         OutboundMode = mode;
-        // 同步 radio button 状态
         _isModeRule = mode == OutboundMode.Rule;
         _isModeGlobal = mode == OutboundMode.Global;
         _isModeDirect = mode == OutboundMode.Direct;
@@ -217,7 +246,10 @@ public partial class DashboardViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
-        OutboundMode = _clash.GetOutboundMode();
+        if (_initialized) return;
+        _initialized = true;
+
+        SyncModeState(_clash.GetOutboundMode());
         await RefreshTotalTrafficAsync();
         await CheckIpAsync();
         await RefreshLocalIpAsync();
