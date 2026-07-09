@@ -85,6 +85,25 @@ public sealed partial class RulesView : Page
         copyAll.Click += (_, _) => CopyToClipboard($"{rule.Type}, {rule.Payload}, {rule.Proxy}");
         menu.Items.Add(copyAll);
 
+        menu.Items.Add(new MenuFlyoutSeparator());
+
+        var filterByType = new MenuFlyoutItem
+        {
+            Text = $"{LocalizationHelper.GetString("CommonFilter.Text")}: {rule.Type}"
+        };
+        filterByType.Click += (_, _) => ViewModel.SelectedTypeFilter = rule.Type;
+        menu.Items.Add(filterByType);
+
+        if (!string.IsNullOrEmpty(rule.Proxy))
+        {
+            var filterByProxy = new MenuFlyoutItem
+            {
+                Text = $"{LocalizationHelper.GetString("CommonFilter.Text")}: {rule.Proxy}"
+            };
+            filterByProxy.Click += (_, _) => ViewModel.SelectedProxyFilter = rule.Proxy;
+            menu.Items.Add(filterByProxy);
+        }
+
         menu.ShowAt(element, e.GetPosition(element));
     }
 

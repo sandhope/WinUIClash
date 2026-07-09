@@ -96,7 +96,8 @@
                         <TextBlock Grid.Column="1" Text="{x:Bind Payload}"
                                    FontSize="12" FontFamily="Consolas"
                                    TextTrimming="CharacterEllipsis"
-                                   VerticalAlignment="Center" Opacity="0.8" />
+                                   VerticalAlignment="Center" Opacity="0.8"
+                                   ToolTipService.ToolTip="{x:Bind Payload}" />
                         <!-- 目标代理 -->
                         <TextBlock Grid.Column="2" Text="{x:Bind Proxy}"
                                    FontSize="11" FontWeight="SemiBold"
