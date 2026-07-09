@@ -21,7 +21,7 @@ public partial class RequestsViewModel : ObservableObject, IDisposable
     private readonly HashSet<string> _seenIds = new();
     private readonly EventHandler<object> _tickHandler;
 
-    public enum ReqSortMode { None, Host, Time }
+    public enum ReqSortMode { None, Host, Time, Upload, Download, Rule }
 
     public RequestsViewModel(IClashService clash, NotificationService notification)
     {
@@ -78,6 +78,9 @@ public partial class RequestsViewModel : ObservableObject, IDisposable
         {
             ReqSortMode.Host => query.OrderBy(r => r.Metadata.Host, StringComparer.OrdinalIgnoreCase),
             ReqSortMode.Time => query.OrderByDescending(r => r.Start),
+            ReqSortMode.Upload => query.OrderByDescending(r => r.Upload),
+            ReqSortMode.Download => query.OrderByDescending(r => r.Download),
+            ReqSortMode.Rule => query.OrderBy(r => r.Rule, StringComparer.OrdinalIgnoreCase),
             _ => query,
         };
 
@@ -112,6 +115,9 @@ public partial class RequestsViewModel : ObservableObject, IDisposable
         {
             ReqSortMode.None => ReqSortMode.Host,
             ReqSortMode.Host => ReqSortMode.Time,
+            ReqSortMode.Time => ReqSortMode.Upload,
+            ReqSortMode.Upload => ReqSortMode.Download,
+            ReqSortMode.Download => ReqSortMode.Rule,
             _ => ReqSortMode.None,
         };
     }
@@ -120,6 +126,9 @@ public partial class RequestsViewModel : ObservableObject, IDisposable
     {
         ReqSortMode.Host => LocalizationHelper.GetString("ReqSortHost.Text"),
         ReqSortMode.Time => LocalizationHelper.GetString("ReqSortTime.Text"),
+        ReqSortMode.Upload => LocalizationHelper.GetString("ReqSortUpload.Text"),
+        ReqSortMode.Download => LocalizationHelper.GetString("ReqSortDownload.Text"),
+        ReqSortMode.Rule => LocalizationHelper.GetString("ReqSortRule.Text"),
         _ => LocalizationHelper.GetString("ReqSortNone.Text"),
     };
 

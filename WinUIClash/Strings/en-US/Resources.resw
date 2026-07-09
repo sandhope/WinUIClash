@@ -399,6 +399,9 @@
   <data name="ReqSortNone.Text" xml:space="preserve"><value>Default</value></data>
   <data name="ReqSortHost.Text" xml:space="preserve"><value>By Host</value></data>
   <data name="ReqSortTime.Text" xml:space="preserve"><value>By Time</value></data>
+  <data name="ReqSortUpload.Text" xml:space="preserve"><value>By Upload</value></data>
+  <data name="ReqSortDownload.Text" xml:space="preserve"><value>By Download</value></data>
+  <data name="ReqSortRule.Text" xml:space="preserve"><value>By Rule</value></data>
   <data name="RequestsExport.Content" xml:space="preserve"><value>Export</value></data>
   <data name="RequestsExport.ToolTip" xml:space="preserve"><value>Export request log</value></data>
   <data name="RequestsExportSuccessTitle.Text" xml:space="preserve"><value>Export Successful</value></data>
@@ -463,6 +466,7 @@
   <data name="NetworkRestoredMsg.Text" xml:space="preserve"><value>Network connectivity restored</value></data>
   <data name="ProfilesCopyPath.Text" xml:space="preserve"><value>Copy File Path</value></data>
   <data name="ProfilesOpenInExplorer.Text" xml:space="preserve"><value>Open in Explorer</value></data>
+  <data name="ProfilesDuplicate.Text" xml:space="preserve"><value>Duplicate</value></data>
 
   <!-- Rules Page -->
   <data name="RulesTitle.Text" xml:space="preserve"><value>Rules</value></data>
@@ -555,6 +559,8 @@
   <data name="HelpProxyToggle.Text" xml:space="preserve"><value>Toggle system proxy</value></data>
   <data name="HelpThemeToggle.Text" xml:space="preserve"><value>Toggle dark/light theme</value></data>
   <data name="HelpCloseAllConns.Text" xml:space="preserve"><value>Close all connections</value></data>
+  <data name="HelpExport.Text" xml:space="preserve"><value>Export current page data</value></data>
+  <data name="HelpSettings.Text" xml:space="preserve"><value>Open settings</value></data>
   <data name="HelpQuit.Text" xml:space="preserve"><value>Quit application</value></data>
   <data name="HelpShowHelp.Text" xml:space="preserve"><value>Show this help</value></data>
   <data name="HelpCyclePage.Text" xml:space="preserve"><value>Cycle through pages</value></data>

@@ -400,6 +400,61 @@ public sealed partial class MainWindow : Window
             catch { }
         };
         RootGrid.KeyboardAccelerators.Add(closeAllAccel);
+
+        // Ctrl+E 导出当前页面数据
+        var exportAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.E,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control,
+        };
+        exportAccel.Invoked += async (_, _) =>
+        {
+            try
+            {
+                var currentPage = RootNavigation.SelectedItem is NavigationViewItem item ? item.Tag as string : null;
+                switch (currentPage)
+                {
+                    case "connections":
+                        var connVm = ServiceLocator.Get<ViewModels.ConnectionsViewModel>();
+                        await connVm.ExportCommand.ExecuteAsync(null);
+                        break;
+                    case "requests":
+                        var reqVm = ServiceLocator.Get<ViewModels.RequestsViewModel>();
+                        await reqVm.ExportCommand.ExecuteAsync(null);
+                        break;
+                    case "logs":
+                        var logVm = ServiceLocator.Get<ViewModels.LogsViewModel>();
+                        await logVm.ExportCommand.ExecuteAsync(null);
+                        break;
+                }
+            }
+            catch { }
+        };
+        RootGrid.KeyboardAccelerators.Add(exportAccel);
+
+        // Ctrl+, 打开设置
+        var settingsAccel = new KeyboardAccelerator
+        {
+            Key = (Windows.System.VirtualKey)188, // VK_OEM_COMMA
+            Modifiers = Windows.System.VirtualKeyModifiers.Control,
+        };
+        settingsAccel.Invoked += (_, _) =>
+        {
+            try
+            {
+                // Navigate to Tools page
+                var toolsItem = RootNavigation.MenuItems
+                    .OfType<NavigationViewItem>()
+                    .FirstOrDefault(i => i.Tag is string t && t == "tools");
+                if (toolsItem != null)
+                {
+                    RootNavigation.SelectedItem = toolsItem;
+                    NavigateTo("tools");
+                }
+            }
+            catch { }
+        };
+        RootGrid.KeyboardAccelerators.Add(settingsAccel);
     }
 
     private void CyclePage(int direction)
@@ -429,6 +484,8 @@ public sealed partial class MainWindow : Window
             ("Ctrl+Shift+S", LocalizationHelper.GetString("HelpProxyToggle.Text")),
             ("Ctrl+Shift+T", LocalizationHelper.GetString("HelpThemeToggle.Text")),
             ("Ctrl+Shift+D", LocalizationHelper.GetString("HelpCloseAllConns.Text")),
+            ("Ctrl+E", LocalizationHelper.GetString("HelpExport.Text")),
+            ("Ctrl+,", LocalizationHelper.GetString("HelpSettings.Text")),
             ("Ctrl+Q", LocalizationHelper.GetString("HelpQuit.Text")),
             ("Escape", LocalizationHelper.GetString("HelpEscape.Text")),
             ("F1", LocalizationHelper.GetString("HelpShowHelp.Text")),

@@ -283,6 +283,43 @@ public sealed partial class ProfilesView : Page
         };
         menu.Items.Add(openInExplorer);
 
+        menu.Items.Add(new MenuFlyoutSeparator());
+
+        // 复制配置
+        var duplicate = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesDuplicate.Text") };
+        duplicate.Click += async (_, _) =>
+        {
+            try
+            {
+                var newId = Guid.NewGuid().ToString("N")[..8];
+                var srcPath = profile.Path;
+                if (string.IsNullOrWhiteSpace(srcPath))
+                    srcPath = new ProfileStorageService().GetConfigPath(profile.Id);
+                var destPath = new ProfileStorageService().GetConfigPath(newId);
+
+                if (File.Exists(srcPath))
+                    File.Copy(srcPath, destPath);
+
+                var newProfile = new Profile
+                {
+                    Id = newId,
+                    Label = $"{profile.Label} (Copy)",
+                    Url = profile.Url,
+                    Path = destPath,
+                    LastUpdate = DateTime.Now,
+                    IsActive = false,
+                    Order = ViewModel.Profiles.Count,
+                };
+                ViewModel.Profiles.Add(newProfile);
+                await ViewModel.SaveProfileListAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Profiles] Duplicate error: {ex.Message}");
+            }
+        };
+        menu.Items.Add(duplicate);
+
         // 自动更新开关
         var autoUpdate = new ToggleMenuFlyoutItem
         {
