@@ -46,6 +46,13 @@
                         <TextBlock x:Uid="ProxyTestAll" FontSize="12" />
                     </StackPanel>
                 </Button>
+                <Button Command="{x:Bind ViewModel.SelectBestCommand}"
+                        Padding="8,4" Background="Transparent" BorderThickness="0">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <fluent:SymbolIcon Symbol="Star" FontSize="12" />
+                        <TextBlock x:Uid="ProxySelectBest" FontSize="11" />
+                    </StackPanel>
+                </Button>
             </StackPanel>
         </Grid>
 

@@ -330,6 +330,7 @@
   <data name="ConnSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索连接…</value></data>
   <data name="ConnCountSuffix.Text" xml:space="preserve"><value> 个连接</value></data>
   <data name="ConnClose.ToolTip" xml:space="preserve"><value>关闭连接</value></data>
+  <data name="ConnCloseSimilar.Text" xml:space="preserve"><value>关闭同主机连接</value></data>
   <data name="ConnDetailHost.Text" xml:space="preserve"><value>目标主机</value></data>
   <data name="ConnDetailSource.Text" xml:space="preserve"><value>源地址</value></data>
   <data name="ConnDetailDest.Text" xml:space="preserve"><value>目标地址</value></data>
@@ -377,6 +378,7 @@
   <data name="ProxySortDelay.Text" xml:space="preserve"><value>按延迟</value></data>
   <data name="ProxySortType.Text" xml:space="preserve"><value>按类型</value></data>
   <data name="ProxyTestAll.Content" xml:space="preserve"><value>全部测速</value></data>
+  <data name="ProxySelectBest.Text" xml:space="preserve"><value>选最优</value></data>
   <data name="ProxySearch.PlaceholderText" xml:space="preserve"><value>搜索代理…</value></data>
 
   <!-- Provider Type Labels -->
