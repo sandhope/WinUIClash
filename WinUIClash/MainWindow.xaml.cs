@@ -689,6 +689,50 @@ public sealed partial class MainWindow : Window
         };
         menu.Items.Add(_trayProxyItem);
 
+        // ── TUN 模式 ──
+        var trayTunItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayTunMode.Text") };
+        try
+        {
+            var tunSettings = ServiceLocator.Get<AppSettings>();
+            trayTunItem.IsChecked = tunSettings.TunMode;
+        }
+        catch { }
+        trayTunItem.Click += (_, _) =>
+        {
+            try
+            {
+                var tunSettings = ServiceLocator.Get<AppSettings>();
+                tunSettings.TunMode = trayTunItem.IsChecked;
+            }
+            catch { }
+        };
+        // Sync TUN state from settings changes
+        try
+        {
+            var tunAppSettings = ServiceLocator.Get<AppSettings>();
+            tunAppSettings.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(AppSettings.TunMode))
+                    _dispatcher.TryEnqueue(() => trayTunItem.IsChecked = tunAppSettings.TunMode);
+            };
+        }
+        catch { }
+        menu.Items.Add(trayTunItem);
+
+        // ── 强制 GC ──
+        var gcItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayForceGc.Text") };
+        gcItem.Click += async (_, _) =>
+        {
+            try
+            {
+                var clash = ServiceLocator.Get<IClashService>();
+                if (clash.CoreState == CoreState.Running)
+                    await clash.ForceGcAsync();
+            }
+            catch { }
+        };
+        menu.Items.Add(gcItem);
+
         menu.Items.Add(new MenuFlyoutSeparator());
 
         // ── 出站模式子菜单 ──

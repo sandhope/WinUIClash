@@ -214,6 +214,8 @@
   <data name="TraySystemProxy.Text" xml:space="preserve"><value>System Proxy</value></data>
   <data name="TrayOutboundMode.Text" xml:space="preserve"><value>Outbound Mode</value></data>
   <data name="TrayExit.Text" xml:space="preserve"><value>Exit</value></data>
+  <data name="TrayTunMode.Text" xml:space="preserve"><value>TUN Mode</value></data>
+  <data name="TrayForceGc.Text" xml:space="preserve"><value>Force GC</value></data>
 
   <!-- Time Formatting -->
   <data name="TimeJustNow.Text" xml:space="preserve"><value>just now</value></data>

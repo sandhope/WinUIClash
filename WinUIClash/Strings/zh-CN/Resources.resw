@@ -214,6 +214,8 @@
   <data name="TraySystemProxy.Text" xml:space="preserve"><value>系统代理</value></data>
   <data name="TrayOutboundMode.Text" xml:space="preserve"><value>出站模式</value></data>
   <data name="TrayExit.Text" xml:space="preserve"><value>退出</value></data>
+  <data name="TrayTunMode.Text" xml:space="preserve"><value>TUN 模式</value></data>
+  <data name="TrayForceGc.Text" xml:space="preserve"><value>强制 GC</value></data>
 
   <!-- Time Formatting -->
   <data name="TimeJustNow.Text" xml:space="preserve"><value>刚刚</value></data>
