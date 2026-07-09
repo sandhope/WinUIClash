@@ -232,6 +232,7 @@
   <data name="TrayExit.Text" xml:space="preserve"><value>Exit</value></data>
   <data name="TrayTunMode.Text" xml:space="preserve"><value>TUN Mode</value></data>
   <data name="TrayForceGc.Text" xml:space="preserve"><value>Force GC</value></data>
+  <data name="TrayRestartCore.Text" xml:space="preserve"><value>Restart Core</value></data>
 
   <!-- Time Formatting -->
   <data name="TimeJustNow.Text" xml:space="preserve"><value>just now</value></data>
@@ -541,6 +542,7 @@
   <data name="HelpMinimize.Text" xml:space="preserve"><value>Minimize to tray</value></data>
   <data name="HelpCoreToggle.Text" xml:space="preserve"><value>Start / Stop core</value></data>
   <data name="HelpProxyToggle.Text" xml:space="preserve"><value>Toggle system proxy</value></data>
+  <data name="HelpThemeToggle.Text" xml:space="preserve"><value>Toggle dark/light theme</value></data>
   <data name="HelpQuit.Text" xml:space="preserve"><value>Quit application</value></data>
   <data name="HelpShowHelp.Text" xml:space="preserve"><value>Show this help</value></data>
   <data name="HelpCyclePage.Text" xml:space="preserve"><value>Cycle through pages</value></data>
