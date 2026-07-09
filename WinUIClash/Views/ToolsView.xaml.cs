@@ -1,9 +1,15 @@
-﻿namespace WinUIClash.Views;
+using Microsoft.UI.Xaml.Controls;
+using WinUIClash.ViewModels;
 
-public sealed partial class ToolsView : Microsoft.UI.Xaml.Controls.Page
+namespace WinUIClash.Views;
+
+public sealed partial class ToolsView : Page
 {
+    public ToolsViewModel ViewModel { get; }
+
     public ToolsView()
     {
+        ViewModel = ServiceLocator.Get<ToolsViewModel>();
         InitializeComponent();
     }
 }
