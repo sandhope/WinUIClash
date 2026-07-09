@@ -11,4 +11,5 @@ public partial class Proxy : ObservableObject
     public string Type { get; set; } = string.Empty;
 
     [ObservableProperty] private int _delay = -1;
+    [ObservableProperty] private bool _isTestingDelay;
 }

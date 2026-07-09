@@ -124,6 +124,7 @@ public partial class ProxiesViewModel : ObservableObject
         if (proxy == null || proxy.Type is "Direct" or "Reject") return;
         try
         {
+            proxy.IsTestingDelay = true;
             proxy.Delay = await _clash.TestDelayAsync(proxy.Name);
             OnPropertyChanged(nameof(FilteredProxies));
         }
@@ -133,6 +134,10 @@ public partial class ProxiesViewModel : ObservableObject
             _notification.Error(
                 LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
                 $"{proxy.Name}: {ex.Message}");
+        }
+        finally
+        {
+            proxy.IsTestingDelay = false;
         }
     }
 
@@ -151,6 +156,7 @@ public partial class ProxiesViewModel : ObservableObject
 
         var tasks = testable.Select(async p =>
         {
+            p.IsTestingDelay = true;
             await _testSemaphore.WaitAsync();
             try
             {
@@ -164,6 +170,7 @@ public partial class ProxiesViewModel : ObservableObject
             {
                 _testSemaphore.Release();
                 TestProgress++;
+                p.IsTestingDelay = false;
             }
         });
 
