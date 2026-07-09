@@ -200,8 +200,8 @@ public class ClashOrchestrator : IClashService
     public Task AddProfileAsync(Profile profile) => _activeService.AddProfileAsync(profile);
     public Task UpdateProfileAsync(Profile profile) => _activeService.UpdateProfileAsync(profile);
     public Task DeleteProfileAsync(string profileId) => _activeService.DeleteProfileAsync(profileId);
-    public Task SwitchProfileAsync(string profileId) => _activeService.SwitchProfileAsync(profileId);
-    public Task SyncProfileAsync(string profileId) => _activeService.SyncProfileAsync(profileId);
+    public Task SwitchProfileAsync(string profileId, string configPath = "") => _activeService.SwitchProfileAsync(profileId, configPath);
+    public Task SyncProfileAsync(string profileId, string? url = null, string configPath = "") => _activeService.SyncProfileAsync(profileId, url, configPath);
 
     // ── Connections ──
 
@@ -211,7 +211,7 @@ public class ClashOrchestrator : IClashService
 
     // ── Log ──
 
-    public Task StartLogAsync() => _activeService.StartLogAsync();
+    public Task StartLogAsync(string level = "info") => _activeService.StartLogAsync(level);
     public Task StopLogAsync() => _activeService.StopLogAsync();
 
     // ── Network ──

@@ -81,6 +81,18 @@ public partial class AppSettingsViewModel : ObservableObject
         set { if (_settings.BypassDomains != value) { _settings.BypassDomains = value; OnPropertyChanged(); } }
     }
 
+    public bool ProxyGuardEnabled
+    {
+        get => _settings.ProxyGuardEnabled;
+        set { if (_settings.ProxyGuardEnabled != value) { _settings.ProxyGuardEnabled = value; OnPropertyChanged(); } }
+    }
+
+    public int ProxyGuardInterval
+    {
+        get => _settings.ProxyGuardInterval;
+        set { if (_settings.ProxyGuardInterval != value) { _settings.ProxyGuardInterval = value; OnPropertyChanged(); } }
+    }
+
     public record LanguageOption(string Label, string Value);
 
     public LanguageOption[] Languages { get; } =

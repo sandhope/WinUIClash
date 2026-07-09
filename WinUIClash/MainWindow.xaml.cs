@@ -250,6 +250,48 @@ public sealed partial class MainWindow : Window
         };
         refreshCtrlAccel.Invoked += (_, _) => RefreshCurrentPage();
         RootGrid.KeyboardAccelerators.Add(refreshCtrlAccel);
+
+        // Ctrl+W 最小化到托盘
+        var minimizeAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.W,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control,
+        };
+        minimizeAccel.Invoked += (_, _) =>
+        {
+            SaveWindowState();
+            this.Hide();
+        };
+        RootGrid.KeyboardAccelerators.Add(minimizeAccel);
+
+        // Ctrl+Shift+S 切换系统代理
+        var proxyToggleAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.S,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control | Windows.System.VirtualKeyModifiers.Shift,
+        };
+        proxyToggleAccel.Invoked += (_, _) =>
+        {
+            if (_appSettings != null)
+                _appSettings.SystemProxy = !_appSettings.SystemProxy;
+        };
+        RootGrid.KeyboardAccelerators.Add(proxyToggleAccel);
+
+        // Ctrl+P 切换核心启动/停止
+        var coreToggleAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.P,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control,
+        };
+        coreToggleAccel.Invoked += async (_, _) =>
+        {
+            if (_clash == null) return;
+            if (_clash.CoreState == CoreState.Running)
+                await _clash.StopAsync();
+            else if (_clash.CoreState == CoreState.Stopped)
+                await _clash.StartAsync();
+        };
+        RootGrid.KeyboardAccelerators.Add(coreToggleAccel);
     }
 
     private void RefreshCurrentPage()
@@ -686,8 +728,8 @@ public sealed partial class MainWindow : Window
             await core.StopAsync();
             core.Dispose();
 
-            // Disable system proxy
-            ServiceLocator.Get<Services.SystemProxyService>().Disable();
+            // Disable system proxy and stop guard
+            ServiceLocator.Get<Services.SystemProxyService>().EnsureDisabledOnExit();
 
             // Save settings
             ServiceLocator.Get<Services.SettingsService>().SaveImmediate();

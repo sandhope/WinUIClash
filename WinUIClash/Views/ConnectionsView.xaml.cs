@@ -54,6 +54,12 @@ public sealed partial class ConnectionsView : Page
         DetailHost.Text = conn.Metadata.Host;
         DetailSource.Text = $"{conn.Metadata.SourceIP}:{conn.Metadata.SourcePort}";
         DetailDest.Text = $"{conn.Metadata.DestinationIP}:{conn.Metadata.DestinationPort}";
+        DetailProcess.Text = string.IsNullOrEmpty(conn.Metadata.Process)
+            ? "—"
+            : conn.Metadata.Process;
+        DetailDnsMode.Text = string.IsNullOrEmpty(conn.Metadata.DnsMode)
+            ? "—"
+            : conn.Metadata.DnsMode;
 
         DetailTransfer.Text =
             $"{Converters.ByteFormatter.Format(conn.Upload)} ↑ / {Converters.ByteFormatter.Format(conn.Download)} ↓";
@@ -66,6 +72,14 @@ public sealed partial class ConnectionsView : Page
             ? conn.Rule
             : $"{conn.Rule} ({conn.RulePayload})";
 
+        // GeoIP and ASN info
+        var geoParts = new List<string>();
+        if (!string.IsNullOrEmpty(conn.Metadata.DestinationGeoIP))
+            geoParts.Add(conn.Metadata.DestinationGeoIP);
+        if (!string.IsNullOrEmpty(conn.Metadata.DestinationIPASN))
+            geoParts.Add($"ASN: {conn.Metadata.DestinationIPASN}");
+        DetailGeoIP.Text = geoParts.Count > 0 ? string.Join(" | ", geoParts) : "—";
+
         DetailStart.Text = conn.Start.ToString("yyyy-MM-dd HH:mm:ss");
 
         var duration = DateTime.Now - conn.Start;
@@ -74,6 +88,12 @@ public sealed partial class ConnectionsView : Page
             : duration.Minutes > 0
                 ? $"{duration.Minutes}m {duration.Seconds}s"
                 : $"{duration.Seconds}s";
+    }
+
+    private void CopyHost_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedConnection != null)
+            CopyToClipboard(ViewModel.SelectedConnection.Metadata.Host);
     }
 
     private void CloseConnection_Click(object sender, RoutedEventArgs e)

@@ -40,7 +40,18 @@ public partial class LogsViewModel : ObservableObject, IDisposable
     public string[] LevelOptions { get; } = ["ALL", "Debug", "Info", "Warning", "Error"];
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
-    partial void OnSelectedLevelChanged(string value) => ApplyFilter();
+
+    async partial void OnSelectedLevelChanged(string value)
+    {
+        ApplyFilter();
+
+        // Reconnect the log WebSocket with the new server-side level filter
+        if (_started)
+        {
+            await _clash.StopLogAsync();
+            await _clash.StartLogAsync(value);
+        }
+    }
 
     private void OnLogReceived(LogEntry entry)
     {
@@ -95,7 +106,7 @@ public partial class LogsViewModel : ObservableObject, IDisposable
     {
         if (_started) return;
         _started = true;
-        await _clash.StartLogAsync();
+        await _clash.StartLogAsync(SelectedLevel);
     }
 
     [RelayCommand]

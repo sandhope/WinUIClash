@@ -127,6 +127,10 @@
   <data name="AppAutoCheckUpdateDesc.Text" xml:space="preserve"><value>启动时自动检查新版本</value></data>
   <data name="AppSystemProxy.Text" xml:space="preserve"><value>系统代理</value></data>
   <data name="AppSystemProxyDesc.Text" xml:space="preserve"><value>启用系统级代理设置</value></data>
+  <data name="AppProxyGuard.Text" xml:space="preserve"><value>代理守护</value></data>
+  <data name="AppProxyGuardDesc.Text" xml:space="preserve"><value>定期检查并恢复被篡改的代理设置</value></data>
+  <data name="AppProxyGuardInterval.Text" xml:space="preserve"><value>守护间隔（秒）</value></data>
+  <data name="AppProxyGuardIntervalDesc.Text" xml:space="preserve"><value>检查代理变化的频率（5-600秒）</value></data>
   <data name="AppBypassDomains.Text" xml:space="preserve"><value>代理绕过</value></data>
   <data name="AppBypassDomainsDesc.Text" xml:space="preserve"><value>不走代理的域名列表（分号分隔）</value></data>
   <data name="AppCloseConnections.Text" xml:space="preserve"><value>切换时关闭连接</value></data>
@@ -282,6 +286,10 @@
   <data name="ConnDetailSource.Text" xml:space="preserve"><value>源地址</value></data>
   <data name="ConnDetailDest.Text" xml:space="preserve"><value>目标地址</value></data>
   <data name="ConnDetailTransfer.Text" xml:space="preserve"><value>总上传 / 下载</value></data>
+  <data name="ConnDetailProcess.Text" xml:space="preserve"><value>进程</value></data>
+  <data name="ConnDetailDnsMode.Text" xml:space="preserve"><value>DNS 模式</value></data>
+  <data name="ConnDetailGeoIP.Text" xml:space="preserve"><value>地理位置 / ASN</value></data>
+  <data name="ConnCopyHost.Text" xml:space="preserve"><value>复制主机</value></data>
   <data name="ConnCloseThis.Content" xml:space="preserve"><value>关闭此连接</value></data>
   <data name="ConnCopyChains.Text" xml:space="preserve"><value>复制代理链</value></data>
 

@@ -170,6 +170,10 @@
                     <TextBlock x:Name="DetailSource" FontSize="12" FontFamily="Consolas" />
                     <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailDest" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailDest" FontSize="12" FontFamily="Consolas" />
+                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailProcess" Margin="0,4,0,0" />
+                    <TextBlock x:Name="DetailProcess" FontSize="12" />
+                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailDnsMode" Margin="0,4,0,0" />
+                    <TextBlock x:Name="DetailDnsMode" FontSize="12" />
                 </StackPanel>
 
                 <!-- 列 2: 流量和代理链 -->
@@ -180,6 +184,8 @@
                     <TextBlock x:Name="DetailChains" FontSize="12" TextWrapping="Wrap" />
                     <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnRule" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailRule" FontSize="12" />
+                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailGeoIP" Margin="0,4,0,0" />
+                    <TextBlock x:Name="DetailGeoIP" FontSize="12" />
                 </StackPanel>
 
                 <!-- 列 3: 时间和操作 -->
@@ -188,14 +194,21 @@
                     <TextBlock x:Name="DetailStart" FontSize="12" />
                     <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDuration" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailDuration" FontSize="13" FontWeight="SemiBold" />
-                    <Button Margin="0,8,0,0"
-                            Click="CloseSelected_Click"
-                            HorizontalAlignment="Left">
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <fluent:SymbolIcon Symbol="DismissCircle" FontSize="12" />
-                            <TextBlock x:Uid="ConnCloseThis" FontSize="11" />
-                        </StackPanel>
-                    </Button>
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                        <Button Click="CopyHost_Click" Padding="8,4"
+                                Background="Transparent" BorderThickness="0">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <fluent:SymbolIcon Symbol="Copy" FontSize="12" />
+                                <TextBlock x:Uid="ConnCopyHost" FontSize="11" />
+                            </StackPanel>
+                        </Button>
+                        <Button Click="CloseSelected_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <fluent:SymbolIcon Symbol="DismissCircle" FontSize="12" />
+                                <TextBlock x:Uid="ConnCloseThis" FontSize="11" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </Border>

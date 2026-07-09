@@ -32,8 +32,8 @@ public interface IClashService
     Task AddProfileAsync(Profile profile);
     Task UpdateProfileAsync(Profile profile);
     Task DeleteProfileAsync(string profileId);
-    Task SwitchProfileAsync(string profileId);
-    Task SyncProfileAsync(string profileId);
+    Task SwitchProfileAsync(string profileId, string configPath = "");
+    Task SyncProfileAsync(string profileId, string? url = null, string configPath = "");
 
     // ── 连接 ──
     Task<IReadOnlyList<ConnectionInfo>> GetConnectionsAsync();
@@ -42,7 +42,7 @@ public interface IClashService
 
     // ── 日志 ──
     event Action<LogEntry>? LogReceived;
-    Task StartLogAsync();
+    Task StartLogAsync(string level = "info");
     Task StopLogAsync();
 
     // ── 网络检测 ──

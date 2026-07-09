@@ -1,0 +1,135 @@
+using System.Text.Json;
+using WinUIClash.Models;
+
+namespace WinUIClash.Services;
+
+/// <summary>
+/// 本地配置档案管理 — 存储/加载 YAML 配置文件与档案列表
+/// 路径：%LOCALAPPDATA%\WinUIClash\profiles\
+/// </summary>
+public class ProfileStorageService
+{
+    private static readonly string ProfilesDir = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "WinUIClash", "profiles");
+
+    private static readonly string ProfileListPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "WinUIClash", "profilelist.json");
+
+    private static readonly HttpClient _httpClient = new()
+    {
+        Timeout = TimeSpan.FromSeconds(30)
+    };
+
+    private static readonly JsonSerializerOptions JsonOpts = new()
+    {
+        WriteIndented = true,
+        PropertyNameCaseInsensitive = true,
+    };
+
+    /// <summary>获取配置文件在磁盘上的完整路径</summary>
+    public string GetConfigPath(string profileId)
+    {
+        Directory.CreateDirectory(ProfilesDir);
+        return Path.Combine(ProfilesDir, $"{profileId}.yaml");
+    }
+
+    /// <summary>从订阅 URL 下载配置并保存到本地</summary>
+    public async Task<string> DownloadAndSaveAsync(string profileId, string url)
+    {
+        Directory.CreateDirectory(ProfilesDir);
+        var path = GetConfigPath(profileId);
+
+        var yaml = await _httpClient.GetStringAsync(url);
+        await File.WriteAllTextAsync(path, yaml);
+
+        return path;
+    }
+
+    /// <summary>将 YAML 内容直接保存到本地</summary>
+    public async Task SaveContentAsync(string profileId, string content)
+    {
+        Directory.CreateDirectory(ProfilesDir);
+        var path = GetConfigPath(profileId);
+        await File.WriteAllTextAsync(path, content);
+    }
+
+    /// <summary>删除配置文件</summary>
+    public void DeleteConfig(string profileId)
+    {
+        var path = GetConfigPath(profileId);
+        if (File.Exists(path)) File.Delete(path);
+    }
+
+    /// <summary>配置文件是否存在</summary>
+    public bool ConfigExists(string profileId)
+    {
+        return File.Exists(GetConfigPath(profileId));
+    }
+
+    /// <summary>保存档案列表到 JSON（仅持久化元数据，不含运行时计算属性）</summary>
+    public async Task SaveProfileListAsync(IReadOnlyList<Profile> profiles)
+    {
+        var dtos = profiles.Select(p => new ProfileListEntry
+        {
+            Id = p.Id,
+            Label = p.Label,
+            Url = p.Url,
+            Path = p.Path,
+            LastUpdate = p.LastUpdate,
+            AutoUpdate = p.AutoUpdate,
+            AutoUpdateIntervalSeconds = (int)p.AutoUpdateInterval.TotalSeconds,
+            IsActive = p.IsActive,
+            Order = p.Order,
+        }).ToList();
+
+        var json = JsonSerializer.Serialize(dtos, JsonOpts);
+        Directory.CreateDirectory(Path.GetDirectoryName(ProfileListPath)!);
+        await File.WriteAllTextAsync(ProfileListPath, json);
+    }
+
+    /// <summary>从 JSON 加载档案列表</summary>
+    public async Task<List<Profile>> LoadProfileListAsync()
+    {
+        if (!File.Exists(ProfileListPath)) return new List<Profile>();
+
+        try
+        {
+            var json = await File.ReadAllTextAsync(ProfileListPath);
+            var entries = JsonSerializer.Deserialize<List<ProfileListEntry>>(json, JsonOpts);
+            if (entries == null) return new List<Profile>();
+
+            return entries.Select(e => new Profile
+            {
+                Id = e.Id,
+                Label = e.Label,
+                Url = e.Url,
+                Path = e.Path,
+                LastUpdate = e.LastUpdate,
+                AutoUpdate = e.AutoUpdate,
+                AutoUpdateInterval = TimeSpan.FromSeconds(e.AutoUpdateIntervalSeconds),
+                IsActive = e.IsActive,
+                Order = e.Order,
+            }).ToList();
+        }
+        catch
+        {
+            return new List<Profile>();
+        }
+    }
+}
+
+/// <summary>档案列表序列化条目</summary>
+internal class ProfileListEntry
+{
+    public string Id { get; set; } = "";
+    public string Label { get; set; } = "";
+    public string? Url { get; set; }
+    public string Path { get; set; } = "";
+    public DateTime LastUpdate { get; set; } = DateTime.Now;
+    public bool AutoUpdate { get; set; }
+    public int AutoUpdateIntervalSeconds { get; set; } = 86400;
+    public bool IsActive { get; set; }
+    public int Order { get; set; }
+}

@@ -127,6 +127,10 @@
   <data name="AppAutoCheckUpdateDesc.Text" xml:space="preserve"><value>Automatically check for new versions on startup</value></data>
   <data name="AppSystemProxy.Text" xml:space="preserve"><value>System Proxy</value></data>
   <data name="AppSystemProxyDesc.Text" xml:space="preserve"><value>Enable system-level proxy settings</value></data>
+  <data name="AppProxyGuard.Text" xml:space="preserve"><value>Proxy Guard</value></data>
+  <data name="AppProxyGuardDesc.Text" xml:space="preserve"><value>Periodically check and re-apply proxy settings</value></data>
+  <data name="AppProxyGuardInterval.Text" xml:space="preserve"><value>Guard Interval (seconds)</value></data>
+  <data name="AppProxyGuardIntervalDesc.Text" xml:space="preserve"><value>How often to check for proxy changes (5-600s)</value></data>
   <data name="AppBypassDomains.Text" xml:space="preserve"><value>Proxy Bypass</value></data>
   <data name="AppBypassDomainsDesc.Text" xml:space="preserve"><value>Domains that bypass proxy (semicolon separated)</value></data>
   <data name="AppCloseConnections.Text" xml:space="preserve"><value>Close Connections on Switch</value></data>
@@ -282,6 +286,10 @@
   <data name="ConnDetailSource.Text" xml:space="preserve"><value>Source</value></data>
   <data name="ConnDetailDest.Text" xml:space="preserve"><value>Destination</value></data>
   <data name="ConnDetailTransfer.Text" xml:space="preserve"><value>Total Upload / Download</value></data>
+  <data name="ConnDetailProcess.Text" xml:space="preserve"><value>Process</value></data>
+  <data name="ConnDetailDnsMode.Text" xml:space="preserve"><value>DNS Mode</value></data>
+  <data name="ConnDetailGeoIP.Text" xml:space="preserve"><value>GeoIP / ASN</value></data>
+  <data name="ConnCopyHost.Text" xml:space="preserve"><value>Copy Host</value></data>
   <data name="ConnCloseThis.Content" xml:space="preserve"><value>Close This</value></data>
   <data name="ConnCopyChains.Text" xml:space="preserve"><value>Copy Proxy Chain</value></data>
 

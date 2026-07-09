@@ -33,6 +33,7 @@ public static class ServiceLocator
         services.AddSingleton<AutoLaunchService>();
         services.AddSingleton<CoreProcessService>();
         services.AddSingleton<UpdateService>();
+        services.AddSingleton<ProfileStorageService>();
         services.AddSingleton<MockClashService>();
         services.AddSingleton<HttpClashService>();
         services.AddSingleton<ClashOrchestrator>();

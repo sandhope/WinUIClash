@@ -17,6 +17,7 @@ public class SystemProxyService
     private const int InternetOptionRefresh = 37;
 
     private readonly AppSettings _settings;
+    private Timer? _guardTimer;
 
     public SystemProxyService(AppSettings settings)
     {
@@ -70,13 +71,50 @@ public class SystemProxyService
             {
                 case nameof(AppSettings.SystemProxy):
                     ApplyCurrentState();
+                    // Start/stop guard based on proxy state
+                    if (_settings.SystemProxy && _settings.ProxyGuardEnabled)
+                        StartGuard();
+                    else
+                        StopGuard();
                     break;
                 case nameof(AppSettings.HttpPort):
                 case nameof(AppSettings.BypassDomains):
                     if (_settings.SystemProxy) Enable();
                     break;
+                case nameof(AppSettings.ProxyGuardEnabled):
+                    if (_settings.SystemProxy && _settings.ProxyGuardEnabled)
+                        StartGuard();
+                    else
+                        StopGuard();
+                    break;
+                case nameof(AppSettings.ProxyGuardInterval):
+                    if (_guardTimer != null)
+                    {
+                        StopGuard();
+                        StartGuard();
+                    }
+                    break;
             }
         };
+    }
+
+    /// <summary>
+    /// 启动代理守护：定期检查注册表值是否被篡改，自动恢复
+    /// </summary>
+    public void StartGuard()
+    {
+        StopGuard();
+        var intervalMs = Math.Max(5, _settings.ProxyGuardInterval) * 1000;
+        _guardTimer = new Timer(CheckGuard, null, intervalMs, intervalMs);
+    }
+
+    /// <summary>
+    /// 停止代理守护
+    /// </summary>
+    public void StopGuard()
+    {
+        _guardTimer?.Dispose();
+        _guardTimer = null;
     }
 
     /// <summary>
@@ -84,9 +122,37 @@ public class SystemProxyService
     /// </summary>
     public void EnsureDisabledOnExit()
     {
+        StopGuard();
         if (_settings.SystemProxy)
         {
             Disable();
+        }
+    }
+
+    private void CheckGuard(object? state)
+    {
+        if (!_settings.SystemProxy) return;
+
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(InternetSettingsKey, false);
+            if (key == null) return;
+
+            var proxyEnable = key.GetValue("ProxyEnable") as int? ?? 0;
+            var proxyServer = key.GetValue("ProxyServer") as string ?? "";
+            var proxyOverride = key.GetValue("ProxyOverride") as string ?? "";
+
+            var expectedServer = $"127.0.0.1:{_settings.HttpPort}";
+
+            if (proxyEnable != 1 || proxyServer != expectedServer || proxyOverride != _settings.BypassDomains)
+            {
+                Enable();
+                System.Diagnostics.Debug.WriteLine("[SystemProxyGuard] Re-applied proxy settings (values were changed)");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SystemProxyGuard] Check failed: {ex.Message}");
         }
     }
 

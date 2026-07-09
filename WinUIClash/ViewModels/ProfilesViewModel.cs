@@ -7,12 +7,13 @@ using WinUIClash.Services;
 namespace WinUIClash.ViewModels;
 
 /// <summary>
-/// 配置页 ViewModel — 配置管理、订阅更新
+/// 配置页 ViewModel — 配置管理、订阅更新、本地文件存储
 /// </summary>
 public partial class ProfilesViewModel : ObservableObject, IDisposable
 {
     private readonly IClashService _clash;
     private readonly NotificationService _notification;
+    private readonly ProfileStorageService _storage;
     private Timer? _autoUpdateTimer;
     private bool _initialized;
 
@@ -20,6 +21,7 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
     {
         _clash = clash;
         _notification = notification;
+        _storage = new ProfileStorageService();
     }
 
     [ObservableProperty] private ObservableCollection<Profile> _profiles = new();
@@ -30,8 +32,20 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
     private async Task LoadAsync()
     {
         IsLoading = true;
-        var list = await _clash.GetProfilesAsync();
-        Profiles = new ObservableCollection<Profile>(list);
+        // Load from local storage first (persistent), then merge with any API-provided profiles
+        var localList = await _storage.LoadProfileListAsync();
+        var apiList = await _clash.GetProfilesAsync();
+
+        // Merge: local profiles take precedence, add any API-only profiles
+        var merged = new Dictionary<string, Profile>();
+        foreach (var p in localList) merged[p.Id] = p;
+        foreach (var p in apiList)
+        {
+            if (!merged.ContainsKey(p.Id))
+                merged[p.Id] = p;
+        }
+
+        Profiles = new ObservableCollection<Profile>(merged.Values.OrderBy(p => p.Order));
         ActiveProfile = Profiles.FirstOrDefault(p => p.IsActive);
         IsLoading = false;
     }
@@ -42,9 +56,16 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         if (profile == null) return;
         try
         {
-            await _clash.SwitchProfileAsync(profile.Id);
+            // Ensure config file exists locally
+            var configPath = profile.Path;
+            if (string.IsNullOrWhiteSpace(configPath))
+                configPath = _storage.GetConfigPath(profile.Id);
+
+            await _clash.SwitchProfileAsync(profile.Id, configPath);
+
             foreach (var p in Profiles) p.IsActive = p.Id == profile.Id;
             ActiveProfile = Profiles.FirstOrDefault(p => p.IsActive);
+            await SaveProfileListAsync();
         }
         catch (Exception ex)
         {
@@ -60,8 +81,19 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         if (profile == null) return;
         try
         {
-            await _clash.SyncProfileAsync(profile.Id);
+            var configPath = profile.Path;
+            if (string.IsNullOrWhiteSpace(configPath))
+                configPath = _storage.GetConfigPath(profile.Id);
+
+            // If this profile has a subscription URL, download the latest config
+            await _clash.SyncProfileAsync(profile.Id, profile.Url, configPath);
+
+            // Update local path reference
+            if (string.IsNullOrWhiteSpace(profile.Path))
+                profile.Path = configPath;
+
             profile.LastUpdate = DateTime.Now;
+            await SaveProfileListAsync();
         }
         catch (Exception ex)
         {
@@ -78,7 +110,15 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         {
             try
             {
-                await _clash.SyncProfileAsync(p.Id);
+                var configPath = p.Path;
+                if (string.IsNullOrWhiteSpace(configPath))
+                    configPath = _storage.GetConfigPath(p.Id);
+
+                await _clash.SyncProfileAsync(p.Id, p.Url, configPath);
+
+                if (string.IsNullOrWhiteSpace(p.Path))
+                    p.Path = configPath;
+
                 p.LastUpdate = DateTime.Now;
             }
             catch (Exception ex)
@@ -88,6 +128,7 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
                     $"{p.Label}: {ex.Message}");
             }
         }
+        await SaveProfileListAsync();
     }
 
     [RelayCommand]
@@ -97,7 +138,9 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         try
         {
             await _clash.DeleteProfileAsync(profile.Id);
+            _storage.DeleteConfig(profile.Id);
             Profiles.Remove(profile);
+            await SaveProfileListAsync();
         }
         catch (Exception ex)
         {
@@ -140,19 +183,24 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             }
         }
 
+        var profileId = Guid.NewGuid().ToString("N")[..8];
+        var configPath = _storage.GetConfigPath(profileId);
+
         var profile = new Profile
         {
-            Id = Guid.NewGuid().ToString("N")[..8],
+            Id = profileId,
             Label = label,
             Url = url,
+            Path = configPath,
             LastUpdate = DateTime.Now,
             IsActive = false,
         };
 
-        // 首次导入尝试同步
+        // 首次导入尝试下载订阅配置
         try
         {
-            await _clash.SyncProfileAsync(profile.Id);
+            await _storage.DownloadAndSaveAsync(profileId, url);
+            await _clash.SyncProfileAsync(profileId, url, configPath);
         }
         catch (Exception ex)
         {
@@ -162,6 +210,39 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         }
 
         Profiles.Add(profile);
+        await SaveProfileListAsync();
+    }
+
+    /// <summary>编辑已有档案的 URL 和标签</summary>
+    public async Task UpdateProfileAsync(string profileId, string? newLabel, string? newUrl)
+    {
+        var profile = Profiles.FirstOrDefault(p => p.Id == profileId);
+        if (profile == null) return;
+
+        if (!string.IsNullOrWhiteSpace(newLabel))
+            profile.Label = newLabel;
+
+        if (newUrl != profile.Url)
+        {
+            profile.Url = newUrl;
+            // If URL changed and there's content, re-download
+            if (!string.IsNullOrWhiteSpace(newUrl))
+            {
+                try
+                {
+                    await _storage.DownloadAndSaveAsync(profileId, newUrl);
+                    profile.LastUpdate = DateTime.Now;
+                }
+                catch (Exception ex)
+                {
+                    _notification.Warning(
+                        LocalizationHelper.GetString("ErrorSyncTitle.Text"),
+                        ex.Message);
+                }
+            }
+        }
+
+        await SaveProfileListAsync();
     }
 
     public async Task InitializeAsync()
@@ -180,13 +261,34 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
                 {
                     try
                     {
-                        await _clash.SyncProfileAsync(p.Id);
+                        var configPath = p.Path;
+                        if (string.IsNullOrWhiteSpace(configPath))
+                            configPath = _storage.GetConfigPath(p.Id);
+
+                        await _clash.SyncProfileAsync(p.Id, p.Url, configPath);
+
+                        if (string.IsNullOrWhiteSpace(p.Path))
+                            p.Path = configPath;
+
                         p.LastUpdate = now;
                     }
                     catch { /* 自动更新失败静默 */ }
                 }
             }
         }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+    }
+
+    /// <summary>持久化档案列表到本地 JSON</summary>
+    private async Task SaveProfileListAsync()
+    {
+        try
+        {
+            await _storage.SaveProfileListAsync(Profiles.ToList());
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Profiles] Save failed: {ex.Message}");
+        }
     }
 
     public void Dispose()
