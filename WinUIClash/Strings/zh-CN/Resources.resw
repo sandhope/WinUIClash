@@ -43,6 +43,9 @@
   <data name="DashCoreStart.Text" xml:space="preserve"><value>启动</value></data>
   <data name="DashCoreStop.Text" xml:space="preserve"><value>停止</value></data>
   <data name="DashRuntime.Text" xml:space="preserve"><value>运行 </value></data>
+  <data name="DashOutboundMode.Text" xml:space="preserve"><value>出站模式</value></data>
+  <data name="DashSystemInfo.Text" xml:space="preserve"><value>系统信息</value></data>
+  <data name="DashRefreshMemory.Content" xml:space="preserve"><value>回收内存</value></data>
   <data name="DashIpLocalFetching.Text" xml:space="preserve"><value>获取中…</value></data>
   <data name="DashIpLocalFailed.Text" xml:space="preserve"><value>未获取</value></data>
 

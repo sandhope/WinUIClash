@@ -90,12 +90,12 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Text="出站模式" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
-                    <RadioButton Grid.Row="1" Content="规则模式" GroupName="Mode"
+                    <TextBlock x:Uid="DashOutboundMode" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
+                    <RadioButton Grid.Row="1" x:Uid="DashModeRule" GroupName="Mode"
                                  IsChecked="{x:Bind ViewModel.IsModeRule, Mode=TwoWay}" />
-                    <RadioButton Grid.Row="2" Content="全局模式" GroupName="Mode"
+                    <RadioButton Grid.Row="2" x:Uid="DashModeGlobal" GroupName="Mode"
                                  IsChecked="{x:Bind ViewModel.IsModeGlobal, Mode=TwoWay}" />
-                    <RadioButton Grid.Row="3" Content="直连模式" GroupName="Mode"
+                    <RadioButton Grid.Row="3" x:Uid="DashModeDirect" GroupName="Mode"
                                  IsChecked="{x:Bind ViewModel.IsModeDirect, Mode=TwoWay}" />
                 </Grid>
             </Border>
@@ -113,23 +113,23 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Text="流量统计" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
+                    <TextBlock x:Uid="DashTrafficStats" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
                         <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="14" Foreground="#4FC3F7" />
-                        <TextBlock Text="上传" FontSize="12" Opacity="0.7" />
+                        <TextBlock x:Uid="DashUploadSpeed" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.TotalUpload, Mode=OneWay}" FontWeight="SemiBold" Margin="8,0,0,0" />
                     </StackPanel>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
                         <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="14" Foreground="#81C784" />
-                        <TextBlock Text="下载" FontSize="12" Opacity="0.7" />
+                        <TextBlock x:Uid="DashDownloadSpeed" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.TotalDownload, Mode=OneWay}" FontWeight="SemiBold" Margin="8,0,0,0" />
                     </StackPanel>
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
                         <fluent:SymbolIcon Symbol="Link" FontSize="14" Opacity="0.6" />
-                        <TextBlock Text="连接" FontSize="12" Opacity="0.7" />
+                        <TextBlock x:Uid="DashActiveConnections" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.ActiveConnections, Mode=OneWay}" FontWeight="SemiBold" Margin="8,0,0,0" />
                     </StackPanel>
-                    <HyperlinkButton Grid.Row="4" Content="重置统计" FontSize="12" Padding="0" Margin="0,4,0,0"
+                    <HyperlinkButton Grid.Row="4" x:Uid="DashResetTraffic" FontSize="12" Padding="0" Margin="0,4,0,0"
                                      Command="{x:Bind ViewModel.ResetTrafficCommand}" />
                 </Grid>
             </Border>
@@ -145,13 +145,13 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Text="网络检测" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
+                    <TextBlock x:Uid="DashNetworkInfo" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
                         <TextBlock Text="{x:Bind ViewModel.CountryFlag, Mode=OneWay}" FontSize="24" />
                         <TextBlock Text="{x:Bind ViewModel.ExternalIp, Mode=OneWay}"
                                    VerticalAlignment="Center" FontSize="13" />
                     </StackPanel>
-                    <Button Grid.Row="2" Content="重新检测" FontSize="12"
+                    <Button Grid.Row="2" x:Uid="DashCheckIp" FontSize="12"
                             Command="{x:Bind ViewModel.CheckIpCommand}"
                             HorizontalAlignment="Stretch" Margin="0,4,0,0" />
                 </Grid>
@@ -169,18 +169,18 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Text="系统信息" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
+                    <TextBlock x:Uid="DashSystemInfo" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
                         <fluent:SymbolIcon Symbol="Wifi1" FontSize="14" Opacity="0.6" />
-                        <TextBlock Text="内网" FontSize="12" Opacity="0.7" />
+                        <TextBlock x:Uid="DashLocalIp" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.LocalIp, Mode=OneWay}" FontSize="13" Margin="8,0,0,0" />
                     </StackPanel>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
                         <fluent:SymbolIcon Symbol="Storage" FontSize="14" Opacity="0.6" />
-                        <TextBlock Text="内存" FontSize="12" Opacity="0.7" />
+                        <TextBlock x:Uid="DashCoreMemory" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.CoreMemory, Mode=OneWay}" FontSize="13" Margin="8,0,0,0" />
                     </StackPanel>
-                    <Button Grid.Row="3" Content="回收内存" FontSize="12"
+                    <Button Grid.Row="3" x:Uid="DashRefreshMemory" FontSize="12"
                             Command="{x:Bind ViewModel.RefreshMemoryCommand}"
                             HorizontalAlignment="Stretch" Margin="0,4,0,0" />
                 </Grid>
