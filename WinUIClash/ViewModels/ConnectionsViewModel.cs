@@ -36,6 +36,9 @@ public partial class ConnectionsViewModel : ObservableObject, IDisposable
     [ObservableProperty] private int _connectionCount;
     [ObservableProperty] private bool _isPaused;
     [ObservableProperty] private string _pauseLabel = "";
+    [ObservableProperty] private string _networkFilter = "All";
+
+    public string[] NetworkFilterOptions { get; } = ["All", "TCP", "UDP"];
 
     /// <summary>Aggregate upload across all active connections</summary>
     public string TotalUploadText => Connections.Count > 0
@@ -48,6 +51,7 @@ public partial class ConnectionsViewModel : ObservableObject, IDisposable
         : "0 B";
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
+    partial void OnNetworkFilterChanged(string value) => ApplyFilter();
     partial void OnCurrentSortChanged(ConnSortMode value)
     {
         OnPropertyChanged(nameof(SortModeLabel));
@@ -80,6 +84,13 @@ public partial class ConnectionsViewModel : ObservableObject, IDisposable
                 var haystack = $"{c.Metadata.Host} {c.Metadata.Process} {string.Join(" ", c.Chains)} {c.Rule}";
                 return keywords.All(kw => haystack.Contains(kw, StringComparison.OrdinalIgnoreCase));
             });
+        }
+
+        // Network type filter
+        if (NetworkFilter != "All")
+        {
+            filtered = filtered.Where(c =>
+                c.Metadata.Network.Equals(NetworkFilter, StringComparison.OrdinalIgnoreCase));
         }
 
         filtered = CurrentSort switch
