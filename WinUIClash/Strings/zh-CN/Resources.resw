@@ -409,6 +409,18 @@
 
   <!-- Service Error Messages -->
   <data name="ErrorCoreBinaryNotFound.Text" xml:space="preserve"><value>未找到 mihomo 可执行文件，请在设置中指定路径</value></data>
+  <data name="ErrorCoreBinaryNotFoundMsg.Text" xml:space="preserve"><value>请在工具页设置中指定 mihomo 可执行文件路径</value></data>
   <data name="ErrorConfigNotFound.Text" xml:space="preserve"><value>配置文件不存在: {0}</value></data>
   <data name="ErrorRegistryAccess.Text" xml:space="preserve"><value>无法打开 Internet Settings 注册表项</value></data>
+  <data name="CoreStartedTitle.Text" xml:space="preserve"><value>核心已启动</value></data>
+  <data name="CoreStartedMsg.Text" xml:space="preserve"><value>ClashMeta 核心正在运行</value></data>
+  <data name="CoreStoppedTitle.Text" xml:space="preserve"><value>核心已停止</value></data>
+  <data name="CoreStoppedMsg.Text" xml:space="preserve"><value>ClashMeta 核心已停止运行</value></data>
+  <data name="ErrorCoreStartFailed.Text" xml:space="preserve"><value>核心启动失败</value></data>
+  <data name="ErrorCoreStartFailedMsg.Text" xml:space="preserve"><value>无法启动 ClashMeta 核心: {0}，已切换到模拟数据</value></data>
+  <data name="ErrorCoreStopFailed.Text" xml:space="preserve"><value>核心停止失败</value></data>
+  <data name="ErrorCoreStopFailedMsg.Text" xml:space="preserve"><value>停止核心时出错: {0}</value></data>
+  <data name="ErrorLoadProxies.Text" xml:space="preserve"><value>加载代理失败</value></data>
+  <data name="ErrorLoadRules.Text" xml:space="preserve"><value>加载规则失败</value></data>
+  <data name="AboutLicense.Text" xml:space="preserve"><value>WinUIClash 是基于 GPL-3.0 许可证的开源软件。本项目与 Clash 或 ClashMeta 无关。</value></data>
 </root>

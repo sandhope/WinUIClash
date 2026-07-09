@@ -9,7 +9,7 @@ namespace WinUIClash.ViewModels;
 /// <summary>
 /// 配置页 ViewModel — 配置管理、订阅更新
 /// </summary>
-public partial class ProfilesViewModel : ObservableObject
+public partial class ProfilesViewModel : ObservableObject, IDisposable
 {
     private readonly IClashService _clash;
     private readonly NotificationService _notification;
@@ -187,5 +187,11 @@ public partial class ProfilesViewModel : ObservableObject
                 }
             }
         }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+    }
+
+    public void Dispose()
+    {
+        _autoUpdateTimer?.Dispose();
+        _autoUpdateTimer = null;
     }
 }

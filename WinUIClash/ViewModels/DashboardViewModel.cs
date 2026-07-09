@@ -88,10 +88,19 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private async Task ToggleCoreAsync()
     {
-        if (IsRunning)
-            await _clash.StopAsync();
-        else
-            await _clash.StartAsync();
+        try
+        {
+            if (IsRunning)
+                await _clash.StopAsync();
+            else
+                await _clash.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            // Error is handled by ClashOrchestrator notifications,
+            // but catch here to prevent unhandled exception propagation
+            System.Diagnostics.Debug.WriteLine($"ToggleCore error: {ex.Message}");
+        }
     }
 
     // ── 实时网速 ──
