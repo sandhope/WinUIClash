@@ -277,6 +277,8 @@
   <data name="ProfilesUrlHeader.Text" xml:space="preserve"><value>Subscription URL</value></data>
   <data name="ProfilesNamePlaceholder.Text" xml:space="preserve"><value>Auto-detected (can be edited)</value></data>
   <data name="ProfilesNameHeader.Text" xml:space="preserve"><value>Profile Name</value></data>
+  <data name="ProfilesImportUrl.Text" xml:space="preserve"><value>From URL</value></data>
+  <data name="ProfilesImportFile.Text" xml:space="preserve"><value>From File</value></data>
   <data name="ProfilesImportTitle.Text" xml:space="preserve"><value>Import Subscription</value></data>
   <data name="ProfilesViewConfig.Text" xml:space="preserve"><value>View Config</value></data>
   <data name="ProfilesCopyUrl.Text" xml:space="preserve"><value>Copy Link</value></data>

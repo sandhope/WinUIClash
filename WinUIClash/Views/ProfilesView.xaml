@@ -23,11 +23,25 @@
             </Grid.ColumnDefinitions>
             <TextBlock x:Uid="ProfilesTitle" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                <Button Click="ImportButton_Click" x:Uid="ProfilesImport">
+                <Button x:Uid="ProfilesImport">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <fluent:SymbolIcon Symbol="Link" FontSize="14" />
+                        <fluent:SymbolIcon Symbol="AddSquare" FontSize="14" />
                         <TextBlock x:Uid="ProfilesImport" FontSize="12" />
                     </StackPanel>
+                    <Button.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem x:Uid="ProfilesImportUrl" Click="ImportButton_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <fluent:SymbolIcon Symbol="Link" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem x:Uid="ProfilesImportFile" Click="ImportFileButton_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <fluent:SymbolIcon Symbol="DocumentAdd" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </Button.Flyout>
                 </Button>
                 <Button Command="{x:Bind ViewModel.SyncAllCommand}"
                         x:Uid="CommonUpdateAll">

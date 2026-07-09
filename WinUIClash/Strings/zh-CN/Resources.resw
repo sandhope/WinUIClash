@@ -277,6 +277,8 @@
   <data name="ProfilesUrlHeader.Text" xml:space="preserve"><value>订阅地址</value></data>
   <data name="ProfilesNamePlaceholder.Text" xml:space="preserve"><value>自动识别（可手动修改）</value></data>
   <data name="ProfilesNameHeader.Text" xml:space="preserve"><value>配置名称</value></data>
+  <data name="ProfilesImportUrl.Text" xml:space="preserve"><value>从 URL</value></data>
+  <data name="ProfilesImportFile.Text" xml:space="preserve"><value>从文件</value></data>
   <data name="ProfilesImportTitle.Text" xml:space="preserve"><value>导入订阅</value></data>
   <data name="ProfilesViewConfig.Text" xml:space="preserve"><value>查看配置</value></data>
   <data name="ProfilesCopyUrl.Text" xml:space="preserve"><value>复制链接</value></data>
