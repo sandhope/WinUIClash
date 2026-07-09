@@ -50,6 +50,8 @@ public sealed partial class MainWindow : Window
 
     // 状态栏连接数轮询定时器
     private DispatcherTimer? _statusBarConnTimer;
+    private DispatcherTimer? _runtimeTimer;
+    private DateTime? _coreStartTime;
     private Traffic _lastTraffic = new();
     private int _lastConnectionCount;
 
@@ -543,7 +545,43 @@ public sealed partial class MainWindow : Window
         if (_trayRunItem != null)
             _trayRunItem.IsChecked = state == CoreState.Running;
 
+        // 运行时长计时器
+        if (state == CoreState.Running)
+        {
+            _coreStartTime = DateTime.Now;
+            StartRuntimeTimer();
+        }
+        else
+        {
+            _coreStartTime = null;
+            StopRuntimeTimer();
+            RuntimeText.Text = "";
+        }
+
         UpdateTrayTooltip();
+    }
+
+    private void StartRuntimeTimer()
+    {
+        _runtimeTimer ??= new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _runtimeTimer.Tick -= UpdateRuntimeDisplay;
+        _runtimeTimer.Tick += UpdateRuntimeDisplay;
+        _runtimeTimer.Start();
+        UpdateRuntimeDisplay(null, null);
+    }
+
+    private void StopRuntimeTimer()
+    {
+        _runtimeTimer?.Stop();
+    }
+
+    private void UpdateRuntimeDisplay(object? sender, object? e)
+    {
+        if (_coreStartTime == null) return;
+        var elapsed = DateTime.Now - _coreStartTime.Value;
+        RuntimeText.Text = elapsed.TotalHours >= 1
+            ? $"{(int)elapsed.TotalHours}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}"
+            : $"{elapsed.Minutes}:{elapsed.Seconds:D2}";
     }
 
     private void OnTrafficUpdated(Traffic t)
@@ -638,7 +676,7 @@ public sealed partial class MainWindow : Window
             var settings = ServiceLocator.Get<AppSettings>();
             settings.SystemProxy = !settings.SystemProxy;
         }
-        catch { }
+        catch (Exception ex) { Debug.WriteLine($"Status proxy toggle error: {ex.Message}"); }
     }
 
     // ── 系统托盘 ──────────────────────────────────────────────────────────────
@@ -676,7 +714,7 @@ public sealed partial class MainWindow : Window
                 else
                     await clash.StopAsync();
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"Tray core toggle error: {ex.Message}"); }
         };
         menu.Items.Add(_trayRunItem);
 
@@ -687,7 +725,7 @@ public sealed partial class MainWindow : Window
             var settings = ServiceLocator.Get<AppSettings>();
             _trayProxyItem.IsChecked = settings.SystemProxy;
         }
-        catch { }
+        catch (Exception ex) { Debug.WriteLine($"Tray proxy init error: {ex.Message}"); }
         _trayProxyItem.Click += (_, _) =>
         {
             try
@@ -695,7 +733,7 @@ public sealed partial class MainWindow : Window
                 var settings = ServiceLocator.Get<AppSettings>();
                 settings.SystemProxy = _trayProxyItem.IsChecked;
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"Tray proxy toggle error: {ex.Message}"); }
         };
         menu.Items.Add(_trayProxyItem);
 
@@ -706,7 +744,7 @@ public sealed partial class MainWindow : Window
             var tunSettings = ServiceLocator.Get<AppSettings>();
             trayTunItem.IsChecked = tunSettings.TunMode;
         }
-        catch { }
+        catch (Exception ex) { Debug.WriteLine($"Tray TUN init error: {ex.Message}"); }
         trayTunItem.Click += (_, _) =>
         {
             try
@@ -714,7 +752,7 @@ public sealed partial class MainWindow : Window
                 var tunSettings = ServiceLocator.Get<AppSettings>();
                 tunSettings.TunMode = trayTunItem.IsChecked;
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"Tray TUN toggle error: {ex.Message}"); }
         };
         // Sync TUN state from settings changes
         try
@@ -726,7 +764,7 @@ public sealed partial class MainWindow : Window
                     _dispatcher.TryEnqueue(() => trayTunItem.IsChecked = tunAppSettings.TunMode);
             };
         }
-        catch { }
+        catch (Exception ex) { Debug.WriteLine($"Tray TUN PropertyChanged subscription error: {ex.Message}"); }
         menu.Items.Add(trayTunItem);
 
         // ── 强制 GC ──
@@ -739,7 +777,7 @@ public sealed partial class MainWindow : Window
                 if (clash.CoreState == CoreState.Running)
                     await clash.ForceGcAsync();
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"Tray GC error: {ex.Message}"); }
         };
         menu.Items.Add(gcItem);
 
@@ -763,19 +801,22 @@ public sealed partial class MainWindow : Window
         {
             ClearModeChecks();
             modeRule.IsChecked = true;
-            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Rule); } catch { }
+            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Rule); }
+            catch (Exception ex) { Debug.WriteLine($"Tray mode Rule error: {ex.Message}"); }
         };
         modeGlobal.Click += async (_, _) =>
         {
             ClearModeChecks();
             modeGlobal.IsChecked = true;
-            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Global); } catch { }
+            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Global); }
+            catch (Exception ex) { Debug.WriteLine($"Tray mode Global error: {ex.Message}"); }
         };
         modeDirect.Click += async (_, _) =>
         {
             ClearModeChecks();
             modeDirect.IsChecked = true;
-            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Direct); } catch { }
+            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Direct); }
+            catch (Exception ex) { Debug.WriteLine($"Tray mode Direct error: {ex.Message}"); }
         };
 
         modeItem.Items.Add(modeRule);
@@ -809,7 +850,7 @@ public sealed partial class MainWindow : Window
                     UseShellExecute = true,
                 });
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"Open data dir error: {ex.Message}"); }
         };
         menu.Items.Add(openDataItem);
 
@@ -943,6 +984,8 @@ public sealed partial class MainWindow : Window
             // Stop timers
             _statusBarConnTimer?.Stop();
             _statusBarConnTimer = null;
+            _runtimeTimer?.Stop();
+            _runtimeTimer = null;
 
             // Unsubscribe from events
             if (_clash != null)
