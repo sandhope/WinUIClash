@@ -26,7 +26,8 @@ namespace WinUIClash
     /// </summary>
     public partial class App : Application
     {
-        private Window? _window;
+        /// <summary>当前主窗口实例，供全局访问（如主题切换）</summary>
+        public static Window? CurrentWindow { get; private set; }
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -44,8 +45,8 @@ namespace WinUIClash
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             ServiceLocator.Build();
-            _window = new MainWindow();
-            _window.Activate();
+            CurrentWindow = new MainWindow();
+            CurrentWindow.Activate();
         }
     }
 }

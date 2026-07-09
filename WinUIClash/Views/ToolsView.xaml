@@ -99,7 +99,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Button Command="{x:Bind ViewModel.GoBackCommand}"
+                <Button Click="BackButton_Click"
                         Background="Transparent" BorderThickness="0"
                         Padding="4" Margin="-4,0,8,0"
                         ToolTipService.ToolTip="返回">
@@ -110,8 +110,8 @@
                            VerticalAlignment="Center" />
             </Grid>
 
-            <!-- 子页面内容 -->
-            <ContentControl Grid.Row="1" Content="{x:Bind ViewModel.CurrentPage, Mode=OneWay}"
+            <!-- 子页面内容：手动管理 Content，避免 x:Bind 导致可视化树冲突 -->
+            <ContentControl x:Name="SubPageContent" Grid.Row="1"
                             HorizontalContentAlignment="Stretch"
                             VerticalContentAlignment="Stretch" />
         </Grid>

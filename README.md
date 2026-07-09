@@ -1,6 +1,6 @@
 # WinUIClash
 
-> 将 [FlClash](https://github.com/chen08209/FlClash) 的 Flutter UI 迁移至 [WinUI 3](https://github.com/sandhope/WinUIClash) 的实验性项目。
+> 将 [FlClash](https://github.com/chen08209/FlClash) 的 Flutter UI 迁移至 [WinUI 3](https://github.com/microsoft/microsoft-ui-xaml) 的实验性项目。
 
 ## 项目目标
 
@@ -11,8 +11,8 @@
 
 | 组件 | 说明 |
 |------|------|
-| 框架 | .NET 8 + Windows App SDK 2.2 |
-| UI | WinUI 3 (XAML)，Mica 背景材质 |
+| 框架 | .NET 10 + Windows App SDK 2.2 |
+| UI | WinUI 3 (XAML) |
 | 目标平台 | Windows 10 1809+ (`10.0.17763.0`) |
 | 架构 | x86 / x64 / ARM64 |
 

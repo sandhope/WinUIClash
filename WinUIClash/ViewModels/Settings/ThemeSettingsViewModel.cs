@@ -85,15 +85,30 @@ public partial class ThemeSettingsViewModel : ObservableObject
 
     private static void ApplyTheme(string mode)
     {
-        if (Application.Current is App app)
+        // WinUI 3 中 Application.RequestedTheme 是只读的，
+        // 必须设置到窗口根 FrameworkElement 上才能生效
+        if (App.CurrentWindow?.Content is FrameworkElement root)
         {
-            // WinUI 3 没有 ApplicationTheme.Default，"System" 时不设置 RequestedTheme 即可跟随系统
-            app.RequestedTheme = mode switch
+            var theme = mode switch
             {
                 "Light" => ApplicationTheme.Light,
                 "Dark" => ApplicationTheme.Dark,
-                _ => ApplicationTheme.Light // 默认回退到 Light，实际应读取系统设置
+                _ => GetSystemTheme() // "System" → 跟随系统
+            };
+            root.RequestedTheme = theme switch
+            {
+                ApplicationTheme.Light => ElementTheme.Light,
+                ApplicationTheme.Dark => ElementTheme.Dark,
+                _ => ElementTheme.Default
             };
         }
+    }
+
+    private static ApplicationTheme GetSystemTheme()
+    {
+        var uiSettings = new Windows.UI.ViewManagement.UISettings();
+        var bgColor = uiSettings.GetColorValue(Windows.UI.ViewManagement.UIColorType.Background);
+        // 系统背景为深色 → 当前是暗色模式
+        return bgColor.R < 128 ? ApplicationTheme.Dark : ApplicationTheme.Light;
     }
 }
