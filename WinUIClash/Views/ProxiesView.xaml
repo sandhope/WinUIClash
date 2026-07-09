@@ -109,13 +109,17 @@
                             </Grid.RowDefinitions>
                             <Grid ColumnSpacing="6">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="{x:Bind Name}" FontSize="13"
+                                <Ellipse x:Name="TypeDot" Width="6" Height="6"
+                                         Fill="{ThemeResource AccentFillColorDefaultBrush}"
+                                         VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind Name}" FontSize="13"
                                            TextTrimming="CharacterEllipsis"
                                            FontWeight="SemiBold" />
-                                <fluent:SymbolIcon x:Name="SelectedIcon" Grid.Column="1"
+                                <fluent:SymbolIcon x:Name="SelectedIcon" Grid.Column="2"
                                                     Symbol="CheckmarkCircle" FontSize="14"
                                                     Foreground="{ThemeResource AccentFillColorDefaultBrush}"
                                                     Visibility="Collapsed" />
