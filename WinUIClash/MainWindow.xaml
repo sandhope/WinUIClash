@@ -46,7 +46,7 @@
                         FontWeight="SemiBold" />
                     <AutoSuggestBox
                         x:Name="SearchBox"
-                        PlaceholderText="搜索… (Ctrl+F)"
+                        x:Uid="SearchBox"
                         QueryIcon="Find"
                         TextChanged="SearchBox_TextChanged"
                         SuggestionChosen="SearchBox_SuggestionChosen"
@@ -56,55 +56,55 @@
 
             <NavigationView.MenuItems>
                 <!-- 仪表盘 -->
-                <NavigationViewItem Content="仪表盘" Tag="Dashboard">
+                <NavigationViewItem x:Uid="NavDashboard" Tag="Dashboard">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Home" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 代理 -->
-                <NavigationViewItem Content="代理" Tag="Proxies">
+                <NavigationViewItem x:Uid="NavProxies" Tag="Proxies">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Globe" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 配置 -->
-                <NavigationViewItem Content="配置" Tag="Profiles">
+                <NavigationViewItem x:Uid="NavProfiles" Tag="Profiles">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Folder" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 请求 -->
-                <NavigationViewItem Content="请求" Tag="Requests">
+                <NavigationViewItem x:Uid="NavRequests" Tag="Requests">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="List" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 连接 -->
-                <NavigationViewItem Content="连接" Tag="Connections">
+                <NavigationViewItem x:Uid="NavConnections" Tag="Connections">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Link" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 资源 -->
-                <NavigationViewItem Content="资源" Tag="Resources">
+                <NavigationViewItem x:Uid="NavResources" Tag="Resources">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Library" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 规则 -->
-                <NavigationViewItem Content="规则" Tag="Rules">
+                <NavigationViewItem x:Uid="NavRules" Tag="Rules">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Filter" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 日志 -->
-                <NavigationViewItem Content="日志" Tag="Logs">
+                <NavigationViewItem x:Uid="NavLogs" Tag="Logs">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Notepad" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <!-- 工具 -->
-                <NavigationViewItem Content="工具" Tag="Tools">
+                <NavigationViewItem x:Uid="NavTools" Tag="Tools">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Wrench" />
                     </NavigationViewItem.Icon>

@@ -210,6 +210,7 @@
 
   <!-- StatusBar -->
   <data name="StatusBarSystemProxy.Text" xml:space="preserve"><value>系统代理</value></data>
+  <data name="SearchBox.PlaceholderText" xml:space="preserve"><value>搜索… (Ctrl+F)</value></data>
 
   <!-- Connection Sort Modes -->
   <data name="ConnSortNone.Text" xml:space="preserve"><value>默认排序</value></data>
