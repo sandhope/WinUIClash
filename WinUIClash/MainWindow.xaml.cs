@@ -620,29 +620,7 @@ public sealed partial class MainWindow : Window
     private async void ExitApp()
     {
         _isExiting = true;
-
-        if (!_cleanedUp)
-        {
-            _cleanedUp = true;
-            try
-            {
-                // Stop timers
-                _statusBarConnTimer?.Stop();
-                _statusBarConnTimer = null;
-
-                // Stop core process
-                var core = ServiceLocator.Get<Services.CoreProcessService>();
-                await core.StopAsync();
-                core.Dispose();
-
-                // Disable system proxy
-                ServiceLocator.Get<Services.SystemProxyService>().Disable();
-
-                // Save settings
-                ServiceLocator.Get<Services.SettingsService>().SaveImmediate();
-            }
-            catch { }
-        }
+        await PerformCleanupAsync();
 
         _trayIcon?.Dispose();
         _trayIcon = null;
@@ -670,27 +648,51 @@ public sealed partial class MainWindow : Window
         }
         catch { /* ServiceLocator 未初始化时忽略 */ }
 
-        // 正常关闭 — 执行清理（与 ExitApp 共享，防止重复）
-        if (!_cleanedUp)
-        {
-            _cleanedUp = true;
-            try
-            {
-                _statusBarConnTimer?.Stop();
-                _statusBarConnTimer = null;
-
-                var core = ServiceLocator.Get<Services.CoreProcessService>();
-                await core.StopAsync();
-                core.Dispose();
-
-                ServiceLocator.Get<Services.SystemProxyService>().Disable();
-                ServiceLocator.Get<Services.SettingsService>().SaveImmediate();
-            }
-            catch { }
-        }
+        // 正常关闭 — 执行共享清理
+        await PerformCleanupAsync();
 
         _trayIcon?.Dispose();
         _trayIcon = null;
+    }
+
+    /// <summary>
+    /// Shared cleanup logic called by both ExitApp and OnWindowClosed.
+    /// Stops timers, core process, disables system proxy, and saves settings.
+    /// </summary>
+    private async Task PerformCleanupAsync()
+    {
+        if (_cleanedUp) return;
+        _cleanedUp = true;
+
+        try
+        {
+            // Stop timers
+            _statusBarConnTimer?.Stop();
+            _statusBarConnTimer = null;
+
+            // Unsubscribe from events
+            if (_clash != null)
+            {
+                _clash.CoreStateChanged -= OnCoreStateChanged;
+                _clash.TrafficUpdated -= OnTrafficUpdated;
+            }
+            if (_appSettings != null)
+            {
+                _appSettings.PropertyChanged -= OnSettingsPropertyChanged;
+            }
+
+            // Stop core process
+            var core = ServiceLocator.Get<Services.CoreProcessService>();
+            await core.StopAsync();
+            core.Dispose();
+
+            // Disable system proxy
+            ServiceLocator.Get<Services.SystemProxyService>().Disable();
+
+            // Save settings
+            ServiceLocator.Get<Services.SettingsService>().SaveImmediate();
+        }
+        catch { }
     }
 
     // ── 图标生成 ──────────────────────────────────────────────────────────────
