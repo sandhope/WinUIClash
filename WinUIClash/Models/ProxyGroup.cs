@@ -28,4 +28,7 @@ public partial class ProxyGroup : ObservableObject
     public bool Hidden { get; set; }
     public string? Icon { get; set; }
     public string? TestUrl { get; set; }
+
+    /// <summary>Node count label for tab display, e.g. "(12)"</summary>
+    public string NodeCountText => Proxies.Count > 0 ? $"({Proxies.Count})" : "";
 }

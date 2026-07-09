@@ -58,6 +58,8 @@
                                     Tag="{x:Bind}">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <TextBlock Text="{x:Bind Name}" VerticalAlignment="Center" />
+                                    <TextBlock Text="{x:Bind NodeCountText}" FontSize="10" Opacity="0.4"
+                                               VerticalAlignment="Center" />
                                     <TextBlock Text="{x:Bind Type}" FontSize="10" Opacity="0.5"
                                                VerticalAlignment="Center" />
                                 </StackPanel>
