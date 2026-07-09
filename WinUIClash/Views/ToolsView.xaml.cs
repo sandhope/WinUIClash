@@ -17,6 +17,15 @@ public sealed partial class ToolsView : Page
     private void SettingItem_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button btn && btn.Tag is ToolsViewModel.SettingItem item)
+        {
             ViewModel.OpenSettingCommand.Execute(item);
+            SubPageContent.Content = ViewModel.CurrentPage;
+        }
+    }
+
+    private void BackButton_Click(object sender, RoutedEventArgs e)
+    {
+        SubPageContent.Content = null;
+        ViewModel.GoBackCommand.Execute(null);
     }
 }
