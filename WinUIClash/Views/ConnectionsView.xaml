@@ -69,6 +69,9 @@
                         </StackPanel>
                     </Button>
                 </Grid>
+                <Button Command="{x:Bind ViewModel.ExportCommand}" x:Uid="ConnExport">
+                    <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
+                </Button>
                 <Button Click="CloseAll_Click" x:Uid="ConnCloseAll">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <fluent:SymbolIcon Symbol="DismissCircle" FontSize="14" />

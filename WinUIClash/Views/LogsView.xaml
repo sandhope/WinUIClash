@@ -85,7 +85,9 @@
                                    VerticalAlignment="Center" Width="65" />
                         <!-- 级别标签 -->
                         <Border Grid.Column="1" CornerRadius="3" Padding="6,2"
-                                VerticalAlignment="Center">
+                                VerticalAlignment="Center"
+                                Tapped="LogLevelBadge_Tapped"
+                                Tag="{x:Bind Level}">
                             <Border.Background>
                                 <SolidColorBrush Color="{ThemeResource SubtleFillColorSecondary}" />
                             </Border.Background>
