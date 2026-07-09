@@ -43,6 +43,9 @@
   <data name="DashCoreStart.Text" xml:space="preserve"><value>Start</value></data>
   <data name="DashCoreStop.Text" xml:space="preserve"><value>Stop</value></data>
   <data name="DashRuntime.Text" xml:space="preserve"><value>Running </value></data>
+  <data name="DashOutboundMode.Text" xml:space="preserve"><value>Outbound Mode</value></data>
+  <data name="DashSystemInfo.Text" xml:space="preserve"><value>System Info</value></data>
+  <data name="DashRefreshMemory.Content" xml:space="preserve"><value>Recycle Memory</value></data>
   <data name="DashIpLocalFetching.Text" xml:space="preserve"><value>Fetching…</value></data>
   <data name="DashIpLocalFailed.Text" xml:space="preserve"><value>Not available</value></data>
 
