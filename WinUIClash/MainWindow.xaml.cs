@@ -477,7 +477,16 @@ public sealed partial class MainWindow : Window
             else if (clash.CoreState == CoreState.Stopped)
                 await clash.StartAsync();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            try
+            {
+                ServiceLocator.Get<Services.NotificationService>().Error(
+                    Services.LocalizationHelper.GetString("AppErrorTitle.Text"),
+                    ex.Message);
+            }
+            catch { }
+        }
     }
 
     // ── 系统托盘 ──────────────────────────────────────────────────────────────

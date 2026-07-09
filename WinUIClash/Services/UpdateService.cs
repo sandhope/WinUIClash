@@ -72,8 +72,8 @@ public class UpdateService
             // Find the appropriate asset for download
             var downloadUrl = release.Assets?
                 .FirstOrDefault(a => a.Name.Contains("win", StringComparison.OrdinalIgnoreCase) &&
-                                     a.Name.EndsWith(".msix", StringComparison.OrdinalIgnoreCase) ||
-                                     a.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                                     (a.Name.EndsWith(".msix", StringComparison.OrdinalIgnoreCase) ||
+                                      a.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)))
                 ?.BrowserDownloadUrl ?? release.HtmlUrl;
 
             return new UpdateInfo(

@@ -94,7 +94,7 @@
             <!-- 许可证 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <TextBlock FontSize="11" Opacity="0.4" TextWrapping="Wrap"
-                           Text="WinUIClash is open source software licensed under the GPL-3.0 License. This project is not affiliated with Clash or ClashMeta." />
+                           x:Uid="AboutLicense" />
             </Border>
         </StackPanel>
     </ScrollViewer>

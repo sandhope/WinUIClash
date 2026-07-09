@@ -12,11 +12,13 @@ namespace WinUIClash.ViewModels;
 public partial class RulesViewModel : ObservableObject
 {
     private readonly IClashService _clash;
+    private readonly NotificationService _notification;
     private bool _initialized;
 
-    public RulesViewModel(IClashService clash)
+    public RulesViewModel(IClashService clash, NotificationService notification)
     {
         _clash = clash;
+        _notification = notification;
     }
 
     [ObservableProperty] private ObservableCollection<Rule> _rules = new();
@@ -53,39 +55,51 @@ public partial class RulesViewModel : ObservableObject
     private async Task LoadAsync()
     {
         IsLoading = true;
-        var list = await _clash.GetRulesAsync();
-        Rules = new ObservableCollection<Rule>(list);
-        TotalCount = list.Count;
-
-        // 构建类型统计
-        var typeGroups = list.GroupBy(r => r.Type)
-            .OrderByDescending(g => g.Count())
-            .ToList();
-
-        var types = new ObservableCollection<RuleTypeOption>
+        try
         {
-            new(LocalizationHelper.GetString("RulesAllTypes.Text"), "ALL", list.Count)
-        };
-        foreach (var g in typeGroups)
-        {
-            types.Add(new RuleTypeOption($"{g.Key} ({g.Count()})", g.Key, g.Count()));
+            var list = await _clash.GetRulesAsync();
+            Rules = new ObservableCollection<Rule>(list);
+            TotalCount = list.Count;
+
+            // 构建类型统计
+            var typeGroups = list.GroupBy(r => r.Type)
+                .OrderByDescending(g => g.Count())
+                .ToList();
+
+            var types = new ObservableCollection<RuleTypeOption>
+            {
+                new(LocalizationHelper.GetString("RulesAllTypes.Text"), "ALL", list.Count)
+            };
+            foreach (var g in typeGroups)
+            {
+                types.Add(new RuleTypeOption($"{g.Key} ({g.Count()})", g.Key, g.Count()));
+            }
+            RuleTypes = types;
+
+            // 构建代理选项
+            var proxies = list.Select(r => r.Proxy)
+                .Distinct()
+                .OrderBy(p => p)
+                .ToList();
+            var proxyOpts = new ObservableCollection<string> { LocalizationHelper.GetString("RulesAllProxies.Text") };
+            foreach (var p in proxies)
+            {
+                proxyOpts.Add(p);
+            }
+            ProxyOptions = proxyOpts;
+
+            ApplyFilter();
         }
-        RuleTypes = types;
-
-        // 构建代理选项
-        var proxies = list.Select(r => r.Proxy)
-            .Distinct()
-            .OrderBy(p => p)
-            .ToList();
-        var proxyOpts = new ObservableCollection<string> { LocalizationHelper.GetString("RulesAllProxies.Text") };
-        foreach (var p in proxies)
+        catch (Exception ex)
         {
-            proxyOpts.Add(p);
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorLoadRules.Text"),
+                ex.Message);
         }
-        ProxyOptions = proxyOpts;
-
-        ApplyFilter();
-        IsLoading = false;
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     private void ApplyFilter()

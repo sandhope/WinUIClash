@@ -16,6 +16,11 @@ public sealed partial class ConnectionsView : Page
         ViewModel = ServiceLocator.Get<ConnectionsViewModel>();
         InitializeComponent();
         Loaded += async (_, _) => await ViewModel.InitializeAsync();
+        Unloaded += (_, _) =>
+        {
+            _detailTimer?.Stop();
+            ViewModel.Dispose();
+        };
 
         // 监听选中连接变化 → 更新详情面板
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;

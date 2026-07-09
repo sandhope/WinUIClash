@@ -409,6 +409,18 @@
 
   <!-- Service Error Messages -->
   <data name="ErrorCoreBinaryNotFound.Text" xml:space="preserve"><value>mihomo executable not found. Please specify the path in settings.</value></data>
+  <data name="ErrorCoreBinaryNotFoundMsg.Text" xml:space="preserve"><value>Please specify the mihomo executable path in Tools settings.</value></data>
   <data name="ErrorConfigNotFound.Text" xml:space="preserve"><value>Configuration file not found: {0}</value></data>
   <data name="ErrorRegistryAccess.Text" xml:space="preserve"><value>Unable to open Internet Settings registry key</value></data>
+  <data name="CoreStartedTitle.Text" xml:space="preserve"><value>Core Started</value></data>
+  <data name="CoreStartedMsg.Text" xml:space="preserve"><value>ClashMeta core is running.</value></data>
+  <data name="CoreStoppedTitle.Text" xml:space="preserve"><value>Core Stopped</value></data>
+  <data name="CoreStoppedMsg.Text" xml:space="preserve"><value>ClashMeta core has been stopped.</value></data>
+  <data name="ErrorCoreStartFailed.Text" xml:space="preserve"><value>Core Start Failed</value></data>
+  <data name="ErrorCoreStartFailedMsg.Text" xml:space="preserve"><value>Could not start ClashMeta core: {0}. Using mock data.</value></data>
+  <data name="ErrorCoreStopFailed.Text" xml:space="preserve"><value>Core Stop Failed</value></data>
+  <data name="ErrorCoreStopFailedMsg.Text" xml:space="preserve"><value>Error stopping core: {0}</value></data>
+  <data name="ErrorLoadProxies.Text" xml:space="preserve"><value>Failed to Load Proxies</value></data>
+  <data name="ErrorLoadRules.Text" xml:space="preserve"><value>Failed to Load Rules</value></data>
+  <data name="AboutLicense.Text" xml:space="preserve"><value>WinUIClash is open source software licensed under the GPL-3.0 License. This project is not affiliated with Clash or ClashMeta.</value></data>
 </root>

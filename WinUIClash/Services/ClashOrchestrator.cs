@@ -68,8 +68,8 @@ public class ClashOrchestrator : IClashService
             {
                 _logger.LogWarning(ex, "ClashMeta core binary not found");
                 _notificationService.Error(
-                    "Core Not Found",
-                    "mihomo executable was not found. Please specify the path in settings.");
+                    LocalizationHelper.GetString("ErrorCoreBinaryNotFound.Text"),
+                    LocalizationHelper.GetString("ErrorCoreBinaryNotFoundMsg.Text"));
                 return;
             }
 
@@ -91,12 +91,17 @@ public class ClashOrchestrator : IClashService
             _httpClashService.SetApiEndpoint("127.0.0.1", apiPort);
             await _httpClashService.StartAsync();
 
-            // 4. Switch active service to the real backend
+            // 4. Start the real-time traffic WebSocket stream
+            _ = _httpClashService.StartTrafficStreamAsync();
+
+            // 5. Switch active service to the real backend
             SwitchActiveService(_httpClashService);
 
-            // 5. Fire state change and notify
+            // 6. Fire state change and notify
             CoreStateChanged?.Invoke(CoreState.Running);
-            _notificationService.Success("Core Started", "ClashMeta core is running.");
+            _notificationService.Success(
+                LocalizationHelper.GetString("CoreStartedTitle.Text"),
+                LocalizationHelper.GetString("CoreStartedMsg.Text"));
 
             _logger.LogInformation("ClashOrchestrator: switched to HttpClashService");
         }
@@ -119,8 +124,8 @@ public class ClashOrchestrator : IClashService
             CoreStateChanged?.Invoke(_mockClashService.CoreState);
 
             _notificationService.Error(
-                "Core Start Failed",
-                $"Could not start ClashMeta core: {ex.Message}. Using mock data.");
+                LocalizationHelper.GetString("ErrorCoreStartFailed.Text"),
+                string.Format(LocalizationHelper.GetString("ErrorCoreStartFailedMsg.Text"), ex.Message));
         }
     }
 
@@ -144,14 +149,18 @@ public class ClashOrchestrator : IClashService
             CoreStateChanged?.Invoke(_mockClashService.CoreState);
 
             // 5. Notify
-            _notificationService.Info("Core Stopped", "ClashMeta core has been stopped.");
+            _notificationService.Info(
+                LocalizationHelper.GetString("CoreStoppedTitle.Text"),
+                LocalizationHelper.GetString("CoreStoppedMsg.Text"));
 
             _logger.LogInformation("ClashOrchestrator: stopped core, switched to MockClashService");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during stop");
-            _notificationService.Error("Stop Error", $"Error stopping core: {ex.Message}");
+            _notificationService.Error(
+                LocalizationHelper.GetString("ErrorCoreStopFailed.Text"),
+                string.Format(LocalizationHelper.GetString("ErrorCoreStopFailedMsg.Text"), ex.Message));
         }
     }
 

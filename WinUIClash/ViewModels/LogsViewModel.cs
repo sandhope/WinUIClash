@@ -154,7 +154,12 @@ public partial class LogsViewModel : ObservableObject, IDisposable
 
             await Windows.Storage.FileIO.WriteTextAsync(file, content);
         }
-        catch { /* 用户取消或导出失败时静默 */ }
+        catch (Exception ex) when (ex is not OperationCanceledException
+            && ex.HResult != unchecked((int)0x80004004)) // E_ABORT = user cancelled picker
+        {
+            // Only notify for real errors, not user cancellation
+            System.Diagnostics.Debug.WriteLine($"Export error: {ex.Message}");
+        }
     }
 
     public void Dispose()

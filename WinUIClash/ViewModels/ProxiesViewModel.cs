@@ -74,10 +74,22 @@ public partial class ProxiesViewModel : ObservableObject
     private async Task LoadAsync()
     {
         IsLoading = true;
-        var list = await _clash.GetProxyGroupsAsync();
-        Groups = new ObservableCollection<ProxyGroup>(list);
-        SelectedGroup = Groups.FirstOrDefault();
-        IsLoading = false;
+        try
+        {
+            var list = await _clash.GetProxyGroupsAsync();
+            Groups = new ObservableCollection<ProxyGroup>(list);
+            SelectedGroup = Groups.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorLoadProxies.Text"),
+                ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     /// <summary>切换代理组 Tab</summary>
