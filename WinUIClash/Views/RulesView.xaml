@@ -24,6 +24,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                 <TextBlock x:Uid="RulesTitle" FontSize="20" FontWeight="SemiBold" />
@@ -49,6 +50,12 @@
             <TextBox Grid.Column="5" Width="200"
                      x:Uid="RulesSearchPlaceholder"
                      Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <!-- 导出 -->
+            <Button Grid.Column="6" Margin="8,0,0,0"
+                    Command="{x:Bind ViewModel.ExportCommand}"
+                    Padding="8,4" Background="Transparent" BorderThickness="0">
+                <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
+            </Button>
         </Grid>
 
         <!-- 表头 -->

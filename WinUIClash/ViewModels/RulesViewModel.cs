@@ -140,4 +140,33 @@ public partial class RulesViewModel : ObservableObject
         _initialized = true;
         await LoadAsync();
     }
+
+    [RelayCommand]
+    private async Task ExportAsync()
+    {
+        try
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("Type,Payload,Proxy");
+            foreach (var r in FilteredRules)
+            {
+                sb.AppendLine($"\"{r.Type}\",\"{r.Payload}\",\"{r.Proxy}\"");
+            }
+
+            var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            var path = System.IO.Path.Combine(desktopPath,
+                $"WinUIClash_Rules_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+            await File.WriteAllTextAsync(path, sb.ToString());
+
+            _notification.Success(
+                LocalizationHelper.GetString("RequestsExportSuccessTitle.Text"),
+                path);
+        }
+        catch (Exception ex)
+        {
+            _notification.Error(
+                LocalizationHelper.GetString("RequestsExportFailTitle.Text"),
+                ex.Message);
+        }
+    }
 }
