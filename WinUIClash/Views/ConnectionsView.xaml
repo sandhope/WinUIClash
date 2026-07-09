@@ -28,6 +28,18 @@
                             QueryIcon="Find"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" />
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                <TextBlock VerticalAlignment="Center" FontSize="11" Opacity="0.5">
+                    <Run Text="{x:Bind ViewModel.ConnectionCount, Mode=OneWay}" />
+                    <Run Text=" 个连接" />
+                </TextBlock>
+                <Button Command="{x:Bind ViewModel.CycleSortModeCommand}"
+                        ToolTipService.ToolTip="切换排序"
+                        Padding="8,4" Background="Transparent" BorderThickness="0">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <fluent:SymbolIcon Symbol="ArrowSort" FontSize="12" />
+                        <TextBlock Text="{x:Bind ViewModel.SortModeLabel, Mode=OneWay}" FontSize="11" />
+                    </StackPanel>
+                </Button>
                 <Button Command="{x:Bind ViewModel.RefreshCommand}" ToolTipService.ToolTip="刷新">
                     <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
                 </Button>
