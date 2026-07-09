@@ -206,6 +206,19 @@ public sealed partial class ProfilesView : Page
         };
         menu.Items.Add(copyUrl);
 
+        // 复制配置文件路径
+        var copyPath = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesCopyPath.Text") };
+        copyPath.Click += (_, _) =>
+        {
+            var path = profile.Path;
+            if (string.IsNullOrWhiteSpace(path))
+                path = new ProfileStorageService().GetConfigPath(profile.Id);
+            var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
+            dp.SetText(path);
+            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
+        };
+        menu.Items.Add(copyPath);
+
         // 自动更新开关
         var autoUpdate = new ToggleMenuFlyoutItem
         {

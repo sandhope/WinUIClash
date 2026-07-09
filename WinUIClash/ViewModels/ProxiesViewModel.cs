@@ -210,6 +210,13 @@ public partial class ProxiesViewModel : ObservableObject
         };
     }
 
+    /// <summary>重新加载代理数据</summary>
+    [RelayCommand]
+    private async Task RefreshAsync()
+    {
+        await LoadAsync();
+    }
+
     public string SortModeLabel => CurrentSort switch
     {
         SortMode.Name  => LocalizationHelper.GetString("ProxySortName.Text"),
