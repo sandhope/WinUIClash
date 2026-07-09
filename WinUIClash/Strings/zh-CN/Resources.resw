@@ -295,6 +295,7 @@
   <!-- Profiles - Additional -->
   <data name="ProfilesImport.Content" xml:space="preserve"><value>导入</value></data>
   <data name="ProfilesImport.ToolTip" xml:space="preserve"><value>导入订阅</value></data>
+  <data name="ProfilesPasteClipboard.Content" xml:space="preserve"><value>粘贴</value></data>
   <data name="ProfilesActive.Text" xml:space="preserve"><value>使用中</value></data>
   <data name="ProfilesMore.ToolTip" xml:space="preserve"><value>更多</value></data>
   <data name="ProfilesClipboardTitle.Text" xml:space="preserve"><value>检测到订阅链接</value></data>

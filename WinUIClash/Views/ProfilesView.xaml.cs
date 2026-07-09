@@ -107,6 +107,44 @@ public sealed partial class ProfilesView : Page
             Header = LocalizationHelper.GetString("ProfilesUrlHeader.Text"),
         };
 
+        // Auto-paste from clipboard if it looks like a URL
+        try
+        {
+            var clipContent = await Windows.ApplicationModel.DataTransfer.Clipboard.GetContent()
+                .GetTextAsync();
+            if (!string.IsNullOrWhiteSpace(clipContent) &&
+                (clipContent.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                 clipContent.StartsWith("https://", StringComparison.OrdinalIgnoreCase)))
+            {
+                urlBox.Text = clipContent.Trim();
+            }
+        }
+        catch { /* clipboard empty or not text */ }
+
+        var pasteBtn = new Button
+        {
+            Content = LocalizationHelper.GetString("ProfilesPasteClipboard.Content"),
+            Margin = new Thickness(8, 0, 0, 0),
+            VerticalAlignment = VerticalAlignment.Bottom,
+        };
+        pasteBtn.Click += async (_, _) =>
+        {
+            try
+            {
+                urlBox.Text = (await Windows.ApplicationModel.DataTransfer.Clipboard.GetContent()
+                    .GetTextAsync()).Trim();
+            }
+            catch { }
+        };
+
+        var urlRow = new Grid { ColumnSpacing = 8 };
+        urlRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        urlRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        Grid.SetColumn(urlBox, 0);
+        Grid.SetColumn(pasteBtn, 1);
+        urlRow.Children.Add(urlBox);
+        urlRow.Children.Add(pasteBtn);
+
         var nameBox = new TextBox
         {
             PlaceholderText = LocalizationHelper.GetString("ProfilesNamePlaceholder.Text"),
@@ -124,7 +162,7 @@ public sealed partial class ProfilesView : Page
             Content = new StackPanel
             {
                 Spacing = 0,
-                Children = { urlBox, nameBox }
+                Children = { urlRow, nameBox }
             }
         };
 

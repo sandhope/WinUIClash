@@ -295,6 +295,7 @@
   <!-- Profiles - Additional -->
   <data name="ProfilesImport.Content" xml:space="preserve"><value>Import</value></data>
   <data name="ProfilesImport.ToolTip" xml:space="preserve"><value>Import Subscription</value></data>
+  <data name="ProfilesPasteClipboard.Content" xml:space="preserve"><value>Paste</value></data>
   <data name="ProfilesActive.Text" xml:space="preserve"><value>Active</value></data>
   <data name="ProfilesMore.ToolTip" xml:space="preserve"><value>More</value></data>
   <data name="ProfilesClipboardTitle.Text" xml:space="preserve"><value>Subscription Link Detected</value></data>
