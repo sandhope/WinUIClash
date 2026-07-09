@@ -294,6 +294,72 @@ public sealed partial class MainWindow : Window
                 await _clash.StartAsync();
         };
         RootGrid.KeyboardAccelerators.Add(coreToggleAccel);
+
+        // F1 快捷键帮助
+        var helpAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.F1,
+        };
+        helpAccel.Invoked += async (_, _) => await ShowKeyboardHelpAsync();
+        RootGrid.KeyboardAccelerators.Add(helpAccel);
+    }
+
+    private async Task ShowKeyboardHelpAsync()
+    {
+        var shortcuts = new (string Key, string Desc)[]
+        {
+            ("Ctrl+1~9", LocalizationHelper.GetString("HelpNav.Text")),
+            ("Ctrl+F", LocalizationHelper.GetString("HelpSearch.Text")),
+            ("F5 / Ctrl+R", LocalizationHelper.GetString("HelpRefresh.Text")),
+            ("Ctrl+B", LocalizationHelper.GetString("HelpSidebar.Text")),
+            ("Ctrl+W", LocalizationHelper.GetString("HelpMinimize.Text")),
+            ("Ctrl+P", LocalizationHelper.GetString("HelpCoreToggle.Text")),
+            ("Ctrl+Shift+S", LocalizationHelper.GetString("HelpProxyToggle.Text")),
+            ("Ctrl+Q", LocalizationHelper.GetString("HelpQuit.Text")),
+            ("F1", LocalizationHelper.GetString("HelpShowHelp.Text")),
+        };
+
+        var panel = new StackPanel { Spacing = 6, MinWidth = 360 };
+        foreach (var (key, desc) in shortcuts)
+        {
+            var row = new Grid { ColumnSpacing = 16 };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var keyText = new TextBlock
+            {
+                Text = key,
+                FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas"),
+                FontSize = 12,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            Grid.SetColumn(keyText, 0);
+
+            var descText = new TextBlock
+            {
+                Text = desc,
+                FontSize = 12,
+                Opacity = 0.7,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextWrapping = TextWrapping.Wrap,
+            };
+            Grid.SetColumn(descText, 1);
+
+            row.Children.Add(keyText);
+            row.Children.Add(descText);
+            panel.Children.Add(row);
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = LocalizationHelper.GetString("HelpTitle.Text"),
+            XamlRoot = (this.Content as FrameworkElement)?.XamlRoot,
+            CloseButtonText = LocalizationHelper.GetString("CommonClose.Content"),
+            Content = panel,
+        };
+
+        await dialog.ShowAsync();
     }
 
     private void RefreshCurrentPage()
