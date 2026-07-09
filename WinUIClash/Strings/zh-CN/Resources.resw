@@ -133,6 +133,12 @@
   <data name="AppProxyGuardIntervalDesc.Text" xml:space="preserve"><value>检查代理变化的频率（5-600秒）</value></data>
   <data name="AppBypassDomains.Text" xml:space="preserve"><value>代理绕过</value></data>
   <data name="AppBypassDomainsDesc.Text" xml:space="preserve"><value>不走代理的域名列表（分号分隔）</value></data>
+  <data name="AppBypassPresets.Text" xml:space="preserve"><value>预设</value></data>
+  <data name="BypassPresetDefault.Text" xml:space="preserve"><value>默认（本地）</value></data>
+  <data name="BypassPresetLan.Text" xml:space="preserve"><value>局域网 + 本地</value></data>
+  <data name="BypassPresetChina.Text" xml:space="preserve"><value>中国直连</value></data>
+  <data name="BypassPresetMergeLan.Text" xml:space="preserve"><value>添加局域网地址</value></data>
+  <data name="BypassPresetMergeChina.Text" xml:space="preserve"><value>添加中国域名</value></data>
   <data name="AppCloseConnections.Text" xml:space="preserve"><value>切换时关闭连接</value></data>
   <data name="AppCloseConnectionsDesc.Text" xml:space="preserve"><value>切换配置或代理时自动关闭已有连接</value></data>
   <data name="AppOnlyStatisticsProxy.Text" xml:space="preserve"><value>仅统计代理流量</value></data>
@@ -276,6 +282,9 @@
   <data name="ProfilesCopyUrl.Text" xml:space="preserve"><value>复制链接</value></data>
   <data name="ProfilesEditName.Text" xml:space="preserve"><value>编辑名称</value></data>
   <data name="ProfilesEditNameTitle.Text" xml:space="preserve"><value>编辑名称</value></data>
+  <data name="ProfilesEditProfile.Text" xml:space="preserve"><value>编辑档案</value></data>
+  <data name="ProfilesEditProfileTitle.Text" xml:space="preserve"><value>编辑档案</value></data>
+  <data name="ProfilesAutoUpdate.Text" xml:space="preserve"><value>自动更新</value></data>
   <data name="ProfilesConfigViewerTitle.Text" xml:space="preserve"><value>配置: </value></data>
 
   <!-- Connections - Additional -->

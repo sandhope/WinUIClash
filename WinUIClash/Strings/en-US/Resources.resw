@@ -133,6 +133,12 @@
   <data name="AppProxyGuardIntervalDesc.Text" xml:space="preserve"><value>How often to check for proxy changes (5-600s)</value></data>
   <data name="AppBypassDomains.Text" xml:space="preserve"><value>Proxy Bypass</value></data>
   <data name="AppBypassDomainsDesc.Text" xml:space="preserve"><value>Domains that bypass proxy (semicolon separated)</value></data>
+  <data name="AppBypassPresets.Text" xml:space="preserve"><value>Presets</value></data>
+  <data name="BypassPresetDefault.Text" xml:space="preserve"><value>Default (localhost)</value></data>
+  <data name="BypassPresetLan.Text" xml:space="preserve"><value>LAN + Localhost</value></data>
+  <data name="BypassPresetChina.Text" xml:space="preserve"><value>China Direct</value></data>
+  <data name="BypassPresetMergeLan.Text" xml:space="preserve"><value>Add LAN addresses</value></data>
+  <data name="BypassPresetMergeChina.Text" xml:space="preserve"><value>Add China domains</value></data>
   <data name="AppCloseConnections.Text" xml:space="preserve"><value>Close Connections on Switch</value></data>
   <data name="AppCloseConnectionsDesc.Text" xml:space="preserve"><value>Automatically close existing connections when switching config or proxy</value></data>
   <data name="AppOnlyStatisticsProxy.Text" xml:space="preserve"><value>Proxy Traffic Only</value></data>
@@ -276,6 +282,9 @@
   <data name="ProfilesCopyUrl.Text" xml:space="preserve"><value>Copy Link</value></data>
   <data name="ProfilesEditName.Text" xml:space="preserve"><value>Edit Name</value></data>
   <data name="ProfilesEditNameTitle.Text" xml:space="preserve"><value>Edit Name</value></data>
+  <data name="ProfilesEditProfile.Text" xml:space="preserve"><value>Edit Profile</value></data>
+  <data name="ProfilesEditProfileTitle.Text" xml:space="preserve"><value>Edit Profile</value></data>
+  <data name="ProfilesAutoUpdate.Text" xml:space="preserve"><value>Auto Update</value></data>
   <data name="ProfilesConfigViewerTitle.Text" xml:space="preserve"><value>Config: </value></data>
 
   <!-- Connections - Additional -->

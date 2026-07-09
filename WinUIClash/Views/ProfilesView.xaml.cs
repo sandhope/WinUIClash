@@ -162,8 +162,22 @@ public sealed partial class ProfilesView : Page
         };
         menu.Items.Add(copyUrl);
 
-        // 编辑名称
-        var editName = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesEditName.Text") };
+        // 自动更新开关
+        var autoUpdate = new ToggleMenuFlyoutItem
+        {
+            Text = LocalizationHelper.GetString("ProfilesAutoUpdate.Text"),
+            IsChecked = profile.AutoUpdate,
+        };
+        autoUpdate.Click += (_, _) =>
+        {
+            profile.AutoUpdate = !profile.AutoUpdate;
+        };
+        menu.Items.Add(autoUpdate);
+
+        menu.Items.Add(new MenuFlyoutSeparator());
+
+        // 编辑档案
+        var editName = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesEditProfile.Text") };
         editName.Click += async (_, _) => await ShowEditNameDialogAsync(profile);
         menu.Items.Add(editName);
 
@@ -172,8 +186,28 @@ public sealed partial class ProfilesView : Page
 
     private async Task ShowConfigViewerAsync(Profile profile)
     {
-        // 生成模拟 YAML 配置（接入真实后端后替换为实际配置）
-        var yaml = GenerateMockConfig(profile);
+        // Try to read actual config from local file
+        var yaml = "";
+        var storage = new ProfileStorageService();
+        var configPath = profile.Path;
+        if (string.IsNullOrWhiteSpace(configPath))
+            configPath = storage.GetConfigPath(profile.Id);
+
+        if (File.Exists(configPath))
+        {
+            try
+            {
+                yaml = await File.ReadAllTextAsync(configPath);
+            }
+            catch
+            {
+                yaml = GenerateMockConfig(profile);
+            }
+        }
+        else
+        {
+            yaml = GenerateMockConfig(profile);
+        }
 
         var editor = new TextBox
         {
@@ -213,22 +247,40 @@ public sealed partial class ProfilesView : Page
             Header = LocalizationHelper.GetString("ProfilesNameHeader.Text"),
         };
 
+        var urlBox = new TextBox
+        {
+            Text = profile.Url ?? "",
+            PlaceholderText = "https://example.com/sub?token=xxx",
+            Header = LocalizationHelper.GetString("ProfilesUrlHeader.Text"),
+            Margin = new Thickness(0, 12, 0, 0),
+        };
+
         var dialog = new ContentDialog
         {
-            Title = LocalizationHelper.GetString("ProfilesEditNameTitle.Text"),
+            Title = LocalizationHelper.GetString("ProfilesEditProfileTitle.Text"),
             XamlRoot = XamlRoot,
             PrimaryButtonText = LocalizationHelper.GetString("CommonSave.Content"),
             CloseButtonText = LocalizationHelper.GetString("CommonCancel.Content"),
             DefaultButton = ContentDialogButton.Primary,
-            Content = nameBox,
+            Content = new StackPanel
+            {
+                Spacing = 0,
+                Children = { nameBox, urlBox }
+            },
         };
 
         var result = await dialog.ShowAsync();
         if (result == ContentDialogResult.Primary)
         {
             var newName = nameBox.Text.Trim();
+            var newUrl = urlBox.Text.Trim();
             if (!string.IsNullOrEmpty(newName))
-                profile.Label = newName;
+            {
+                await ViewModel.UpdateProfileAsync(
+                    profile.Id,
+                    newName,
+                    string.IsNullOrEmpty(newUrl) ? null : newUrl);
+            }
         }
     }
 

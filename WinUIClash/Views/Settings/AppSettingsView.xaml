@@ -179,11 +179,26 @@
             <!-- 代理绕过 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="8">
-                    <StackPanel Spacing="2">
-                        <TextBlock x:Uid="AppBypassDomains" FontSize="14" />
-                        <TextBlock x:Uid="AppBypassDomainsDesc" FontSize="12" Opacity="0.5" />
-                    </StackPanel>
-                    <TextBox Text="{x:Bind ViewModel.BypassDomains, Mode=TwoWay}"
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="2">
+                            <TextBlock x:Uid="AppBypassDomains" FontSize="14" />
+                            <TextBlock x:Uid="AppBypassDomainsDesc" FontSize="12" Opacity="0.5" />
+                        </StackPanel>
+                        <Button Grid.Column="1" x:Uid="AppBypassPresets"
+                                Padding="8,4" Background="Transparent" BorderThickness="0"
+                                Click="BypassPresets_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <SymbolIcon Symbol="List" />
+                                <TextBlock x:Uid="AppBypassPresets" FontSize="11" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                    <TextBox x:Name="BypassTextBox"
+                             Text="{x:Bind ViewModel.BypassDomains, Mode=TwoWay}"
                              AcceptsReturn="True" Height="80"
                              TextWrapping="Wrap" />
                 </StackPanel>
