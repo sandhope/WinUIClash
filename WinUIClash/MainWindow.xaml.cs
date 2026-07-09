@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
@@ -735,6 +736,28 @@ public sealed partial class MainWindow : Window
 
         // Populate profiles asynchronously
         _ = PopulateTrayProfilesAsync();
+
+        menu.Items.Add(new MenuFlyoutSeparator());
+
+        // ── 打开数据目录 ──
+        var openDataItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("AboutOpenDataFolder.Content") };
+        openDataItem.Click += (_, _) =>
+        {
+            try
+            {
+                var dataDir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "WinUIClash");
+                Directory.CreateDirectory(dataDir);
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = dataDir,
+                    UseShellExecute = true,
+                });
+            }
+            catch { }
+        };
+        menu.Items.Add(openDataItem);
 
         menu.Items.Add(new MenuFlyoutSeparator());
 
