@@ -163,15 +163,36 @@ public sealed partial class ProxiesView : Page
 
         menu.Items.Add(new MenuFlyoutSeparator());
 
-        var copyItem = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProxyCtxCopyName.Text") };
-        copyItem.Click += (_, _) =>
+        // Proxy info header (non-clickable)
+        var delayText = proxy.Delay > 0 ? $"{proxy.Delay}ms" : proxy.Delay == 0 ? "N/A" : "—";
+        var infoItem = new MenuFlyoutItem
         {
-            var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
-            dp.SetText(proxy.Name);
-            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
+            Text = $"{proxy.Name}  |  {proxy.Type}  |  {delayText}",
+            IsEnabled = false,
         };
-        menu.Items.Add(copyItem);
+        menu.Items.Add(infoItem);
+
+        menu.Items.Add(new MenuFlyoutSeparator());
+
+        var copyNameItem = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProxyCtxCopyName.Text") };
+        copyNameItem.Click += (_, _) => CopyToClipboard(proxy.Name);
+        menu.Items.Add(copyNameItem);
+
+        var copyTypeItem = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProxyCtxCopyType.Text") };
+        copyTypeItem.Click += (_, _) => CopyToClipboard(proxy.Type);
+        menu.Items.Add(copyTypeItem);
+
+        var copyAllItem = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProxyCtxCopyAll.Text") };
+        copyAllItem.Click += (_, _) => CopyToClipboard($"{proxy.Name}\n{proxy.Type}\n{delayText}");
+        menu.Items.Add(copyAllItem);
 
         menu.ShowAt(border, e.GetPosition(border));
+    }
+
+    private static void CopyToClipboard(string text)
+    {
+        var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
+        dp.SetText(text);
+        Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
     }
 }

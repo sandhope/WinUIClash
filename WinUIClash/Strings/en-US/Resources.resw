@@ -413,6 +413,8 @@
   <data name="ProxyCtxTestDelay.Text" xml:space="preserve"><value>Test Delay</value></data>
   <data name="ProxyCtxSelect.Text" xml:space="preserve"><value>Select Node</value></data>
   <data name="ProxyCtxCopyName.Text" xml:space="preserve"><value>Copy Name</value></data>
+  <data name="ProxyCtxCopyType.Text" xml:space="preserve"><value>Copy Type</value></data>
+  <data name="ProxyCtxCopyAll.Text" xml:space="preserve"><value>Copy Full Info</value></data>
 
   <!-- App Error Dialog -->
   <data name="AppErrorTitle.Text" xml:space="preserve"><value>Error Occurred</value></data>
