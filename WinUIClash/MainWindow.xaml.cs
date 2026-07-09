@@ -85,6 +85,18 @@ public sealed partial class MainWindow : Window
         // 键盘快捷键
         InitKeyboardShortcuts();
 
+        // 活跃配置名显示在标题栏
+        try
+        {
+            var profilesVm = ServiceLocator.Get<ViewModels.ProfilesViewModel>();
+            profilesVm.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(ViewModels.ProfilesViewModel.ActiveProfile))
+                    UpdateWindowTitle();
+            };
+        }
+        catch { }
+
         // 注册通知服务
         try
         {
@@ -469,6 +481,22 @@ public sealed partial class MainWindow : Window
         }
 
         sender.Text = "";
+    }
+
+    // ── 窗口标题 ────────────────────────────────────────────────────────────
+
+    private void UpdateWindowTitle()
+    {
+        try
+        {
+            var profilesVm = ServiceLocator.Get<ViewModels.ProfilesViewModel>();
+            var label = profilesVm.ActiveProfile?.Label;
+            Title = string.IsNullOrEmpty(label) ? "WinUIClash" : $"WinUIClash — {label}";
+        }
+        catch
+        {
+            Title = "WinUIClash";
+        }
     }
 
     // ── 状态栏 ──────────────────────────────────────────────────────────────

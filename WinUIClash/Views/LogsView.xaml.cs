@@ -51,6 +51,12 @@ public sealed partial class LogsView : Page
         menu.ShowAt(element, e.GetPosition(element));
     }
 
+    private void LogItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: LogEntry entry })
+            CopyToClipboard(entry.Payload);
+    }
+
     private static void CopyToClipboard(string text)
     {
         var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
