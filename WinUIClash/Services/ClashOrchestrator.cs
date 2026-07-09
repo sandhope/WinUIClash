@@ -18,6 +18,9 @@ public class ClashOrchestrator : IClashService
     private readonly ILogger<ClashOrchestrator> _logger;
 
     private IClashService _activeService;
+    private bool _intentionalStop;
+    private int _restartAttempts;
+    private const int MaxRestartAttempts = 3;
 
     // ── Events (forwarded from active service) ──
     public event Action<Traffic>? TrafficUpdated;
@@ -42,6 +45,9 @@ public class ClashOrchestrator : IClashService
         // Start with mock service as the active backend
         _activeService = _mockClashService;
         SubscribeToEvents(_mockClashService);
+
+        // Watch for unexpected core process exits
+        _processService.ProcessStateChanged += OnProcessStateChanged;
     }
 
     /// <summary>Whether the real ClashMeta core process is running and connected.</summary>
@@ -59,6 +65,9 @@ public class ClashOrchestrator : IClashService
     {
         try
         {
+            _intentionalStop = false;
+            _restartAttempts = 0;
+
             // 1. Start the core process
             try
             {
@@ -88,7 +97,7 @@ public class ClashOrchestrator : IClashService
             _logger.LogInformation("ClashMeta REST API is ready on port {Port}", apiPort);
 
             // 3. Configure the HTTP client endpoint and start (connects WebSockets)
-            _httpClashService.SetApiEndpoint("127.0.0.1", apiPort);
+            _httpClashService.SetApiEndpoint("127.0.0.1", apiPort, _settings.ApiSecret);
             await _httpClashService.StartAsync();
 
             // 4. Start the real-time traffic WebSocket stream
@@ -133,6 +142,8 @@ public class ClashOrchestrator : IClashService
     {
         try
         {
+            _intentionalStop = true;
+
             // 1. Disconnect HttpClashService WebSockets
             if (IsRealCore)
             {
@@ -277,4 +288,43 @@ public class ClashOrchestrator : IClashService
     private void OnTrafficUpdated(Traffic traffic) => TrafficUpdated?.Invoke(traffic);
     private void OnCoreStateChanged(CoreState state) => CoreStateChanged?.Invoke(state);
     private void OnLogReceived(LogEntry entry) => LogReceived?.Invoke(entry);
+
+    /// <summary>
+    /// Crash recovery watchdog: if the core process exits unexpectedly and auto-restart is enabled,
+    /// attempt to restart it (up to MaxRestartAttempts consecutive times).
+    /// </summary>
+    private async void OnProcessStateChanged(bool isRunning)
+    {
+        if (isRunning || _intentionalStop || !_settings.AutoRestart) return;
+        if (!IsRealCore) return; // Only react when we were using the real core
+
+        _restartAttempts++;
+        if (_restartAttempts > MaxRestartAttempts)
+        {
+            _logger.LogWarning("Core crash recovery: max restart attempts ({Max}) reached", MaxRestartAttempts);
+            _notificationService.Error(
+                LocalizationHelper.GetString("ErrorCoreStartFailed.Text"),
+                LocalizationHelper.GetString("ErrorCoreCrashMaxRestarts.Text"));
+            SwitchActiveService(_mockClashService);
+            CoreStateChanged?.Invoke(CoreState.Stopped);
+            return;
+        }
+
+        _logger.LogWarning("Core process exited unexpectedly, attempting restart ({Attempt}/{Max})",
+            _restartAttempts, MaxRestartAttempts);
+
+        _notificationService.Warning(
+            LocalizationHelper.GetString("CoreCrashedTitle.Text"),
+            string.Format(LocalizationHelper.GetString("CoreCrashedMsg.Text"), _restartAttempts, MaxRestartAttempts));
+
+        // Wait a bit before restarting
+        await Task.Delay(TimeSpan.FromSeconds(2));
+
+        // Switch to mock temporarily
+        SwitchActiveService(_mockClashService);
+        CoreStateChanged?.Invoke(CoreState.Stopped);
+
+        // Attempt restart
+        await StartAsync();
+    }
 }

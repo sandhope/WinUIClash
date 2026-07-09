@@ -102,6 +102,11 @@
   <data name="ConfigFindProcessDesc.Text" xml:space="preserve"><value>匹配连接对应的本地进程</value></data>
   <data name="ConfigExternalController.Text" xml:space="preserve"><value>外部控制</value></data>
   <data name="ConfigExternalControllerDesc.Text" xml:space="preserve"><value>启用 RESTful API 控制接口</value></data>
+  <data name="ConfigApiSecret.Text" xml:space="preserve"><value>API 密钥</value></data>
+  <data name="ConfigApiSecretDesc.Text" xml:space="preserve"><value>API 认证的密钥令牌</value></data>
+  <data name="ConfigApiSecretPlaceholder.PlaceholderText" xml:space="preserve"><value>无密钥则留空</value></data>
+  <data name="ConfigAutoRestart.Text" xml:space="preserve"><value>崩溃自动重启</value></data>
+  <data name="ConfigAutoRestartDesc.Text" xml:space="preserve"><value>核心进程意外退出时自动重启</value></data>
   <data name="ConfigKeepAlive.Text" xml:space="preserve"><value>Keep-Alive 间隔</value></data>
   <data name="ConfigKeepAliveDesc.Text" xml:space="preserve"><value>TCP 连接保活间隔（秒）</value></data>
   <data name="ConfigTestUrl.Text" xml:space="preserve"><value>测试地址</value></data>
@@ -421,6 +426,9 @@
   <data name="ErrorCoreStartFailedMsg.Text" xml:space="preserve"><value>无法启动 ClashMeta 核心: {0}，已切换到模拟数据</value></data>
   <data name="ErrorCoreStopFailed.Text" xml:space="preserve"><value>核心停止失败</value></data>
   <data name="ErrorCoreStopFailedMsg.Text" xml:space="preserve"><value>停止核心时出错: {0}</value></data>
+  <data name="CoreCrashedTitle.Text" xml:space="preserve"><value>核心崩溃</value></data>
+  <data name="CoreCrashedMsg.Text" xml:space="preserve"><value>核心进程意外退出，正在重启 ({0}/{1})…</value></data>
+  <data name="ErrorCoreCrashMaxRestarts.Text" xml:space="preserve"><value>核心多次崩溃，已达最大重启次数，请手动重启。</value></data>
   <data name="ErrorLoadProxies.Text" xml:space="preserve"><value>加载代理失败</value></data>
   <data name="ErrorLoadRules.Text" xml:space="preserve"><value>加载规则失败</value></data>
   <data name="AboutLicense.Text" xml:space="preserve"><value>WinUIClash 是基于 GPL-3.0 许可证的开源软件。本项目与 Clash 或 ClashMeta 无关。</value></data>

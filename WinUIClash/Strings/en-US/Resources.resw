@@ -102,6 +102,11 @@
   <data name="ConfigFindProcessDesc.Text" xml:space="preserve"><value>Match connections to local processes</value></data>
   <data name="ConfigExternalController.Text" xml:space="preserve"><value>External Controller</value></data>
   <data name="ConfigExternalControllerDesc.Text" xml:space="preserve"><value>Enable RESTful API control interface</value></data>
+  <data name="ConfigApiSecret.Text" xml:space="preserve"><value>API Secret</value></data>
+  <data name="ConfigApiSecretDesc.Text" xml:space="preserve"><value>Secret token for API authentication</value></data>
+  <data name="ConfigApiSecretPlaceholder.PlaceholderText" xml:space="preserve"><value>Leave empty if none</value></data>
+  <data name="ConfigAutoRestart.Text" xml:space="preserve"><value>Auto Restart</value></data>
+  <data name="ConfigAutoRestartDesc.Text" xml:space="preserve"><value>Automatically restart core if it crashes unexpectedly</value></data>
   <data name="ConfigKeepAlive.Text" xml:space="preserve"><value>Keep-Alive Interval</value></data>
   <data name="ConfigKeepAliveDesc.Text" xml:space="preserve"><value>TCP connection keep-alive interval (seconds)</value></data>
   <data name="ConfigTestUrl.Text" xml:space="preserve"><value>Test URL</value></data>
@@ -421,6 +426,9 @@
   <data name="ErrorCoreStartFailedMsg.Text" xml:space="preserve"><value>Could not start ClashMeta core: {0}. Using mock data.</value></data>
   <data name="ErrorCoreStopFailed.Text" xml:space="preserve"><value>Core Stop Failed</value></data>
   <data name="ErrorCoreStopFailedMsg.Text" xml:space="preserve"><value>Error stopping core: {0}</value></data>
+  <data name="CoreCrashedTitle.Text" xml:space="preserve"><value>Core Crashed</value></data>
+  <data name="CoreCrashedMsg.Text" xml:space="preserve"><value>Core process exited unexpectedly. Restarting ({0}/{1})…</value></data>
+  <data name="ErrorCoreCrashMaxRestarts.Text" xml:space="preserve"><value>Core crashed repeatedly. Maximum restart attempts reached. Please restart manually.</value></data>
   <data name="ErrorLoadProxies.Text" xml:space="preserve"><value>Failed to Load Proxies</value></data>
   <data name="ErrorLoadRules.Text" xml:space="preserve"><value>Failed to Load Rules</value></data>
   <data name="AboutLicense.Text" xml:space="preserve"><value>WinUIClash is open source software licensed under the GPL-3.0 License. This project is not affiliated with Clash or ClashMeta.</value></data>

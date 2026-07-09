@@ -268,6 +268,8 @@ public class HttpClashService : IClashService, IDisposable
             Start = c.Start ?? DateTime.Now,
             Download = c.Download,
             Upload = c.Upload,
+            UploadSpeed = c.UploadSpeed,
+            DownloadSpeed = c.DownloadSpeed,
             Metadata = new ConnectionMetadata
             {
                 Network = c.Metadata?.Network ?? "",
@@ -514,6 +516,8 @@ public class HttpClashService : IClashService, IDisposable
         public DateTime? Start { get; set; }
         public long Download { get; set; }
         public long Upload { get; set; }
+        public long UploadSpeed { get; set; }
+        public long DownloadSpeed { get; set; }
         public ConnectionMetaDto? Metadata { get; set; }
         public List<string>? Chains { get; set; }
         public string? Rule { get; set; }

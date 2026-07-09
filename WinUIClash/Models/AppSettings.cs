@@ -22,6 +22,7 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private bool _tcpConcurrent = false;
     [ObservableProperty] private bool _findProcessMode = false;
     [ObservableProperty] private bool _externalController = true;
+    [ObservableProperty] private string _apiSecret = "";
 
     // ── 应用设置 ──
 
@@ -29,6 +30,7 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private bool _autoLaunch = false;
     [ObservableProperty] private bool _silentLaunch = false;
     [ObservableProperty] private bool _autoRun = false;
+    [ObservableProperty] private bool _autoRestart = true;
     [ObservableProperty] private bool _autoCheckUpdate = true;
     [ObservableProperty] private bool _closeConnections = false;
     [ObservableProperty] private bool _onlyStatisticsProxy = false;
