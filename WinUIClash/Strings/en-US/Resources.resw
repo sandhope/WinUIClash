@@ -217,7 +217,6 @@
   <data name="ThemeDark.Content" xml:space="preserve"><value>Dark</value></data>
 
   <!-- About - Additional -->
-  <data name="AboutCheckingUpdate.Text" xml:space="preserve"><value>Checking…</value></data>
   <data name="AboutCheckingStatus.Text" xml:space="preserve"><value>Checking for updates…</value></data>
   <data name="AboutUpToDate.Text" xml:space="preserve"><value>✓ You are up to date (v{0})</value></data>
   <data name="AboutNewVersionFound.Text" xml:space="preserve"><value>New version v{0} available — click to download</value></data>
@@ -389,7 +388,6 @@
 
   <!-- MainWindow Status Bar -->
   <data name="StatusToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve"><value>Click to toggle core</value></data>
-  <data name="StatusStopped.Text" xml:space="preserve"><value>Stopped</value></data>
   <data name="StatusProxyLabel.Text" xml:space="preserve"><value>Proxy</value></data>
 
   <!-- Theme Mode Names -->
