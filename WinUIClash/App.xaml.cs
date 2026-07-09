@@ -45,8 +45,38 @@ namespace WinUIClash
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             ServiceLocator.Build();
+
+            // 加载持久化设置
+            var settingsService = ServiceLocator.Get<Services.SettingsService>();
+            settingsService.Load();
+            settingsService.EnableAutoSave();
+
+            // 初始化系统代理
+            var proxyService = ServiceLocator.Get<Services.SystemProxyService>();
+            proxyService.ApplyCurrentState();
+            proxyService.WatchSettings();
+
             CurrentWindow = new MainWindow();
             CurrentWindow.Activate();
+
+            // 如果设置了自动运行，启动 Clash 核心
+            var appSettings = ServiceLocator.Get<Models.AppSettings>();
+            if (appSettings.AutoRun)
+            {
+                var coreService = ServiceLocator.Get<Services.CoreProcessService>();
+                _ = coreService.StartAsync();
+            }
+
+            // 应用退出时清理
+            CurrentWindow.Closed += (s, e) =>
+            {
+                var core = ServiceLocator.Get<Services.CoreProcessService>();
+                core.StopAsync().Wait();
+                core.Dispose();
+
+                proxyService.Disable();
+                settingsService.SaveImmediate();
+            };
         }
     }
 }

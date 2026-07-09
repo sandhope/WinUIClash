@@ -71,6 +71,12 @@
                     <fluent:SymbolIcon Symbol="Library" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
+            <!-- 规则 -->
+            <NavigationViewItem Content="规则" Tag="Rules">
+                <NavigationViewItem.Icon>
+                    <fluent:SymbolIcon Symbol="Filter" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
             <!-- 日志 -->
             <NavigationViewItem Content="日志" Tag="Logs">
                 <NavigationViewItem.Icon>

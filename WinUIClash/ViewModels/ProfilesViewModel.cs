@@ -72,6 +72,45 @@ public partial class ProfilesViewModel : ObservableObject
         Profiles.Remove(profile);
     }
 
+    /// <summary>
+    /// 从 URL 导入订阅配置
+    /// </summary>
+    public async Task ImportProfileAsync(string url, string? name)
+    {
+        // 从 URL 提取名称或使用用户指定的名称
+        var label = name;
+        if (string.IsNullOrEmpty(label))
+        {
+            try
+            {
+                var uri = new Uri(url);
+                label = uri.Host.Split('.').FirstOrDefault() ?? "订阅";
+            }
+            catch
+            {
+                label = "订阅";
+            }
+        }
+
+        var profile = new Profile
+        {
+            Id = Guid.NewGuid().ToString("N")[..8],
+            Label = label,
+            Url = url,
+            LastUpdate = DateTime.Now,
+            IsActive = false,
+        };
+
+        // 首次导入尝试同步
+        try
+        {
+            await _clash.SyncProfileAsync(profile.Id);
+        }
+        catch { /* 首次同步失败不阻止导入 */ }
+
+        Profiles.Add(profile);
+    }
+
     public async Task InitializeAsync()
     {
         if (_initialized) return;

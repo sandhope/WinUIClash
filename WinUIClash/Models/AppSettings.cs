@@ -42,4 +42,12 @@ public partial class AppSettings : ObservableObject
 
     [ObservableProperty] private bool _systemProxy = false;
     [ObservableProperty] private string _bypassDomains = "localhost;127.0.0.1;<local>";
+
+    // ── 窗口状态 ──
+
+    [ObservableProperty] private int _windowWidth = 1280;
+    [ObservableProperty] private int _windowHeight = 800;
+    [ObservableProperty] private int _windowX;
+    [ObservableProperty] private int _windowY;
+    [ObservableProperty] private bool _isSidebarCompact;
 }
