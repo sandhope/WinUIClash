@@ -342,6 +342,25 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         }
     }
 
+    // ── 活跃代理节点 ──
+
+    [ObservableProperty] private string? _activeProxyNode;
+
+    public async Task RefreshActiveProxyNodeAsync()
+    {
+        try
+        {
+            var groups = await _clash.GetProxyGroupsAsync();
+            // Show the selected node of the first proxy group (usually the main selector)
+            var now = groups.FirstOrDefault()?.Now;
+            ActiveProxyNode = string.IsNullOrEmpty(now) ? null : now;
+        }
+        catch
+        {
+            ActiveProxyNode = null;
+        }
+    }
+
     // ── 初始化 ──
 
     public async Task InitializeAsync()
@@ -357,6 +376,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         SyncModeState(_clash.GetOutboundMode());
         await RefreshTotalTrafficAsync();
         await RefreshConnectionCountAsync();
+        await RefreshActiveProxyNodeAsync();
         await CheckIpAsync();
         await RefreshLocalIpAsync();
         await RefreshMemoryAsync();
