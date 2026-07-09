@@ -129,7 +129,13 @@
                             <TextBlock Grid.Row="2"
                                        Text="{x:Bind Delay, Mode=OneWay, Converter={StaticResource DelayToTextConverter}}"
                                        Foreground="{x:Bind Delay, Mode=OneWay, Converter={StaticResource DelayToColorConverter}}"
-                                       FontSize="12" FontWeight="SemiBold" />
+                                       FontSize="12" FontWeight="SemiBold"
+                                       Visibility="{x:Bind IsTestingDelay, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                            <ProgressRing Grid.Row="2"
+                                          IsActive="{x:Bind IsTestingDelay, Mode=OneWay}"
+                                          Visibility="{x:Bind IsTestingDelay, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                          Width="18" Height="18"
+                                          HorizontalAlignment="Left" />
                         </Grid>
                     </Border>
                 </DataTemplate>
