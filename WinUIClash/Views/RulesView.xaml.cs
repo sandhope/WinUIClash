@@ -88,6 +88,12 @@ public sealed partial class RulesView : Page
         menu.ShowAt(element, e.GetPosition(element));
     }
 
+    private void RuleItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: Rule rule })
+            CopyToClipboard($"{rule.Type}, {rule.Payload}, {rule.Proxy}");
+    }
+
     private static void CopyToClipboard(string text)
     {
         var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
