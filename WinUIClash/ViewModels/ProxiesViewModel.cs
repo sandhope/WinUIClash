@@ -129,10 +129,10 @@ public partial class ProxiesViewModel : ObservableObject
 
     public string SortModeLabel => CurrentSort switch
     {
-        SortMode.Name  => "按名称",
-        SortMode.Delay => "按延迟",
-        SortMode.Type  => "按类型",
-        _              => "默认",
+        SortMode.Name  => LocalizationHelper.GetString("ProxySortName.Text"),
+        SortMode.Delay => LocalizationHelper.GetString("ProxySortDelay.Text"),
+        SortMode.Type  => LocalizationHelper.GetString("ProxySortType.Text"),
+        _              => LocalizationHelper.GetString("ProxySortDefault.Text"),
     };
 
     public async Task InitializeAsync()

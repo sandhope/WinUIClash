@@ -28,14 +28,9 @@
                             QueryIcon="Find"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" />
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                <ComboBox SelectedItem="{x:Bind ViewModel.SelectedLevel, Mode=TwoWay}"
-                          Width="100">
-                    <x:String>全部</x:String>
-                    <x:String>Debug</x:String>
-                    <x:String>Info</x:String>
-                    <x:String>Warning</x:String>
-                    <x:String>Error</x:String>
-                </ComboBox>
+                <ComboBox ItemsSource="{x:Bind ViewModel.LevelOptions}"
+                          SelectedItem="{x:Bind ViewModel.SelectedLevel, Mode=TwoWay}"
+                          Width="110" FontSize="12" />
                 <Button Command="{x:Bind ViewModel.TogglePauseCommand}"
                         ToolTipService.ToolTip="{x:Bind ViewModel.PauseLabel, Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="4">
