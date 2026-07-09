@@ -111,6 +111,8 @@ public class MockClashService : IClashService
         return Task.CompletedTask;
     }
 
+    public Task<string> GetVersionAsync() => Task.FromResult("mihomo 1.19.0 (mock)");
+
     // ── 流量 ──
 
     public Traffic GetCurrentTraffic()
@@ -382,7 +384,8 @@ public class MockClashService : IClashService
                 Count = 398_000,
                 VehicleType = "HTTP",
                 UpdateAt = DateTime.Now.AddDays(-2),
-                Path = "GeoIP.dat"
+                Path = "GeoIP.dat",
+                Category = "rule",
             },
             new()
             {
@@ -391,7 +394,8 @@ public class MockClashService : IClashService
                 Count = 1_250_000,
                 VehicleType = "HTTP",
                 UpdateAt = DateTime.Now.AddDays(-1),
-                Path = "GeoSite.dat"
+                Path = "GeoSite.dat",
+                Category = "rule",
             },
             new()
             {
@@ -400,13 +404,24 @@ public class MockClashService : IClashService
                 Count = 45_000,
                 VehicleType = "HTTP",
                 UpdateAt = DateTime.Now.AddDays(-5),
-                Path = "ASN.mmdb"
-            }
+                Path = "ASN.mmdb",
+                Category = "rule",
+            },
+            new()
+            {
+                Name = "SubPool",
+                Type = "HTTP",
+                Count = 24,
+                VehicleType = "HTTP",
+                UpdateAt = DateTime.Now.AddHours(-6),
+                Path = "proxies/sub.yaml",
+                Category = "proxy",
+            },
         };
         return Task.FromResult<IReadOnlyList<ExternalProvider>>(providers);
     }
 
-    public Task UpdateExternalProviderAsync(string name) => Task.CompletedTask;
+    public Task UpdateExternalProviderAsync(string name, string category = "proxy") => Task.CompletedTask;
 
     // ── 规则 ──
 

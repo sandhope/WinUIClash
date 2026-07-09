@@ -11,6 +11,7 @@ public interface IClashService
     CoreState CoreState { get; }
     Task StartAsync();
     Task StopAsync();
+    Task<string> GetVersionAsync();
 
     // ── 流量 ──
     Traffic GetCurrentTraffic();
@@ -49,7 +50,7 @@ public interface IClashService
 
     // ── 外部提供者 ──
     Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync();
-    Task UpdateExternalProviderAsync(string name);
+    Task UpdateExternalProviderAsync(string name, string category = "proxy");
 
     // ── 规则 ──
     Task<IReadOnlyList<Rule>> GetRulesAsync();

@@ -46,6 +46,8 @@
   <data name="DashOutboundMode.Text" xml:space="preserve"><value>出站模式</value></data>
   <data name="DashSystemInfo.Text" xml:space="preserve"><value>系统信息</value></data>
   <data name="DashRefreshMemory.Content" xml:space="preserve"><value>回收内存</value></data>
+  <data name="DashCoreVersion.Text" xml:space="preserve"><value>核心版本</value></data>
+  <data name="DashForceGc.Content" xml:space="preserve"><value>强制 GC</value></data>
   <data name="DashIpLocalFetching.Text" xml:space="preserve"><value>获取中…</value></data>
   <data name="DashIpLocalFailed.Text" xml:space="preserve"><value>未获取</value></data>
 

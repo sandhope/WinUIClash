@@ -75,6 +75,16 @@
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <TextBlock Text="{x:Bind Name}" FontSize="14" FontWeight="SemiBold"
                                                VerticalAlignment="Center" />
+                                    <!-- 类别标签 -->
+                                    <Border CornerRadius="4" Padding="6,2"
+                                            VerticalAlignment="Center">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{ThemeResource SubtleFillColorSecondary}" />
+                                        </Border.Background>
+                                        <TextBlock Text="{x:Bind Category}" FontSize="10"
+                                                   FontFamily="Consolas" FontWeight="SemiBold"
+                                                   Opacity="0.7" />
+                                    </Border>
                                     <!-- 类型标签 -->
                                     <Border CornerRadius="4" Padding="6,2"
                                             Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"

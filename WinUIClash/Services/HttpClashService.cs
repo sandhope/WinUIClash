@@ -87,6 +87,13 @@ public class HttpClashService : IClashService, IDisposable
         resp.EnsureSuccessStatusCode();
     }
 
+    public async Task<string> GetVersionAsync()
+    {
+        var json = await _http.GetStringAsync("/version");
+        var dto = JsonSerializer.Deserialize<VersionDto>(json, JsonOpts);
+        return dto?.Version ?? dto?.Meta ?? "unknown";
+    }
+
     // ── 流量 ──
 
     public Traffic GetCurrentTraffic() => _currentTraffic;
@@ -358,23 +365,57 @@ public class HttpClashService : IClashService, IDisposable
 
     public async Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync()
     {
-        var json = await _http.GetStringAsync("/providers/proxies");
-        var dto = JsonSerializer.Deserialize<ProvidersResponse>(json, JsonOpts);
-        if (dto?.Providers == null) return Array.Empty<ExternalProvider>();
+        var result = new List<ExternalProvider>();
 
-        return dto.Providers.Select(p => new ExternalProvider
+        // Fetch proxy providers
+        try
         {
-            Name = p.Name ?? "",
-            Type = p.Type ?? "",
-            VehicleType = p.VehicleType ?? "",
-            Count = p.Count,
-            UpdateAt = p.UpdatedAt,
-        }).ToList();
+            var json = await _http.GetStringAsync("/providers/proxies");
+            var dto = JsonSerializer.Deserialize<ProvidersResponse>(json, JsonOpts);
+            if (dto?.Providers != null)
+            {
+                result.AddRange(dto.Providers.Select(p => new ExternalProvider
+                {
+                    Name = p.Name ?? "",
+                    Type = p.Type ?? "",
+                    VehicleType = p.VehicleType ?? "",
+                    Count = p.Count,
+                    UpdateAt = p.UpdatedAt,
+                    Category = "proxy",
+                }));
+            }
+        }
+        catch { /* proxy providers unavailable */ }
+
+        // Fetch rule providers
+        try
+        {
+            var json = await _http.GetStringAsync("/providers/rules");
+            var dto = JsonSerializer.Deserialize<ProvidersResponse>(json, JsonOpts);
+            if (dto?.Providers != null)
+            {
+                result.AddRange(dto.Providers.Select(p => new ExternalProvider
+                {
+                    Name = p.Name ?? "",
+                    Type = p.Type ?? "",
+                    VehicleType = p.VehicleType ?? "",
+                    Count = p.Count,
+                    UpdateAt = p.UpdatedAt,
+                    Category = "rule",
+                }));
+            }
+        }
+        catch { /* rule providers unavailable */ }
+
+        return result;
     }
 
-    public async Task UpdateExternalProviderAsync(string name)
+    public async Task UpdateExternalProviderAsync(string name, string category = "proxy")
     {
-        await _http.PutAsync($"/providers/proxies/{Uri.EscapeDataString(name)}", null);
+        var endpoint = category == "rule"
+            ? $"/providers/rules/{Uri.EscapeDataString(name)}"
+            : $"/providers/proxies/{Uri.EscapeDataString(name)}";
+        await _http.PutAsync(endpoint, null);
     }
 
     // ── 规则 ──
@@ -410,7 +451,10 @@ public class HttpClashService : IClashService, IDisposable
         }
     }
 
-    public Task ForceGcAsync() => Task.CompletedTask;
+    public async Task ForceGcAsync()
+    {
+        await _http.PostAsync("/memory/force-gc", null);
+    }
 
     // ── 辅助方法 ──
 
@@ -533,5 +577,11 @@ public class HttpClashService : IClashService, IDisposable
     private class MemoryDto
     {
         public long Inuse { get; set; }
+    }
+
+    private class VersionDto
+    {
+        public string? Version { get; set; }
+        public string? Meta { get; set; }
     }
 }

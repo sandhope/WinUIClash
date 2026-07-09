@@ -157,13 +157,14 @@
                 </Grid>
             </Border>
 
-            <!-- 内网 IP + 内存 -->
+            <!-- 内网 IP + 内存 + 核心版本 -->
             <Border Grid.Row="1" Grid.Column="3"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     CornerRadius="8" Padding="16"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
                 <Grid RowSpacing="8">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -180,9 +181,24 @@
                         <TextBlock x:Uid="DashCoreMemory" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.CoreMemory, Mode=OneWay}" FontSize="13" Margin="8,0,0,0" />
                     </StackPanel>
-                    <Button Grid.Row="3" x:Uid="DashRefreshMemory" FontSize="12"
-                            Command="{x:Bind ViewModel.RefreshMemoryCommand}"
-                            HorizontalAlignment="Stretch" Margin="0,4,0,0" />
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="Info" FontSize="14" Opacity="0.6" />
+                        <TextBlock x:Uid="DashCoreVersion" FontSize="12" Opacity="0.7" />
+                        <TextBlock Text="{x:Bind ViewModel.CoreVersion, Mode=OneWay}" FontSize="12" Margin="8,0,0,0"
+                                   FontFamily="Consolas" TextTrimming="CharacterEllipsis" MaxWidth="140" />
+                    </StackPanel>
+                    <Grid Grid.Row="4" ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Uid="DashRefreshMemory" FontSize="12"
+                                Command="{x:Bind ViewModel.RefreshMemoryCommand}"
+                                HorizontalAlignment="Stretch" />
+                        <Button Grid.Column="1" x:Uid="DashForceGc" FontSize="12"
+                                Command="{x:Bind ViewModel.ForceGcCommand}"
+                                HorizontalAlignment="Stretch" />
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>
