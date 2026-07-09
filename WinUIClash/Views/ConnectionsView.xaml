@@ -139,6 +139,7 @@
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1" CornerRadius="8"
                 Padding="16,12"
+                RightTapped="DetailPanel_RightTapped"
                 Visibility="{x:Bind ViewModel.SelectedConnection, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
             <Grid ColumnSpacing="24" RowSpacing="8"
                   Visibility="{x:Bind ViewModel.SelectedConnection, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">

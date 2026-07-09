@@ -276,6 +276,7 @@
   <data name="ConnDetailDest.Text" xml:space="preserve"><value>Destination</value></data>
   <data name="ConnDetailTransfer.Text" xml:space="preserve"><value>Total Upload / Download</value></data>
   <data name="ConnCloseThis.Content" xml:space="preserve"><value>Close This</value></data>
+  <data name="ConnCopyChains.Text" xml:space="preserve"><value>Copy Proxy Chain</value></data>
 
   <!-- Logs - Additional -->
   <data name="LogsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search logs…</value></data>

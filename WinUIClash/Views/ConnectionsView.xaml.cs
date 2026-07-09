@@ -103,4 +103,41 @@ public sealed partial class ConnectionsView : Page
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             ViewModel.CloseAllCommand.Execute(null);
     }
+
+    private void DetailPanel_RightTapped(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+    {
+        var conn = ViewModel.SelectedConnection;
+        if (conn == null || sender is not FrameworkElement element) return;
+
+        var menu = new MenuFlyout();
+
+        var copyHost = new MenuFlyoutItem { Text = LocalizationHelper.GetString("RequestsCopyHost.Text") };
+        copyHost.Click += (_, _) => CopyToClipboard(conn.Metadata.Host);
+        menu.Items.Add(copyHost);
+
+        var copyChains = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ConnCopyChains.Text") };
+        copyChains.Click += (_, _) => CopyToClipboard(string.Join(" → ", conn.Chains));
+        menu.Items.Add(copyChains);
+
+        var copyRule = new MenuFlyoutItem { Text = LocalizationHelper.GetString("RequestsCopyRule.Text") };
+        copyRule.Click += (_, _) => CopyToClipboard(
+            string.IsNullOrEmpty(conn.RulePayload) ? conn.Rule : $"{conn.Rule} ({conn.RulePayload})");
+        menu.Items.Add(copyRule);
+
+        menu.Items.Add(new MenuFlyoutSeparator());
+
+        var copyAll = new MenuFlyoutItem { Text = LocalizationHelper.GetString("RequestsCopyAll.Text") };
+        copyAll.Click += (_, _) => CopyToClipboard(
+            $"{conn.Metadata.Host} | {conn.Metadata.SourceIP}:{conn.Metadata.SourcePort} → {conn.Metadata.DestinationIP}:{conn.Metadata.DestinationPort} | {string.Join(", ", conn.Chains)} | {conn.Rule}");
+        menu.Items.Add(copyAll);
+
+        menu.ShowAt(element, e.GetPosition(element));
+    }
+
+    private static void CopyToClipboard(string text)
+    {
+        var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
+        dp.SetText(text);
+        Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
+    }
 }
