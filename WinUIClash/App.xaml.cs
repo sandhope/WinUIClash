@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
@@ -59,24 +60,20 @@ namespace WinUIClash
             CurrentWindow = new MainWindow();
             CurrentWindow.Activate();
 
+            // 应用主题设置（明暗模式 + 主题色）
+            ViewModels.Settings.ThemeSettingsViewModel.InitializeTheme();
+
             // 如果设置了自动运行，启动 Clash 核心
             var appSettings = ServiceLocator.Get<Models.AppSettings>();
             if (appSettings.AutoRun)
             {
                 var coreService = ServiceLocator.Get<Services.CoreProcessService>();
-                _ = coreService.StartAsync();
+                _ = Task.Run(async () =>
+                {
+                    try { await coreService.StartAsync(); }
+                    catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Core auto-start failed: {ex.Message}"); }
+                });
             }
-
-            // 应用退出时清理
-            CurrentWindow.Closed += (s, e) =>
-            {
-                var core = ServiceLocator.Get<Services.CoreProcessService>();
-                core.StopAsync().Wait();
-                core.Dispose();
-
-                proxyService.Disable();
-                settingsService.SaveImmediate();
-            };
         }
     }
 }

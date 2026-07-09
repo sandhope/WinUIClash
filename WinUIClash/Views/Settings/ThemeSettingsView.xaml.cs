@@ -1,6 +1,5 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using WinUIClash.Models;
 using WinUIClash.ViewModels.Settings;
 
 namespace WinUIClash.Views.Settings;
@@ -11,8 +10,7 @@ public sealed partial class ThemeSettingsView : UserControl
 
     public ThemeSettingsView()
     {
-        var settings = ServiceLocator.Get<AppSettings>();
-        ViewModel = new ThemeSettingsViewModel(settings);
+        ViewModel = ServiceLocator.Get<ThemeSettingsViewModel>();
         InitializeComponent();
     }
 
