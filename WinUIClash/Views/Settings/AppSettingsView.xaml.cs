@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 using WinUIClash.Models;
+using WinUIClash.Services;
 using WinUIClash.ViewModels.Settings;
 
 namespace WinUIClash.Views.Settings;
@@ -11,7 +12,8 @@ public sealed partial class AppSettingsView : UserControl
     public AppSettingsView()
     {
         var settings = ServiceLocator.Get<AppSettings>();
-        ViewModel = new AppSettingsViewModel(settings);
+        var autoLaunch = ServiceLocator.Get<AutoLaunchService>();
+        ViewModel = new AppSettingsViewModel(settings, autoLaunch);
         InitializeComponent();
     }
 }

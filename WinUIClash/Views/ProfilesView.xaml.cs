@@ -72,4 +72,199 @@ public sealed partial class ProfilesView : Page
         var name = string.IsNullOrWhiteSpace(nameBox.Text) ? null : nameBox.Text.Trim();
         await ViewModel.ImportProfileAsync(url, name);
     }
+
+    private void MoreButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn || btn.Tag is not Profile profile) return;
+
+        var menu = new MenuFlyout();
+
+        // 查看配置
+        var viewConfig = new MenuFlyoutItem { Text = "查看配置" };
+        viewConfig.Click += async (_, _) => await ShowConfigViewerAsync(profile);
+        menu.Items.Add(viewConfig);
+
+        // 复制订阅链接
+        var copyUrl = new MenuFlyoutItem { Text = "复制链接" };
+        copyUrl.Click += (_, _) =>
+        {
+            if (!string.IsNullOrEmpty(profile.Url))
+            {
+                var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
+                dp.SetText(profile.Url);
+                Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
+            }
+        };
+        menu.Items.Add(copyUrl);
+
+        // 编辑名称
+        var editName = new MenuFlyoutItem { Text = "编辑名称" };
+        editName.Click += async (_, _) => await ShowEditNameDialogAsync(profile);
+        menu.Items.Add(editName);
+
+        menu.ShowAt(btn);
+    }
+
+    private async Task ShowConfigViewerAsync(Profile profile)
+    {
+        // 生成模拟 YAML 配置（接入真实后端后替换为实际配置）
+        var yaml = GenerateMockConfig(profile);
+
+        var editor = new TextBox
+        {
+            Text = yaml,
+            IsReadOnly = true,
+            AcceptsReturn = true,
+            FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas"),
+            FontSize = 12,
+            TextWrapping = TextWrapping.NoWrap,
+            MinWidth = 560,
+            MinHeight = 400,
+        };
+
+        var scrollViewer = new ScrollViewer
+        {
+            Content = editor,
+            HorizontalScrollMode = ScrollMode.Auto,
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+        };
+
+        var dialog = new ContentDialog
+        {
+            Title = $"配置: {profile.Label}",
+            XamlRoot = XamlRoot,
+            CloseButtonText = "关闭",
+            Content = scrollViewer,
+        };
+
+        await dialog.ShowAsync();
+    }
+
+    private async Task ShowEditNameDialogAsync(Profile profile)
+    {
+        var nameBox = new TextBox
+        {
+            Text = profile.Label,
+            Header = "配置名称",
+        };
+
+        var dialog = new ContentDialog
+        {
+            Title = "编辑名称",
+            XamlRoot = XamlRoot,
+            PrimaryButtonText = "保存",
+            CloseButtonText = "取消",
+            DefaultButton = ContentDialogButton.Primary,
+            Content = nameBox,
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            var newName = nameBox.Text.Trim();
+            if (!string.IsNullOrEmpty(newName))
+                profile.Label = newName;
+        }
+    }
+
+    private static string GenerateMockConfig(Profile profile)
+    {
+        return $$"""
+            # WinUIClash Configuration
+            # Profile: {{profile.Label}}
+
+            mixed-port: 7890
+            socks-port: 7891
+            port: 7892
+            allow-lan: false
+            mode: rule
+            log-level: info
+            unified-delay: true
+            tcp-concurrent: true
+
+            geodata-mode: true
+            geodata-loader: standard
+            find-process-mode: strict
+
+            geodata-auto-update: false
+
+            profile:
+              store-selected: true
+              store-fake-ip: true
+
+            sniffer:
+              enable: true
+              sniff:
+                HTTP:
+                  ports: [80, 8080-8880]
+                  override-destination: true
+                TLS:
+                  ports: [443, 8443]
+                QUIC:
+                  ports: [443, 8443]
+              skip-domain:
+                - "Mijia Cloud"
+                - "+.push.apple.com"
+
+            dns:
+              enable: true
+              ipv6: false
+              enhanced-mode: fake-ip
+              fake-ip-range: 198.18.0.1/16
+              fake-ip-filter:
+                - "*.lan"
+                - "*.local"
+                - "dns.msftncsi.com"
+              default-nameserver:
+                - 223.5.5.5
+                - 119.29.29.29
+              nameserver:
+                - "https://dns.alidns.com/dns-query"
+                - "https://doh.pub/dns-query"
+
+            proxies:
+              - name: "🇭🇰 Hong Kong 01"
+                type: trojan
+                server: hk01.example.com
+                port: 443
+                password: "password"
+                sni: hk01.example.com
+              - name: "🇯🇵 Japan 01"
+                type: vmess
+                server: jp01.example.com
+                port: 443
+                uuid: "00000000-0000-0000-0000-000000000000"
+                alterId: 0
+                cipher: auto
+                tls: true
+              - name: "🇺🇸 US 01"
+                type: ss
+                server: us01.example.com
+                port: 8388
+                cipher: aes-256-gcm
+                password: "password"
+
+            proxy-groups:
+              - name: "🚀 Proxy"
+                type: select
+                proxies:
+                  - "🇭🇰 Hong Kong 01"
+                  - "🇯🇵 Japan 01"
+                  - "🇺🇸 US 01"
+                  - DIRECT
+              - name: "♻️ Auto"
+                type: url-test
+                proxies:
+                  - "🇭🇰 Hong Kong 01"
+                  - "🇯🇵 Japan 01"
+                url: "http://www.gstatic.com/generate_204"
+                interval: 300
+
+            rules:
+              - DOMAIN-SUFFIX,google.com,🚀 Proxy
+              - DOMAIN-SUFFIX,github.com,🚀 Proxy
+              - GEOIP,CN,DIRECT
+              - MATCH,🚀 Proxy
+            """;
+    }
 }

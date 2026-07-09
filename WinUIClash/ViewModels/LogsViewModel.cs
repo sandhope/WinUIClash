@@ -8,7 +8,7 @@ using WinUIClash.Services;
 namespace WinUIClash.ViewModels;
 
 /// <summary>
-/// 日志页 ViewModel — 实时日志流 + 搜索过滤
+/// 日志页 ViewModel — 实时日志流 + 搜索过滤 + 暂停/导出
 /// </summary>
 public partial class LogsViewModel : ObservableObject
 {
@@ -28,7 +28,9 @@ public partial class LogsViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<LogEntry> _filteredLogs = new();
     [ObservableProperty] private string _searchText = string.Empty;
     [ObservableProperty] private bool _autoScroll = true;
+    [ObservableProperty] private bool _isPaused;
     [ObservableProperty] private string _selectedLevel = "全部";
+    [ObservableProperty] private int _logCount;
 
     /// <summary>有新日志追加时触发（供 View 层滚动到底部）</summary>
     public event Action? LogAppended;
@@ -38,16 +40,18 @@ public partial class LogsViewModel : ObservableObject
 
     private void OnLogReceived(LogEntry entry)
     {
+        if (IsPaused) return;
+
         _dispatcher.TryEnqueue(() =>
         {
             Logs.Add(entry);
             if (Logs.Count > MaxLogEntries) Logs.RemoveAt(0);
 
-            // 增量添加而非重建集合
             if (MatchesFilter(entry))
             {
                 FilteredLogs.Add(entry);
                 if (FilteredLogs.Count > MaxLogEntries) FilteredLogs.RemoveAt(0);
+                LogCount = FilteredLogs.Count;
                 LogAppended?.Invoke();
             }
         });
@@ -78,6 +82,7 @@ public partial class LogsViewModel : ObservableObject
             filtered = filtered.Where(l => l.Payload.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
         FilteredLogs = new ObservableCollection<LogEntry>(filtered);
+        LogCount = FilteredLogs.Count;
     }
 
     [RelayCommand]
@@ -100,5 +105,47 @@ public partial class LogsViewModel : ObservableObject
     {
         Logs.Clear();
         FilteredLogs.Clear();
+        LogCount = 0;
+    }
+
+    /// <summary>切换暂停/恢复日志流</summary>
+    [RelayCommand]
+    private void TogglePause()
+    {
+        IsPaused = !IsPaused;
+    }
+
+    public string PauseLabel => IsPaused ? "继续" : "暂停";
+
+    partial void OnIsPausedChanged(bool value) => OnPropertyChanged(nameof(PauseLabel));
+
+    /// <summary>导出日志到文件</summary>
+    [RelayCommand]
+    private async Task ExportAsync()
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+                SuggestedFileName = $"winuiclash-logs-{DateTime.Now:yyyyMMdd-HHmmss}.log",
+            };
+            picker.FileTypeChoices.Add("Log file", [".log"]);
+            picker.FileTypeChoices.Add("Text file", [".txt"]);
+
+            // WinUI 3 需要设置窗口句柄
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.CurrentWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSaveFileAsync();
+            if (file == null) return;
+
+            var lines = FilteredLogs.Select(l =>
+                $"[{l.Timestamp:HH:mm:ss}] [{l.Level}] {l.Payload}");
+            var content = string.Join(Environment.NewLine, lines);
+
+            await Windows.Storage.FileIO.WriteTextAsync(file, content);
+        }
+        catch { /* 用户取消或导出失败时静默 */ }
     }
 }

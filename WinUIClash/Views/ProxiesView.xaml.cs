@@ -27,4 +27,34 @@ public sealed partial class ProxiesView : Page
         if (e.ClickedItem is Proxy proxy)
             ViewModel.SelectProxyCommand.Execute(proxy);
     }
+
+    private async void ProxyCard_RightTapped(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { Tag: Proxy proxy } border) return;
+
+        var menu = new MenuFlyout();
+
+        var testItem = new MenuFlyoutItem { Text = "测试延迟" };
+        testItem.Click += async (_, _) =>
+            await ViewModel.TestDelayCommand.ExecuteAsync(proxy);
+        menu.Items.Add(testItem);
+
+        var selectItem = new MenuFlyoutItem { Text = "选择此节点" };
+        selectItem.Click += async (_, _) =>
+            await ViewModel.SelectProxyCommand.ExecuteAsync(proxy);
+        menu.Items.Add(selectItem);
+
+        menu.Items.Add(new MenuFlyoutSeparator());
+
+        var copyItem = new MenuFlyoutItem { Text = "复制名称" };
+        copyItem.Click += (_, _) =>
+        {
+            var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
+            dp.SetText(proxy.Name);
+            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
+        };
+        menu.Items.Add(copyItem);
+
+        menu.ShowAt(border, e.GetPosition(border));
+    }
 }

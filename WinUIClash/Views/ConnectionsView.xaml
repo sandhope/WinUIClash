@@ -12,6 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- 顶部工具栏 -->
@@ -99,5 +100,63 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+
+        <!-- 连接详情面板 -->
+        <Border Grid.Row="2"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1" CornerRadius="8"
+                Padding="16,12"
+                Visibility="{x:Bind ViewModel.SelectedConnection, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+            <Grid ColumnSpacing="24" RowSpacing="8"
+                  Visibility="{x:Bind ViewModel.SelectedConnection, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- 列 1: 连接基本信息 -->
+                <StackPanel Spacing="4">
+                    <TextBlock FontSize="11" Opacity="0.5" Text="目标主机" />
+                    <TextBlock x:Name="DetailHost" FontSize="13" FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="源地址" Margin="0,4,0,0" />
+                    <TextBlock x:Name="DetailSource" FontSize="12" FontFamily="Consolas" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="目标地址" Margin="0,4,0,0" />
+                    <TextBlock x:Name="DetailDest" FontSize="12" FontFamily="Consolas" />
+                </StackPanel>
+
+                <!-- 列 2: 流量和代理链 -->
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock FontSize="11" Opacity="0.5" Text="总上传 / 下载" />
+                    <TextBlock x:Name="DetailTransfer" FontSize="13" FontWeight="SemiBold" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="代理链" Margin="0,4,0,0" />
+                    <TextBlock x:Name="DetailChains" FontSize="12" TextWrapping="Wrap" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="匹配规则" Margin="0,4,0,0" />
+                    <TextBlock x:Name="DetailRule" FontSize="12" />
+                </StackPanel>
+
+                <!-- 列 3: 时间和操作 -->
+                <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock FontSize="11" Opacity="0.5" Text="开始时间" />
+                    <TextBlock x:Name="DetailStart" FontSize="12" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="持续时长" Margin="0,4,0,0" />
+                    <TextBlock x:Name="DetailDuration" FontSize="13" FontWeight="SemiBold" />
+                    <Button Margin="0,8,0,0"
+                            Click="CloseSelected_Click"
+                            HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <fluent:SymbolIcon Symbol="DismissCircle" FontSize="12" />
+                            <TextBlock Text="关闭此连接" FontSize="11" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Page>

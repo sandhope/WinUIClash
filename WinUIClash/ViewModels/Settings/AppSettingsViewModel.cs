@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using WinUIClash.Models;
+using WinUIClash.Services;
 
 namespace WinUIClash.ViewModels.Settings;
 
@@ -9,10 +10,12 @@ namespace WinUIClash.ViewModels.Settings;
 public partial class AppSettingsViewModel : ObservableObject
 {
     private readonly AppSettings _settings;
+    private readonly AutoLaunchService _autoLaunch;
 
-    public AppSettingsViewModel(AppSettings settings)
+    public AppSettingsViewModel(AppSettings settings, AutoLaunchService autoLaunch)
     {
         _settings = settings;
+        _autoLaunch = autoLaunch;
     }
 
     public bool MinimizeOnExit
@@ -24,7 +27,15 @@ public partial class AppSettingsViewModel : ObservableObject
     public bool AutoLaunch
     {
         get => _settings.AutoLaunch;
-        set { if (_settings.AutoLaunch != value) { _settings.AutoLaunch = value; OnPropertyChanged(); } }
+        set
+        {
+            if (_settings.AutoLaunch != value)
+            {
+                _settings.AutoLaunch = value;
+                _autoLaunch.ApplyState(value);
+                OnPropertyChanged();
+            }
+        }
     }
 
     public bool SilentLaunch
