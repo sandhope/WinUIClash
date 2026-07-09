@@ -198,7 +198,7 @@ public partial class ConnectionsViewModel : ObservableObject, IDisposable
 
             var sb = new System.Text.StringBuilder();
             sb.AppendLine("Time,Host,Source,Dest,Upload,Download,Chains,Rule,Process");
-            foreach (var c in Connections)
+            foreach (var c in FilteredConnections)
             {
                 sb.AppendLine(
                     $"{c.Start:yyyy-MM-dd HH:mm:ss}," +
