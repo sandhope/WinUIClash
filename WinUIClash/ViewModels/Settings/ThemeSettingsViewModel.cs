@@ -139,7 +139,19 @@ public partial class ThemeSettingsViewModel : ObservableObject
     {
         var hex = PrimaryColors[_settings.PrimaryColorIndex].Hex;
         var color = ParseHexColor(hex);
+        ApplyAccentColorInternal(color);
+    }
 
+    /// <summary>
+    /// 应用自定义主题色（由用户通过 ColorPicker 选择）
+    /// </summary>
+    public void ApplyCustomAccentColor(Color color)
+    {
+        ApplyAccentColorInternal(color);
+    }
+
+    private static void ApplyAccentColorInternal(Color color)
+    {
         if (App.CurrentWindow?.Content is FrameworkElement element)
         {
             element.Resources["SystemAccentColor"] = color;

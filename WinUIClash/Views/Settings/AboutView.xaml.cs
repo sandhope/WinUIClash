@@ -44,6 +44,9 @@ public sealed partial class AboutView : UserControl
     {
         CheckUpdateBtn.IsEnabled = false;
         CheckUpdateLabel.Text = LocalizationHelper.GetString("AboutCheckingUpdate.Text");
+        UpdateIcon.Visibility = Visibility.Collapsed;
+        UpdateProgressRing.IsActive = true;
+        UpdateProgressRing.Visibility = Visibility.Visible;
         UpdateStatusText.Visibility = Visibility.Visible;
         UpdateStatusText.Text = LocalizationHelper.GetString("AboutCheckingStatus.Text");
 
@@ -84,6 +87,9 @@ public sealed partial class AboutView : UserControl
         }
         finally
         {
+            UpdateIcon.Visibility = Visibility.Visible;
+            UpdateProgressRing.IsActive = false;
+            UpdateProgressRing.Visibility = Visibility.Collapsed;
             CheckUpdateBtn.IsEnabled = true;
             CheckUpdateLabel.Text = LocalizationHelper.GetString("AboutCheckUpdate.Content");
         }

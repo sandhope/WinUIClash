@@ -22,4 +22,15 @@ public sealed partial class ThemeSettingsView : UserControl
             if (index >= 0) ViewModel.PrimaryColorIndex = index;
         }
     }
+
+    private void CustomColorPicker_ColorChanged(Microsoft.UI.Xaml.Controls.ColorPicker sender, Microsoft.UI.Xaml.Controls.ColorChangedEventArgs args)
+    {
+        // Preview only — applied when user clicks the apply button
+    }
+
+    private void ApplyCustomColor_Click(object sender, RoutedEventArgs e)
+    {
+        var color = CustomColorPicker.Color;
+        ViewModel.ApplyCustomAccentColor(color);
+    }
 }
