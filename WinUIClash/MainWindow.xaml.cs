@@ -382,6 +382,24 @@ public sealed partial class MainWindow : Window
             catch { }
         };
         RootGrid.KeyboardAccelerators.Add(themeAccel);
+
+        // Ctrl+Shift+D 关闭所有连接
+        var closeAllAccel = new KeyboardAccelerator
+        {
+            Key = Windows.System.VirtualKey.D,
+            Modifiers = Windows.System.VirtualKeyModifiers.Control | Windows.System.VirtualKeyModifiers.Shift,
+        };
+        closeAllAccel.Invoked += async (_, _) =>
+        {
+            try
+            {
+                var clash = ServiceLocator.Get<IClashService>();
+                if (clash.CoreState == CoreState.Running)
+                    await clash.CloseAllConnectionsAsync();
+            }
+            catch { }
+        };
+        RootGrid.KeyboardAccelerators.Add(closeAllAccel);
     }
 
     private void CyclePage(int direction)
@@ -410,6 +428,7 @@ public sealed partial class MainWindow : Window
             ("Ctrl+P", LocalizationHelper.GetString("HelpCoreToggle.Text")),
             ("Ctrl+Shift+S", LocalizationHelper.GetString("HelpProxyToggle.Text")),
             ("Ctrl+Shift+T", LocalizationHelper.GetString("HelpThemeToggle.Text")),
+            ("Ctrl+Shift+D", LocalizationHelper.GetString("HelpCloseAllConns.Text")),
             ("Ctrl+Q", LocalizationHelper.GetString("HelpQuit.Text")),
             ("Escape", LocalizationHelper.GetString("HelpEscape.Text")),
             ("F1", LocalizationHelper.GetString("HelpShowHelp.Text")),
@@ -616,14 +635,63 @@ public sealed partial class MainWindow : Window
                     _lastConnectionCount = connections.Count;
                     ConnectionCountText.Text = connections.Count.ToString();
                     UpdateTrayTooltip();
+
+                    // Update navigation badge for connections
+                    if (connections.Count > 0)
+                    {
+                        ConnectionsBadge.Value = connections.Count;
+                        ConnectionsBadge.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        ConnectionsBadge.Visibility = Visibility.Collapsed;
+                    }
                 }
                 catch
                 {
                     _lastConnectionCount = 0;
                     ConnectionCountText.Text = "0";
+                    ConnectionsBadge.Visibility = Visibility.Collapsed;
+                }
+
+                // Update memory usage
+                try
+                {
+                    var memBytes = await _clash.GetCoreMemoryAsync();
+                    MemoryUsageText.Text = Converters.ByteFormatter.Format(memBytes);
+                }
+                catch
+                {
+                    MemoryUsageText.Text = "--";
                 }
             };
             _statusBarConnTimer.Start();
+
+            // Subscribe to request count changes for the requests badge
+            try
+            {
+                var requestsVm = ServiceLocator.Get<ViewModels.RequestsViewModel>();
+                requestsVm.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName == nameof(ViewModels.RequestsViewModel.RequestCount))
+                    {
+                        _dispatcher.TryEnqueue(() =>
+                        {
+                            var count = requestsVm.RequestCount;
+                            if (count > 0)
+                            {
+                                RequestsBadge.Value = count;
+                                RequestsBadge.Visibility = Visibility.Visible;
+                            }
+                            else
+                            {
+                                RequestsBadge.Visibility = Visibility.Collapsed;
+                            }
+                        });
+                    }
+                };
+            }
+            catch { }
         }
         catch { /* ServiceLocator 未初始化时忽略 */ }
     }

@@ -82,6 +82,9 @@
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="List" />
                     </NavigationViewItem.Icon>
+                    <NavigationViewItem.InfoBadge>
+                        <InfoBadge x:Name="RequestsBadge" Value="0" Visibility="Collapsed" />
+                    </NavigationViewItem.InfoBadge>
                 </NavigationViewItem>
                 <!-- 连接 -->
                 <NavigationViewItem x:Uid="NavConnections" Tag="Connections"
@@ -89,6 +92,9 @@
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Link" />
                     </NavigationViewItem.Icon>
+                    <NavigationViewItem.InfoBadge>
+                        <InfoBadge x:Name="ConnectionsBadge" Value="0" Visibility="Collapsed" />
+                    </NavigationViewItem.InfoBadge>
                 </NavigationViewItem>
                 <!-- 资源 -->
                 <NavigationViewItem x:Uid="NavResources" Tag="Resources"
@@ -146,6 +152,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -182,8 +189,16 @@
                            FontFamily="Consolas" Opacity="0.5" />
             </StackPanel>
 
+            <!-- 内存使用 -->
+            <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4"
+                        VerticalAlignment="Center" Margin="4,0">
+                <fluent:SymbolIcon Symbol="Storage" FontSize="10" Opacity="0.5" />
+                <TextBlock Text="--" FontSize="11" x:Name="MemoryUsageText"
+                           FontFamily="Consolas" Opacity="0.5" />
+            </StackPanel>
+
             <!-- 出站模式 -->
-            <Border Grid.Column="4" CornerRadius="3" Padding="6,2"
+            <Border Grid.Column="5" CornerRadius="3" Padding="6,2"
                     VerticalAlignment="Center" Margin="4,0"
                     Background="{ThemeResource SubtleFillColorSecondary}">
                 <TextBlock Text="Rule" FontSize="10" FontWeight="SemiBold"
@@ -191,7 +206,7 @@
             </Border>
 
             <!-- 上传/下载速度 -->
-            <StackPanel Grid.Column="6" Orientation="Horizontal" Spacing="12"
+            <StackPanel Grid.Column="7" Orientation="Horizontal" Spacing="12"
                         VerticalAlignment="Center" Margin="12,0">
                 <StackPanel Orientation="Horizontal" Spacing="4">
                     <fluent:SymbolIcon Symbol="ArrowUp" FontSize="10" />
@@ -206,7 +221,7 @@
             </StackPanel>
 
             <!-- 系统代理状态 (可点击切换) -->
-            <Button Grid.Column="7" Background="Transparent" BorderThickness="0" Padding="0"
+            <Button Grid.Column="8" Background="Transparent" BorderThickness="0" Padding="0"
                     Click="StatusProxy_Click">
                 <StackPanel Orientation="Horizontal" Spacing="6"
                             VerticalAlignment="Center" Margin="4,0,12,0">

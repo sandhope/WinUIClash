@@ -79,6 +79,9 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
             {
                 _startTime = DateTime.Now;
                 RuntimeText = LocalizationHelper.GetString("DashRuntime.Text") + Converters.TimeFormatter.Duration(TimeSpan.Zero);
+                // Refresh profile and proxy info when core starts
+                _ = RefreshActiveProfileAsync();
+                _ = RefreshActiveProxyNodeAsync();
             }
             else
             {
@@ -340,6 +343,22 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         }
     }
 
+    // ── 快速操作 ──
+
+    [RelayCommand]
+    private async Task CloseAllConnectionsAsync()
+    {
+        try
+        {
+            await _clash.CloseAllConnectionsAsync();
+            ActiveConnections = 0;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Close all connections error: {ex.Message}");
+        }
+    }
+
     // ── 网速测试 ──
 
     [ObservableProperty] private bool _isSpeedTesting;
@@ -470,6 +489,24 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         }
     }
 
+    // ── 活跃配置名 ──
+
+    [ObservableProperty] private string? _activeProfileName;
+
+    public async Task RefreshActiveProfileAsync()
+    {
+        try
+        {
+            var profiles = await _clash.GetProfilesAsync();
+            var active = profiles.FirstOrDefault(p => p.IsActive);
+            ActiveProfileName = string.IsNullOrEmpty(active?.Label) ? null : active!.Label;
+        }
+        catch
+        {
+            ActiveProfileName = null;
+        }
+    }
+
     // ── TUN 模式状态 ──
 
     [ObservableProperty] private bool _isTunEnabled;
@@ -522,6 +559,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         await RefreshTotalTrafficAsync();
         await RefreshConnectionCountAsync();
         await RefreshActiveProxyNodeAsync();
+        await RefreshActiveProfileAsync();
 
         try { IsTunEnabled = await _clash.GetTunEnabledAsync(); }
         catch { IsTunEnabled = false; }

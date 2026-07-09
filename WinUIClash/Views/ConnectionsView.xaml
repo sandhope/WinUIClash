@@ -89,7 +89,8 @@
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:ConnectionInfo">
                     <Grid Padding="4,8" ColumnSpacing="12" RowSpacing="4"
-                          RightTapped="ConnectionItem_RightTapped">
+                          RightTapped="ConnectionItem_RightTapped"
+                          DoubleTapped="ConnectionItem_DoubleTapped">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />

@@ -22,6 +22,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <!-- ═══ 第一行：状态栏 + 网速图表 ═══ -->
@@ -69,6 +70,16 @@
                                 <fluent:SymbolIcon Symbol="PlugConnected" FontSize="10" Opacity="0.6" />
                                 <TextBlock Text="{x:Bind ViewModel.ActiveConnections, Mode=OneWay}"
                                            FontSize="10" Opacity="0.7" />
+                            </StackPanel>
+                        </Border>
+                        <Border CornerRadius="4" Padding="6,2"
+                                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                Visibility="{x:Bind ViewModel.ActiveProfileName, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <fluent:SymbolIcon Symbol="Document" FontSize="10" Opacity="0.6" />
+                                <TextBlock Text="{x:Bind ViewModel.ActiveProfileName, Mode=OneWay}"
+                                           FontSize="10" Opacity="0.7"
+                                           TextTrimming="CharacterEllipsis" MaxWidth="120" />
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -338,8 +349,57 @@
                 </Grid>
             </Border>
 
-            <!-- ═══ 第三行：网速测试 ═══ -->
+            <!-- ═══ 第三行：快速操作 ═══ -->
             <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8" Padding="16,12"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <fluent:SymbolIcon Symbol="FlashPlay" FontSize="16" Opacity="0.7"
+                                       VerticalAlignment="Center" />
+                    <TextBlock x:Uid="DashQuickActions" FontWeight="SemiBold" FontSize="13"
+                               VerticalAlignment="Center" />
+                    <Button Grid.Column="2" Command="{x:Bind ViewModel.CloseAllConnectionsCommand}"
+                            Padding="10,5">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <fluent:SymbolIcon Symbol="PlugDisconnected" FontSize="13" />
+                            <TextBlock x:Uid="DashCloseAllConns" FontSize="12" />
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="3" Command="{x:Bind ViewModel.ForceGcCommand}"
+                            Padding="10,5">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <fluent:SymbolIcon Symbol="LeafOne" FontSize="13" />
+                            <TextBlock x:Uid="DashForceGc" FontSize="12" />
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="4" Command="{x:Bind ViewModel.FlushFakeIpCacheCommand}"
+                            Padding="10,5">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <fluent:SymbolIcon Symbol="Database" FontSize="13" />
+                            <TextBlock x:Uid="DashFlushFakeIp" FontSize="12" />
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="5" Command="{x:Bind ViewModel.ResetTrafficCommand}"
+                            Padding="10,5">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <fluent:SymbolIcon Symbol="ArrowReset" FontSize="13" />
+                            <TextBlock x:Uid="DashResetTraffic" FontSize="12" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- ═══ 第四行：网速测试 ═══ -->
+            <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     CornerRadius="8" Padding="16"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">

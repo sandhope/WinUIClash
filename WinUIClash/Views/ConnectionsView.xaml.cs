@@ -130,6 +130,12 @@ public sealed partial class ConnectionsView : Page
         menu.ShowAt(element, e.GetPosition(element));
     }
 
+    private void ConnectionItem_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: ConnectionInfo conn })
+            CopyToClipboard(conn.Metadata.Host);
+    }
+
     private void CloseSelected_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.SelectedConnection != null)
