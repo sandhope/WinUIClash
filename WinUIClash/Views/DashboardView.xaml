@@ -35,6 +35,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <Ellipse Width="10" Height="10" Fill="{x:Bind ViewModel.StatusBrush, Mode=OneWay}" />
@@ -42,7 +43,14 @@
                     </StackPanel>
                     <TextBlock Grid.Row="1" Text="{x:Bind ViewModel.RuntimeText, Mode=OneWay}"
                                FontSize="12" Opacity="0.6" Margin="0,8,0,0" />
-                    <Button Grid.Row="2" Margin="0,12,0,0"
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="6" Margin="0,4,0,0">
+                        <Border CornerRadius="4" Padding="6,2"
+                                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                            <TextBlock Text="{x:Bind ViewModel.OutboundModeLabel, Mode=OneWay}"
+                                       FontSize="10" FontWeight="SemiBold" Opacity="0.7" />
+                        </Border>
+                    </StackPanel>
+                    <Button Grid.Row="3" Margin="0,12,0,0"
                             Content="{x:Bind ViewModel.CoreToggleText, Mode=OneWay}"
                             Command="{x:Bind ViewModel.ToggleCoreCommand}"
                             HorizontalAlignment="Stretch" />

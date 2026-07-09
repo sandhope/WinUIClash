@@ -138,6 +138,15 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _isModeGlobal;
     [ObservableProperty] private bool _isModeDirect;
 
+    public string OutboundModeLabel => OutboundMode switch
+    {
+        OutboundMode.Global => LocalizationHelper.GetString("DashModeGlobal.Content"),
+        OutboundMode.Direct => LocalizationHelper.GetString("DashModeDirect.Content"),
+        _ => LocalizationHelper.GetString("DashModeRule.Content"),
+    };
+
+    partial void OnOutboundModeChanged(OutboundMode value) => OnPropertyChanged(nameof(OutboundModeLabel));
+
     partial void OnIsModeRuleChanged(bool value)
     {
         if (value && OutboundMode != OutboundMode.Rule)
