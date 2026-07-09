@@ -19,7 +19,7 @@ public class SubscriptionInfo
 public partial class Profile : ObservableObject
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
-    public string Label { get; set; } = string.Empty;
+    [ObservableProperty] private string _label = string.Empty;
     public string? Url { get; set; }
 
     [ObservableProperty] private DateTime _lastUpdate = DateTime.Now;

@@ -66,7 +66,7 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="{x:Bind Label}" FontSize="14"
+                                <TextBlock Text="{x:Bind Label, Mode=OneWay}" FontSize="14"
                                            FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
                                            VerticalAlignment="Center" />
                                 <!-- 当前激活标识 -->
@@ -118,6 +118,12 @@
                                             Click="SyncButton_Click"
                                             Tag="{x:Bind}">
                                         <fluent:SymbolIcon Symbol="ArrowSync" FontSize="12" />
+                                    </Button>
+                                    <Button Padding="6" Background="Transparent" BorderThickness="0"
+                                            ToolTipService.ToolTip="更多"
+                                            Click="MoreButton_Click"
+                                            Tag="{x:Bind}">
+                                        <fluent:SymbolIcon Symbol="MoreHorizontal" FontSize="12" />
                                     </Button>
                                     <Button Padding="6" Background="Transparent" BorderThickness="0"
                                             ToolTipService.ToolTip="删除"

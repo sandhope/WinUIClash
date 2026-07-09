@@ -23,6 +23,8 @@ public static class ServiceLocator
         services.AddSingleton<Models.AppSettings>();
         services.AddSingleton<Services.SettingsService>();
         services.AddSingleton<Services.SystemProxyService>();
+        services.AddSingleton<Services.NotificationService>();
+        services.AddSingleton<Services.AutoLaunchService>();
         services.AddSingleton<Services.CoreProcessService>();
 
         // ── ViewModel ──

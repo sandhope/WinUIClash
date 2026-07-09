@@ -36,27 +36,41 @@
             </Button>
         </Grid>
 
-        <!-- 代理组 Tab 栏 -->
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollBarVisibility="Disabled">
-            <ItemsRepeater ItemsSource="{x:Bind ViewModel.Groups, Mode=OneWay}">
-                <ItemsRepeater.Layout>
-                    <StackLayout Orientation="Horizontal" Spacing="4" />
-                </ItemsRepeater.Layout>
-                <ItemsRepeater.ItemTemplate>
-                    <DataTemplate x:DataType="models:ProxyGroup">
-                        <Button Content="{x:Bind Name}"
-                                Padding="12,6" CornerRadius="6"
-                                Click="GroupTab_Click"
-                                Tag="{x:Bind}" />
-                    </DataTemplate>
-                </ItemsRepeater.ItemTemplate>
-            </ItemsRepeater>
-        </ScrollViewer>
+        <!-- 代理组 Tab 栏 + 排序 -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Disabled">
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Groups, Mode=OneWay}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Orientation="Horizontal" Spacing="4" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="models:ProxyGroup">
+                            <Button Content="{x:Bind Name}"
+                                    Padding="12,6" CornerRadius="6"
+                                    Click="GroupTab_Click"
+                                    Tag="{x:Bind}" />
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </ScrollViewer>
+            <Button Grid.Column="1" Command="{x:Bind ViewModel.CycleSortModeCommand}"
+                    ToolTipService.ToolTip="切换排序"
+                    Padding="8,4" Background="Transparent" BorderThickness="0">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <fluent:SymbolIcon Symbol="ArrowSort" FontSize="12" />
+                    <TextBlock Text="{x:Bind ViewModel.SortModeLabel, Mode=OneWay}" FontSize="11" />
+                </StackPanel>
+            </Button>
+        </Grid>
 
         <!-- 代理卡片网格 -->
         <GridView Grid.Row="2" x:Name="ProxyGrid"
-                  ItemsSource="{x:Bind ViewModel.SelectedGroup.Proxies, Mode=OneWay}"
+                  ItemsSource="{x:Bind ViewModel.FilteredProxies, Mode=OneWay}"
                   SelectionMode="Single"
                   IsItemClickEnabled="True"
                   ItemClick="ProxyGrid_ItemClick">
@@ -66,7 +80,9 @@
                             CornerRadius="8" Padding="12,10"
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                             BorderThickness="1"
-                            Width="180" MinHeight="70">
+                            Width="180" MinHeight="70"
+                            RightTapped="ProxyCard_RightTapped"
+                            Tag="{x:Bind}">
                         <Grid RowSpacing="6">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />

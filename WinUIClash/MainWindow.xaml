@@ -14,95 +14,166 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <NavigationView
-        x:Name="RootNavigation"
-        PaneDisplayMode="Left"
-        IsPaneToggleButtonVisible="False"
-        IsBackButtonVisible="Collapsed"
-        IsSettingsVisible="False"
-        AlwaysShowHeader="False"
-        OpenPaneLength="200"
-        SelectionChanged="RootNavigation_SelectionChanged">
+    <Grid x:Name="RootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-        <NavigationView.PaneHeader>
-            <Grid Height="48" Margin="16,12,0,0" VerticalAlignment="Center">
-                <TextBlock
-                    Text="WinUIClash"
-                    FontSize="16"
-                    FontWeight="SemiBold"
-                    VerticalAlignment="Center" />
-            </Grid>
-        </NavigationView.PaneHeader>
+        <!-- 通知 InfoBar 浮层 -->
+        <InfoBar x:Name="NotificationBar"
+                 Canvas.ZIndex="100"
+                 VerticalAlignment="Top"
+                 Margin="24,8"
+                 IsOpen="False"
+                 IsClosable="True" />
 
-        <NavigationView.MenuItems>
-            <!-- 仪表盘 -->
-            <NavigationViewItem Content="仪表盘" Tag="Dashboard">
-                <NavigationViewItem.Icon>
-                    <fluent:SymbolIcon Symbol="Home" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <!-- 代理 -->
-            <NavigationViewItem Content="代理" Tag="Proxies">
-                <NavigationViewItem.Icon>
-                    <fluent:SymbolIcon Symbol="Globe" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <!-- 配置 -->
-            <NavigationViewItem Content="配置" Tag="Profiles">
-                <NavigationViewItem.Icon>
-                    <fluent:SymbolIcon Symbol="Folder" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <!-- 请求 -->
-            <NavigationViewItem Content="请求" Tag="Requests">
-                <NavigationViewItem.Icon>
-                    <fluent:SymbolIcon Symbol="List" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <!-- 连接 -->
-            <NavigationViewItem Content="连接" Tag="Connections">
-                <NavigationViewItem.Icon>
-                    <fluent:SymbolIcon Symbol="Link" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <!-- 资源 -->
-            <NavigationViewItem Content="资源" Tag="Resources">
-                <NavigationViewItem.Icon>
-                    <fluent:SymbolIcon Symbol="Library" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <!-- 规则 -->
-            <NavigationViewItem Content="规则" Tag="Rules">
-                <NavigationViewItem.Icon>
-                    <fluent:SymbolIcon Symbol="Filter" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <!-- 日志 -->
-            <NavigationViewItem Content="日志" Tag="Logs">
-                <NavigationViewItem.Icon>
-                    <fluent:SymbolIcon Symbol="Notepad" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <!-- 工具 -->
-            <NavigationViewItem Content="工具" Tag="Tools">
-                <NavigationViewItem.Icon>
-                    <fluent:SymbolIcon Symbol="Wrench" />
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-        </NavigationView.MenuItems>
+        <NavigationView
+            x:Name="RootNavigation"
+            PaneDisplayMode="Left"
+            IsPaneToggleButtonVisible="False"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            AlwaysShowHeader="False"
+            OpenPaneLength="200"
+            SelectionChanged="RootNavigation_SelectionChanged">
 
-        <NavigationView.PaneFooter>
-            <Button
-                x:Name="SidebarToggleButton"
-                Click="SidebarToggleButton_Click"
-                HorizontalAlignment="Center"
-                Margin="0,0,0,16"
-                Background="Transparent"
-                BorderThickness="0">
-                <fluent:SymbolIcon Symbol="Navigation" />
-            </Button>
-        </NavigationView.PaneFooter>
+            <NavigationView.PaneHeader>
+                <StackPanel Margin="16,12,12,8" Spacing="8">
+                    <TextBlock
+                        Text="WinUIClash"
+                        FontSize="16"
+                        FontWeight="SemiBold" />
+                    <AutoSuggestBox
+                        x:Name="SearchBox"
+                        PlaceholderText="搜索… (Ctrl+F)"
+                        QueryIcon="Find"
+                        TextChanged="SearchBox_TextChanged"
+                        SuggestionChosen="SearchBox_SuggestionChosen"
+                        FontSize="12" />
+                </StackPanel>
+            </NavigationView.PaneHeader>
 
-        <Frame x:Name="ContentFrame" />
-    </NavigationView>
+            <NavigationView.MenuItems>
+                <!-- 仪表盘 -->
+                <NavigationViewItem Content="仪表盘" Tag="Dashboard">
+                    <NavigationViewItem.Icon>
+                        <fluent:SymbolIcon Symbol="Home" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <!-- 代理 -->
+                <NavigationViewItem Content="代理" Tag="Proxies">
+                    <NavigationViewItem.Icon>
+                        <fluent:SymbolIcon Symbol="Globe" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <!-- 配置 -->
+                <NavigationViewItem Content="配置" Tag="Profiles">
+                    <NavigationViewItem.Icon>
+                        <fluent:SymbolIcon Symbol="Folder" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <!-- 请求 -->
+                <NavigationViewItem Content="请求" Tag="Requests">
+                    <NavigationViewItem.Icon>
+                        <fluent:SymbolIcon Symbol="List" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <!-- 连接 -->
+                <NavigationViewItem Content="连接" Tag="Connections">
+                    <NavigationViewItem.Icon>
+                        <fluent:SymbolIcon Symbol="Link" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <!-- 资源 -->
+                <NavigationViewItem Content="资源" Tag="Resources">
+                    <NavigationViewItem.Icon>
+                        <fluent:SymbolIcon Symbol="Library" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <!-- 规则 -->
+                <NavigationViewItem Content="规则" Tag="Rules">
+                    <NavigationViewItem.Icon>
+                        <fluent:SymbolIcon Symbol="Filter" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <!-- 日志 -->
+                <NavigationViewItem Content="日志" Tag="Logs">
+                    <NavigationViewItem.Icon>
+                        <fluent:SymbolIcon Symbol="Notepad" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <!-- 工具 -->
+                <NavigationViewItem Content="工具" Tag="Tools">
+                    <NavigationViewItem.Icon>
+                        <fluent:SymbolIcon Symbol="Wrench" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <NavigationView.PaneFooter>
+                <Button
+                    x:Name="SidebarToggleButton"
+                    Click="SidebarToggleButton_Click"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,16"
+                    Background="Transparent"
+                    BorderThickness="0">
+                    <fluent:SymbolIcon Symbol="Navigation" />
+                </Button>
+            </NavigationView.PaneFooter>
+
+            <Frame x:Name="ContentFrame" />
+        </NavigationView>
+
+        <!-- 底部状态栏 -->
+        <Grid Grid.Row="1" Height="28"
+              Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+              BorderThickness="0,1,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- 核心状态 -->
+            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
+                        Margin="12,0,16,0">
+                <Ellipse Width="8" Height="8" x:Name="StatusDot"
+                         Fill="{ThemeResource SystemFillColorCritical}" />
+                <TextBlock Text="已停止" FontSize="11" x:Name="StatusText"
+                           Opacity="0.6" />
+            </StackPanel>
+
+            <Border Grid.Column="1" Width="1" Margin="4,4"
+                    Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+            <!-- 上传/下载速度 -->
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="12"
+                        VerticalAlignment="Center" Margin="12,0">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <fluent:SymbolIcon Symbol="ArrowUp" FontSize="10" />
+                    <TextBlock Text="0 B/s" FontSize="11" x:Name="UploadSpeedText"
+                               FontFamily="Consolas" Opacity="0.6" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <fluent:SymbolIcon Symbol="ArrowDown" FontSize="10" />
+                    <TextBlock Text="0 B/s" FontSize="11" x:Name="DownloadSpeedText"
+                               FontFamily="Consolas" Opacity="0.6" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- 系统代理状态 -->
+            <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6"
+                        VerticalAlignment="Center" Margin="0,0,12,0">
+                <fluent:SymbolIcon Symbol="ShieldCheckmark" FontSize="10"
+                                   x:Name="ProxyIcon" Opacity="0.3" />
+                <TextBlock Text="代理" FontSize="11" x:Name="ProxyText"
+                           Opacity="0.3" />
+            </StackPanel>
+        </Grid>
+    </Grid>
 </Window>

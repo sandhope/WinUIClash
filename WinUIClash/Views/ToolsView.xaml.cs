@@ -28,4 +28,12 @@ public sealed partial class ToolsView : Page
         SubPageContent.Content = null;
         ViewModel.GoBackCommand.Execute(null);
     }
+
+    /// <summary>
+    /// 供外部（搜索导航）同步子页面 Content
+    /// </summary>
+    public void SyncSubPage(UserControl? page)
+    {
+        SubPageContent.Content = page;
+    }
 }
