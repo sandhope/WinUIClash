@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.InteropServices;
 using H.NotifyIcon;
 using Microsoft.UI.Dispatching;
@@ -63,6 +65,7 @@ public sealed partial class MainWindow : Window
 
         // 窗口基础配置
         Title = "WinUIClash";
+        AppWindow.SetIcon("Assets/AppIcon.ico");
 
         // 从设置恢复窗口状态
         RestoreWindowState();
@@ -180,13 +183,18 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private void NavigateTo(string? tag)
+    public void NavigateTo(string? tag)
     {
         if (tag is null) return;
         if (PageMap.TryGetValue(tag, out var pageType))
         {
             ContentFrame.Navigate(pageType);
         }
+    }
+
+    public string? GetCurrentNavigationTag()
+    {
+        return RootNavigation.SelectedItem is NavigationViewItem item ? item.Tag as string : null;
     }
 
     // ── 侧边栏紧凑/展开切换 ───────────────────────────────────────────────────
@@ -1280,7 +1288,7 @@ public sealed partial class MainWindow : Window
     /// Shared cleanup logic called by both ExitApp and OnWindowClosed.
     /// Stops timers, core process, disables system proxy, and saves settings.
     /// </summary>
-    private async Task PerformCleanupAsync()
+    public async Task PerformCleanupAsync()
     {
         if (_cleanedUp) return;
         _cleanedUp = true;
@@ -1323,12 +1331,29 @@ public sealed partial class MainWindow : Window
 
     private static System.Drawing.Icon CreateTrayIcon(System.Drawing.Color? circleColor = null)
     {
+        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "AppIcon.ico");
+        if (File.Exists(iconPath))
+        {
+            var hIcon = LoadImageW(IntPtr.Zero, iconPath, IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+            if (hIcon != IntPtr.Zero)
+            {
+                try
+                {
+                    return System.Drawing.Icon.FromHandle(hIcon);
+                }
+                catch
+                {
+                    DestroyIcon(hIcon);
+                }
+            }
+        }
+
         var color = circleColor ?? System.Drawing.Color.FromArgb(33, 150, 243);
-        using var bmp = new Bitmap(32, 32);
+        using var bmp = new Bitmap(32, 32, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         using (var g = Graphics.FromImage(bmp))
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.Clear(Color.Transparent);
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
             using var brush = new SolidBrush(color);
             g.FillEllipse(brush, 1, 1, 30, 30);
             using var font = new Font("Segoe UI", 15f, FontStyle.Bold);
@@ -1337,15 +1362,26 @@ public sealed partial class MainWindow : Window
                 (32 - size.Width) / 2, (32 - size.Height) / 2);
         }
 
-        var hIcon = bmp.GetHicon();
-        var icon = System.Drawing.Icon.FromHandle(hIcon);
-        var clone = (System.Drawing.Icon)icon.Clone();
-        DestroyIcon(hIcon);
-        return clone;
+        var fallbackIcon = bmp.GetHicon();
+        try
+        {
+            return System.Drawing.Icon.FromHandle(fallbackIcon);
+        }
+        catch
+        {
+            DestroyIcon(fallbackIcon);
+            throw;
+        }
     }
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern IntPtr LoadImageW(IntPtr hInst, string name, uint type, int cx, int cy, uint fuLoad);
 
     [DllImport("user32.dll")]
     private static extern bool DestroyIcon(IntPtr handle);
+
+    private const uint IMAGE_ICON = 1;
+    private const uint LR_LOADFROMFILE = 0x0010;
 
     // ── Win32 辅助 ────────────────────────────────────────────────────────────
 

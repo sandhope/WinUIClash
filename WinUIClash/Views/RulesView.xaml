@@ -27,7 +27,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <TextBlock x:Uid="RulesTitle" FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding Source={StaticResource S}, Path=RulesTitle_Text}" FontSize="20" FontWeight="SemiBold" />
                 <TextBlock FontSize="12" Opacity="0.5" VerticalAlignment="Bottom">
                     <Run Text="{x:Bind ViewModel.FilteredCount, Mode=OneWay}" />
                     <Run Text="/" />
@@ -48,7 +48,7 @@
                       FontSize="12" />
             <!-- 搜索框 -->
             <TextBox Grid.Column="5" Width="200"
-                     x:Uid="RulesSearchPlaceholder"
+                     PlaceholderText="{Binding Source={StaticResource S}, Path=RulesSearchPlaceholder_PlaceholderText}"
                      Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <!-- 导出 -->
             <Button Grid.Column="6" Margin="8,0,0,0"
@@ -67,9 +67,9 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="120" />
             </Grid.ColumnDefinitions>
-            <TextBlock x:Uid="RulesTypeCol" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
-            <TextBlock Grid.Column="1" x:Uid="RulesPayloadCol" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
-            <TextBlock Grid.Column="2" x:Uid="RulesTargetCol" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
+            <TextBlock Text="{Binding Source={StaticResource S}, Path=RulesTypeCol_Text}" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
+            <TextBlock Grid.Column="1" Text="{Binding Source={StaticResource S}, Path=RulesPayloadCol_Text}" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
+            <TextBlock Grid.Column="2" Text="{Binding Source={StaticResource S}, Path=RulesTargetCol_Text}" FontSize="12" FontWeight="SemiBold" Opacity="0.6" />
         </Grid>
 
         <!-- 规则列表 -->
@@ -113,7 +113,7 @@
                     Visibility="{x:Bind ViewModel.FilteredRules, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
                     HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
             <fluent:SymbolIcon Symbol="Filter" FontSize="32" Opacity="0.3" />
-            <TextBlock x:Uid="EmptyRules" Opacity="0.5" HorizontalAlignment="Center" />
+            <TextBlock Text="{Binding Source={StaticResource S}, Path=EmptyRules_Text}" Opacity="0.5" HorizontalAlignment="Center" />
         </StackPanel>
 
         <!-- 加载指示 -->

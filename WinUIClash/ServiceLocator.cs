@@ -15,7 +15,7 @@ public static class ServiceLocator
     public static IServiceProvider Provider =>
         _provider ?? throw new InvalidOperationException("ServiceLocator 尚未初始化，请先调用 Build()");
 
-    public static void Build()
+    public static void Build(StringResources stringResources)
     {
         var services = new ServiceCollection();
 
@@ -38,6 +38,8 @@ public static class ServiceLocator
         services.AddSingleton<HttpClashService>();
         services.AddSingleton<ClashOrchestrator>();
         services.AddSingleton<IClashService>(sp => sp.GetRequiredService<ClashOrchestrator>());
+        services.AddSingleton(stringResources);
+        services.AddSingleton<LocalizationService>();
 
         // ── ViewModel ──
         services.AddSingleton<DashboardViewModel>();

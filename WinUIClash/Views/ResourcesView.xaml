@@ -26,10 +26,10 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <TextBlock x:Uid="ResTitle" FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding Source={StaticResource S}, Path=ResTitle_Text}" FontSize="20" FontWeight="SemiBold" />
                 <TextBlock FontSize="12" Opacity="0.5" VerticalAlignment="Bottom">
                     <Run Text="{x:Bind ViewModel.TotalCount, Mode=OneWay}" />
-                    <Run x:Uid="ResCountSuffix" />
+                    <Run Text="{Binding Source={StaticResource S}, Path=ResCountSuffix_Text}" />
                 </TextBlock>
             </StackPanel>
             <!-- 类型筛选 -->
@@ -37,39 +37,39 @@
                       x:Name="TypeFilterCombo"
                       SelectionChanged="TypeFilter_SelectionChanged"
                       FontSize="12" SelectedIndex="0">
-                <ComboBoxItem x:Uid="ResFilterAll" Tag="ALL" />
-                <ComboBoxItem x:Uid="ResFilterProxy" Tag="Proxy" />
-                <ComboBoxItem x:Uid="ResFilterRule" Tag="Rule" />
+                <ComboBoxItem Content="{Binding Source={StaticResource S}, Path=ResFilterAll_Content}" Tag="ALL" />
+                <ComboBoxItem Content="{Binding Source={StaticResource S}, Path=ResFilterProxy_Content}" Tag="Proxy" />
+                <ComboBoxItem Content="{Binding Source={StaticResource S}, Path=ResFilterRule_Content}" Tag="Rule" />
             </ComboBox>
             <!-- 搜索框 -->
             <TextBox Grid.Column="3" Width="200" Margin="8,0,0,0"
-                     x:Uid="ResSearchPlaceholder"
+                     PlaceholderText="{Binding Source={StaticResource S}, Path=ResSearchPlaceholder_PlaceholderText}"
                      Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <!-- GeoIP/GeoSite 更新 -->
             <Button Grid.Column="4" Margin="8,0,0,0">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <fluent:SymbolIcon Symbol="Globe" FontSize="14" />
-                    <TextBlock x:Uid="ResGeoUpdate" FontSize="12" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=ResGeoUpdate_Text}" FontSize="12" />
                 </StackPanel>
                 <Button.Flyout>
                     <MenuFlyout>
-                        <MenuFlyoutItem x:Uid="ResUpdateGeoIp" Click="UpdateGeoIp_Click">
+                        <MenuFlyoutItem Text="{Binding Source={StaticResource S}, Path=ResUpdateGeoIp_Text}" Click="UpdateGeoIp_Click">
                             <MenuFlyoutItem.Icon>
                                 <fluent:SymbolIcon Symbol="GlobeLocation" />
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
-                        <MenuFlyoutItem x:Uid="ResUpdateGeoSite" Click="UpdateGeoSite_Click">
+                        <MenuFlyoutItem Text="{Binding Source={StaticResource S}, Path=ResUpdateGeoSite_Text}" Click="UpdateGeoSite_Click">
                             <MenuFlyoutItem.Icon>
                                 <fluent:SymbolIcon Symbol="GlobeSurface" />
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
                         <MenuFlyoutSeparator />
-                        <MenuFlyoutItem x:Uid="ResUpdateMmdb" Click="UpdateMmdb_Click">
+                        <MenuFlyoutItem Text="{Binding Source={StaticResource S}, Path=ResUpdateMmdb_Text}" Click="UpdateMmdb_Click">
                             <MenuFlyoutItem.Icon>
                                 <fluent:SymbolIcon Symbol="Database" />
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
-                        <MenuFlyoutItem x:Uid="ResUpdateAsn" Click="UpdateAsn_Click">
+                        <MenuFlyoutItem Text="{Binding Source={StaticResource S}, Path=ResUpdateAsn_Text}" Click="UpdateAsn_Click">
                             <MenuFlyoutItem.Icon>
                                 <fluent:SymbolIcon Symbol="Server" />
                             </MenuFlyoutItem.Icon>
@@ -82,13 +82,13 @@
                     Command="{x:Bind ViewModel.UpdateAllCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
-                    <TextBlock x:Uid="ResUpdateAll" FontSize="12" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=ResUpdateAll_Text}" FontSize="12" />
                 </StackPanel>
             </Button>
             <!-- 刷新列表 -->
             <Button Grid.Column="6" Margin="8,0,0,0"
                     Command="{x:Bind ViewModel.RefreshCommand}"
-                    x:Uid="CommonRefresh"
+                    ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=CommonRefresh_ToolTip}"
                     Padding="8,4" Background="Transparent" BorderThickness="0">
                 <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
             </Button>
@@ -142,11 +142,11 @@
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Spacing="16">
                                     <TextBlock FontSize="11" Opacity="0.5">
-                                        <Run x:Uid="ResEntries" />
+                                        <Run Text="{Binding Source={StaticResource S}, Path=ResEntries_Text}" />
                                         <Run Text="{x:Bind Count}" />
                                     </TextBlock>
                                     <TextBlock FontSize="11" Opacity="0.4">
-                                        <Run x:Uid="ResSource" />
+                                        <Run Text="{Binding Source={StaticResource S}, Path=ResSource_Text}" />
                                         <Run Text="{x:Bind VehicleType}" />
                                     </TextBlock>
                                     <TextBlock FontSize="11" Opacity="0.3"
@@ -159,15 +159,13 @@
                                        Text="{x:Bind UpdateAt, Mode=OneWay, Converter={StaticResource DateTimeToRelativeConverter}}"
                                        VerticalAlignment="Center" />
                             <Button Grid.Column="2" Padding="8,4"
-                                    x:Uid="ResUpdate"
-                                    ToolTipService.ToolTip="Update"
+                                    ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ResUpdate_ToolTip}"
                                     Click="UpdateProvider_Click"
                                     Tag="{x:Bind}">
                                 <fluent:SymbolIcon Symbol="ArrowSync" FontSize="13" />
                             </Button>
                             <Button Grid.Column="3" Padding="8,4"
-                                    x:Uid="ResHealthCheck"
-                                    ToolTipService.ToolTip="Health Check"
+                                    ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ResHealthCheck_ToolTip}"
                                     Click="HealthCheck_Click"
                                     Tag="{x:Bind}"
                                     Visibility="{x:Bind IsHealthChecking, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
@@ -187,7 +185,7 @@
                     Visibility="{x:Bind ViewModel.FilteredProviders, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
                     HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
             <fluent:SymbolIcon Symbol="Database" FontSize="32" Opacity="0.3" />
-            <TextBlock x:Uid="EmptyResources" Opacity="0.5" HorizontalAlignment="Center" />
+            <TextBlock Text="{Binding Source={StaticResource S}, Path=EmptyResources_Text}" Opacity="0.5" HorizontalAlignment="Center" />
         </StackPanel>
 
         <ProgressRing Grid.Row="1"

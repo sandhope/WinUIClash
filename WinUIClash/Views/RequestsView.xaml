@@ -21,13 +21,13 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock x:Uid="RequestsTitle" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding Source={StaticResource S}, Path=RequestsTitle_Text}" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
             <AutoSuggestBox Grid.Column="1" Margin="16,0"
-                            x:Uid="RequestsSearchPlaceholder"
+                            PlaceholderText="{Binding Source={StaticResource S}, Path=RequestsSearchPlaceholder_PlaceholderText}"
                             QueryIcon="Find"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" />
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                <ToggleSwitch x:Uid="RequestsAutoScroll"
+                <ToggleSwitch Header="{Binding Source={StaticResource S}, Path=RequestsAutoScroll_Text}"
                               OffContent="" OnContent=""
                               IsOn="{x:Bind ViewModel.AutoScroll, Mode=TwoWay}" />
                 <Grid>
@@ -51,17 +51,17 @@
                     </Button>
                 </Grid>
                 <Button Command="{x:Bind ViewModel.CycleSortModeCommand}"
-                        x:Uid="ProxySwitchSort"
+                        ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ProxySwitchSort_Content}"
                         Padding="8,4" Background="Transparent" BorderThickness="0">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <fluent:SymbolIcon Symbol="ArrowSort" FontSize="12" />
                         <TextBlock Text="{x:Bind ViewModel.SortModeLabel, Mode=OneWay}" FontSize="11" />
                     </StackPanel>
                 </Button>
-                <Button Command="{x:Bind ViewModel.ExportCommand}" x:Uid="RequestsExport" ToolTipService.ToolTip="Export request log">
+                <Button Command="{x:Bind ViewModel.ExportCommand}" ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=RequestsExport_ToolTip}">
                     <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
                 </Button>
-                <Button Command="{x:Bind ViewModel.ClearCommand}" x:Uid="CommonClear">
+                <Button Command="{x:Bind ViewModel.ClearCommand}" ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=CommonClear_ToolTip}">
                     <fluent:SymbolIcon Symbol="Delete" FontSize="14" />
                 </Button>
             </StackPanel>
@@ -132,7 +132,7 @@
                     Visibility="{x:Bind ViewModel.FilteredRequests, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
                     HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
             <fluent:SymbolIcon Symbol="ArrowSwap" FontSize="32" Opacity="0.3" />
-            <TextBlock x:Uid="EmptyRequests" Opacity="0.5" HorizontalAlignment="Center" />
+            <TextBlock Text="{Binding Source={StaticResource S}, Path=EmptyRequests_Text}" Opacity="0.5" HorizontalAlignment="Center" />
         </StackPanel>
     </Grid>
 </Page>
