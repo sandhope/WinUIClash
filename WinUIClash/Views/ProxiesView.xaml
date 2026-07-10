@@ -39,8 +39,7 @@
                         Padding="8,4" Background="Transparent" BorderThickness="0">
                     <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
                 </Button>
-                <Button Command="{x:Bind ViewModel.TestAllDelaysCommand}"
-                        x:Uid="ProxyTestAll">
+                <Button Command="{x:Bind ViewModel.TestAllDelaysCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <fluent:SymbolIcon Symbol="Gauge" FontSize="14" />
                         <TextBlock x:Uid="ProxyTestAll" FontSize="12" />

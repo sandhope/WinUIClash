@@ -244,7 +244,7 @@
                             <TextBlock x:Uid="AppBypassDomains" FontSize="14" />
                             <TextBlock x:Uid="AppBypassDomainsDesc" FontSize="12" Opacity="0.5" />
                         </StackPanel>
-                        <Button Grid.Column="1" x:Uid="AppBypassPresets"
+                        <Button Grid.Column="1"
                                 Padding="8,4" Background="Transparent" BorderThickness="0"
                                 Click="BypassPresets_Click">
                             <StackPanel Orientation="Horizontal" Spacing="4">
@@ -265,13 +265,13 @@
                 <StackPanel Spacing="12">
                     <TextBlock x:Uid="SettingsBackup" FontSize="14" FontWeight="SemiBold" />
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <Button x:Uid="SettingsExportSettings" Click="ExportSettings_Click" Padding="12,6">
+                        <Button Click="ExportSettings_Click" Padding="12,6">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
                                 <TextBlock x:Uid="SettingsExportSettings" FontSize="12" />
                             </StackPanel>
                         </Button>
-                        <Button x:Uid="SettingsImportSettings" Click="ImportSettings_Click" Padding="12,6">
+                        <Button Click="ImportSettings_Click" Padding="12,6">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <fluent:SymbolIcon Symbol="ArrowImport" FontSize="14" />
                                 <TextBlock x:Uid="SettingsImportSettings" FontSize="12" />

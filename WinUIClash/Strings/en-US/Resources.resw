@@ -57,8 +57,7 @@
   <data name="StatusStopped.Text" xml:space="preserve"><value>Stopped</value></data>
   <data name="StatusRunning.Text" xml:space="preserve"><value>Running</value></data>
   <data name="ProxyLabel.Text" xml:space="preserve"><value>Proxy</value></data>
-  <data name="CommonUpdateAll.Content" xml:space="preserve"><value>Update All</value></data>
-  <data name="CommonUpdateAll.ToolTip" xml:space="preserve"><value>Update All</value></data>
+  <data name="CommonUpdateAll.Text" xml:space="preserve"><value>Update All</value></data>
   <data name="CommonUpdate.Content" xml:space="preserve"><value>Update</value></data>
   <data name="CommonSearch.PlaceholderText" xml:space="preserve"><value>Search…</value></data>
   <data name="CommonAll.Text" xml:space="preserve"><value>All</value></data>
@@ -189,9 +188,9 @@
 
   <!-- Connections -->
   <data name="ConnTitle.Text" xml:space="preserve"><value>Connections</value></data>
-  <data name="ConnCloseAll.Content" xml:space="preserve"><value>Close All</value></data>
+  <data name="ConnCloseAll.Text" xml:space="preserve"><value>Close All</value></data>
   <data name="ConnExport.Content" xml:space="preserve"><value>Export</value></data>
-  <data name="ConnExport.ToolTip" xml:space="preserve"><value>Export connections to CSV</value></data>
+
   <data name="ConnDetail.Text" xml:space="preserve"><value>Connection Details</value></data>
   <data name="ConnHost.Text" xml:space="preserve"><value>Host</value></data>
   <data name="ConnSource.Text" xml:space="preserve"><value>Source</value></data>
@@ -287,7 +286,7 @@
   <data name="ToolsTitle.Text" xml:space="preserve"><value>Tools</value></data>
   <data name="ToolsSettingsSection.Text" xml:space="preserve"><value>Settings</value></data>
   <data name="ToolsOtherSection.Text" xml:space="preserve"><value>Other</value></data>
-  <data name="ToolsBack.ToolTip" xml:space="preserve"><value>Back</value></data>
+
   <data name="ToolsBasicConfigSub.Text" xml:space="preserve"><value>Ports, log level, UA, IPv6, etc.</value></data>
   <data name="ToolsAppSettingsSub.Text" xml:space="preserve"><value>Startup, system proxy, TUN, auto update</value></data>
   <data name="ToolsThemeSettingsSub.Text" xml:space="preserve"><value>Light/dark mode, accent color</value></data>
@@ -296,16 +295,15 @@
   <!-- Proxies - Additional -->
   <data name="ProxyTitle.Text" xml:space="preserve"><value>Proxies</value></data>
   <data name="ProxyTestAll.Text" xml:space="preserve"><value>Test All</value></data>
-  <data name="ProxySwitchSort.ToolTip" xml:space="preserve"><value>Switch Sort</value></data>
+
   <data name="ProxyTestSummary.Text" xml:space="preserve"><value>Avg: {0}ms | Min: {1}ms | Max: {2}ms | OK: {3} | Failed: {4}</value></data>
   <data name="ProxyTestSummaryFailed.Text" xml:space="preserve"><value>All {0} tests failed</value></data>
 
   <!-- Profiles - Additional -->
-  <data name="ProfilesImport.Content" xml:space="preserve"><value>Import</value></data>
-  <data name="ProfilesImport.ToolTip" xml:space="preserve"><value>Import Subscription</value></data>
+  <data name="ProfilesImport.Text" xml:space="preserve"><value>Import</value></data>
   <data name="ProfilesPasteClipboard.Content" xml:space="preserve"><value>Paste</value></data>
   <data name="ProfilesActive.Text" xml:space="preserve"><value>Active</value></data>
-  <data name="ProfilesMore.ToolTip" xml:space="preserve"><value>More</value></data>
+
   <data name="ProfilesClipboardTitle.Text" xml:space="preserve"><value>Subscription Link Detected</value></data>
   <data name="ProfilesClipboardContent.Text" xml:space="preserve"><value>Subscription link found in clipboard:\n\n{0}\n\nImport?</value></data>
   <data name="ProfilesUrlHeader.Text" xml:space="preserve"><value>Subscription URL</value></data>
@@ -329,7 +327,7 @@
   <!-- Connections - Additional -->
   <data name="ConnSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search connections…</value></data>
   <data name="ConnCountSuffix.Text" xml:space="preserve"><value> connections</value></data>
-  <data name="ConnClose.ToolTip" xml:space="preserve"><value>Close Connection</value></data>
+
   <data name="ConnCloseSimilar.Text" xml:space="preserve"><value>Close Same Host</value></data>
   <data name="ConnDetailHost.Text" xml:space="preserve"><value>Host</value></data>
   <data name="ConnDetailSource.Text" xml:space="preserve"><value>Source</value></data>
@@ -377,7 +375,7 @@
   <data name="ProxySortName.Text" xml:space="preserve"><value>By Name</value></data>
   <data name="ProxySortDelay.Text" xml:space="preserve"><value>By Delay</value></data>
   <data name="ProxySortType.Text" xml:space="preserve"><value>By Type</value></data>
-  <data name="ProxyTestAll.Content" xml:space="preserve"><value>Test All</value></data>
+
   <data name="ProxySelectBest.Text" xml:space="preserve"><value>Select Best</value></data>
   <data name="ProxySearch.PlaceholderText" xml:space="preserve"><value>Search proxies…</value></data>
 
@@ -406,7 +404,7 @@
   <data name="ReqSortDownload.Text" xml:space="preserve"><value>By Download</value></data>
   <data name="ReqSortRule.Text" xml:space="preserve"><value>By Rule</value></data>
   <data name="RequestsExport.Content" xml:space="preserve"><value>Export</value></data>
-  <data name="RequestsExport.ToolTip" xml:space="preserve"><value>Export request log</value></data>
+
   <data name="RequestsExportSuccessTitle.Text" xml:space="preserve"><value>Export Successful</value></data>
   <data name="RequestsExportSuccessMsg.Text" xml:space="preserve"><value>Request log exported</value></data>
   <data name="RequestsExportFailTitle.Text" xml:space="preserve"><value>Export Failed</value></data>
@@ -427,10 +425,10 @@
   <data name="ResFilterRule.Content" xml:space="preserve"><value>Rule Providers</value></data>
   <data name="ResSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>Search resources…</value></data>
   <data name="ResUpdateAll.Text" xml:space="preserve"><value>Update All</value></data>
-  <data name="ResUpdateAll.ToolTip" xml:space="preserve"><value>Update All</value></data>
+
   <data name="ResEntries.Text" xml:space="preserve"><value>Entries: </value></data>
   <data name="ResSource.Text" xml:space="preserve"><value>Source: </value></data>
-  <data name="ResUpdate.ToolTip" xml:space="preserve"><value>Update</value></data>
+
   <data name="ResGeoUpdate.Text" xml:space="preserve"><value>Geo Database</value></data>
   <data name="ResGeoUpdateGeoIp.Text" xml:space="preserve"><value>Update GeoIP Database</value></data>
   <data name="ResGeoUpdateGeoSite.Text" xml:space="preserve"><value>Update GeoSite Database</value></data>
@@ -440,7 +438,7 @@
   <data name="ResGeoUpdateAsn.Text" xml:space="preserve"><value>Update ASN Database</value></data>
   <data name="ResUpdating.Text" xml:space="preserve"><value>Updating</value></data>
   <data name="ResUpdateAllDone.Text" xml:space="preserve"><value>Update complete</value></data>
-  <data name="ResHealthCheck.ToolTip" xml:space="preserve"><value>Health Check</value></data>
+
   <data name="ResHealthCheckDone.Text" xml:space="preserve"><value>Health Check Complete</value></data>
   <data name="BasicConfigAppliedTitle.Text" xml:space="preserve"><value>Settings Applied</value></data>
   <data name="BasicConfigAppliedMsg.Text" xml:space="preserve"><value>Configuration changes have been applied to the running core.</value></data>
