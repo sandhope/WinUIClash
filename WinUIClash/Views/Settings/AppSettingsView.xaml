@@ -9,7 +9,7 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Padding="0,0,16,24">
-            <TextBlock x:Uid="SettingsApp" FontSize="20" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding Source={StaticResource S}, Path=SettingsApp_Text}" FontSize="20" FontWeight="SemiBold" />
 
             <!-- 语言 -->
             <Border Style="{StaticResource SettingsCardStyle}">
@@ -19,8 +19,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Spacing="2" VerticalAlignment="Center">
-                        <TextBlock x:Uid="AppLanguage" FontSize="13" />
-                        <TextBlock x:Uid="AppLanguageSwitchDesc" FontSize="11" Opacity="0.5" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppLanguage_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppLanguageSwitchDesc_Text}" FontSize="11" Opacity="0.5" />
                     </StackPanel>
                     <ComboBox Grid.Column="1"
                               ItemsSource="{x:Bind ViewModel.Languages}"
@@ -34,7 +34,7 @@
             <!-- 启动与退出 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="0">
-                    <TextBlock x:Uid="AppStartupExit" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=AppStartupExit_Text}" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
@@ -42,8 +42,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppMinimizeOnExit" FontSize="13" />
-                            <TextBlock x:Uid="AppMinimizeOnExitDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppMinimizeOnExit_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppMinimizeOnExitDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.MinimizeOnExit, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -55,8 +55,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppAutoLaunch" FontSize="13" />
-                            <TextBlock x:Uid="AppAutoLaunchDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppAutoLaunch_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppAutoLaunchDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.AutoLaunch, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -68,8 +68,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppSilentLaunch" FontSize="13" />
-                            <TextBlock x:Uid="AppSilentLaunchDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppSilentLaunch_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppSilentLaunchDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.SilentLaunch, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -81,8 +81,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppAutoRun" FontSize="13" />
-                            <TextBlock x:Uid="AppAutoRunDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppAutoRun_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppAutoRunDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.AutoRun, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -93,8 +93,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppAutoRestart" FontSize="13" />
-                            <TextBlock x:Uid="AppAutoRestartDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppAutoRestart_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppAutoRestartDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.AutoRestart, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -105,7 +105,7 @@
             <!-- 代理行为 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="0">
-                    <TextBlock x:Uid="AppProxyBehavior" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=AppProxyBehavior_Text}" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
@@ -113,8 +113,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppSystemProxy" FontSize="13" />
-                            <TextBlock x:Uid="AppSystemProxyDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppSystemProxy_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppSystemProxyDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.SystemProxy, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -126,8 +126,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppProxyGuard" FontSize="13" />
-                            <TextBlock x:Uid="AppProxyGuardDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppProxyGuard_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppProxyGuardDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.ProxyGuardEnabled, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -139,8 +139,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppProxyGuardInterval" FontSize="13" />
-                            <TextBlock x:Uid="AppProxyGuardIntervalDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppProxyGuardInterval_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppProxyGuardIntervalDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <NumberBox Grid.Column="1" Value="{x:Bind ViewModel.ProxyGuardInterval, Mode=TwoWay}"
                                    Minimum="5" Maximum="600" SmallChange="5" LargeChange="30"
@@ -153,8 +153,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppTunMode" FontSize="13" />
-                            <TextBlock x:Uid="AppTunModeDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppTunMode_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppTunModeDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.TunMode, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -166,8 +166,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppTunStack" FontSize="13" />
-                            <TextBlock x:Uid="AppTunStackDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppTunStack_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppTunStackDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ComboBox Grid.Column="1" Width="120"
                                   ItemsSource="{x:Bind ViewModel.TunStackOptions}"
@@ -180,8 +180,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppCloseConnections" FontSize="13" />
-                            <TextBlock x:Uid="AppCloseConnectionsDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppCloseConnections_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppCloseConnectionsDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.CloseConnections, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -192,8 +192,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppOnlyStatisticsProxy" FontSize="13" />
-                            <TextBlock x:Uid="AppOnlyStatisticsProxyDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppOnlyStatisticsProxy_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppOnlyStatisticsProxyDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.OnlyStatisticsProxy, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -211,8 +211,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppAutoCheckUpdate" FontSize="13" />
-                            <TextBlock x:Uid="AppAutoCheckUpdateDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppAutoCheckUpdate_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppAutoCheckUpdateDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.AutoCheckUpdate, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -223,8 +223,8 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="AppShowNotifications" FontSize="13" />
-                            <TextBlock x:Uid="AppShowNotificationsDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppShowNotifications_Text}" FontSize="13" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppShowNotificationsDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.ShowNotifications, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
@@ -241,15 +241,15 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2">
-                            <TextBlock x:Uid="AppBypassDomains" FontSize="14" />
-                            <TextBlock x:Uid="AppBypassDomainsDesc" FontSize="12" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppBypassDomains_Text}" FontSize="14" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppBypassDomainsDesc_Text}" FontSize="12" Opacity="0.5" />
                         </StackPanel>
                         <Button Grid.Column="1"
                                 Padding="8,4" Background="Transparent" BorderThickness="0"
                                 Click="BypassPresets_Click">
                             <StackPanel Orientation="Horizontal" Spacing="4">
                                 <SymbolIcon Symbol="List" />
-                                <TextBlock x:Uid="AppBypassPresets" FontSize="11" />
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=AppBypassPresets_Text}" FontSize="11" />
                             </StackPanel>
                         </Button>
                     </Grid>
@@ -263,18 +263,18 @@
             <!-- 备份/恢复 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="12">
-                    <TextBlock x:Uid="SettingsBackup" FontSize="14" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=SettingsBackup_Text}" FontSize="14" FontWeight="SemiBold" />
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <Button Click="ExportSettings_Click" Padding="12,6">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
-                                <TextBlock x:Uid="SettingsExportSettings" FontSize="12" />
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=SettingsExportSettings_Text}" FontSize="12" />
                             </StackPanel>
                         </Button>
                         <Button Click="ImportSettings_Click" Padding="12,6">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <fluent:SymbolIcon Symbol="ArrowImport" FontSize="14" />
-                                <TextBlock x:Uid="SettingsImportSettings" FontSize="12" />
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=SettingsImportSettings_Text}" FontSize="12" />
                             </StackPanel>
                         </Button>
                     </StackPanel>

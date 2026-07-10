@@ -25,7 +25,8 @@ public class CoreProcessService : IDisposable
 
     /// <summary>
     /// 自动检测 mihomo 可执行文件路径
-    /// 查找顺序: 应用目录 → 系统 PATH → %LOCALAPPDATA%\WinUIClash
+    /// 查找顺序: 打包的 Core 目录 → 应用目录 → %LOCALAPPDATA%\WinUIClash → 系统 PATH
+    /// 支持 x64 和 ARM64 架构自动选择
     /// </summary>
     private void DetectBinary()
     {
@@ -34,15 +35,29 @@ public class CoreProcessService : IDisposable
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "WinUIClash");
 
+        // 检测当前架构
+        var isArm64 = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64;
+
+        // 根据架构选择对应的二进制文件名
+        var binaryName = isArm64 ? "mihomo-arm64.exe" : "mihomo.exe";
+
         var candidates = new[]
         {
+            // 优先使用打包的 Core 目录
+            Path.Combine(appDir, "Core", binaryName),
+            Path.Combine(appDir, "Core", "mihomo.exe"),
+            Path.Combine(appDir, "Core", "mihomo-arm64.exe"),
+            // 应用目录下的其他常见位置
+            Path.Combine(appDir, binaryName),
             Path.Combine(appDir, "mihomo.exe"),
             Path.Combine(appDir, "clash.exe"),
-            Path.Combine(appDir, "mihomo", "mihomo.exe"),
-            Path.Combine(appDir, "core", "mihomo.exe"),
+            Path.Combine(appDir, "mihomo", binaryName),
+            Path.Combine(appDir, "core", binaryName),
+            // 用户本地目录
+            Path.Combine(localDir, binaryName),
             Path.Combine(localDir, "mihomo.exe"),
             Path.Combine(localDir, "clash.exe"),
-            Path.Combine(localDir, "core", "mihomo.exe"),
+            Path.Combine(localDir, "core", binaryName),
         };
 
         foreach (var path in candidates)
@@ -61,7 +76,15 @@ public class CoreProcessService : IDisposable
             var pathDirs = Environment.GetEnvironmentVariable("PATH")?.Split(';') ?? [];
             foreach (var dir in pathDirs)
             {
-                var mihomo = Path.Combine(dir, "mihomo.exe");
+                var mihomo = Path.Combine(dir, binaryName);
+                if (File.Exists(mihomo))
+                {
+                    _binaryPath = mihomo;
+                    _workingDir = dir;
+                    break;
+                }
+                // 兼容旧的命名
+                mihomo = Path.Combine(dir, "mihomo.exe");
                 if (File.Exists(mihomo))
                 {
                     _binaryPath = mihomo;
@@ -71,9 +94,26 @@ public class CoreProcessService : IDisposable
             }
         }
 
-        // 设置默认配置文件路径
-        _configPath = Path.Combine(localDir, "config.yaml");
-        Directory.CreateDirectory(localDir);
+        // 配置文件路径：优先用户自定义，否则使用打包的默认配置
+        var userConfigPath = Path.Combine(localDir, "config.yaml");
+        var bundledConfigPath = Path.Combine(appDir, "Core", "config.yaml");
+
+        if (File.Exists(userConfigPath))
+        {
+            _configPath = userConfigPath;
+        }
+        else if (File.Exists(bundledConfigPath))
+        {
+            // 复制打包的默认配置到用户目录
+            Directory.CreateDirectory(localDir);
+            File.Copy(bundledConfigPath, userConfigPath, overwrite: false);
+            _configPath = userConfigPath;
+        }
+        else
+        {
+            _configPath = userConfigPath;
+            Directory.CreateDirectory(localDir);
+        }
     }
 
     /// <summary>设置自定义二进制路径</summary>

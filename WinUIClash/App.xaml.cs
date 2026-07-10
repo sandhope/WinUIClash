@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
@@ -29,6 +29,9 @@ namespace WinUIClash
     {
         /// <summary>当前主窗口实例，供全局访问（如主题切换）</summary>
         public static Window? CurrentWindow { get; private set; }
+
+        /// <summary>保存的导航页面，用于语言切换后恢复</summary>
+        private static string? _savedNavigationTag;
 
         private static System.Threading.Mutex? _instanceMutex;
 
@@ -127,7 +130,23 @@ namespace WinUIClash
                 return;
             }
 
-            ServiceLocator.Build();
+            Resources.Add("LogLevelToColorConverter", new Converters.LogLevelToColorConverter());
+            Resources.Add("BoolToVisibilityConverter", new Converters.BoolToVisibilityConverter());
+            Resources.Add("InverseBoolToVisibilityConverter", new Converters.InverseBoolToVisibilityConverter());
+            Resources.Add("NullToVisibilityConverter", new Converters.NullToVisibilityConverter());
+            Resources.Add("DelayToColorConverter", new Converters.DelayToColorConverter());
+            Resources.Add("DelayToTextConverter", new Converters.DelayToTextConverter());
+            Resources.Add("BytesToStringConverter", new Converters.BytesToStringConverter());
+            Resources.Add("BytesToSpeedConverter", new Converters.BytesToSpeedConverter());
+            Resources.Add("DateTimeToRelativeConverter", new Converters.DateTimeToRelativeConverter());
+            Resources.Add("DateTimeToTimeConverter", new Converters.DateTimeToTimeConverter());
+            Resources.Add("HexToColorConverter", new Converters.HexToColorConverter());
+            Resources.Add("EmptyCollectionToVisibilityConverter", new Converters.EmptyCollectionToVisibilityConverter());
+            Resources.Add("NonEmptyCollectionToVisibilityConverter", new Converters.NonEmptyCollectionToVisibilityConverter());
+            Resources.Add("InverseBoolConverter", new Converters.InverseBoolConverter());
+
+            var stringResources = (Services.StringResources)Resources["S"];
+            ServiceLocator.Build(stringResources);
 
             // 加载持久化设置
             var settingsService = ServiceLocator.Get<Services.SettingsService>();
@@ -171,8 +190,8 @@ namespace WinUIClash
             ViewModels.Settings.ThemeSettingsViewModel.InitializeTheme();
 
             // 应用语言设置
-            var lang = appSettings.Language;
-            Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = lang;
+            var localizationService = ServiceLocator.Get<Services.LocalizationService>();
+            localizationService.Initialize();
 
             // 静默启动：如果命令行包含 --silent 或设置中启用了静默启动，则最小化到托盘
             var cmdArgs = Environment.GetCommandLineArgs();
@@ -224,6 +243,32 @@ namespace WinUIClash
                     }
                 });
             }
+
+            // 恢复之前保存的导航页面
+            if (!string.IsNullOrEmpty(_savedNavigationTag))
+            {
+                var mainWindow = CurrentWindow as MainWindow;
+                mainWindow?.NavigateTo(_savedNavigationTag);
+                _savedNavigationTag = null;
+            }
         }
+
+        public static void RecreateMainWindow(string navigationTag)
+    {
+        _savedNavigationTag = navigationTag;
+
+        var oldWindow = CurrentWindow as MainWindow;
+        if (oldWindow == null) return;
+
+        oldWindow.DispatcherQueue.TryEnqueue(async () =>
+        {
+            await oldWindow.PerformCleanupAsync();
+
+            CurrentWindow = new MainWindow();
+            CurrentWindow.Activate();
+
+            oldWindow.Close();
+        });
+    }
     }
 }

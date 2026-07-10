@@ -137,7 +137,9 @@ public partial class AppSettingsViewModel : ObservableObject
             {
                 _settings.Language = value;
                 OnPropertyChanged();
-                // Note: language change requires app restart to take full effect
+
+                var localizationService = ServiceLocator.Get<LocalizationService>();
+                localizationService.SetLanguage(value);
             }
         }
     }

@@ -20,7 +20,6 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- 通知 InfoBar 浮层 -->
         <InfoBar x:Name="NotificationBar"
                  Canvas.ZIndex="100"
                  VerticalAlignment="Top"
@@ -46,7 +45,7 @@
                         FontWeight="SemiBold" />
                     <AutoSuggestBox
                         x:Name="SearchBox"
-                        x:Uid="SearchBox"
+                        PlaceholderText="{Binding Source={StaticResource S}, Path=SearchBox_PlaceholderText}"
                         QueryIcon="Find"
                         TextChanged="SearchBox_TextChanged"
                         SuggestionChosen="SearchBox_SuggestionChosen"
@@ -55,29 +54,25 @@
             </NavigationView.PaneHeader>
 
             <NavigationView.MenuItems>
-                <!-- 仪表盘 -->
-                <NavigationViewItem x:Uid="NavDashboard" Tag="Dashboard"
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavDashboard_Content}" Tag="Dashboard"
                                     ToolTipService.ToolTip="Ctrl+1">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Home" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <!-- 代理 -->
-                <NavigationViewItem x:Uid="NavProxies" Tag="Proxies"
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavProxies_Content}" Tag="Proxies"
                                     ToolTipService.ToolTip="Ctrl+2">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Globe" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <!-- 配置 -->
-                <NavigationViewItem x:Uid="NavProfiles" Tag="Profiles"
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavProfiles_Content}" Tag="Profiles"
                                     ToolTipService.ToolTip="Ctrl+3">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Folder" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <!-- 请求 -->
-                <NavigationViewItem x:Uid="NavRequests" Tag="Requests"
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavRequests_Content}" Tag="Requests"
                                     ToolTipService.ToolTip="Ctrl+4">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="List" />
@@ -86,8 +81,7 @@
                         <InfoBadge x:Name="RequestsBadge" Value="0" Visibility="Collapsed" />
                     </NavigationViewItem.InfoBadge>
                 </NavigationViewItem>
-                <!-- 连接 -->
-                <NavigationViewItem x:Uid="NavConnections" Tag="Connections"
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavConnections_Content}" Tag="Connections"
                                     ToolTipService.ToolTip="Ctrl+5">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Link" />
@@ -96,29 +90,25 @@
                         <InfoBadge x:Name="ConnectionsBadge" Value="0" Visibility="Collapsed" />
                     </NavigationViewItem.InfoBadge>
                 </NavigationViewItem>
-                <!-- 资源 -->
-                <NavigationViewItem x:Uid="NavResources" Tag="Resources"
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavResources_Content}" Tag="Resources"
                                     ToolTipService.ToolTip="Ctrl+6">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Library" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <!-- 规则 -->
-                <NavigationViewItem x:Uid="NavRules" Tag="Rules"
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavRules_Content}" Tag="Rules"
                                     ToolTipService.ToolTip="Ctrl+7">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Filter" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <!-- 日志 -->
-                <NavigationViewItem x:Uid="NavLogs" Tag="Logs"
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavLogs_Content}" Tag="Logs"
                                     ToolTipService.ToolTip="Ctrl+8">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Notepad" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <!-- 工具 -->
-                <NavigationViewItem x:Uid="NavTools" Tag="Tools"
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavTools_Content}" Tag="Tools"
                                     ToolTipService.ToolTip="Ctrl+9">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Wrench" />
@@ -141,7 +131,6 @@
             <Frame x:Name="ContentFrame" />
         </NavigationView>
 
-        <!-- 底部状态栏 -->
         <Grid Grid.Row="1" Height="28"
               Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -158,14 +147,14 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!-- 核心状态 (可点击切换) -->
             <Button Background="Transparent" BorderThickness="0" Padding="0"
-                    Click="StatusDot_Click" x:Uid="StatusToggle">
+                    Click="StatusDot_Click"
+                    ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=StatusToggle_ToolTip}">
                 <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
                             Margin="12,0,16,0">
                     <Ellipse Width="8" Height="8" x:Name="StatusDot"
                              Fill="{ThemeResource SystemFillColorCritical}" />
-                    <TextBlock x:Uid="StatusStopped" FontSize="11" x:Name="StatusText"
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=StatusStopped_Text}" FontSize="11" x:Name="StatusText"
                                Opacity="0.6" />
                 </StackPanel>
             </Button>
@@ -173,7 +162,6 @@
             <Border Grid.Column="1" Width="1" Margin="4,4"
                     Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
-            <!-- 运行时长 -->
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4"
                         VerticalAlignment="Center" Margin="8,0">
                 <fluent:SymbolIcon Symbol="Timer" FontSize="10" Opacity="0.5" />
@@ -181,7 +169,6 @@
                            FontFamily="Consolas" Opacity="0.5" />
             </StackPanel>
 
-            <!-- 活跃连接数 -->
             <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4"
                         VerticalAlignment="Center" Margin="8,0,8,0">
                 <fluent:SymbolIcon Symbol="Link" FontSize="10" Opacity="0.5" />
@@ -189,7 +176,6 @@
                            FontFamily="Consolas" Opacity="0.5" />
             </StackPanel>
 
-            <!-- 内存使用 -->
             <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4"
                         VerticalAlignment="Center" Margin="4,0">
                 <fluent:SymbolIcon Symbol="Storage" FontSize="10" Opacity="0.5" />
@@ -197,7 +183,6 @@
                            FontFamily="Consolas" Opacity="0.5" />
             </StackPanel>
 
-            <!-- 出站模式 -->
             <Border Grid.Column="5" CornerRadius="3" Padding="6,2"
                     VerticalAlignment="Center" Margin="4,0"
                     Background="{ThemeResource SubtleFillColorSecondary}">
@@ -205,7 +190,6 @@
                            x:Name="OutboundModeText" Opacity="0.6" />
             </Border>
 
-            <!-- 上传/下载速度 -->
             <StackPanel Grid.Column="7" Orientation="Horizontal" Spacing="12"
                         VerticalAlignment="Center" Margin="12,0">
                 <StackPanel Orientation="Horizontal" Spacing="4">
@@ -220,14 +204,13 @@
                 </StackPanel>
             </StackPanel>
 
-            <!-- 系统代理状态 (可点击切换) -->
             <Button Grid.Column="8" Background="Transparent" BorderThickness="0" Padding="0"
                     Click="StatusProxy_Click">
                 <StackPanel Orientation="Horizontal" Spacing="6"
                             VerticalAlignment="Center" Margin="4,0,12,0">
                     <fluent:SymbolIcon Symbol="ShieldCheckmark" FontSize="10"
                                        x:Name="ProxyIcon" Opacity="0.3" />
-                    <TextBlock x:Uid="StatusProxyLabel" FontSize="11" x:Name="ProxyText"
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=StatusProxyLabel_Text}" FontSize="11" x:Name="ProxyText"
                                Opacity="0.3" />
                 </StackPanel>
             </Button>

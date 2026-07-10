@@ -259,7 +259,7 @@
   <data name="AppOther.Text" xml:space="preserve"><value>Other</value></data>
   <data name="AppSilentLaunch.Text" xml:space="preserve"><value>Silent Start</value></data>
   <data name="AppSilentLaunchDesc.Text" xml:space="preserve"><value>Start minimized without showing main window</value></data>
-  <data name="AppLanguageSwitchDesc.Text" xml:space="preserve"><value>Restart required after changing language</value></data>
+  <data name="AppLanguageSwitchDesc.Text" xml:space="preserve"><value>Language changes take effect immediately</value></data>
 
   <!-- Theme - RadioButton Content -->
   <data name="ThemeSystem.Content" xml:space="preserve"><value>System</value></data>

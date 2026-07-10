@@ -3,30 +3,14 @@
     x:Class="WinUIClash.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:converters="using:WinUIClash.Converters"
-    xmlns:local="using:WinUIClash">
+    xmlns:local="using:WinUIClash"
+    xmlns:services="using:WinUIClash.Services">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
-            <!-- Converters -->
-            <converters:LogLevelToColorConverter x:Key="LogLevelToColorConverter" />
-            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-            <converters:DelayToColorConverter x:Key="DelayToColorConverter" />
-            <converters:DelayToTextConverter x:Key="DelayToTextConverter" />
-            <converters:BytesToStringConverter x:Key="BytesToStringConverter" />
-            <converters:BytesToSpeedConverter x:Key="BytesToSpeedConverter" />
-            <converters:DateTimeToRelativeConverter x:Key="DateTimeToRelativeConverter" />
-            <converters:DateTimeToTimeConverter x:Key="DateTimeToTimeConverter" />
-            <converters:HexToColorConverter x:Key="HexToColorConverter" />
-            <converters:EmptyCollectionToVisibilityConverter x:Key="EmptyCollectionToVisibilityConverter" />
-            <converters:NonEmptyCollectionToVisibilityConverter x:Key="NonEmptyCollectionToVisibilityConverter" />
-            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
-            <!-- Settings card style -->
+            <services:StringResources x:Key="S" />
             <Style x:Key="SettingsCardStyle" TargetType="Border">
                 <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
                 <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
@@ -34,7 +18,6 @@
                 <Setter Property="CornerRadius" Value="8" />
                 <Setter Property="Padding" Value="16,12" />
             </Style>
-            <!-- Semantic colors -->
             <SolidColorBrush x:Key="UploadIndicatorBrush" Color="#4FC3F7" />
             <SolidColorBrush x:Key="DownloadIndicatorBrush" Color="#81C784" />
             <SolidColorBrush x:Key="ActiveBadgeBrush" Color="#4CAF50" />

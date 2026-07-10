@@ -8,44 +8,40 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Padding="0,0,16,24">
-            <TextBlock x:Uid="SettingsTheme" FontSize="20" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding Source={StaticResource S}, Path=SettingsTheme_Text}" FontSize="20" FontWeight="SemiBold" />
 
-            <!-- 主题模式 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="12">
-                    <TextBlock x:Uid="ThemeMode" FontSize="14" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=ThemeMode_Text}" FontSize="14" FontWeight="SemiBold" />
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <RadioButton x:Uid="ThemeSystem" GroupName="ThemeMode"
+                        <RadioButton Content="{Binding Source={StaticResource S}, Path=ThemeSystem_Content}" GroupName="ThemeMode"
                                      IsChecked="{x:Bind ViewModel.IsSystemTheme, Mode=TwoWay}" />
-                        <RadioButton x:Uid="ThemeLight" GroupName="ThemeMode"
+                        <RadioButton Content="{Binding Source={StaticResource S}, Path=ThemeLight_Content}" GroupName="ThemeMode"
                                      IsChecked="{x:Bind ViewModel.IsLightTheme, Mode=TwoWay}" />
-                        <RadioButton x:Uid="ThemeDark" GroupName="ThemeMode"
+                        <RadioButton Content="{Binding Source={StaticResource S}, Path=ThemeDark_Content}" GroupName="ThemeMode"
                                      IsChecked="{x:Bind ViewModel.IsDarkTheme, Mode=TwoWay}" />
                     </StackPanel>
                 </StackPanel>
             </Border>
 
-            <!-- 主题色 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="12">
-                    <TextBlock x:Uid="ThemeAccentColor" FontSize="14" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=ThemeAccentColor_Text}" FontSize="14" FontWeight="SemiBold" />
 
-                    <!-- 使用系统主题色 -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="ThemeUseSystemAccent" FontSize="13" />
-                            <TextBlock x:Uid="ThemeUseSystemAccentDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ThemeUseSystemAccent_Text}" FontSize="13" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ThemeUseSystemAccentDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1"
                                       IsOn="{x:Bind ViewModel.UseSystemAccentColor, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
                     </Grid>
 
-                    <!-- 预设色板 (系统色启用时禁用) -->
                     <ContentControl IsEnabled="{x:Bind ViewModel.UsePresetColors, Mode=OneWay}"
                                     HorizontalContentAlignment="Stretch">
                         <ItemsRepeater ItemsSource="{x:Bind ViewModel.PrimaryColors}">
@@ -67,8 +63,7 @@
                             </ItemsRepeater.ItemTemplate>
                         </ItemsRepeater>
                     </ContentControl>
-                    <!-- 自定义颜色选择器 (系统色启用时禁用) -->
-                    <Expander x:Uid="ThemeCustomColor" HorizontalAlignment="Stretch"
+                    <Expander Header="{Binding Source={StaticResource S}, Path=ThemeCustomColor_Header}" HorizontalAlignment="Stretch"
                               HorizontalContentAlignment="Stretch"
                               IsEnabled="{x:Bind ViewModel.UsePresetColors, Mode=OneWay}">
                         <StackPanel Spacing="8">
@@ -79,7 +74,7 @@
                                          IsMoreButtonVisible="False"
                                          IsColorSliderVisible="True"
                                          ColorChanged="CustomColorPicker_ColorChanged" />
-                            <Button x:Uid="ThemeApplyCustomColor" Click="ApplyCustomColor_Click"
+                            <Button Content="{Binding Source={StaticResource S}, Path=ThemeApplyCustomColor_Content}" Click="ApplyCustomColor_Click"
                                     HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Expander>

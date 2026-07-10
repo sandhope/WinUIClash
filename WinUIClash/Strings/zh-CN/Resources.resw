@@ -259,7 +259,7 @@
   <data name="AppOther.Text" xml:space="preserve"><value>其他</value></data>
   <data name="AppSilentLaunch.Text" xml:space="preserve"><value>静默启动</value></data>
   <data name="AppSilentLaunchDesc.Text" xml:space="preserve"><value>启动时最小化，不显示主窗口</value></data>
-  <data name="AppLanguageSwitchDesc.Text" xml:space="preserve"><value>切换语言后需要重启应用</value></data>
+  <data name="AppLanguageSwitchDesc.Text" xml:space="preserve"><value>语言切换即时生效</value></data>
 
   <!-- Theme - RadioButton Content -->
   <data name="ThemeSystem.Content" xml:space="preserve"><value>跟随系统</value></data>

@@ -8,12 +8,11 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Padding="0,0,16,24">
-            <TextBlock x:Uid="SettingsBasicConfig" FontSize="20" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding Source={StaticResource S}, Path=SettingsBasicConfig_Text}" FontSize="20" FontWeight="SemiBold" />
 
-            <!-- 端口 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="12">
-                    <TextBlock x:Uid="ConfigPortSettings" FontSize="14" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigPortSettings_Text}" FontSize="14" FontWeight="SemiBold" />
                     <Grid ColumnSpacing="12" RowSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -25,20 +24,19 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <TextBlock x:Uid="ConfigPort" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigPort_Text}" VerticalAlignment="Center" />
                         <NumberBox Grid.Column="1" Value="{x:Bind ViewModel.MixedPort, Mode=TwoWay}"
                                    Minimum="1024" Maximum="65535" SmallChange="1" />
-                        <TextBlock Grid.Column="2" x:Uid="ConfigSocksPort" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="2" Text="{Binding Source={StaticResource S}, Path=ConfigSocksPort_Text}" VerticalAlignment="Center" />
                         <NumberBox Grid.Column="3" Value="{x:Bind ViewModel.SocksPort, Mode=TwoWay}"
                                    Minimum="1024" Maximum="65535" SmallChange="1" />
-                        <TextBlock Grid.Row="1" x:Uid="ConfigHttpPort" VerticalAlignment="Center" />
+                        <TextBlock Grid.Row="1" Text="{Binding Source={StaticResource S}, Path=ConfigHttpPort_Text}" VerticalAlignment="Center" />
                         <NumberBox Grid.Row="1" Grid.Column="1" Value="{x:Bind ViewModel.HttpPort, Mode=TwoWay}"
                                    Minimum="1024" Maximum="65535" SmallChange="1" />
                     </Grid>
                 </StackPanel>
             </Border>
 
-            <!-- 日志级别 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -46,8 +44,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Spacing="2" VerticalAlignment="Center">
-                        <TextBlock x:Uid="ConfigLogLevel" FontSize="14" />
-                        <TextBlock x:Uid="ConfigLogLevelDesc" FontSize="12" Opacity="0.5" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigLogLevel_Text}" FontSize="14" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigLogLevelDesc_Text}" FontSize="12" Opacity="0.5" />
                     </StackPanel>
                     <ComboBox Grid.Column="1" Width="140"
                               ItemsSource="{x:Bind ViewModel.LogLevelOptions}"
@@ -55,7 +53,6 @@
                 </Grid>
             </Border>
 
-            <!-- User-Agent -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -63,8 +60,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Spacing="2" VerticalAlignment="Center">
-                        <TextBlock x:Uid="ConfigUserAgent" FontSize="14" />
-                        <TextBlock x:Uid="ConfigUserAgentDesc" FontSize="12" Opacity="0.5" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigUserAgent_Text}" FontSize="14" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigUserAgentDesc_Text}" FontSize="12" Opacity="0.5" />
                     </StackPanel>
                     <ComboBox Grid.Column="1" Width="180"
                               ItemsSource="{x:Bind ViewModel.UserAgentOptions}"
@@ -72,7 +69,6 @@
                 </Grid>
             </Border>
 
-            <!-- Keep-Alive -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -80,8 +76,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Spacing="2" VerticalAlignment="Center">
-                        <TextBlock x:Uid="ConfigKeepAlive" FontSize="14" />
-                        <TextBlock x:Uid="ConfigKeepAliveDesc" FontSize="12" Opacity="0.5" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigKeepAlive_Text}" FontSize="14" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigKeepAliveDesc_Text}" FontSize="12" Opacity="0.5" />
                     </StackPanel>
                     <NumberBox Grid.Column="1" Width="100"
                                Value="{x:Bind ViewModel.KeepAliveInterval, Mode=TwoWay}"
@@ -89,23 +85,21 @@
                 </Grid>
             </Border>
 
-            <!-- 测速 URL -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="8">
                     <StackPanel Spacing="2">
-                        <TextBlock x:Uid="ConfigTestUrl" FontSize="14" />
-                        <TextBlock x:Uid="ConfigTestUrlDesc" FontSize="12" Opacity="0.5" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigTestUrl_Text}" FontSize="14" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigTestUrlDesc_Text}" FontSize="12" Opacity="0.5" />
                     </StackPanel>
                     <TextBox Text="{x:Bind ViewModel.TestUrl, Mode=TwoWay}" />
                 </StackPanel>
             </Border>
 
-            <!-- 核心路径 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="8">
                     <StackPanel Spacing="2">
-                        <TextBlock x:Uid="ConfigCoreBinaryPath" FontSize="14" />
-                        <TextBlock x:Uid="ConfigCoreBinaryPathDesc" FontSize="12" Opacity="0.5" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigCoreBinaryPath_Text}" FontSize="14" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigCoreBinaryPathDesc_Text}" FontSize="12" Opacity="0.5" />
                     </StackPanel>
                     <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
@@ -113,19 +107,17 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox Text="{x:Bind ViewModel.CoreBinaryPath, Mode=TwoWay}"
-                                 x:Uid="ConfigCoreBinaryPathPlaceholder" />
-                        <Button Grid.Column="1" x:Uid="ConfigBrowse"
+                                 PlaceholderText="{Binding Source={StaticResource S}, Path=ConfigCoreBinaryPathPlaceholder_PlaceholderText}" />
+                        <Button Grid.Column="1" Content="{Binding Source={StaticResource S}, Path=ConfigBrowse_Content}"
                                 Click="BrowseCoreBinary_Click"
                                 Padding="12,6" />
                     </Grid>
                 </StackPanel>
             </Border>
 
-            <!-- 功能开关 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="0">
-                    <TextBlock x:Uid="ConfigFeatureSwitches" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
-                    <!-- IPv6 -->
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigFeatureSwitches_Text}" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
@@ -133,13 +125,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="ConfigIpv6" FontSize="13" />
-                            <TextBlock x:Uid="ConfigIpv6Desc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigIpv6_Text}" FontSize="13" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigIpv6Desc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.Ipv6, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
                     </Grid>
-                    <!-- Allow LAN -->
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
@@ -147,13 +138,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="ConfigAllowLan" FontSize="13" />
-                            <TextBlock x:Uid="ConfigAllowLanDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigAllowLan_Text}" FontSize="13" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigAllowLanDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.AllowLan, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
                     </Grid>
-                    <!-- Unified Delay -->
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
@@ -161,13 +151,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="ConfigUnifiedDelay" FontSize="13" />
-                            <TextBlock x:Uid="ConfigUnifiedDelayDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigUnifiedDelay_Text}" FontSize="13" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigUnifiedDelayDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.UnifiedDelay, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
                     </Grid>
-                    <!-- TCP Concurrent -->
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
@@ -175,13 +164,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="ConfigTcpConcurrent" FontSize="13" />
-                            <TextBlock x:Uid="ConfigTcpConcurrentDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigTcpConcurrent_Text}" FontSize="13" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigTcpConcurrentDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.TcpConcurrent, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
                     </Grid>
-                    <!-- Find Process -->
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
@@ -189,14 +177,13 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="ConfigFindProcess" FontSize="13" />
-                            <TextBlock x:Uid="ConfigFindProcessDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigFindProcess_Text}" FontSize="13" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigFindProcessDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ComboBox Grid.Column="1" Width="120"
                                   ItemsSource="{x:Bind ViewModel.FindProcessModeOptions}"
                                   SelectedItem="{x:Bind ViewModel.FindProcessMode, Mode=TwoWay}" />
                     </Grid>
-                    <!-- External Controller -->
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
@@ -204,13 +191,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="ConfigExternalController" FontSize="13" />
-                            <TextBlock x:Uid="ConfigExternalControllerDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigExternalController_Text}" FontSize="13" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigExternalControllerDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.ExternalController, Mode=TwoWay}"
                                       OffContent="" OnContent="" />
                     </Grid>
-                    <!-- API Secret -->
                     <Grid Padding="0,8" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
                           BorderThickness="0,0,0,1">
                         <Grid.ColumnDefinitions>
@@ -218,22 +204,21 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="ConfigApiSecret" FontSize="13" />
-                            <TextBlock x:Uid="ConfigApiSecretDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigApiSecret_Text}" FontSize="13" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigApiSecretDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <TextBox Grid.Column="1" Width="200"
                                  Text="{x:Bind ViewModel.ApiSecret, Mode=TwoWay}"
-                                 x:Uid="ConfigApiSecretPlaceholder" />
+                                 PlaceholderText="{Binding Source={StaticResource S}, Path=ConfigApiSecretPlaceholder_PlaceholderText}" />
                     </Grid>
-                    <!-- Auto Restart -->
                     <Grid Padding="0,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock x:Uid="ConfigAutoRestart" FontSize="13" />
-                            <TextBlock x:Uid="ConfigAutoRestartDesc" FontSize="11" Opacity="0.5" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigAutoRestart_Text}" FontSize="13" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigAutoRestartDesc_Text}" FontSize="11" Opacity="0.5" />
                         </StackPanel>
                         <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.AutoRestart, Mode=TwoWay}"
                                       OffContent="" OnContent="" />

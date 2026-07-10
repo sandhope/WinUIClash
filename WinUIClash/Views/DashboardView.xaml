@@ -118,7 +118,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="1" VerticalAlignment="Center" Margin="0,0,4,0">
-                                <TextBlock x:Uid="DashSystemProxy" FontSize="11" Opacity="0.7" />
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=DashSystemProxy_Text}" FontSize="11" Opacity="0.7" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" MinWidth="0" Padding="0"
                                           IsOn="{x:Bind ViewModel.IsSystemProxyOn, Mode=TwoWay}"
@@ -201,12 +201,12 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock x:Uid="DashOutboundMode" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
-                    <RadioButton Grid.Row="1" x:Uid="DashModeRule" GroupName="Mode"
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=DashOutboundMode_Text}" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
+                    <RadioButton Grid.Row="1" Content="{Binding Source={StaticResource S}, Path=DashModeRule_Content}" GroupName="Mode"
                                  IsChecked="{x:Bind ViewModel.IsModeRule, Mode=TwoWay}" />
-                    <RadioButton Grid.Row="2" x:Uid="DashModeGlobal" GroupName="Mode"
+                    <RadioButton Grid.Row="2" Content="{Binding Source={StaticResource S}, Path=DashModeGlobal_Content}" GroupName="Mode"
                                  IsChecked="{x:Bind ViewModel.IsModeGlobal, Mode=TwoWay}" />
-                    <RadioButton Grid.Row="3" x:Uid="DashModeDirect" GroupName="Mode"
+                    <RadioButton Grid.Row="3" Content="{Binding Source={StaticResource S}, Path=DashModeDirect_Content}" GroupName="Mode"
                                  IsChecked="{x:Bind ViewModel.IsModeDirect, Mode=TwoWay}" />
                 </Grid>
             </Border>
@@ -224,23 +224,23 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock x:Uid="DashTrafficStats" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTrafficStats_Text}" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
                         <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="14" Foreground="{StaticResource UploadIndicatorBrush}" />
-                        <TextBlock x:Uid="DashUploadSpeed" FontSize="12" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashUploadSpeed_Text}" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.TotalUpload, Mode=OneWay}" FontWeight="SemiBold" Margin="8,0,0,0" />
                     </StackPanel>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
                         <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="14" Foreground="{StaticResource DownloadIndicatorBrush}" />
-                        <TextBlock x:Uid="DashDownloadSpeed" FontSize="12" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashDownloadSpeed_Text}" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.TotalDownload, Mode=OneWay}" FontWeight="SemiBold" Margin="8,0,0,0" />
                     </StackPanel>
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
                         <fluent:SymbolIcon Symbol="Link" FontSize="14" Opacity="0.6" />
-                        <TextBlock x:Uid="DashActiveConnections" FontSize="12" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashActiveConnections_Text}" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.ActiveConnections, Mode=OneWay}" FontWeight="SemiBold" Margin="8,0,0,0" />
                     </StackPanel>
-                    <HyperlinkButton Grid.Row="4" x:Uid="DashResetTraffic" FontSize="12" Padding="0" Margin="0,4,0,0"
+                    <HyperlinkButton Grid.Row="4" Content="{Binding Source={StaticResource S}, Path=DashResetTraffic_Content}" FontSize="12" Padding="0" Margin="0,4,0,0"
                                      Command="{x:Bind ViewModel.ResetTrafficCommand}" />
                 </Grid>
             </Border>
@@ -258,7 +258,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock x:Uid="DashNetworkInfo" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=DashNetworkInfo_Text}" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
                         <TextBlock Text="{x:Bind ViewModel.CountryFlag, Mode=OneWay}" FontSize="24" />
                         <TextBlock Text="{x:Bind ViewModel.ExternalIp, Mode=OneWay}"
@@ -271,7 +271,7 @@
                             <fluent:SymbolIcon Symbol="Copy" FontSize="12" />
                         </Button>
                     </StackPanel>
-                    <Button Grid.Row="2" x:Uid="DashCheckIp" FontSize="12"
+                    <Button Grid.Row="2" Content="{Binding Source={StaticResource S}, Path=DashCheckIp_Content}" FontSize="12"
                             Command="{x:Bind ViewModel.CheckIpCommand}"
                             HorizontalAlignment="Stretch" Margin="0,4,0,0" />
                     <!-- DNS 查询 -->
@@ -281,7 +281,7 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Uid="DashDnsPlaceholder"
+                        <TextBox PlaceholderText="{Binding Source={StaticResource S}, Path=DashDnsPlaceholder_PlaceholderText}"
                                  Text="{x:Bind ViewModel.DnsQueryName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  FontSize="12" />
                         <ComboBox Grid.Column="1" SelectedItem="{x:Bind ViewModel.DnsQueryType, Mode=TwoWay}"
@@ -326,10 +326,10 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock x:Uid="DashSystemInfo" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=DashSystemInfo_Text}" FontWeight="SemiBold" FontSize="13" Opacity="0.8" />
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
                         <fluent:SymbolIcon Symbol="Wifi1" FontSize="14" Opacity="0.6" />
-                        <TextBlock x:Uid="DashLocalIp" FontSize="12" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashLocalIp_Text}" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.LocalIp, Mode=OneWay}" FontSize="13" Margin="8,0,0,0"
                                    IsTextSelectionEnabled="True" />
                         <Button Padding="4" Background="Transparent" BorderThickness="0"
@@ -340,12 +340,12 @@
                     </StackPanel>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
                         <fluent:SymbolIcon Symbol="Storage" FontSize="14" Opacity="0.6" />
-                        <TextBlock x:Uid="DashCoreMemory" FontSize="12" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashCoreMemory_Text}" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.CoreMemory, Mode=OneWay}" FontSize="13" Margin="8,0,0,0" />
                     </StackPanel>
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
                         <fluent:SymbolIcon Symbol="Info" FontSize="14" Opacity="0.6" />
-                        <TextBlock x:Uid="DashCoreVersion" FontSize="12" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashCoreVersion_Text}" FontSize="12" Opacity="0.7" />
                         <TextBlock Text="{x:Bind ViewModel.CoreVersion, Mode=OneWay}" FontSize="12" Margin="8,0,0,0"
                                    FontFamily="Consolas" TextTrimming="CharacterEllipsis" MaxWidth="140" />
                     </StackPanel>
@@ -354,14 +354,14 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <Button x:Uid="DashRefreshMemory" FontSize="12"
+                        <Button Content="{Binding Source={StaticResource S}, Path=DashRefreshMemory_Content}" FontSize="12"
                                 Command="{x:Bind ViewModel.RefreshMemoryCommand}"
                                 HorizontalAlignment="Stretch" />
-                        <Button Grid.Column="1" x:Uid="DashForceGc" FontSize="12"
+                        <Button Grid.Column="1" Content="{Binding Source={StaticResource S}, Path=DashForceGc_Content}" FontSize="12"
                                 Command="{x:Bind ViewModel.ForceGcCommand}"
                                 HorizontalAlignment="Stretch" />
                     </Grid>
-                    <Button Grid.Row="5" x:Uid="DashFlushFakeIp" FontSize="12"
+                    <Button Grid.Row="5" Content="{Binding Source={StaticResource S}, Path=DashFlushFakeIp_Content}" FontSize="12"
                             Command="{x:Bind ViewModel.FlushFakeIpCacheCommand}"
                             HorizontalAlignment="Stretch" Margin="0,4,0,0" />
                 </Grid>
@@ -383,34 +383,34 @@
                     </Grid.ColumnDefinitions>
                     <fluent:SymbolIcon Symbol="FlashPlay" FontSize="16" Opacity="0.7"
                                        VerticalAlignment="Center" />
-                    <TextBlock x:Uid="DashQuickActions" FontWeight="SemiBold" FontSize="13"
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=DashQuickActions_Text}" FontWeight="SemiBold" FontSize="13"
                                VerticalAlignment="Center" />
                     <Button Grid.Column="2" Command="{x:Bind ViewModel.CloseAllConnectionsCommand}"
                             Padding="10,5">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <fluent:SymbolIcon Symbol="PlugDisconnected" FontSize="13" />
-                            <TextBlock x:Uid="DashCloseAllConns" FontSize="12" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=DashCloseAllConns_Text}" FontSize="12" />
                         </StackPanel>
                     </Button>
                     <Button Grid.Column="3" Command="{x:Bind ViewModel.ForceGcCommand}"
                             Padding="10,5">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <fluent:SymbolIcon Symbol="LeafOne" FontSize="13" />
-                            <TextBlock x:Uid="DashForceGcLabel" FontSize="12" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=DashForceGcLabel_Text}" FontSize="12" />
                         </StackPanel>
                     </Button>
                     <Button Grid.Column="4" Command="{x:Bind ViewModel.FlushFakeIpCacheCommand}"
                             Padding="10,5">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <fluent:SymbolIcon Symbol="Database" FontSize="13" />
-                            <TextBlock x:Uid="DashFlushFakeIpLabel" FontSize="12" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=DashFlushFakeIpLabel_Text}" FontSize="12" />
                         </StackPanel>
                     </Button>
                     <Button Grid.Column="5" Command="{x:Bind ViewModel.ResetTrafficCommand}"
                             Padding="10,5">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <fluent:SymbolIcon Symbol="ArrowReset" FontSize="13" />
-                            <TextBlock x:Uid="DashResetTrafficLabel" FontSize="12" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=DashResetTrafficLabel_Text}" FontSize="12" />
                         </StackPanel>
                     </Button>
                 </Grid>
@@ -435,7 +435,7 @@
                     </Grid.RowDefinitions>
                     <fluent:SymbolIcon Symbol="Gauge" FontSize="18" Opacity="0.7"
                                        VerticalAlignment="Center" />
-                    <TextBlock Grid.Column="1" x:Uid="DashSpeedTest" FontWeight="SemiBold"
+                    <TextBlock Grid.Column="1" Text="{Binding Source={StaticResource S}, Path=DashSpeedTest_Text}" FontWeight="SemiBold"
                                FontSize="13" VerticalAlignment="Center" />
                     <ComboBox Grid.Column="2" Width="160"
                               ItemsSource="{x:Bind ViewModel.SpeedTestLabels}"
@@ -455,7 +455,7 @@
                             Padding="16,6">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <fluent:SymbolIcon Symbol="Play" FontSize="13" />
-                            <TextBlock x:Uid="DashSpeedTestStart" FontSize="12" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=DashSpeedTestStart_Text}" FontSize="12" />
                         </StackPanel>
                     </Button>
                 </Grid>

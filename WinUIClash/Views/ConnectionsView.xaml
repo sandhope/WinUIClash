@@ -22,9 +22,9 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock x:Uid="ConnTitle" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding Source={StaticResource S}, Path=ConnTitle_Text}" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
             <AutoSuggestBox Grid.Column="1" Margin="16,0"
-                            x:Uid="ConnSearchPlaceholder"
+                            PlaceholderText="{Binding Source={StaticResource S}, Path=ConnSearchPlaceholder_PlaceholderText}"
                             QueryIcon="Find"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" />
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
@@ -34,7 +34,7 @@
                           ToolTipService.ToolTip="Network" />
                 <TextBlock VerticalAlignment="Center" FontSize="11" Opacity="0.5">
                     <Run Text="{x:Bind ViewModel.ConnectionCount, Mode=OneWay}" />
-                    <Run x:Uid="ConnCountSuffix" />
+                    <Run Text="{Binding Source={StaticResource S}, Path=ConnCountSuffix_Text}" />
                 </TextBlock>
                 <TextBlock VerticalAlignment="Center" FontSize="10" Opacity="0.4">
                     <Run Text="↑" />
@@ -43,15 +43,14 @@
                     <Run Text="{x:Bind ViewModel.TotalDownloadText, Mode=OneWay}" />
                 </TextBlock>
                 <Button Command="{x:Bind ViewModel.CycleSortModeCommand}"
-                        x:Uid="ProxySwitchSort"
-                        ToolTipService.ToolTip="Switch Sort"
+                        ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ProxySwitchSort_Content}"
                         Padding="8,4" Background="Transparent" BorderThickness="0">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <fluent:SymbolIcon Symbol="ArrowSort" FontSize="12" />
                         <TextBlock Text="{x:Bind ViewModel.SortModeLabel, Mode=OneWay}" FontSize="11" />
                     </StackPanel>
                 </Button>
-                <Button Command="{x:Bind ViewModel.RefreshCommand}" x:Uid="CommonRefresh">
+                <Button Command="{x:Bind ViewModel.RefreshCommand}" ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=CommonRefresh_ToolTip}">
                     <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
                 </Button>
                 <Grid>
@@ -74,13 +73,13 @@
                         </StackPanel>
                     </Button>
                 </Grid>
-                <Button Command="{x:Bind ViewModel.ExportCommand}" x:Uid="ConnExport" ToolTipService.ToolTip="Export to CSV">
+                <Button Command="{x:Bind ViewModel.ExportCommand}" ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ConnExport_ToolTip}">
                     <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
                 </Button>
                 <Button Click="CloseAll_Click">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <fluent:SymbolIcon Symbol="DismissCircle" FontSize="14" />
-                        <TextBlock x:Uid="ConnCloseAll" FontSize="12" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConnCloseAll_Text}" FontSize="12" />
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -127,8 +126,7 @@
                         <!-- 关闭按钮 -->
                         <Button Grid.Column="2" Padding="4"
                                 Background="Transparent" BorderThickness="0"
-                                x:Uid="ConnClose"
-                                ToolTipService.ToolTip="Close Connection"
+                                ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ConnClose_ToolTip}"
                                 Click="CloseConnection_Click"
                                 Tag="{x:Bind}">
                             <fluent:SymbolIcon Symbol="Dismiss" FontSize="12" />
@@ -158,7 +156,7 @@
                     Visibility="{x:Bind ViewModel.FilteredConnections, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
                     HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
             <fluent:SymbolIcon Symbol="PlugConnected" FontSize="32" Opacity="0.3" />
-            <TextBlock x:Uid="EmptyConnections" Opacity="0.5" HorizontalAlignment="Center" />
+            <TextBlock Text="{Binding Source={StaticResource S}, Path=EmptyConnections_Text}" Opacity="0.5" HorizontalAlignment="Center" />
         </StackPanel>
 
         <!-- 连接详情面板 -->
@@ -183,49 +181,49 @@
 
                 <!-- 列 1: 连接基本信息 -->
                 <StackPanel Spacing="4">
-                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailHost" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnDetailHost_Text}" />
                     <TextBlock x:Name="DetailHost" FontSize="13" FontWeight="SemiBold"
                                TextTrimming="CharacterEllipsis" />
-                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailSource" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnDetailSource_Text}" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailSource" FontSize="12" FontFamily="Consolas" />
-                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailDest" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnDetailDest_Text}" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailDest" FontSize="12" FontFamily="Consolas" />
-                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailProcess" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnDetailProcess_Text}" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailProcess" FontSize="12" />
-                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailDnsMode" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnDetailDnsMode_Text}" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailDnsMode" FontSize="12" />
                 </StackPanel>
 
                 <!-- 列 2: 流量和代理链 -->
                 <StackPanel Grid.Column="1" Spacing="4">
-                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailTransfer" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnDetailTransfer_Text}" />
                     <TextBlock x:Name="DetailTransfer" FontSize="13" FontWeight="SemiBold" />
-                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnChain" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnChain_Text}" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailChains" FontSize="12" TextWrapping="Wrap" />
-                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnRule" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnRule_Text}" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailRule" FontSize="12" />
-                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDetailGeoIP" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnDetailGeoIP_Text}" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailGeoIP" FontSize="12" />
                 </StackPanel>
 
                 <!-- 列 3: 时间和操作 -->
                 <StackPanel Grid.Column="2" Spacing="4">
-                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnStartTime" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnStartTime_Text}" />
                     <TextBlock x:Name="DetailStart" FontSize="12" />
-                    <TextBlock FontSize="11" Opacity="0.5" x:Uid="ConnDuration" Margin="0,4,0,0" />
+                    <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnDuration_Text}" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailDuration" FontSize="13" FontWeight="SemiBold" />
                     <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
                         <Button Click="CopyHost_Click" Padding="8,4"
                                 Background="Transparent" BorderThickness="0">
                             <StackPanel Orientation="Horizontal" Spacing="4">
                                 <fluent:SymbolIcon Symbol="Copy" FontSize="12" />
-                                <TextBlock x:Uid="ConnCopyHost" FontSize="11" />
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=ConnCopyHost_Text}" FontSize="11" />
                             </StackPanel>
                         </Button>
                         <Button Click="CloseSelected_Click">
                             <StackPanel Orientation="Horizontal" Spacing="4">
                                 <fluent:SymbolIcon Symbol="DismissCircle" FontSize="12" />
-                                <TextBlock x:Uid="ConnCloseThis" FontSize="11" />
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=ConnCloseThis_Text}" FontSize="11" />
                             </StackPanel>
                         </Button>
                     </StackPanel>

@@ -1,0 +1,556 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Navigation -->
+    <x:String x:Key="NavDashboard.Content">Dashboard</x:String>
+    <x:String x:Key="NavProxies.Content">Proxies</x:String>
+    <x:String x:Key="NavProfiles.Content">Profiles</x:String>
+    <x:String x:Key="NavRequests.Content">Requests</x:String>
+    <x:String x:Key="NavConnections.Content">Connections</x:String>
+    <x:String x:Key="NavResources.Content">Resources</x:String>
+    <x:String x:Key="NavRules.Content">Rules</x:String>
+    <x:String x:Key="NavLogs.Content">Logs</x:String>
+    <x:String x:Key="NavTools.Content">Tools</x:String>
+
+    <!-- Dashboard -->
+    <x:String x:Key="DashUploadSpeed.Text">Upload</x:String>
+    <x:String x:Key="DashDownloadSpeed.Text">Download</x:String>
+    <x:String x:Key="DashTotalUpload.Text">Total Upload</x:String>
+    <x:String x:Key="DashTotalDownload.Text">Total Download</x:String>
+    <x:String x:Key="DashActiveConnections.Text">Active Connections</x:String>
+    <x:String x:Key="DashRunning.Text">Running</x:String>
+    <x:String x:Key="DashStopped.Text">Stopped</x:String>
+    <x:String x:Key="DashStarting.Text">Starting…</x:String>
+    <x:String x:Key="DashStopping.Text">Stopping…</x:String>
+    <x:String x:Key="DashModeRule.Content">Rule Mode</x:String>
+    <x:String x:Key="DashModeGlobal.Content">Global Mode</x:String>
+    <x:String x:Key="DashModeDirect.Content">Direct Mode</x:String>
+    <x:String x:Key="DashModeRuleDesc.Text">Route traffic by rules</x:String>
+    <x:String x:Key="DashModeGlobalDesc.Text">All traffic via proxy</x:String>
+    <x:String x:Key="DashModeDirectDesc.Text">All traffic direct</x:String>
+    <x:String x:Key="DashTrafficStats.Text">Traffic Statistics</x:String>
+    <x:String x:Key="DashNetworkInfo.Text">Network Info</x:String>
+    <x:String x:Key="DashResetTraffic.Content">Reset</x:String>
+    <x:String x:Key="DashCheckIp.Content">Check IP</x:String>
+    <x:String x:Key="DashIpChecking.Text">Checking…</x:String>
+    <x:String x:Key="DashIpFailed.Text">Check failed</x:String>
+    <x:String x:Key="DashLocalIp.Text">Local IP</x:String>
+    <x:String x:Key="DashCoreMemory.Text">Core Memory</x:String>
+    <x:String x:Key="DashCoreStart.Text">Start</x:String>
+    <x:String x:Key="DashCoreStop.Text">Stop</x:String>
+    <x:String x:Key="DashRuntime.Text">Running </x:String>
+    <x:String x:Key="DashOutboundMode.Text">Outbound Mode</x:String>
+    <x:String x:Key="DashSystemProxy.Text">System Proxy</x:String>
+    <x:String x:Key="DashSystemInfo.Text">System Info</x:String>
+    <x:String x:Key="DashRefreshMemory.Content">Recycle Memory</x:String>
+    <x:String x:Key="DashCoreVersion.Text">Core Version</x:String>
+    <x:String x:Key="DashForceGc.Content">Force GC</x:String>
+    <x:String x:Key="DashIpLocalFetching.Text">Fetching…</x:String>
+    <x:String x:Key="DashIpLocalFailed.Text">Not available</x:String>
+
+    <!-- Common -->
+    <x:String x:Key="SearchPlaceholder.PlaceholderText">Search…</x:String>
+    <x:String x:Key="StatusStopped.Text">Stopped</x:String>
+    <x:String x:Key="StatusRunning.Text">Running</x:String>
+    <x:String x:Key="ProxyLabel.Text">Proxy</x:String>
+    <x:String x:Key="CommonUpdateAll.Text">Update All</x:String>
+    <x:String x:Key="CommonUpdate.Content">Update</x:String>
+    <x:String x:Key="CommonSearch.PlaceholderText">Search…</x:String>
+    <x:String x:Key="CommonAll.Text">All</x:String>
+    <x:String x:Key="CommonClear.Content">Clear</x:String>
+    <x:String x:Key="CommonExport.Content">Export</x:String>
+    <x:String x:Key="CommonRefresh.Content">Refresh</x:String>
+    <x:String x:Key="CommonClose.Content">Close</x:String>
+    <x:String x:Key="CommonCancel.Content">Cancel</x:String>
+    <x:String x:Key="CommonConfirm.Content">Confirm</x:String>
+    <x:String x:Key="CommonDelete.Content">Delete</x:String>
+    <x:String x:Key="CommonSave.Content">Save</x:String>
+    <x:String x:Key="CommonCopy.Content">Copy</x:String>
+    <x:String x:Key="CommonSort.Content">Sort</x:String>
+    <x:String x:Key="CommonFilter.Text">Filter</x:String>
+    <x:String x:Key="CommonCount.Text"> items</x:String>
+    <x:String x:Key="CommonProviders.Text"> providers</x:String>
+
+    <!-- Settings -->
+    <x:String x:Key="SettingsBasicConfig.Text">Basic Config</x:String>
+    <x:String x:Key="SettingsApp.Text">App Settings</x:String>
+    <x:String x:Key="SettingsTheme.Text">Theme Settings</x:String>
+    <x:String x:Key="SettingsAbout.Text">About</x:String>
+
+    <!-- Basic Config Settings -->
+    <x:String x:Key="ConfigPort.Text">Mixed Port</x:String>
+    <x:String x:Key="ConfigPortDesc.Text">HTTP/SOCKS5 mixed proxy port</x:String>
+    <x:String x:Key="ConfigSocksPort.Text">SOCKS Port</x:String>
+    <x:String x:Key="ConfigSocksPortDesc.Text">SOCKS5 proxy listening port</x:String>
+    <x:String x:Key="ConfigHttpPort.Text">HTTP Port</x:String>
+    <x:String x:Key="ConfigHttpPortDesc.Text">HTTP proxy listening port</x:String>
+    <x:String x:Key="ConfigLogLevel.Text">Log Level</x:String>
+    <x:String x:Key="ConfigLogLevelDesc.Text">Core engine log output level</x:String>
+    <x:String x:Key="ConfigIpv6.Text">IPv6</x:String>
+    <x:String x:Key="ConfigIpv6Desc.Text">Enable IPv6 routing support</x:String>
+    <x:String x:Key="ConfigAllowLan.Text">Allow LAN</x:String>
+    <x:String x:Key="ConfigAllowLanDesc.Text">Allow other devices on LAN to connect</x:String>
+    <x:String x:Key="ConfigUnifiedDelay.Text">Unified Delay</x:String>
+    <x:String x:Key="ConfigUnifiedDelayDesc.Text">Eliminate latency differences from multiple handshakes</x:String>
+    <x:String x:Key="ConfigTcpConcurrent.Text">TCP Concurrent</x:String>
+    <x:String x:Key="ConfigTcpConcurrentDesc.Text">Initiate TCP connections to multiple targets simultaneously</x:String>
+    <x:String x:Key="ConfigFindProcess.Text">Process Matching</x:String>
+    <x:String x:Key="ConfigFindProcessDesc.Text">Match connections to local processes</x:String>
+    <x:String x:Key="ConfigExternalController.Text">External Controller</x:String>
+    <x:String x:Key="ConfigExternalControllerDesc.Text">Enable RESTful API control interface</x:String>
+    <x:String x:Key="ConfigApiSecret.Text">API Secret</x:String>
+    <x:String x:Key="ConfigApiSecretDesc.Text">Secret token for API authentication</x:String>
+    <x:String x:Key="ConfigApiSecretPlaceholder.PlaceholderText">Leave empty if none</x:String>
+    <x:String x:Key="ConfigAutoRestart.Text">Auto Restart</x:String>
+    <x:String x:Key="ConfigAutoRestartDesc.Text">Automatically restart core if it crashes unexpectedly</x:String>
+    <x:String x:Key="ConfigCoreBinaryPath.Text">Core Binary Path</x:String>
+    <x:String x:Key="ConfigCoreBinaryPathDesc.Text">Path to mihomo/clash executable (auto-detected if empty)</x:String>
+    <x:String x:Key="ConfigCoreBinaryPathPlaceholder.PlaceholderText">Auto-detect (leave empty)</x:String>
+    <x:String x:Key="ConfigBrowse.Content">Browse</x:String>
+    <x:String x:Key="ConfigKeepAlive.Text">Keep-Alive Interval</x:String>
+    <x:String x:Key="ConfigKeepAliveDesc.Text">TCP connection keep-alive interval (seconds)</x:String>
+    <x:String x:Key="ConfigTestUrl.Text">Test URL</x:String>
+    <x:String x:Key="ConfigTestUrlDesc.Text">URL for proxy latency testing</x:String>
+    <x:String x:Key="ConfigUserAgent.Text">User-Agent</x:String>
+    <x:String x:Key="ConfigUserAgentDesc.Text">UA used when downloading subscriptions</x:String>
+
+    <!-- App Settings -->
+    <x:String x:Key="AppLanguage.Text">Language</x:String>
+    <x:String x:Key="AppLanguageDesc.Text">Interface display language</x:String>
+    <x:String x:Key="AppMinimizeOnExit.Text">Minimize to Tray</x:String>
+    <x:String x:Key="AppMinimizeOnExitDesc.Text">Minimize to system tray instead of exiting when closing window</x:String>
+    <x:String x:Key="AppAutoLaunch.Text">Auto Start</x:String>
+    <x:String x:Key="AppAutoLaunchDesc.Text">Automatically run WinUIClash on system startup</x:String>
+    <x:String x:Key="AppAutoRun.Text">Auto Start Core</x:String>
+    <x:String x:Key="AppAutoRunDesc.Text">Automatically start Clash core after app launches</x:String>
+    <x:String x:Key="AppAutoRestart.Text">Auto Restart on Crash</x:String>
+    <x:String x:Key="AppAutoRestartDesc.Text">Automatically restart core if it crashes unexpectedly</x:String>
+    <x:String x:Key="AppShowNotifications.Text">Show Notifications</x:String>
+    <x:String x:Key="AppShowNotificationsDesc.Text">Show in-app notifications for status changes (errors always shown)</x:String>
+    <x:String x:Key="AppAutoCheckUpdate.Text">Auto Check Updates</x:String>
+    <x:String x:Key="AppAutoCheckUpdateDesc.Text">Automatically check for new versions on startup</x:String>
+    <x:String x:Key="AppSystemProxy.Text">System Proxy</x:String>
+    <x:String x:Key="AppSystemProxyDesc.Text">Enable system-level proxy settings</x:String>
+    <x:String x:Key="AppProxyGuard.Text">Proxy Guard</x:String>
+    <x:String x:Key="AppProxyGuardDesc.Text">Periodically check and re-apply proxy settings</x:String>
+    <x:String x:Key="AppProxyGuardInterval.Text">Guard Interval (seconds)</x:String>
+    <x:String x:Key="AppProxyGuardIntervalDesc.Text">How often to check for proxy changes (5-600s)</x:String>
+    <x:String x:Key="AppTunMode.Text">TUN Mode</x:String>
+    <x:String x:Key="AppTunModeDesc.Text">Capture all system traffic via virtual network adapter</x:String>
+    <x:String x:Key="AppTunStack.Text">TUN Stack</x:String>
+    <x:String x:Key="AppTunStackDesc.Text">Network stack for TUN adapter (mixed recommended)</x:String>
+    <x:String x:Key="AppBypassDomains.Text">Proxy Bypass</x:String>
+    <x:String x:Key="AppBypassDomainsDesc.Text">Domains that bypass proxy (semicolon separated)</x:String>
+    <x:String x:Key="AppBypassPresets.Text">Presets</x:String>
+    <x:String x:Key="BypassPresetDefault.Text">Default (localhost)</x:String>
+    <x:String x:Key="BypassPresetLan.Text">LAN + Localhost</x:String>
+    <x:String x:Key="BypassPresetChina.Text">China Direct</x:String>
+    <x:String x:Key="BypassPresetMergeLan.Text">Add LAN addresses</x:String>
+    <x:String x:Key="BypassPresetMergeChina.Text">Add China domains</x:String>
+    <x:String x:Key="AppCloseConnections.Text">Close Connections on Switch</x:String>
+    <x:String x:Key="AppCloseConnectionsDesc.Text">Automatically close existing connections when switching config or proxy</x:String>
+    <x:String x:Key="AppOnlyStatisticsProxy.Text">Proxy Traffic Only</x:String>
+    <x:String x:Key="AppOnlyStatisticsProxyDesc.Text">Only count traffic going through proxy in statistics</x:String>
+    <x:String x:Key="SettingsBackup.Text">Backup &amp; Restore</x:String>
+    <x:String x:Key="SettingsExportSettings.Text">Export Settings</x:String>
+    <x:String x:Key="SettingsImportSettings.Text">Import Settings</x:String>
+    <x:String x:Key="SettingsExportDone.Title">Export Successful</x:String>
+    <x:String x:Key="SettingsExportDone.Text">Settings exported successfully</x:String>
+    <x:String x:Key="SettingsImportDone.Title">Import Successful</x:String>
+    <x:String x:Key="SettingsImportDone.Text">Settings imported. Some changes may require a restart.</x:String>
+
+    <!-- Theme Settings -->
+    <x:String x:Key="ThemeMode.Text">Appearance</x:String>
+    <x:String x:Key="ThemeAccentColor.Text">Accent Color</x:String>
+    <x:String x:Key="ThemeCustomColor.Header">Custom Color</x:String>
+    <x:String x:Key="ThemeApplyCustomColor.Content">Apply Custom Color</x:String>
+    <x:String x:Key="ThemeUseSystemAccent.Text">Use System Accent Color</x:String>
+    <x:String x:Key="ThemeUseSystemAccentDesc.Text">Follow Windows system accent color</x:String>
+
+    <!-- About -->
+    <x:String x:Key="AboutTitle.Text">About</x:String>
+    <x:String x:Key="AboutCheckUpdate.Content">Check for Updates</x:String>
+    <x:String x:Key="AboutCheckUpdateText.Text">Check for Updates</x:String>
+    <x:String x:Key="AboutOpenDataFolder.Content">Open Data Folder</x:String>
+    <x:String x:Key="AboutOpenDataFolderText.Text">Open Data Folder</x:String>
+    <x:String x:Key="AboutCopyVersion.Content">Copy Version Info</x:String>
+    <x:String x:Key="AboutCopyVersionText.Text">Copy Version Info</x:String>
+    <x:String x:Key="AboutExportLogs.Content">Export Diagnostics</x:String>
+    <x:String x:Key="AboutExportLogsText.Text">Export Diagnostics</x:String>
+    <x:String x:Key="AboutExportLogs.Text">Diagnostics Exported</x:String>
+    <x:String x:Key="AboutCheckingUpdate.Text">Checking…</x:String>
+    <x:String x:Key="AboutNoUpdate.Text">You are up to date</x:String>
+    <x:String x:Key="AboutNewVersion.Text">New version available</x:String>
+    <x:String x:Key="AboutUpdateFailed.Text">Update check failed</x:String>
+
+    <!-- Connections -->
+    <x:String x:Key="ConnTitle.Text">Connections</x:String>
+    <x:String x:Key="ConnCloseAll.Text">Close All</x:String>
+    <x:String x:Key="ConnExport.Content">Export</x:String>
+    <x:String x:Key="ConnDetail.Text">Connection Details</x:String>
+    <x:String x:Key="ConnHost.Text">Host</x:String>
+    <x:String x:Key="ConnSource.Text">Source</x:String>
+    <x:String x:Key="ConnDest.Text">Destination</x:String>
+    <x:String x:Key="ConnTransfer.Text">Transfer</x:String>
+    <x:String x:Key="ConnChain.Text">Proxy Chain</x:String>
+    <x:String x:Key="ConnRule.Text">Matched Rule</x:String>
+    <x:String x:Key="ConnStartTime.Text">Start Time</x:String>
+    <x:String x:Key="ConnDuration.Text">Duration</x:String>
+    <x:String x:Key="ConnDirect.Text">Direct</x:String>
+
+    <!-- Profiles -->
+    <x:String x:Key="ProfilesTitle.Text">Profiles</x:String>
+    <x:String x:Key="ProfilesAdd.Content">Add</x:String>
+    <x:String x:Key="ProfilesExpired.Text">Expired</x:String>
+    <x:String x:Key="ProfilesRemainingDays.Text">Remaining </x:String>
+    <x:String x:Key="ProfilesDay.Text"> days</x:String>
+
+    <!-- Logs -->
+    <x:String x:Key="LogsTitle.Text">Logs</x:String>
+    <x:String x:Key="LogsPause.Content">Pause</x:String>
+    <x:String x:Key="LogsResume.Content">Resume</x:String>
+    <x:String x:Key="LogsExport.Content">Export Logs</x:String>
+    <x:String x:Key="LogsAllLevels.Text">All Levels</x:String>
+
+    <!-- Requests -->
+    <x:String x:Key="RequestsTitle.Text">Requests</x:String>
+
+    <!-- Tray -->
+    <x:String x:Key="TrayShow.Text">Show Window</x:String>
+    <x:String x:Key="TrayRun.Text">Run Core</x:String>
+    <x:String x:Key="TraySystemProxy.Text">System Proxy</x:String>
+    <x:String x:Key="TrayOutboundMode.Text">Outbound Mode</x:String>
+    <x:String x:Key="TrayExit.Text">Exit</x:String>
+    <x:String x:Key="TrayTunMode.Text">TUN Mode</x:String>
+    <x:String x:Key="TrayForceGc.Text">Force GC</x:String>
+    <x:String x:Key="TrayRestartCore.Text">Restart Core</x:String>
+
+    <!-- Time Formatting -->
+    <x:String x:Key="TimeJustNow.Text">just now</x:String>
+    <x:String x:Key="TimeMinutesAgo.Text">m ago</x:String>
+    <x:String x:Key="TimeHoursAgo.Text">h ago</x:String>
+    <x:String x:Key="TimeDaysAgo.Text">d ago</x:String>
+
+    <!-- StatusBar -->
+    <x:String x:Key="StatusBarSystemProxy.Text">System Proxy</x:String>
+    <x:String x:Key="SearchBox.PlaceholderText">Search… (Ctrl+F)</x:String>
+    <x:String x:Key="SearchCategoryPage.Text">Page</x:String>
+    <x:String x:Key="SearchCategorySettings.Text">Settings</x:String>
+    <x:String x:Key="ProfilesFallbackLabel.Text">Subscription</x:String>
+
+    <!-- Basic Config - Section Headers -->
+    <x:String x:Key="ConfigPortSettings.Text">Port Settings</x:String>
+    <x:String x:Key="ConfigFeatureSwitches.Text">Feature Switches</x:String>
+
+    <!-- App Settings - Section Headers -->
+    <x:String x:Key="AppStartupExit.Text">Startup &amp; Exit</x:String>
+    <x:String x:Key="AppProxyBehavior.Text">Proxy Behavior</x:String>
+    <x:String x:Key="AppOther.Text">Other</x:String>
+    <x:String x:Key="AppSilentLaunch.Text">Silent Start</x:String>
+    <x:String x:Key="AppSilentLaunchDesc.Text">Start minimized without showing main window</x:String>
+    <x:String x:Key="AppLanguageSwitchDesc.Text">Language changes take effect immediately</x:String>
+
+    <!-- Theme - RadioButton Content -->
+    <x:String x:Key="ThemeSystem.Content">System</x:String>
+    <x:String x:Key="ThemeLight.Content">Light</x:String>
+    <x:String x:Key="ThemeDark.Content">Dark</x:String>
+
+    <!-- About - Additional -->
+    <x:String x:Key="AboutCheckingStatus.Text">Checking for updates…</x:String>
+    <x:String x:Key="AboutUpToDate.Text">✓ You are up to date (v{0})</x:String>
+    <x:String x:Key="AboutNewVersionFound.Text">New version v{0} available — click to download</x:String>
+    <x:String x:Key="AboutNewVersionTitle.Text">New Version Available</x:String>
+    <x:String x:Key="AboutNewVersionContent.Text">New version: {0}\n\n{1}</x:String>
+    <x:String x:Key="AboutGoDownload.Content">Download</x:String>
+    <x:String x:Key="AboutLater.Content">Later</x:String>
+    <x:String x:Key="AboutCheckFailed.Text">Check failed: {0}</x:String>
+    <x:String x:Key="AboutVersion.Text">Version </x:String>
+    <x:String x:Key="AboutDescription.Text">ClashMeta client inspired by FlClash UI</x:String>
+    <x:String x:Key="AboutTechStack.Text">Tech Stack</x:String>
+    <x:String x:Key="AboutActions.Text">Actions</x:String>
+    <x:String x:Key="AboutFlClash.Content">FlClash Original Project</x:String>
+    <x:String x:Key="AboutMihomo.Content">ClashMeta Core (Mihomo)</x:String>
+    <x:String x:Key="AboutWinAppSdk.Content">Windows App SDK Docs</x:String>
+    <x:String x:Key="AboutFramework.Text">Framework</x:String>
+    <x:String x:Key="AboutCore.Text">Core</x:String>
+
+    <!-- Tools -->
+    <x:String x:Key="ToolsTitle.Text">Tools</x:String>
+    <x:String x:Key="ToolsSettingsSection.Text">Settings</x:String>
+    <x:String x:Key="ToolsOtherSection.Text">Other</x:String>
+    <x:String x:Key="ToolsBasicConfigSub.Text">Ports, log level, UA, IPv6, etc.</x:String>
+    <x:String x:Key="ToolsAppSettingsSub.Text">Startup, system proxy, TUN, auto update</x:String>
+    <x:String x:Key="ToolsThemeSettingsSub.Text">Light/dark mode, accent color</x:String>
+    <x:String x:Key="ToolsAboutSub.Text">Version info, project links</x:String>
+
+    <!-- Proxies - Additional -->
+    <x:String x:Key="ProxyTitle.Text">Proxies</x:String>
+    <x:String x:Key="ProxyTestAll.Text">Test All</x:String>
+    <x:String x:Key="ProxyTestSummary.Text">Avg: {0}ms | Min: {1}ms | Max: {2}ms | OK: {3} | Failed: {4}</x:String>
+    <x:String x:Key="ProxyTestSummaryFailed.Text">All {0} tests failed</x:String>
+
+    <!-- Profiles - Additional -->
+    <x:String x:Key="ProfilesImport.Text">Import</x:String>
+    <x:String x:Key="ProfilesPasteClipboard.Content">Paste</x:String>
+    <x:String x:Key="ProfilesActive.Text">Active</x:String>
+    <x:String x:Key="ProfilesClipboardTitle.Text">Subscription Link Detected</x:String>
+    <x:String x:Key="ProfilesClipboardContent.Text">Subscription link found in clipboard:\n\n{0}\n\nImport?</x:String>
+    <x:String x:Key="ProfilesUrlHeader.Text">Subscription URL</x:String>
+    <x:String x:Key="ProfilesNamePlaceholder.Text">Auto-detected (can be edited)</x:String>
+    <x:String x:Key="ProfilesNameHeader.Text">Profile Name</x:String>
+    <x:String x:Key="ProfilesImportUrl.Text">From URL</x:String>
+    <x:String x:Key="ProfilesImportFile.Text">From File</x:String>
+    <x:String x:Key="ProfilesImportTitle.Text">Import Subscription</x:String>
+    <x:String x:Key="ProfilesViewConfig.Text">View Config</x:String>
+    <x:String x:Key="ProfilesCopyUrl.Text">Copy Link</x:String>
+    <x:String x:Key="ProfilesEditName.Text">Edit Name</x:String>
+    <x:String x:Key="ProfilesEditNameTitle.Text">Edit Name</x:String>
+    <x:String x:Key="ProfilesEditProfile.Text">Edit Profile</x:String>
+    <x:String x:Key="ProfilesEditProfileTitle.Text">Edit Profile</x:String>
+    <x:String x:Key="ProfilesMoveUp.Text">Move Up</x:String>
+    <x:String x:Key="ProfilesMoveDown.Text">Move Down</x:String>
+    <x:String x:Key="ProfilesAutoUpdate.Text">Auto Update</x:String>
+    <x:String x:Key="ProfilesConfigViewerTitle.Text">Config: </x:String>
+    <x:String x:Key="ConfigSaveReload.Text">Save &amp; Reload</x:String>
+
+    <!-- Connections - Additional -->
+    <x:String x:Key="ConnSearchPlaceholder.PlaceholderText">Search connections…</x:String>
+    <x:String x:Key="ConnCountSuffix.Text"> connections</x:String>
+    <x:String x:Key="ConnCloseSimilar.Text">Close Same Host</x:String>
+    <x:String x:Key="ConnDetailHost.Text">Host</x:String>
+    <x:String x:Key="ConnDetailSource.Text">Source</x:String>
+    <x:String x:Key="ConnDetailDest.Text">Destination</x:String>
+    <x:String x:Key="ConnDetailTransfer.Text">Total Upload / Download</x:String>
+    <x:String x:Key="ConnDetailProcess.Text">Process</x:String>
+    <x:String x:Key="ConnDetailDnsMode.Text">DNS Mode</x:String>
+    <x:String x:Key="ConnDetailGeoIP.Text">GeoIP / ASN</x:String>
+    <x:String x:Key="ConnCopyHost.Text">Copy Host</x:String>
+    <x:String x:Key="ConnCloseThis.Text">Close This</x:String>
+    <x:String x:Key="ConnCopyChains.Text">Copy Proxy Chain</x:String>
+    <x:String x:Key="ConnCopySource.Text">Copy Source</x:String>
+
+    <!-- Logs - Additional -->
+    <x:String x:Key="LogsSearchPlaceholder.PlaceholderText">Search logs…</x:String>
+    <x:String x:Key="LogsAutoScroll.Header">Auto Scroll</x:String>
+    <x:String x:Key="LogsCountSuffix.Text"> log entries</x:String>
+    <x:String x:Key="LogsCopyPayload.Text">Copy Payload</x:String>
+    <x:String x:Key="LogsCopyFull.Text">Copy Full Line</x:String>
+
+    <!-- Requests - Additional -->
+    <x:String x:Key="RequestsSearchPlaceholder.PlaceholderText">Search requests…</x:String>
+    <x:String x:Key="RequestsAutoScroll.Header">Auto Scroll</x:String>
+    <x:String x:Key="RequestsCopyHost.Text">Copy Host</x:String>
+    <x:String x:Key="RequestsCopyRule.Text">Copy Rule</x:String>
+    <x:String x:Key="RequestsCopyProcess.Text">Copy Process</x:String>
+    <x:String x:Key="RequestsCopyAll.Text">Copy Full Request</x:String>
+
+    <!-- Connection Sort Modes -->
+    <x:String x:Key="ConnSortNone.Text">Default</x:String>
+    <x:String x:Key="ConnSortHost.Text">By Host</x:String>
+    <x:String x:Key="ConnSortUpload.Text">By Upload</x:String>
+    <x:String x:Key="ConnSortDownload.Text">By Download</x:String>
+    <x:String x:Key="ConnSortDuration.Text">By Duration</x:String>
+
+    <!-- Subscription -->
+    <x:String x:Key="SubUsed.Text">Used </x:String>
+    <x:String x:Key="SubRemaining.Text">Remaining </x:String>
+    <x:String x:Key="SubExpired.Text">Expired</x:String>
+    <x:String x:Key="SubHoursRemaining.Text">h</x:String>
+    <x:String x:Key="SubDaysRemaining.Text">d</x:String>
+
+    <!-- Proxies -->
+    <x:String x:Key="ProxySortDefault.Text">Default</x:String>
+    <x:String x:Key="ProxySortName.Text">By Name</x:String>
+    <x:String x:Key="ProxySortDelay.Text">By Delay</x:String>
+    <x:String x:Key="ProxySortType.Text">By Type</x:String>
+    <x:String x:Key="ProxySelectBest.Text">Select Best</x:String>
+    <x:String x:Key="ProxySearch.PlaceholderText">Search proxies…</x:String>
+
+    <!-- Provider Type Labels -->
+    <x:String x:Key="ProviderTypeProxy.Text">Proxy</x:String>
+    <x:String x:Key="ProviderTypeRule.Text">Rule</x:String>
+    <x:String x:Key="ProfilesDuplicateUrl.Text">This subscription URL already exists</x:String>
+
+    <!-- Error Notifications -->
+    <x:String x:Key="ErrorUpdateTitle.Text">Update Failed</x:String>
+    <x:String x:Key="ErrorSyncTitle.Text">Sync Failed</x:String>
+    <x:String x:Key="ErrorDeleteTitle.Text">Delete Failed</x:String>
+    <x:String x:Key="ErrorCloseTitle.Text">Close Failed</x:String>
+
+    <!-- Confirmation Dialogs -->
+    <x:String x:Key="ProfilesDeleteConfirmTitle.Text">Confirm Delete</x:String>
+    <x:String x:Key="ProfilesDeleteConfirmContent.Text">Are you sure you want to delete profile "{0}"?</x:String>
+    <x:String x:Key="ConnCloseAllConfirmTitle.Text">Close All Connections</x:String>
+    <x:String x:Key="ConnCloseAllConfirmContent.Text">Are you sure you want to close all active connections?</x:String>
+
+    <!-- Requests Sort -->
+    <x:String x:Key="ReqSortNone.Text">Default</x:String>
+    <x:String x:Key="ReqSortHost.Text">By Host</x:String>
+    <x:String x:Key="ReqSortTime.Text">By Time</x:String>
+    <x:String x:Key="ReqSortUpload.Text">By Upload</x:String>
+    <x:String x:Key="ReqSortDownload.Text">By Download</x:String>
+    <x:String x:Key="ReqSortRule.Text">By Rule</x:String>
+    <x:String x:Key="RequestsExport.Content">Export</x:String>
+    <x:String x:Key="RequestsExportSuccessTitle.Text">Export Successful</x:String>
+    <x:String x:Key="RequestsExportSuccessMsg.Text">Request log exported</x:String>
+    <x:String x:Key="RequestsExportFailTitle.Text">Export Failed</x:String>
+    <x:String x:Key="RequestsPause.Content">Pause</x:String>
+    <x:String x:Key="RequestsResume.Content">Resume</x:String>
+    <x:String x:Key="RequestsPause.ToolTip">Pause/Resume auto-refresh</x:String>
+
+    <!-- Connection Pause -->
+    <x:String x:Key="ConnPause.Content">Pause</x:String>
+    <x:String x:Key="ConnResume.Content">Resume</x:String>
+    <x:String x:Key="ConnPause.ToolTip">Pause/Resume auto-refresh</x:String>
+
+    <!-- Resources Page -->
+    <x:String x:Key="ResTitle.Text">Resources</x:String>
+    <x:String x:Key="ResCountSuffix.Text">providers</x:String>
+    <x:String x:Key="ResFilterAll.Content">All</x:String>
+    <x:String x:Key="ResFilterProxy.Content">Proxy Providers</x:String>
+    <x:String x:Key="ResFilterRule.Content">Rule Providers</x:String>
+    <x:String x:Key="ResSearchPlaceholder.PlaceholderText">Search resources…</x:String>
+    <x:String x:Key="ResUpdateAll.Text">Update All</x:String>
+    <x:String x:Key="ResEntries.Text">Entries: </x:String>
+    <x:String x:Key="ResSource.Text">Source: </x:String>
+    <x:String x:Key="ResGeoUpdate.Text">Geo Database</x:String>
+    <x:String x:Key="ResGeoUpdateGeoIp.Text">Update GeoIP Database</x:String>
+    <x:String x:Key="ResGeoUpdateGeoSite.Text">Update GeoSite Database</x:String>
+    <x:String x:Key="ResGeoUpdating.Text">Updating Geo Database</x:String>
+    <x:String x:Key="ResGeoUpdateSuccess.Text">Geo Database Updated</x:String>
+    <x:String x:Key="ResGeoUpdateMmdb.Text">Update Country.mmdb</x:String>
+    <x:String x:Key="ResGeoUpdateAsn.Text">Update ASN Database</x:String>
+    <x:String x:Key="ResUpdating.Text">Updating</x:String>
+    <x:String x:Key="ResUpdateAllDone.Text">Update complete</x:String>
+    <x:String x:Key="ResHealthCheckDone.Text">Health Check Complete</x:String>
+
+    <!-- Messages -->
+    <x:String x:Key="BasicConfigAppliedTitle.Text">Settings Applied</x:String>
+    <x:String x:Key="BasicConfigAppliedMsg.Text">Configuration changes have been applied to the running core.</x:String>
+    <x:String x:Key="DashDnsPlaceholder.PlaceholderText">Domain name…</x:String>
+    <x:String x:Key="DashDnsFailed.Text">DNS query failed</x:String>
+    <x:String x:Key="ProfilesSyncDoneTitle.Text">Sync Complete</x:String>
+    <x:String x:Key="ProfilesSyncAllDoneMsg.Text">All subscriptions updated</x:String>
+    <x:String x:Key="ProfilesSwitchedTitle.Text">Profile Switched</x:String>
+    <x:String x:Key="ProfilesSwitching.Text">Switching profile…</x:String>
+    <x:String x:Key="DashFlushFakeIp.Content">Flush Fake-IP Cache</x:String>
+    <x:String x:Key="DashSpeedTest.Text">Speed Test</x:String>
+    <x:String x:Key="DashSpeedTestStart.Text">Start</x:String>
+    <x:String x:Key="DashSpeedTestRunning.Text">Testing…</x:String>
+    <x:String x:Key="DashSpeedTestFailed.Text">Test failed</x:String>
+    <x:String x:Key="DashQuickActions.Text">Quick Actions</x:String>
+    <x:String x:Key="DashCloseAllConns.Text">Close All</x:String>
+    <x:String x:Key="DashForceGcLabel.Text">Force GC</x:String>
+    <x:String x:Key="DashFlushFakeIpLabel.Text">Flush Cache</x:String>
+    <x:String x:Key="DashResetTrafficLabel.Text">Reset</x:String>
+    <x:String x:Key="NetworkChanged.Text">Network Changed</x:String>
+    <x:String x:Key="NetworkChangedMsg.Text">Network connectivity changed, reconnecting…</x:String>
+    <x:String x:Key="NetworkRestored.Text">Network Restored</x:String>
+    <x:String x:Key="NetworkRestoredMsg.Text">Network connectivity restored</x:String>
+    <x:String x:Key="ProfilesCopyPath.Text">Copy File Path</x:String>
+    <x:String x:Key="ProfilesOpenInExplorer.Text">Open in Explorer</x:String>
+    <x:String x:Key="ProfilesDuplicate.Text">Duplicate</x:String>
+    <x:String x:Key="ProfilesExportConfig.Text">Export Config</x:String>
+    <x:String x:Key="ProfilesAutoStartTitle.Text">Starting Core</x:String>
+    <x:String x:Key="ProfilesAutoStartMsg.Text">Core is not running, starting automatically…</x:String>
+
+    <!-- Rules Page -->
+    <x:String x:Key="RulesTitle.Text">Rules</x:String>
+    <x:String x:Key="RulesSearchPlaceholder.PlaceholderText">Search rules…</x:String>
+    <x:String x:Key="RulesTypeCol.Text">Type</x:String>
+    <x:String x:Key="RulesPayloadCol.Text">Payload</x:String>
+    <x:String x:Key="RulesTargetCol.Text">Target</x:String>
+    <x:String x:Key="RulesAllProxiesFilter.Text">All Targets</x:String>
+    <x:String x:Key="RulesAllTypes.Text">All Types</x:String>
+    <x:String x:Key="RulesAllProxies.Text">All Proxies</x:String>
+    <x:String x:Key="RulesCopyType.Text">Copy Type</x:String>
+    <x:String x:Key="RulesCopyPayload.Text">Copy Payload</x:String>
+    <x:String x:Key="RulesCopyProxy.Text">Copy Target Proxy</x:String>
+    <x:String x:Key="RulesCopyAll.Text">Copy Full Rule</x:String>
+
+    <!-- Proxy Context Menu -->
+    <x:String x:Key="ProxyCtxTestDelay.Text">Test Delay</x:String>
+    <x:String x:Key="ProxyCtxSelect.Text">Select Node</x:String>
+    <x:String x:Key="ProxyCtxCopyName.Text">Copy Name</x:String>
+    <x:String x:Key="ProxyCtxCopyType.Text">Copy Type</x:String>
+    <x:String x:Key="ProxyCtxCopyAll.Text">Copy Full Info</x:String>
+
+    <!-- App Error Dialog -->
+    <x:String x:Key="AppErrorTitle.Text">Error Occurred</x:String>
+    <x:String x:Key="AppErrorContent.Text">The application encountered an unexpected error:\n\n{0}\n\nThe error has been logged.</x:String>
+    <x:String x:Key="AppErrorContinue.Content">Continue</x:String>
+    <x:String x:Key="AppErrorExit.Content">Exit</x:String>
+    <x:String x:Key="AppUpdateFound.Text">New Version Available</x:String>
+    <x:String x:Key="AppUpdateMsg.Text">WinUIClash {0} has been released. Check the Tools page.</x:String>
+
+    <!-- MainWindow Status Bar -->
+    <x:String x:Key="StatusToggle.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip">Click to toggle core</x:String>
+    <x:String x:Key="StatusProxyLabel.Text">Proxy</x:String>
+    <x:String x:Key="StatusModeRule.Text">Rule</x:String>
+    <x:String x:Key="StatusModeGlobal.Text">Global</x:String>
+    <x:String x:Key="StatusModeDirect.Text">Direct</x:String>
+
+    <!-- Theme Mode Names -->
+    <x:String x:Key="ThemeModeSystem.Text">Follow System</x:String>
+    <x:String x:Key="ThemeModeLight.Text">Light Mode</x:String>
+    <x:String x:Key="ThemeModeDark.Text">Dark Mode</x:String>
+
+    <!-- Color Preset Names -->
+    <x:String x:Key="ColorBlue.Text">Blue</x:String>
+    <x:String x:Key="ColorCyan.Text">Cyan</x:String>
+    <x:String x:Key="ColorGreen.Text">Green</x:String>
+    <x:String x:Key="ColorOrange.Text">Orange</x:String>
+    <x:String x:Key="ColorRed.Text">Red</x:String>
+    <x:String x:Key="ColorPurple.Text">Purple</x:String>
+    <x:String x:Key="ColorPink.Text">Pink</x:String>
+    <x:String x:Key="ColorIndigo.Text">Indigo</x:String>
+
+    <!-- Service Error Messages -->
+    <x:String x:Key="ErrorCoreBinaryNotFound.Text">mihomo executable not found. Please specify the path in settings.</x:String>
+    <x:String x:Key="ErrorCoreBinaryNotFoundMsg.Text">Please specify the mihomo executable path in Tools settings.</x:String>
+    <x:String x:Key="ErrorConfigNotFound.Text">Configuration file not found: {0}</x:String>
+    <x:String x:Key="ErrorRegistryAccess.Text">Unable to open Internet Settings registry key</x:String>
+    <x:String x:Key="CoreStartedTitle.Text">Core Started</x:String>
+    <x:String x:Key="CoreStartedMsg.Text">ClashMeta core is running.</x:String>
+    <x:String x:Key="CoreStoppedTitle.Text">Core Stopped</x:String>
+    <x:String x:Key="CoreStoppedMsg.Text">ClashMeta core has been stopped.</x:String>
+    <x:String x:Key="ErrorCoreStartFailed.Text">Core Start Failed</x:String>
+    <x:String x:Key="ErrorCoreStartFailedMsg.Text">Could not start ClashMeta core: {0}. Using mock data.</x:String>
+    <x:String x:Key="ErrorCoreStopFailed.Text">Core Stop Failed</x:String>
+    <x:String x:Key="ErrorCoreStopFailedMsg.Text">Error stopping core: {0}</x:String>
+    <x:String x:Key="CoreCrashedTitle.Text">Core Crashed</x:String>
+    <x:String x:Key="CoreCrashedMsg.Text">Core process exited unexpectedly. Restarting ({0}/{1})…</x:String>
+    <x:String x:Key="ErrorCoreCrashMaxRestarts.Text">Core crashed repeatedly. Maximum restart attempts reached. Please restart manually.</x:String>
+    <x:String x:Key="ErrorLoadProxies.Text">Failed to Load Proxies</x:String>
+    <x:String x:Key="ErrorLoadRules.Text">Failed to Load Rules</x:String>
+    <x:String x:Key="AboutLicense.Text">WinUIClash is open source software licensed under the GPL-3.0 License. This project is not affiliated with Clash or ClashMeta.</x:String>
+
+    <!-- Empty States -->
+    <x:String x:Key="EmptyProxies.Text">No proxy groups</x:String>
+    <x:String x:Key="EmptyProfiles.Text">No profiles yet. Click Add to import a subscription.</x:String>
+    <x:String x:Key="EmptyConnections.Text">No active connections</x:String>
+    <x:String x:Key="EmptyRequests.Text">No requests yet</x:String>
+    <x:String x:Key="EmptyResources.Text">No external resources</x:String>
+    <x:String x:Key="EmptyRules.Text">No rules</x:String>
+    <x:String x:Key="EmptyLogs.Text">No logs yet. Waiting for core output…</x:String>
+
+    <!-- Keyboard Help (F1) -->
+    <x:String x:Key="HelpTitle.Text">Keyboard Shortcuts</x:String>
+    <x:String x:Key="HelpNav.Text">Navigate to page</x:String>
+    <x:String x:Key="HelpSearch.Text">Focus search box</x:String>
+    <x:String x:Key="HelpRefresh.Text">Refresh current page</x:String>
+    <x:String x:Key="HelpSidebar.Text">Toggle sidebar</x:String>
+    <x:String x:Key="HelpMinimize.Text">Minimize to tray</x:String>
+    <x:String x:Key="HelpCoreToggle.Text">Start / Stop core</x:String>
+    <x:String x:Key="HelpProxyToggle.Text">Toggle system proxy</x:String>
+    <x:String x:Key="HelpThemeToggle.Text">Toggle dark/light theme</x:String>
+    <x:String x:Key="HelpCloseAllConns.Text">Close all connections</x:String>
+    <x:String x:Key="HelpExport.Text">Export current page data</x:String>
+    <x:String x:Key="HelpSettings.Text">Open settings</x:String>
+    <x:String x:Key="HelpQuit.Text">Quit application</x:String>
+    <x:String x:Key="HelpShowHelp.Text">Show this help</x:String>
+    <x:String x:Key="HelpCyclePage.Text">Cycle through pages</x:String>
+    <x:String x:Key="HelpEscape.Text">Clear search / dismiss notification</x:String>
+
+</ResourceDictionary>

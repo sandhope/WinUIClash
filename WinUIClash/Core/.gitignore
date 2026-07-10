@@ -1,0 +1,10 @@
+# 忽略 mihomo 二进制文件（文件较大，不纳入 Git）
+*.exe
+
+# 忽略 GeoIP/GeoSite 数据库（文件较大）
+*.dat
+geoip.dat
+geosite.dat
+
+# 保留配置文件模板（可选）
+# config.yaml
