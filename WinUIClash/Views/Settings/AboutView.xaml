@@ -70,13 +70,13 @@
                         <Button Click="OpenDataFolder_Click">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <fluent:SymbolIcon Symbol="FolderOpen" FontSize="14" />
-                                <TextBlock x:Uid="AboutOpenDataFolder" FontSize="12" />
+                                <TextBlock x:Uid="AboutOpenDataFolderText" FontSize="12" />
                             </StackPanel>
                         </Button>
                         <Button Click="CopyVersion_Click">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <fluent:SymbolIcon Symbol="Copy" FontSize="14" />
-                                <TextBlock x:Uid="AboutCopyVersion" FontSize="12" />
+                                <TextBlock x:Uid="AboutCopyVersionText" FontSize="12" />
                             </StackPanel>
                         </Button>
                         <Button x:Name="CheckUpdateBtn" Click="CheckUpdate_Click">
@@ -86,13 +86,13 @@
                                     <ProgressRing x:Name="UpdateProgressRing" IsActive="False"
                                                   Width="14" Height="14" Visibility="Collapsed" />
                                 </Grid>
-                                <TextBlock x:Name="CheckUpdateLabel" x:Uid="AboutCheckUpdate" FontSize="12" />
+                                <TextBlock x:Name="CheckUpdateLabel" x:Uid="AboutCheckUpdateText" FontSize="12" />
                             </StackPanel>
                         </Button>
                         <Button Click="ExportLogs_Click">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
-                                <TextBlock x:Uid="AboutExportLogs" FontSize="12" />
+                                <TextBlock x:Uid="AboutExportLogsText" FontSize="12" />
                             </StackPanel>
                         </Button>
                     </StackPanel>

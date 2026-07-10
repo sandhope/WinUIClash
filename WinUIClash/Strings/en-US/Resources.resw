@@ -165,7 +165,7 @@
 
   <!-- Theme Settings -->
   <data name="ThemeMode.Text" xml:space="preserve"><value>Appearance</value></data>
-  <data name="ThemeSystem.Text" xml:space="preserve"><value>Follow System</value></data>
+
   <data name="ThemeLight.Text" xml:space="preserve"><value>Light Mode</value></data>
   <data name="ThemeDark.Text" xml:space="preserve"><value>Dark Mode</value></data>
   <data name="ThemeAccentColor.Text" xml:space="preserve"><value>Accent Color</value></data>
@@ -177,9 +177,13 @@
   <!-- About -->
   <data name="AboutTitle.Text" xml:space="preserve"><value>About</value></data>
   <data name="AboutCheckUpdate.Content" xml:space="preserve"><value>Check for Updates</value></data>
+  <data name="AboutCheckUpdateText.Text" xml:space="preserve"><value>Check for Updates</value></data>
   <data name="AboutOpenDataFolder.Content" xml:space="preserve"><value>Open Data Folder</value></data>
+  <data name="AboutOpenDataFolderText.Text" xml:space="preserve"><value>Open Data Folder</value></data>
   <data name="AboutCopyVersion.Content" xml:space="preserve"><value>Copy Version Info</value></data>
+  <data name="AboutCopyVersionText.Text" xml:space="preserve"><value>Copy Version Info</value></data>
   <data name="AboutExportLogs.Content" xml:space="preserve"><value>Export Diagnostics</value></data>
+  <data name="AboutExportLogsText.Text" xml:space="preserve"><value>Export Diagnostics</value></data>
   <data name="AboutExportLogs.Text" xml:space="preserve"><value>Diagnostics Exported</value></data>
   <data name="AboutCheckingUpdate.Text" xml:space="preserve"><value>Checking…</value></data>
   <data name="AboutNoUpdate.Text" xml:space="preserve"><value>You are up to date</value></data>

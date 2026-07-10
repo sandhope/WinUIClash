@@ -165,7 +165,7 @@
 
   <!-- Theme Settings -->
   <data name="ThemeMode.Text" xml:space="preserve"><value>外观模式</value></data>
-  <data name="ThemeSystem.Text" xml:space="preserve"><value>跟随系统</value></data>
+
   <data name="ThemeLight.Text" xml:space="preserve"><value>浅色模式</value></data>
   <data name="ThemeDark.Text" xml:space="preserve"><value>深色模式</value></data>
   <data name="ThemeAccentColor.Text" xml:space="preserve"><value>主题色</value></data>
@@ -177,9 +177,13 @@
   <!-- About -->
   <data name="AboutTitle.Text" xml:space="preserve"><value>关于</value></data>
   <data name="AboutCheckUpdate.Content" xml:space="preserve"><value>检查更新</value></data>
+  <data name="AboutCheckUpdateText.Text" xml:space="preserve"><value>检查更新</value></data>
   <data name="AboutOpenDataFolder.Content" xml:space="preserve"><value>打开数据目录</value></data>
+  <data name="AboutOpenDataFolderText.Text" xml:space="preserve"><value>打开数据目录</value></data>
   <data name="AboutCopyVersion.Content" xml:space="preserve"><value>复制版本信息</value></data>
+  <data name="AboutCopyVersionText.Text" xml:space="preserve"><value>复制版本信息</value></data>
   <data name="AboutExportLogs.Content" xml:space="preserve"><value>导出诊断信息</value></data>
+  <data name="AboutExportLogsText.Text" xml:space="preserve"><value>导出诊断信息</value></data>
   <data name="AboutExportLogs.Text" xml:space="preserve"><value>诊断信息已导出</value></data>
   <data name="AboutCheckingUpdate.Text" xml:space="preserve"><value>正在检查…</value></data>
   <data name="AboutNoUpdate.Text" xml:space="preserve"><value>已是最新版本</value></data>
