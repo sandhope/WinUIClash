@@ -102,6 +102,7 @@ public class StringResources : INotifyPropertyChanged
     public string CommonCount_Text => Get("CommonCount.Text");
     public string CommonProviders_Text => Get("CommonProviders.Text");
 
+    public string SettingsLanguage_Text => Get("SettingsLanguage.Text");
     public string SettingsBasicConfig_Text => Get("SettingsBasicConfig.Text");
     public string SettingsApp_Text => Get("SettingsApp.Text");
     public string SettingsTheme_Text => Get("SettingsTheme.Text");
@@ -295,6 +296,7 @@ public class StringResources : INotifyPropertyChanged
     public string ToolsBasicConfigSub_Text => Get("ToolsBasicConfigSub.Text");
     public string ToolsAppSettingsSub_Text => Get("ToolsAppSettingsSub.Text");
     public string ToolsThemeSettingsSub_Text => Get("ToolsThemeSettingsSub.Text");
+    public string ToolsLanguageSub_Text => Get("ToolsLanguageSub.Text");
     public string ToolsAboutSub_Text => Get("ToolsAboutSub.Text");
 
     public string ProxyTitle_Text => Get("ProxyTitle.Text");

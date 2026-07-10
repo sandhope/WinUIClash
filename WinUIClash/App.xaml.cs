@@ -183,15 +183,15 @@ namespace WinUIClash
                 }
             };
 
+            // 应用语言设置（必须在 MainWindow 构造之前，否则状态栏文字会显示为资源 key）
+            var localizationService = ServiceLocator.Get<Services.LocalizationService>();
+            localizationService.Initialize();
+
             CurrentWindow = new MainWindow();
             CurrentWindow.Activate();
 
             // 应用主题设置（明暗模式 + 主题色）
             ViewModels.Settings.ThemeSettingsViewModel.InitializeTheme();
-
-            // 应用语言设置
-            var localizationService = ServiceLocator.Get<Services.LocalizationService>();
-            localizationService.Initialize();
 
             // 静默启动：如果命令行包含 --silent 或设置中启用了静默启动，则最小化到托盘
             var cmdArgs = Environment.GetCommandLineArgs();

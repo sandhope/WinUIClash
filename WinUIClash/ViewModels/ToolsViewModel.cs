@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
@@ -6,49 +7,60 @@ using WinUIClash.Services;
 namespace WinUIClash.ViewModels;
 
 /// <summary>
-/// 工具页 ViewModel — 设置入口 + 子页面导航
+/// 工具页 ViewModel — 子页面导航
 /// </summary>
 public partial class ToolsViewModel : ObservableObject
 {
-    public record SettingItem(string Title, string Subtitle, string PageKey, string IconName);
-
-    public IReadOnlyList<SettingItem> SettingsItems { get; } =
-    [
-        new(LocalizationHelper.GetString("SettingsBasicConfig.Text"), LocalizationHelper.GetString("ToolsBasicConfigSub.Text"), "BasicConfig", "Settings"),
-        new(LocalizationHelper.GetString("SettingsApp.Text"), LocalizationHelper.GetString("ToolsAppSettingsSub.Text"), "AppSettings", "AppGeneric"),
-        new(LocalizationHelper.GetString("SettingsTheme.Text"), LocalizationHelper.GetString("ToolsThemeSettingsSub.Text"), "ThemeSettings", "Color"),
-    ];
-
-    public IReadOnlyList<SettingItem> OtherItems { get; } =
-    [
-        new(LocalizationHelper.GetString("SettingsAbout.Text"), LocalizationHelper.GetString("ToolsAboutSub.Text"), "About", "Info"),
-    ];
-
     // ── 导航 ──
 
     [ObservableProperty] private UserControl? _currentPage;
     [ObservableProperty] private string _currentTitle = "";
     [ObservableProperty] private bool _isSubPage;
 
+    private string? _currentPageKey;
     private readonly Stack<string> _backStack = new();
 
-    [RelayCommand]
-    private void OpenSetting(SettingItem? item)
+    public ToolsViewModel()
     {
-        if (item == null) return;
+        var stringResources = ServiceLocator.Get<StringResources>();
+        stringResources.PropertyChanged += OnStringResourcesChanged;
+    }
 
-        var page = CreatePage(item.PageKey);
+    private void OnStringResourcesChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.PropertyName) && _currentPageKey != null)
+            CurrentTitle = GetTitleForKey(_currentPageKey);
+    }
+
+    private static string GetTitleForKey(string key) => key switch
+    {
+        "LanguageSettings" => LocalizationHelper.GetString("SettingsLanguage.Text"),
+        "ThemeSettings" => LocalizationHelper.GetString("SettingsTheme.Text"),
+        "BasicConfig" => LocalizationHelper.GetString("SettingsBasicConfig.Text"),
+        "AppSettings" => LocalizationHelper.GetString("SettingsApp.Text"),
+        "About" => LocalizationHelper.GetString("SettingsAbout.Text"),
+        _ => key
+    };
+
+    [RelayCommand]
+    private void OpenSetting(string? key)
+    {
+        if (key == null) return;
+
+        var page = CreatePage(key);
         if (page == null) return;
 
-        _backStack.Push(item.Title);
+        _backStack.Push(key);
+        _currentPageKey = key;
         CurrentPage = page;
-        CurrentTitle = item.Title;
+        CurrentTitle = GetTitleForKey(key);
         IsSubPage = true;
     }
 
     [RelayCommand]
     private void GoBack()
     {
+        _currentPageKey = null;
         CurrentPage = null;
         CurrentTitle = "";
         IsSubPage = false;
@@ -59,9 +71,10 @@ public partial class ToolsViewModel : ObservableObject
     {
         return key switch
         {
+            "LanguageSettings" => new Views.Settings.LanguageSettingsView(),
+            "ThemeSettings" => new Views.Settings.ThemeSettingsView(),
             "BasicConfig" => new Views.Settings.BasicConfigView(),
             "AppSettings" => new Views.Settings.AppSettingsView(),
-            "ThemeSettings" => new Views.Settings.ThemeSettingsView(),
             "About" => new Views.Settings.AboutView(),
             _ => null
         };

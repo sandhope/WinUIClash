@@ -52,6 +52,7 @@ public static class ServiceLocator
         services.AddSingleton<RulesViewModel>();
         services.AddSingleton<ToolsViewModel>();
 
+        services.AddSingleton<ViewModels.Settings.LanguageSettingsViewModel>();
         services.AddSingleton<ViewModels.Settings.BasicConfigViewModel>();
         services.AddSingleton<ViewModels.Settings.AppSettingsViewModel>();
         services.AddSingleton<ViewModels.Settings.ThemeSettingsViewModel>();

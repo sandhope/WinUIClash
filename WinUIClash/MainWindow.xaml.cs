@@ -566,6 +566,7 @@ public sealed partial class MainWindow : Window
         new(LocalizationHelper.GetString("NavRules.Content"), "Rules", LocalizationHelper.GetString("SearchCategoryPage.Text")),
         new(LocalizationHelper.GetString("NavLogs.Content"), "Logs", LocalizationHelper.GetString("SearchCategoryPage.Text")),
         new(LocalizationHelper.GetString("NavTools.Content"), "Tools", LocalizationHelper.GetString("SearchCategoryPage.Text")),
+        new(LocalizationHelper.GetString("SettingsLanguage.Text"), "Tools|LanguageSettings", LocalizationHelper.GetString("SearchCategorySettings.Text")),
         new(LocalizationHelper.GetString("SettingsBasicConfig.Text"), "Tools|BasicConfig", LocalizationHelper.GetString("SearchCategorySettings.Text")),
         new(LocalizationHelper.GetString("SettingsTheme.Text"), "Tools|ThemeSettings", LocalizationHelper.GetString("SearchCategorySettings.Text")),
         new(LocalizationHelper.GetString("SettingsApp.Text"), "Tools|AppSettings", LocalizationHelper.GetString("SearchCategorySettings.Text")),
@@ -621,11 +622,10 @@ public sealed partial class MainWindow : Window
                 try
                 {
                     var toolsVm = ServiceLocator.Get<ViewModels.ToolsViewModel>();
-                    var item = toolsVm.SettingsItems.Concat(toolsVm.OtherItems)
-                        .FirstOrDefault(i => i.Title == title);
-                    if (item != null)
+                    var pageKey = segments[1]; // "BasicConfig", "ThemeSettings" 等
+                    if (!string.IsNullOrEmpty(pageKey))
                     {
-                        toolsVm.OpenSettingCommand.Execute(item);
+                        toolsVm.OpenSettingCommand.Execute(pageKey);
                         // ToolsView 需要在 code-behind 中同步 Content
                         if (ContentFrame.Content is Views.ToolsView toolsView)
                         {
