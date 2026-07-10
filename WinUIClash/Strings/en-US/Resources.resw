@@ -460,9 +460,9 @@
   <data name="DashSpeedTestFailed.Text" xml:space="preserve"><value>Test failed</value></data>
   <data name="DashQuickActions.Text" xml:space="preserve"><value>Quick Actions</value></data>
   <data name="DashCloseAllConns.Text" xml:space="preserve"><value>Close All</value></data>
-  <data name="DashForceGc.Text" xml:space="preserve"><value>Force GC</value></data>
-  <data name="DashFlushFakeIp.Text" xml:space="preserve"><value>Flush Cache</value></data>
-  <data name="DashResetTraffic.Text" xml:space="preserve"><value>Reset</value></data>
+  <data name="DashForceGcLabel.Text" xml:space="preserve"><value>Force GC</value></data>
+  <data name="DashFlushFakeIpLabel.Text" xml:space="preserve"><value>Flush Cache</value></data>
+  <data name="DashResetTrafficLabel.Text" xml:space="preserve"><value>Reset</value></data>
   <data name="NetworkChanged.Text" xml:space="preserve"><value>Network Changed</value></data>
   <data name="NetworkChangedMsg.Text" xml:space="preserve"><value>Network connectivity changed, reconnecting…</value></data>
   <data name="NetworkRestored.Text" xml:space="preserve"><value>Network Restored</value></data>

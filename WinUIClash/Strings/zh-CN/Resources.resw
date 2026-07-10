@@ -458,9 +458,9 @@
   <data name="DashSpeedTestFailed.Text" xml:space="preserve"><value>测试失败</value></data>
   <data name="DashQuickActions.Text" xml:space="preserve"><value>快捷操作</value></data>
   <data name="DashCloseAllConns.Text" xml:space="preserve"><value>关闭全部</value></data>
-  <data name="DashForceGc.Text" xml:space="preserve"><value>内存回收</value></data>
-  <data name="DashFlushFakeIp.Text" xml:space="preserve"><value>清除缓存</value></data>
-  <data name="DashResetTraffic.Text" xml:space="preserve"><value>重置</value></data>
+  <data name="DashForceGcLabel.Text" xml:space="preserve"><value>内存回收</value></data>
+  <data name="DashFlushFakeIpLabel.Text" xml:space="preserve"><value>清除缓存</value></data>
+  <data name="DashResetTrafficLabel.Text" xml:space="preserve"><value>重置</value></data>
   <data name="NetworkChanged.Text" xml:space="preserve"><value>网络变化</value></data>
   <data name="NetworkChangedMsg.Text" xml:space="preserve"><value>网络连接已变化，正在重新连接…</value></data>
   <data name="NetworkRestored.Text" xml:space="preserve"><value>网络已恢复</value></data>
