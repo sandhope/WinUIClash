@@ -57,8 +57,7 @@
   <data name="StatusStopped.Text" xml:space="preserve"><value>已停止</value></data>
   <data name="StatusRunning.Text" xml:space="preserve"><value>运行中</value></data>
   <data name="ProxyLabel.Text" xml:space="preserve"><value>代理</value></data>
-  <data name="CommonUpdateAll.Content" xml:space="preserve"><value>全部更新</value></data>
-  <data name="CommonUpdateAll.ToolTip" xml:space="preserve"><value>全部更新</value></data>
+  <data name="CommonUpdateAll.Text" xml:space="preserve"><value>全部更新</value></data>
   <data name="CommonUpdate.Content" xml:space="preserve"><value>更新</value></data>
   <data name="CommonSearch.PlaceholderText" xml:space="preserve"><value>搜索…</value></data>
   <data name="CommonAll.Text" xml:space="preserve"><value>全部</value></data>
@@ -189,9 +188,9 @@
 
   <!-- Connections -->
   <data name="ConnTitle.Text" xml:space="preserve"><value>连接</value></data>
-  <data name="ConnCloseAll.Content" xml:space="preserve"><value>关闭全部</value></data>
+  <data name="ConnCloseAll.Text" xml:space="preserve"><value>关闭全部</value></data>
   <data name="ConnExport.Content" xml:space="preserve"><value>导出</value></data>
-  <data name="ConnExport.ToolTip" xml:space="preserve"><value>导出连接为 CSV</value></data>
+
   <data name="ConnDetail.Text" xml:space="preserve"><value>连接详情</value></data>
   <data name="ConnHost.Text" xml:space="preserve"><value>目标地址</value></data>
   <data name="ConnSource.Text" xml:space="preserve"><value>来源</value></data>
@@ -287,7 +286,7 @@
   <data name="ToolsTitle.Text" xml:space="preserve"><value>工具</value></data>
   <data name="ToolsSettingsSection.Text" xml:space="preserve"><value>设置</value></data>
   <data name="ToolsOtherSection.Text" xml:space="preserve"><value>其他</value></data>
-  <data name="ToolsBack.ToolTip" xml:space="preserve"><value>返回</value></data>
+
   <data name="ToolsBasicConfigSub.Text" xml:space="preserve"><value>端口、日志级别、UA、IPv6 等</value></data>
   <data name="ToolsAppSettingsSub.Text" xml:space="preserve"><value>启动行为、系统代理、TUN、自动更新</value></data>
   <data name="ToolsThemeSettingsSub.Text" xml:space="preserve"><value>明暗模式、主题色</value></data>
@@ -296,16 +295,15 @@
   <!-- Proxies - Additional -->
   <data name="ProxyTitle.Text" xml:space="preserve"><value>代理</value></data>
   <data name="ProxyTestAll.Text" xml:space="preserve"><value>全部测速</value></data>
-  <data name="ProxySwitchSort.ToolTip" xml:space="preserve"><value>切换排序</value></data>
+
   <data name="ProxyTestSummary.Text" xml:space="preserve"><value>平均: {0}ms | 最低: {1}ms | 最高: {2}ms | 成功: {3} | 失败: {4}</value></data>
   <data name="ProxyTestSummaryFailed.Text" xml:space="preserve"><value>全部 {0} 个测试失败</value></data>
 
   <!-- Profiles - Additional -->
-  <data name="ProfilesImport.Content" xml:space="preserve"><value>导入</value></data>
-  <data name="ProfilesImport.ToolTip" xml:space="preserve"><value>导入订阅</value></data>
+  <data name="ProfilesImport.Text" xml:space="preserve"><value>导入</value></data>
   <data name="ProfilesPasteClipboard.Content" xml:space="preserve"><value>粘贴</value></data>
   <data name="ProfilesActive.Text" xml:space="preserve"><value>使用中</value></data>
-  <data name="ProfilesMore.ToolTip" xml:space="preserve"><value>更多</value></data>
+
   <data name="ProfilesClipboardTitle.Text" xml:space="preserve"><value>检测到订阅链接</value></data>
   <data name="ProfilesClipboardContent.Text" xml:space="preserve"><value>剪贴板中发现订阅链接:\n\n{0}\n\n是否导入？</value></data>
   <data name="ProfilesUrlHeader.Text" xml:space="preserve"><value>订阅地址</value></data>
@@ -329,7 +327,7 @@
   <!-- Connections - Additional -->
   <data name="ConnSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索连接…</value></data>
   <data name="ConnCountSuffix.Text" xml:space="preserve"><value> 个连接</value></data>
-  <data name="ConnClose.ToolTip" xml:space="preserve"><value>关闭连接</value></data>
+
   <data name="ConnCloseSimilar.Text" xml:space="preserve"><value>关闭同主机连接</value></data>
   <data name="ConnDetailHost.Text" xml:space="preserve"><value>目标主机</value></data>
   <data name="ConnDetailSource.Text" xml:space="preserve"><value>源地址</value></data>
@@ -377,7 +375,7 @@
   <data name="ProxySortName.Text" xml:space="preserve"><value>按名称</value></data>
   <data name="ProxySortDelay.Text" xml:space="preserve"><value>按延迟</value></data>
   <data name="ProxySortType.Text" xml:space="preserve"><value>按类型</value></data>
-  <data name="ProxyTestAll.Content" xml:space="preserve"><value>全部测速</value></data>
+
   <data name="ProxySelectBest.Text" xml:space="preserve"><value>选最优</value></data>
   <data name="ProxySearch.PlaceholderText" xml:space="preserve"><value>搜索代理…</value></data>
 
@@ -406,7 +404,7 @@
   <data name="ReqSortDownload.Text" xml:space="preserve"><value>按下载</value></data>
   <data name="ReqSortRule.Text" xml:space="preserve"><value>按规则</value></data>
   <data name="RequestsExport.Content" xml:space="preserve"><value>导出</value></data>
-  <data name="RequestsExport.ToolTip" xml:space="preserve"><value>导出请求记录</value></data>
+
   <data name="RequestsExportSuccessTitle.Text" xml:space="preserve"><value>导出成功</value></data>
   <data name="RequestsExportSuccessMsg.Text" xml:space="preserve"><value>请求记录已导出</value></data>
   <data name="RequestsExportFailTitle.Text" xml:space="preserve"><value>导出失败</value></data>
@@ -427,10 +425,10 @@
   <data name="ResFilterRule.Content" xml:space="preserve"><value>规则提供者</value></data>
   <data name="ResSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索资源…</value></data>
   <data name="ResUpdateAll.Text" xml:space="preserve"><value>全部更新</value></data>
-  <data name="ResUpdateAll.ToolTip" xml:space="preserve"><value>全部更新</value></data>
+
   <data name="ResEntries.Text" xml:space="preserve"><value>条目: </value></data>
   <data name="ResSource.Text" xml:space="preserve"><value>来源: </value></data>
-  <data name="ResUpdate.ToolTip" xml:space="preserve"><value>更新</value></data>
+
   <data name="ResGeoUpdate.Text" xml:space="preserve"><value>GeoIP/GeoSite 数据库</value></data>
   <data name="ResGeoUpdateGeoIp.Text" xml:space="preserve"><value>更新 GeoIP 数据库</value></data>
   <data name="ResGeoUpdateGeoSite.Text" xml:space="preserve"><value>更新 GeoSite 数据库</value></data>
@@ -440,7 +438,7 @@
   <data name="ResGeoUpdateAsn.Text" xml:space="preserve"><value>更新 ASN 数据库</value></data>
   <data name="ResUpdating.Text" xml:space="preserve"><value>正在更新</value></data>
   <data name="ResUpdateAllDone.Text" xml:space="preserve"><value>更新完成</value></data>
-  <data name="ResHealthCheck.ToolTip" xml:space="preserve"><value>健康检查</value></data>
+
   <data name="ResHealthCheckDone.Text" xml:space="preserve"><value>健康检查完成</value></data>
   <data name="BasicConfigAppliedTitle.Text" xml:space="preserve"><value>设置已生效</value></data>
   <data name="BasicConfigAppliedMsg.Text" xml:space="preserve"><value>配置更改已应用到运行中的核心。</value></data>

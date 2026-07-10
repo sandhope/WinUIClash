@@ -46,8 +46,7 @@
                      x:Uid="ResSearchPlaceholder"
                      Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <!-- GeoIP/GeoSite 更新 -->
-            <Button Grid.Column="4" Margin="8,0,0,0"
-                    x:Uid="ResGeoUpdate">
+            <Button Grid.Column="4" Margin="8,0,0,0">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <fluent:SymbolIcon Symbol="Globe" FontSize="14" />
                     <TextBlock x:Uid="ResGeoUpdate" FontSize="12" />
@@ -80,8 +79,7 @@
             </Button>
             <!-- 全部更新 -->
             <Button Grid.Column="5" Margin="8,0,0,0"
-                    Command="{x:Bind ViewModel.UpdateAllCommand}"
-                    x:Uid="ResUpdateAll">
+                    Command="{x:Bind ViewModel.UpdateAllCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
                     <TextBlock x:Uid="ResUpdateAll" FontSize="12" />
@@ -162,12 +160,14 @@
                                        VerticalAlignment="Center" />
                             <Button Grid.Column="2" Padding="8,4"
                                     x:Uid="ResUpdate"
+                                    ToolTipService.ToolTip="Update"
                                     Click="UpdateProvider_Click"
                                     Tag="{x:Bind}">
                                 <fluent:SymbolIcon Symbol="ArrowSync" FontSize="13" />
                             </Button>
                             <Button Grid.Column="3" Padding="8,4"
                                     x:Uid="ResHealthCheck"
+                                    ToolTipService.ToolTip="Health Check"
                                     Click="HealthCheck_Click"
                                     Tag="{x:Bind}"
                                     Visibility="{x:Bind IsHealthChecking, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">

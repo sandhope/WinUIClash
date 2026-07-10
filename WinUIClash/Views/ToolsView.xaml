@@ -104,7 +104,8 @@
                 <Button Click="BackButton_Click"
                         Background="Transparent" BorderThickness="0"
                         Padding="4" Margin="-4,0,8,0"
-                        x:Uid="ToolsBack">
+                        x:Uid="ToolsBack"
+                        ToolTipService.ToolTip="Back">
                     <fluent:SymbolIcon Symbol="ArrowLeft" FontSize="16" />
                 </Button>
                 <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.CurrentTitle, Mode=OneWay}"

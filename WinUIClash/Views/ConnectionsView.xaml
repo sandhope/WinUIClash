@@ -44,6 +44,7 @@
                 </TextBlock>
                 <Button Command="{x:Bind ViewModel.CycleSortModeCommand}"
                         x:Uid="ProxySwitchSort"
+                        ToolTipService.ToolTip="Switch Sort"
                         Padding="8,4" Background="Transparent" BorderThickness="0">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <fluent:SymbolIcon Symbol="ArrowSort" FontSize="12" />
@@ -73,10 +74,10 @@
                         </StackPanel>
                     </Button>
                 </Grid>
-                <Button Command="{x:Bind ViewModel.ExportCommand}" x:Uid="ConnExport">
+                <Button Command="{x:Bind ViewModel.ExportCommand}" x:Uid="ConnExport" ToolTipService.ToolTip="Export to CSV">
                     <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
                 </Button>
-                <Button Click="CloseAll_Click" x:Uid="ConnCloseAll">
+                <Button Click="CloseAll_Click">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <fluent:SymbolIcon Symbol="DismissCircle" FontSize="14" />
                         <TextBlock x:Uid="ConnCloseAll" FontSize="12" />
@@ -127,6 +128,7 @@
                         <Button Grid.Column="2" Padding="4"
                                 Background="Transparent" BorderThickness="0"
                                 x:Uid="ConnClose"
+                                ToolTipService.ToolTip="Close Connection"
                                 Click="CloseConnection_Click"
                                 Tag="{x:Bind}">
                             <fluent:SymbolIcon Symbol="Dismiss" FontSize="12" />

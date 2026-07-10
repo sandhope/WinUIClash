@@ -57,7 +57,7 @@
                         <TextBlock Text="{x:Bind ViewModel.SortModeLabel, Mode=OneWay}" FontSize="11" />
                     </StackPanel>
                 </Button>
-                <Button Command="{x:Bind ViewModel.ExportCommand}" x:Uid="RequestsExport">
+                <Button Command="{x:Bind ViewModel.ExportCommand}" x:Uid="RequestsExport" ToolTipService.ToolTip="Export request log">
                     <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
                 </Button>
                 <Button Command="{x:Bind ViewModel.ClearCommand}" x:Uid="CommonClear">
