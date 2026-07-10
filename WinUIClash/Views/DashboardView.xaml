@@ -396,21 +396,21 @@
                             Padding="10,5">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <fluent:SymbolIcon Symbol="LeafOne" FontSize="13" />
-                            <TextBlock x:Uid="DashForceGc" FontSize="12" />
+                            <TextBlock x:Uid="DashForceGcLabel" FontSize="12" />
                         </StackPanel>
                     </Button>
                     <Button Grid.Column="4" Command="{x:Bind ViewModel.FlushFakeIpCacheCommand}"
                             Padding="10,5">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <fluent:SymbolIcon Symbol="Database" FontSize="13" />
-                            <TextBlock x:Uid="DashFlushFakeIp" FontSize="12" />
+                            <TextBlock x:Uid="DashFlushFakeIpLabel" FontSize="12" />
                         </StackPanel>
                     </Button>
                     <Button Grid.Column="5" Command="{x:Bind ViewModel.ResetTrafficCommand}"
                             Padding="10,5">
                         <StackPanel Orientation="Horizontal" Spacing="5">
                             <fluent:SymbolIcon Symbol="ArrowReset" FontSize="13" />
-                            <TextBlock x:Uid="DashResetTraffic" FontSize="12" />
+                            <TextBlock x:Uid="DashResetTrafficLabel" FontSize="12" />
                         </StackPanel>
                     </Button>
                 </Grid>
