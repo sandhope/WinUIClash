@@ -59,6 +59,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <ToggleSwitch x:Uid="LogsAutoScroll"
+                          OffContent="" OnContent=""
                           IsOn="{x:Bind ViewModel.AutoScroll, Mode=TwoWay}" />
             <TextBlock Grid.Column="2" VerticalAlignment="Center"
                        FontSize="11" Opacity="0.5">
