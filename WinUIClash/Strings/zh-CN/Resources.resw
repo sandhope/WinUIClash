@@ -207,7 +207,7 @@
   <!-- Profiles -->
   <data name="ProfilesTitle.Text" xml:space="preserve"><value>配置</value></data>
   <data name="ProfilesAdd.Content" xml:space="preserve"><value>添加</value></data>
-  <data name="ProfilesImportUrl.PlaceholderText" xml:space="preserve"><value>订阅链接</value></data>
+
   <data name="ProfilesExpired.Text" xml:space="preserve"><value>已过期</value></data>
   <data name="ProfilesRemainingDays.Text" xml:space="preserve"><value>剩余 </value></data>
   <data name="ProfilesDay.Text" xml:space="preserve"><value>天</value></data>
@@ -337,20 +337,20 @@
   <data name="ConnDetailDnsMode.Text" xml:space="preserve"><value>DNS 模式</value></data>
   <data name="ConnDetailGeoIP.Text" xml:space="preserve"><value>地理位置 / ASN</value></data>
   <data name="ConnCopyHost.Text" xml:space="preserve"><value>复制主机</value></data>
-  <data name="ConnCloseThis.Content" xml:space="preserve"><value>关闭此连接</value></data>
+  <data name="ConnCloseThis.Text" xml:space="preserve"><value>关闭此连接</value></data>
   <data name="ConnCopyChains.Text" xml:space="preserve"><value>复制代理链</value></data>
   <data name="ConnCopySource.Text" xml:space="preserve"><value>复制来源</value></data>
 
   <!-- Logs - Additional -->
   <data name="LogsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索日志…</value></data>
-  <data name="LogsAutoScroll.Content" xml:space="preserve"><value>自动滚动</value></data>
+  <data name="LogsAutoScroll.Header" xml:space="preserve"><value>自动滚动</value></data>
   <data name="LogsCountSuffix.Text" xml:space="preserve"><value> 条日志</value></data>
   <data name="LogsCopyPayload.Text" xml:space="preserve"><value>复制内容</value></data>
   <data name="LogsCopyFull.Text" xml:space="preserve"><value>复制完整行</value></data>
 
   <!-- Requests - Additional -->
   <data name="RequestsSearchPlaceholder.PlaceholderText" xml:space="preserve"><value>搜索请求…</value></data>
-  <data name="RequestsAutoScroll.Content" xml:space="preserve"><value>自动滚动</value></data>
+  <data name="RequestsAutoScroll.Header" xml:space="preserve"><value>自动滚动</value></data>
   <data name="RequestsCopyHost.Text" xml:space="preserve"><value>复制主机</value></data>
   <data name="RequestsCopyRule.Text" xml:space="preserve"><value>复制规则</value></data>
   <data name="RequestsCopyProcess.Text" xml:space="preserve"><value>复制进程</value></data>

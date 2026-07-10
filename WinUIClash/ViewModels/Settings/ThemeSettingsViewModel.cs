@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 using Windows.UI;
 using WinUIClash.Models;
 using WinUIClash.Services;
@@ -203,6 +204,11 @@ public partial class ThemeSettingsViewModel : ObservableObject
             element.Resources["SystemAccentColorDark1"] = DarkenColor(color, 0.2);
             element.Resources["SystemAccentColorDark2"] = DarkenColor(color, 0.4);
             element.Resources["SystemAccentColorDark3"] = DarkenColor(color, 0.6);
+
+            // Also store SolidColorBrush versions — WinUI 3 internally may try
+            // to resolve accent-derived resources as Brush, causing InvalidCastException
+            element.Resources["AccentFillColorDefaultBrush"] = new SolidColorBrush(color);
+            element.Resources["AccentTextFillColorPrimaryBrush"] = new SolidColorBrush(color);
         }
     }
 
