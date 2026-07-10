@@ -8,8 +8,6 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Padding="0,0,16,24">
-            <TextBlock Text="{Binding Source={StaticResource S}, Path=SettingsBasicConfig_Text}" FontSize="20" FontWeight="SemiBold" />
-
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="12">
                     <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigPortSettings_Text}" FontSize="14" FontWeight="SemiBold" />

@@ -9,28 +9,6 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Padding="0,0,16,24">
-            <TextBlock Text="{Binding Source={StaticResource S}, Path=SettingsApp_Text}" FontSize="20" FontWeight="SemiBold" />
-
-            <!-- 语言 -->
-            <Border Style="{StaticResource SettingsCardStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Spacing="2" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppLanguage_Text}" FontSize="13" />
-                        <TextBlock Text="{Binding Source={StaticResource S}, Path=AppLanguageSwitchDesc_Text}" FontSize="11" Opacity="0.5" />
-                    </StackPanel>
-                    <ComboBox Grid.Column="1"
-                              ItemsSource="{x:Bind ViewModel.Languages}"
-                              SelectedValue="{x:Bind ViewModel.Language, Mode=TwoWay}"
-                              SelectedValuePath="Value"
-                              DisplayMemberPath="Label"
-                              MinWidth="140" />
-                </Grid>
-            </Border>
-
             <!-- 启动与退出 -->
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="0">

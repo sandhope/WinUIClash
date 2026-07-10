@@ -73,6 +73,7 @@
     <x:String x:Key="CommonProviders.Text"> 个提供者</x:String>
 
     <!-- Settings -->
+    <x:String x:Key="SettingsLanguage.Text">语言设置</x:String>
     <x:String x:Key="SettingsBasicConfig.Text">基础配置</x:String>
     <x:String x:Key="SettingsApp.Text">应用设置</x:String>
     <x:String x:Key="SettingsTheme.Text">主题设置</x:String>
@@ -282,6 +283,7 @@
     <x:String x:Key="ToolsBasicConfigSub.Text">端口、日志级别、UA、IPv6 等</x:String>
     <x:String x:Key="ToolsAppSettingsSub.Text">启动行为、系统代理、TUN、自动更新</x:String>
     <x:String x:Key="ToolsThemeSettingsSub.Text">明暗模式、主题色</x:String>
+    <x:String x:Key="ToolsLanguageSub.Text">界面显示语言</x:String>
     <x:String x:Key="ToolsAboutSub.Text">版本信息、项目链接</x:String>
 
     <!-- Proxies - Additional -->

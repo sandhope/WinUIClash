@@ -120,27 +120,4 @@ public partial class AppSettingsViewModel : ObservableObject
         set { if (_settings.TunStack != value) { _settings.TunStack = value; OnPropertyChanged(); } }
     }
 
-    public record LanguageOption(string Label, string Value);
-
-    public LanguageOption[] Languages { get; } =
-    [
-        new("简体中文", "zh-CN"),
-        new("English", "en-US"),
-    ];
-
-    public string Language
-    {
-        get => _settings.Language;
-        set
-        {
-            if (_settings.Language != value)
-            {
-                _settings.Language = value;
-                OnPropertyChanged();
-
-                var localizationService = ServiceLocator.Get<LocalizationService>();
-                localizationService.SetLanguage(value);
-            }
-        }
-    }
 }

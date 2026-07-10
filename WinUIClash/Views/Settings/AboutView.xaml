@@ -9,8 +9,6 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Spacing="16" Padding="0,0,16,24">
-            <TextBlock Text="{Binding Source={StaticResource S}, Path=AboutTitle_Text}" FontSize="20" FontWeight="SemiBold" />
-
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="12" HorizontalAlignment="Center" Padding="24">
                     <fluent:SymbolIcon Symbol="Shield" FontSize="48" Foreground="{ThemeResource AccentFillColorDefaultBrush}" />

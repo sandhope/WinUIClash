@@ -73,6 +73,7 @@
     <x:String x:Key="CommonProviders.Text"> providers</x:String>
 
     <!-- Settings -->
+    <x:String x:Key="SettingsLanguage.Text">Language</x:String>
     <x:String x:Key="SettingsBasicConfig.Text">Basic Config</x:String>
     <x:String x:Key="SettingsApp.Text">App Settings</x:String>
     <x:String x:Key="SettingsTheme.Text">Theme Settings</x:String>
@@ -282,6 +283,7 @@
     <x:String x:Key="ToolsBasicConfigSub.Text">Ports, log level, UA, IPv6, etc.</x:String>
     <x:String x:Key="ToolsAppSettingsSub.Text">Startup, system proxy, TUN, auto update</x:String>
     <x:String x:Key="ToolsThemeSettingsSub.Text">Light/dark mode, accent color</x:String>
+    <x:String x:Key="ToolsLanguageSub.Text">Interface display language</x:String>
     <x:String x:Key="ToolsAboutSub.Text">Version info, project links</x:String>
 
     <!-- Proxies - Additional -->
