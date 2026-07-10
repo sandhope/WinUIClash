@@ -217,7 +217,7 @@
   <data name="LogsPause.Content" xml:space="preserve"><value>Pause</value></data>
   <data name="LogsResume.Content" xml:space="preserve"><value>Resume</value></data>
   <data name="LogsExport.Content" xml:space="preserve"><value>Export Logs</value></data>
-  <data name="LogsAutoScroll.Text" xml:space="preserve"><value>Auto Scroll</value></data>
+
   <data name="LogsAllLevels.Text" xml:space="preserve"><value>All Levels</value></data>
 
   <!-- Requests -->
