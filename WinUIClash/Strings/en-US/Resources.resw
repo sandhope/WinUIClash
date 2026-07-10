@@ -166,8 +166,7 @@
   <!-- Theme Settings -->
   <data name="ThemeMode.Text" xml:space="preserve"><value>Appearance</value></data>
 
-  <data name="ThemeLight.Text" xml:space="preserve"><value>Light Mode</value></data>
-  <data name="ThemeDark.Text" xml:space="preserve"><value>Dark Mode</value></data>
+
   <data name="ThemeAccentColor.Text" xml:space="preserve"><value>Accent Color</value></data>
   <data name="ThemeCustomColor.Header" xml:space="preserve"><value>Custom Color</value></data>
   <data name="ThemeApplyCustomColor.Content" xml:space="preserve"><value>Apply Custom Color</value></data>
