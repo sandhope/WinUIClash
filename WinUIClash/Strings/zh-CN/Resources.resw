@@ -451,7 +451,6 @@
   <data name="ProfilesSwitchedTitle.Text" xml:space="preserve"><value>配置已切换</value></data>
   <data name="ProfilesSwitching.Text" xml:space="preserve"><value>正在切换配置…</value></data>
   <data name="DashFlushFakeIp.Content" xml:space="preserve"><value>清除 Fake-IP 缓存</value></data>
-  <data name="DashFlushFakeIp.ToolTip" xml:space="preserve"><value>清除 fake-ip DNS 缓存</value></data>
   <data name="DashSpeedTest.Text" xml:space="preserve"><value>网速测试</value></data>
   <data name="DashSpeedTestStart.Text" xml:space="preserve"><value>开始</value></data>
   <data name="DashSpeedTestRunning.Text" xml:space="preserve"><value>测试中…</value></data>

@@ -453,7 +453,6 @@
   <data name="ProfilesAutoStartMsg.Text" xml:space="preserve"><value>Core is not running, starting automatically…</value></data>
   <data name="ProfilesSwitching.Text" xml:space="preserve"><value>Switching profile…</value></data>
   <data name="DashFlushFakeIp.Content" xml:space="preserve"><value>Flush Fake-IP Cache</value></data>
-  <data name="DashFlushFakeIp.ToolTip" xml:space="preserve"><value>Clear the fake-ip DNS cache</value></data>
   <data name="DashSpeedTest.Text" xml:space="preserve"><value>Speed Test</value></data>
   <data name="DashSpeedTestStart.Text" xml:space="preserve"><value>Start</value></data>
   <data name="DashSpeedTestRunning.Text" xml:space="preserve"><value>Testing…</value></data>
