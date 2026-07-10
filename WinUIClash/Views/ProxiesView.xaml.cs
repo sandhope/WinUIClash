@@ -46,7 +46,7 @@ public sealed partial class ProxiesView : Page
         }
         else
         {
-            btn.Background = (Brush)Application.Current.Resources["SubtleFillColorSecondary"];
+            btn.Background = (Brush)Application.Current.Resources["SubtleFillColorSecondaryBrush"];
             btn.Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"];
         }
 
