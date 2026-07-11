@@ -532,4 +532,29 @@ public class StringResources : INotifyPropertyChanged
     public string ShortcutCatPage_Text => Get("ShortcutCatPage.Text");
     public string ShortcutCatCore_Text => Get("ShortcutCatCore.Text");
     public string ShortcutCatApp_Text => Get("ShortcutCatApp.Text");
+
+    // --- ToolTip bindings (map to existing content/text keys where possible) ---
+    public string LogsExport_ToolTip => Get("LogsExport.Content");
+    public string ConnExport_ToolTip => Get("ConnExport.Content");
+    public string CommonClear_ToolTip => Get("CommonClear.Content");
+    public string CommonRefresh_ToolTip => Get("CommonRefresh.Content");
+    public string RequestsExport_ToolTip => Get("RequestsExport.Content");
+    public string CommonUpdate_ToolTip => Get("CommonUpdate.Content");
+    public string CommonDelete_ToolTip => Get("CommonDelete.Content");
+    public string ConnClose_ToolTip => Get("CommonClose.Content");
+    public string ResUpdate_ToolTip => Get("CommonUpdate.Content");
+    public string ResHealthCheck_ToolTip => Get("ResHealthCheck.ToolTip");
+    public string ToolsBack_ToolTip => Get("ToolsBack.ToolTip");
+
+    // --- Content aliases expected by XAML ---
+    public string ProfilesMore_Content => Get("ProfilesMore.Content");
+    public string ProxySwitchSort_Content => Get("CommonSort.Content");
+
+    // --- Header/name aliases (XAML binds *_Text to Header/renamed keys) ---
+    public string LogsAutoScroll_Text => Get("LogsAutoScroll.Header");
+    public string RequestsAutoScroll_Text => Get("RequestsAutoScroll.Header");
+    public string ResUpdateGeoIp_Text => Get("ResGeoUpdateGeoIp.Text");
+    public string ResUpdateGeoSite_Text => Get("ResGeoUpdateGeoSite.Text");
+    public string ResUpdateMmdb_Text => Get("ResGeoUpdateMmdb.Text");
+    public string ResUpdateAsn_Text => Get("ResGeoUpdateAsn.Text");
 }
