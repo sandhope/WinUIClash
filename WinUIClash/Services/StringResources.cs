@@ -44,6 +44,7 @@ public class StringResources : INotifyPropertyChanged
     public string NavRules_Content => Get("NavRules.Content");
     public string NavLogs_Content => Get("NavLogs.Content");
     public string NavTools_Content => Get("NavTools.Content");
+    public string NavShortcuts_Content => Get("NavShortcuts.Content");
 
     public string DashUploadSpeed_Text => Get("DashUploadSpeed.Text");
     public string DashDownloadSpeed_Text => Get("DashDownloadSpeed.Text");
@@ -143,8 +144,6 @@ public class StringResources : INotifyPropertyChanged
     public string ConfigUserAgent_Text => Get("ConfigUserAgent.Text");
     public string ConfigUserAgentDesc_Text => Get("ConfigUserAgentDesc.Text");
 
-    public string AppLanguage_Text => Get("AppLanguage.Text");
-    public string AppLanguageDesc_Text => Get("AppLanguageDesc.Text");
     public string AppMinimizeOnExit_Text => Get("AppMinimizeOnExit.Text");
     public string AppMinimizeOnExitDesc_Text => Get("AppMinimizeOnExitDesc.Text");
     public string AppAutoLaunch_Text => Get("AppAutoLaunch.Text");
@@ -252,9 +251,6 @@ public class StringResources : INotifyPropertyChanged
     public string TimeDaysAgo_Text => Get("TimeDaysAgo.Text");
 
     public string StatusBarSystemProxy_Text => Get("StatusBarSystemProxy.Text");
-    public string SearchBox_PlaceholderText => Get("SearchBox.PlaceholderText");
-    public string SearchCategoryPage_Text => Get("SearchCategoryPage.Text");
-    public string SearchCategorySettings_Text => Get("SearchCategorySettings.Text");
     public string ProfilesFallbackLabel_Text => Get("ProfilesFallbackLabel.Text");
 
     public string ConfigPortSettings_Text => Get("ConfigPortSettings.Text");
@@ -265,7 +261,6 @@ public class StringResources : INotifyPropertyChanged
     public string AppOther_Text => Get("AppOther.Text");
     public string AppSilentLaunch_Text => Get("AppSilentLaunch.Text");
     public string AppSilentLaunchDesc_Text => Get("AppSilentLaunchDesc.Text");
-    public string AppLanguageSwitchDesc_Text => Get("AppLanguageSwitchDesc.Text");
 
     public string ThemeSystem_Content => Get("ThemeSystem.Content");
     public string ThemeLight_Content => Get("ThemeLight.Content");
@@ -297,6 +292,7 @@ public class StringResources : INotifyPropertyChanged
     public string ToolsThemeSettingsSub_Text => Get("ToolsThemeSettingsSub.Text");
     public string ToolsLanguageSub_Text => Get("ToolsLanguageSub.Text");
     public string ToolsAboutSub_Text => Get("ToolsAboutSub.Text");
+    public string ToolsShortcutsSub_Text => Get("ToolsShortcutsSub.Text");
 
     public string ProxyTitle_Text => Get("ProxyTitle.Text");
     public string ProxyTestAll_Text => Get("ProxyTestAll.Text");
@@ -516,7 +512,6 @@ public class StringResources : INotifyPropertyChanged
 
     public string HelpTitle_Text => Get("HelpTitle.Text");
     public string HelpNav_Text => Get("HelpNav.Text");
-    public string HelpSearch_Text => Get("HelpSearch.Text");
     public string HelpRefresh_Text => Get("HelpRefresh.Text");
     public string HelpSidebar_Text => Get("HelpSidebar.Text");
     public string HelpMinimize_Text => Get("HelpMinimize.Text");
@@ -528,6 +523,13 @@ public class StringResources : INotifyPropertyChanged
     public string HelpSettings_Text => Get("HelpSettings.Text");
     public string HelpQuit_Text => Get("HelpQuit.Text");
     public string HelpShowHelp_Text => Get("HelpShowHelp.Text");
+    public string ShortcutsTitle_Text => Get("ShortcutsTitle.Text");
     public string HelpCyclePage_Text => Get("HelpCyclePage.Text");
     public string HelpEscape_Text => Get("HelpEscape.Text");
+    public string ShortcutColKey_Text => Get("ShortcutColKey.Text");
+    public string ShortcutColDesc_Text => Get("ShortcutColDesc.Text");
+    public string ShortcutCatNav_Text => Get("ShortcutCatNav.Text");
+    public string ShortcutCatPage_Text => Get("ShortcutCatPage.Text");
+    public string ShortcutCatCore_Text => Get("ShortcutCatCore.Text");
+    public string ShortcutCatApp_Text => Get("ShortcutCatApp.Text");
 }

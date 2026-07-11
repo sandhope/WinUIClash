@@ -12,6 +12,7 @@
     <x:String x:Key="NavRules.Content">规则</x:String>
     <x:String x:Key="NavLogs.Content">日志</x:String>
     <x:String x:Key="NavTools.Content">工具</x:String>
+    <x:String x:Key="NavShortcuts.Content">快捷键</x:String>
 
     <!-- Dashboard -->
     <x:String x:Key="DashUploadSpeed.Text">上传</x:String>
@@ -116,8 +117,6 @@
     <x:String x:Key="ConfigUserAgentDesc.Text">下载订阅时使用的 UA</x:String>
 
     <!-- App Settings -->
-    <x:String x:Key="AppLanguage.Text">语言</x:String>
-    <x:String x:Key="AppLanguageDesc.Text">界面显示语言</x:String>
     <x:String x:Key="AppMinimizeOnExit.Text">最小化到托盘</x:String>
     <x:String x:Key="AppMinimizeOnExitDesc.Text">关闭窗口时最小化到系统托盘而非退出</x:String>
     <x:String x:Key="AppAutoLaunch.Text">开机自启</x:String>
@@ -234,9 +233,6 @@
 
     <!-- StatusBar -->
     <x:String x:Key="StatusBarSystemProxy.Text">系统代理</x:String>
-    <x:String x:Key="SearchBox.PlaceholderText">搜索… (Ctrl+F)</x:String>
-    <x:String x:Key="SearchCategoryPage.Text">页面</x:String>
-    <x:String x:Key="SearchCategorySettings.Text">设置</x:String>
     <x:String x:Key="ProfilesFallbackLabel.Text">订阅</x:String>
 
     <!-- Basic Config - Section Headers -->
@@ -249,7 +245,6 @@
     <x:String x:Key="AppOther.Text">其他</x:String>
     <x:String x:Key="AppSilentLaunch.Text">静默启动</x:String>
     <x:String x:Key="AppSilentLaunchDesc.Text">启动时最小化，不显示主窗口</x:String>
-    <x:String x:Key="AppLanguageSwitchDesc.Text">语言切换即时生效</x:String>
 
     <!-- Theme - RadioButton Content -->
     <x:String x:Key="ThemeSystem.Content">跟随系统</x:String>
@@ -284,6 +279,8 @@
     <x:String x:Key="ToolsThemeSettingsSub.Text">明暗模式、主题色</x:String>
     <x:String x:Key="ToolsLanguageSub.Text">界面显示语言</x:String>
     <x:String x:Key="ToolsAboutSub.Text">版本信息、项目链接</x:String>
+
+    <x:String x:Key="ToolsShortcutsSub.Text\">查看全部键盘快捷键</x:String>
 
     <!-- Proxies - Additional -->
     <x:String x:Key="ProxyTitle.Text">代理</x:String>
@@ -527,7 +524,6 @@
     <!-- Keyboard Help (F1) -->
     <x:String x:Key="HelpTitle.Text">键盘快捷键</x:String>
     <x:String x:Key="HelpNav.Text">导航到对应页面</x:String>
-    <x:String x:Key="HelpSearch.Text">聚焦搜索框</x:String>
     <x:String x:Key="HelpRefresh.Text">刷新当前页面</x:String>
     <x:String x:Key="HelpSidebar.Text">切换侧边栏</x:String>
     <x:String x:Key="HelpMinimize.Text">最小化到托盘</x:String>
@@ -539,7 +535,16 @@
     <x:String x:Key="HelpSettings.Text">打开设置</x:String>
     <x:String x:Key="HelpQuit.Text">退出应用</x:String>
     <x:String x:Key="HelpShowHelp.Text">显示此帮助</x:String>
+    <x:String x:Key="ShortcutsTitle.Text">键盘快捷键</x:String>
     <x:String x:Key="HelpCyclePage.Text">切换页面</x:String>
     <x:String x:Key="HelpEscape.Text">清除搜索 / 关闭通知</x:String>
+
+    <!-- Shortcuts table -->
+    <x:String x:Key="ShortcutColKey.Text">快捷键</x:String>
+    <x:String x:Key="ShortcutColDesc.Text">功能说明</x:String>
+    <x:String x:Key="ShortcutCatNav.Text">导航</x:String>
+    <x:String x:Key="ShortcutCatPage.Text">页面操作</x:String>
+    <x:String x:Key="ShortcutCatCore.Text">内核与代理</x:String>
+    <x:String x:Key="ShortcutCatApp.Text">应用</x:String>
 
 </ResourceDictionary>

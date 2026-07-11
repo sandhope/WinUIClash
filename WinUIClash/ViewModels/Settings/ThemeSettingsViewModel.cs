@@ -149,6 +149,8 @@ public partial class ThemeSettingsViewModel : ObservableObject
             _ => GetSystemTheme() // "System" → 跟随系统
         };
 
+        var dark = theme == ApplicationTheme.Dark;
+
         if (App.CurrentWindow?.Content is FrameworkElement root)
         {
             root.RequestedTheme = theme switch
@@ -159,27 +161,25 @@ public partial class ThemeSettingsViewModel : ObservableObject
             };
         }
 
-        // 同步非客户区按钮（最小化/最大化/关闭）的颜色，
-        // 让自定义标题栏在明暗两种模式下都清晰可读
-        ApplyCaptionButtonColors(theme);
-
         ApplyAccentColor();
+        ApplyCaptionButtonColors(dark);
     }
 
     /// <summary>
-    /// 根据当前主题设置窗口标题栏按钮（最小化/最大化/关闭）的前景色与悬停态。
-    /// 在接管标题栏（ExtendsContentIntoTitleBar）后，这些按钮由 AppWindow 绘制，
-    /// 不会自动跟随应用主题，必须手动同步。
+    /// 同步非客户区按钮（最小化/最大化/关闭）配色到当前有效主题。
+    /// 接管标题栏后这些按钮由 DWM 绘制、默认跟随系统主题；当应用被强制为与系统
+    /// 不同的主题（例如 Ctrl+Shift+T 切到深色而系统仍是浅色）时，按钮会因配色相反
+    /// 而几乎不可见。这里按应用有效主题同步，保证明暗两种模式下按钮始终清晰可读，
+    /// 观感与 WinSing 一致。
     /// </summary>
-    private static void ApplyCaptionButtonColors(ApplicationTheme theme)
+    private static void ApplyCaptionButtonColors(bool dark)
     {
         try
         {
             var titleBar = App.CurrentWindow?.AppWindow?.TitleBar;
             if (titleBar is null) return;
 
-            var dark = theme == ApplicationTheme.Dark;
-            var normal = dark ? White : Dark;
+            var fg = dark ? White : Dark;
             var hoverBg = dark
                 ? Color.FromArgb(40, 255, 255, 255)
                 : Color.FromArgb(40, 0, 0, 0);
@@ -190,11 +190,11 @@ public partial class ThemeSettingsViewModel : ObservableObject
                 ? Color.FromArgb(255, 150, 150, 150)
                 : Color.FromArgb(255, 120, 120, 120);
 
-            titleBar.ButtonForegroundColor = normal;
+            titleBar.ButtonForegroundColor = fg;
             titleBar.ButtonBackgroundColor = Color.FromArgb(0, 0, 0, 0);
-            titleBar.ButtonHoverForegroundColor = normal;
+            titleBar.ButtonHoverForegroundColor = fg;
             titleBar.ButtonHoverBackgroundColor = hoverBg;
-            titleBar.ButtonPressedForegroundColor = normal;
+            titleBar.ButtonPressedForegroundColor = fg;
             titleBar.ButtonPressedBackgroundColor = pressedBg;
             titleBar.ButtonInactiveForegroundColor = inactiveFg;
             titleBar.ButtonInactiveBackgroundColor = Color.FromArgb(0, 0, 0, 0);

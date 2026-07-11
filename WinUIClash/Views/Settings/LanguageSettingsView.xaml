@@ -10,15 +10,11 @@
         <StackPanel Spacing="16" Padding="0,0,16,24">
             <!-- 语言选择 -->
             <Border Style="{StaticResource SettingsCardStyle}">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="{Binding Source={StaticResource S}, Path=AppLanguage_Text}" FontSize="14" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding Source={StaticResource S}, Path=AppLanguageSwitchDesc_Text}" FontSize="11" Opacity="0.5" />
-                    <StackPanel Spacing="4">
-                        <RadioButton Content="简体中文" GroupName="Language"
-                                     IsChecked="{x:Bind ViewModel.IsChinese, Mode=TwoWay}" />
-                        <RadioButton Content="English" GroupName="Language"
-                                     IsChecked="{x:Bind ViewModel.IsEnglish, Mode=TwoWay}" />
-                    </StackPanel>
+                <StackPanel Spacing="4">
+                    <RadioButton Content="简体中文" GroupName="Language"
+                                 IsChecked="{x:Bind ViewModel.IsChinese, Mode=TwoWay}" />
+                    <RadioButton Content="English" GroupName="Language"
+                                 IsChecked="{x:Bind ViewModel.IsEnglish, Mode=TwoWay}" />
                 </StackPanel>
             </Border>
         </StackPanel>
