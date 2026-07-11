@@ -41,6 +41,7 @@ public sealed partial class DashboardView : Page
 
         Loaded += async (_, _) =>
         {
+            _textFormat?.Dispose();
             await ViewModel.InitializeAsync();
             _textFormat = new CanvasTextFormat { FontSize = 9, FontFamily = "Consolas" };
             SpeedChart.ActualThemeChanged += SpeedChart_ThemeChanged;
@@ -48,6 +49,8 @@ public sealed partial class DashboardView : Page
         };
         Unloaded += (_, _) =>
         {
+            _textFormat?.Dispose();
+            _textFormat = null;
             ViewModel.TrafficHistory.CollectionChanged -= _chartChangedHandler;
             SpeedChart.ActualThemeChanged -= SpeedChart_ThemeChanged;
         };
