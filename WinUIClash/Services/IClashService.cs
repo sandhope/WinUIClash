@@ -54,7 +54,6 @@ public interface IClashService
 
     // ── 网络检测 ──
     Task<IpInfo> GetIpInfoAsync();
-    Task<string> QueryDnsAsync(string name, string type = "A");
 
     // ── 外部提供者 ──
     Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync();

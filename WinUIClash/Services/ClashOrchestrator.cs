@@ -259,7 +259,6 @@ public class ClashOrchestrator : IClashService
     // ── Network ──
 
     public Task<IpInfo> GetIpInfoAsync() => _activeService.GetIpInfoAsync();
-    public Task<string> QueryDnsAsync(string name, string type = "A") => _activeService.QueryDnsAsync(name, type);
 
     // ── External Providers ──
 

@@ -448,26 +448,6 @@ public class HttpClashService : IClashService, IDisposable
         }
     }
 
-    public async Task<string> QueryDnsAsync(string name, string type = "A")
-    {
-        var resp = await _http.GetAsync($"/dns?name={Uri.EscapeDataString(name)}&type={Uri.EscapeDataString(type)}");
-        resp.EnsureSuccessStatusCode();
-        var json = await resp.Content.ReadAsStringAsync();
-        using var doc = JsonDocument.Parse(json);
-        if (doc.RootElement.TryGetProperty("Answer", out var answer))
-        {
-            var lines = new List<string>();
-            foreach (var item in answer.EnumerateArray())
-            {
-                var data = item.TryGetProperty("data", out var d) ? d.GetString() ?? "" : "";
-                var rtype = item.TryGetProperty("type", out var t) ? t.GetInt32() : 0;
-                lines.Add($"{data}  (type {rtype})");
-            }
-            return lines.Count > 0 ? string.Join("\n", lines) : "No answer";
-        }
-        return "No answer";
-    }
-
     // ── 外部提供者 ──
 
     public async Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync()
