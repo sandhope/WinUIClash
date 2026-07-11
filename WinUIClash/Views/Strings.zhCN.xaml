@@ -423,6 +423,11 @@
     <x:String x:Key="ResUpdateAllDone.Text">更新完成</x:String>
     <x:String x:Key="ResHealthCheckDone.Text">健康检查完成</x:String>
 
+    <!-- ToolTips / extra button labels -->
+    <x:String x:Key="ToolsBack.ToolTip">返回</x:String>
+    <x:String x:Key="ProfilesMore.Content">更多</x:String>
+    <x:String x:Key="ResHealthCheck.ToolTip">健康检查</x:String>
+
     <!-- Messages -->
     <x:String x:Key="BasicConfigAppliedTitle.Text">设置已生效</x:String>
     <x:String x:Key="BasicConfigAppliedMsg.Text">配置更改已应用到运行中的核心。</x:String>

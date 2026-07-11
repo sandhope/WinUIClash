@@ -422,6 +422,11 @@
     <x:String x:Key="ResUpdateAllDone.Text">Update complete</x:String>
     <x:String x:Key="ResHealthCheckDone.Text">Health Check Complete</x:String>
 
+    <!-- ToolTips / extra button labels -->
+    <x:String x:Key="ToolsBack.ToolTip">Back</x:String>
+    <x:String x:Key="ProfilesMore.Content">More</x:String>
+    <x:String x:Key="ResHealthCheck.ToolTip">Health Check</x:String>
+
     <!-- Messages -->
     <x:String x:Key="BasicConfigAppliedTitle.Text">Settings Applied</x:String>
     <x:String x:Key="BasicConfigAppliedMsg.Text">Configuration changes have been applied to the running core.</x:String>
