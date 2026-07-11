@@ -12,6 +12,7 @@
     <x:String x:Key="NavRules.Content">Rules</x:String>
     <x:String x:Key="NavLogs.Content">Logs</x:String>
     <x:String x:Key="NavTools.Content">Tools</x:String>
+    <x:String x:Key="NavShortcuts.Content">Shortcuts</x:String>
 
     <!-- Dashboard -->
     <x:String x:Key="DashUploadSpeed.Text">Upload</x:String>
@@ -116,8 +117,6 @@
     <x:String x:Key="ConfigUserAgentDesc.Text">UA used when downloading subscriptions</x:String>
 
     <!-- App Settings -->
-    <x:String x:Key="AppLanguage.Text">Language</x:String>
-    <x:String x:Key="AppLanguageDesc.Text">Interface display language</x:String>
     <x:String x:Key="AppMinimizeOnExit.Text">Minimize to Tray</x:String>
     <x:String x:Key="AppMinimizeOnExitDesc.Text">Minimize to system tray instead of exiting when closing window</x:String>
     <x:String x:Key="AppAutoLaunch.Text">Auto Start</x:String>
@@ -234,9 +233,6 @@
 
     <!-- StatusBar -->
     <x:String x:Key="StatusBarSystemProxy.Text">System Proxy</x:String>
-    <x:String x:Key="SearchBox.PlaceholderText">Search… (Ctrl+F)</x:String>
-    <x:String x:Key="SearchCategoryPage.Text">Page</x:String>
-    <x:String x:Key="SearchCategorySettings.Text">Settings</x:String>
     <x:String x:Key="ProfilesFallbackLabel.Text">Subscription</x:String>
 
     <!-- Basic Config - Section Headers -->
@@ -249,7 +245,6 @@
     <x:String x:Key="AppOther.Text">Other</x:String>
     <x:String x:Key="AppSilentLaunch.Text">Silent Start</x:String>
     <x:String x:Key="AppSilentLaunchDesc.Text">Start minimized without showing main window</x:String>
-    <x:String x:Key="AppLanguageSwitchDesc.Text">Language changes take effect immediately</x:String>
 
     <!-- Theme - RadioButton Content -->
     <x:String x:Key="ThemeSystem.Content">System</x:String>
@@ -284,6 +279,7 @@
     <x:String x:Key="ToolsThemeSettingsSub.Text">Light/dark mode, accent color</x:String>
     <x:String x:Key="ToolsLanguageSub.Text">Interface display language</x:String>
     <x:String x:Key="ToolsAboutSub.Text">Version info, project links</x:String>
+    <x:String x:Key="ToolsShortcutsSub.Text">View all keyboard shortcuts</x:String>
 
     <!-- Proxies - Additional -->
     <x:String x:Key="ProxyTitle.Text">Proxies</x:String>
@@ -527,7 +523,6 @@
     <!-- Keyboard Help (F1) -->
     <x:String x:Key="HelpTitle.Text">Keyboard Shortcuts</x:String>
     <x:String x:Key="HelpNav.Text">Navigate to page</x:String>
-    <x:String x:Key="HelpSearch.Text">Focus search box</x:String>
     <x:String x:Key="HelpRefresh.Text">Refresh current page</x:String>
     <x:String x:Key="HelpSidebar.Text">Toggle sidebar</x:String>
     <x:String x:Key="HelpMinimize.Text">Minimize to tray</x:String>
@@ -539,7 +534,16 @@
     <x:String x:Key="HelpSettings.Text">Open settings</x:String>
     <x:String x:Key="HelpQuit.Text">Quit application</x:String>
     <x:String x:Key="HelpShowHelp.Text">Show this help</x:String>
+    <x:String x:Key="ShortcutsTitle.Text">Keyboard Shortcuts</x:String>
     <x:String x:Key="HelpCyclePage.Text">Cycle through pages</x:String>
     <x:String x:Key="HelpEscape.Text">Clear search / dismiss notification</x:String>
+
+    <!-- Shortcuts table -->
+    <x:String x:Key="ShortcutColKey.Text">Shortcut</x:String>
+    <x:String x:Key="ShortcutColDesc.Text">Description</x:String>
+    <x:String x:Key="ShortcutCatNav.Text">Navigation</x:String>
+    <x:String x:Key="ShortcutCatPage.Text">Page actions</x:String>
+    <x:String x:Key="ShortcutCatCore.Text">Core &amp; proxy</x:String>
+    <x:String x:Key="ShortcutCatApp.Text">Application</x:String>
 
 </ResourceDictionary>

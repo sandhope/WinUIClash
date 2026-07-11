@@ -120,6 +120,26 @@
                         </Grid>
                     </Border>
                 </Button>
+
+                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                        Click="SettingItem_Click" Tag="Shortcuts"
+                        Padding="0" Background="Transparent" BorderThickness="0">
+                    <Border Style="{StaticResource SettingsCardStyle}">
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <fluent:SymbolIcon Symbol="Keyboard" FontSize="18" VerticalAlignment="Center" Opacity="0.7" />
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=NavShortcuts_Content}" FontSize="13" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=ToolsShortcutsSub_Text}" FontSize="11" Opacity="0.5" />
+                            </StackPanel>
+                            <fluent:SymbolIcon Grid.Column="2" Symbol="ChevronRight" FontSize="12" Opacity="0.4" VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                </Button>
             </StackPanel>
         </ScrollViewer>
 

@@ -123,9 +123,13 @@ public sealed partial class MainWindow : Window
         {
             var settings = ServiceLocator.Get<AppSettings>();
 
-            // 恢复窗口大小
-            AppWindow.Resize(new Windows.Graphics.SizeInt32(
-                settings.WindowWidth, settings.WindowHeight));
+            // 恢复窗口大小（与 WinSing 一致：仅当存在已保存的尺寸时才应用，
+            // 否则使用系统默认尺寸，而不是强制一个固定默认值）
+            if (settings.WindowWidth > 0 && settings.WindowHeight > 0)
+            {
+                AppWindow.Resize(new Windows.Graphics.SizeInt32(
+                    settings.WindowWidth, settings.WindowHeight));
+            }
 
             // 恢复窗口位置（如果之前保存过）
             if (settings.WindowX != 0 || settings.WindowY != 0)
@@ -203,16 +207,6 @@ public sealed partial class MainWindow : Window
         return RootNavigation.SelectedItem is NavigationViewItem item ? item.Tag as string : null;
     }
 
-    // ── 侧边栏紧凑/展开切换 ───────────────────────────────────────────────────
-
-    private void SidebarToggleButton_Click(object sender, RoutedEventArgs e)
-    {
-        RootNavigation.PaneDisplayMode =
-            RootNavigation.PaneDisplayMode == NavigationViewPaneDisplayMode.Left
-                ? NavigationViewPaneDisplayMode.LeftCompact
-                : NavigationViewPaneDisplayMode.Left;
-    }
-
     // ── 键盘快捷键 ──────────────────────────────────────────────────────────────
 
     private void InitKeyboardShortcuts()
@@ -232,24 +226,16 @@ public sealed partial class MainWindow : Window
             accel.Invoked += (_, _) =>
             {
                 NavigateTo(tag);
-                // 同步选中侧边栏
-                if (i < RootNavigation.MenuItems.Count)
-                    RootNavigation.SelectedItem = RootNavigation.MenuItems[i];
+                // 同步选中侧边栏：按 Tag 查找对应项，避免捕获循环变量 i
+                // （for 循环的 i 在闭包中被共享，触发时恒为 9，导致 SelectedItem 不更新）
+                var item = RootNavigation.MenuItems
+                    .OfType<NavigationViewItem>()
+                    .FirstOrDefault(m => m.Tag as string == tag);
+                if (item != null)
+                    RootNavigation.SelectedItem = item;
             };
             RootGrid.KeyboardAccelerators.Add(accel);
         }
-
-        // Ctrl+F 聚焦搜索框
-        var searchAccel = new KeyboardAccelerator
-        {
-            Key = Windows.System.VirtualKey.F,
-            Modifiers = Windows.System.VirtualKeyModifiers.Control,
-        };
-        searchAccel.Invoked += (_, _) =>
-        {
-            SearchBox.Focus(FocusState.Keyboard);
-        };
-        RootGrid.KeyboardAccelerators.Add(searchAccel);
 
         // Ctrl+Q 退出
         var quitAccel = new KeyboardAccelerator
@@ -339,7 +325,7 @@ public sealed partial class MainWindow : Window
         {
             Key = Windows.System.VirtualKey.F1,
         };
-        helpAccel.Invoked += async (_, _) => await ShowKeyboardHelpAsync();
+        helpAccel.Invoked += (_, _) => OpenShortcuts();
         RootGrid.KeyboardAccelerators.Add(helpAccel);
 
         // Ctrl+Tab 下一个页面
@@ -360,18 +346,14 @@ public sealed partial class MainWindow : Window
         prevAccel.Invoked += (_, _) => CyclePage(-1);
         RootGrid.KeyboardAccelerators.Add(prevAccel);
 
-        // Escape 清除搜索框或关闭通知栏
+        // Escape 关闭通知栏
         var escAccel = new KeyboardAccelerator
         {
             Key = Windows.System.VirtualKey.Escape,
         };
         escAccel.Invoked += (_, _) =>
         {
-            if (!string.IsNullOrEmpty(SearchBox.Text))
-            {
-                SearchBox.Text = "";
-            }
-            else if (NotificationBar.IsOpen)
+            if (NotificationBar.IsOpen)
             {
                 NotificationBar.IsOpen = false;
             }
@@ -484,68 +466,27 @@ public sealed partial class MainWindow : Window
             NavigateTo(tag);
     }
 
-    private async Task ShowKeyboardHelpAsync()
+    /// <summary>
+    /// 打开「工具 → 快捷键」子页面，作为集中展示所有快捷键的入口（F1 触发）。
+    /// </summary>
+    private void OpenShortcuts()
     {
-        var shortcuts = new (string Key, string Desc)[]
-        {
-            ("Ctrl+1~9", LocalizationHelper.GetString("HelpNav.Text")),
-            ("Ctrl+Tab", LocalizationHelper.GetString("HelpCyclePage.Text")),
-            ("Ctrl+F", LocalizationHelper.GetString("HelpSearch.Text")),
-            ("F5 / Ctrl+R", LocalizationHelper.GetString("HelpRefresh.Text")),
-            ("Ctrl+B", LocalizationHelper.GetString("HelpSidebar.Text")),
-            ("Ctrl+W", LocalizationHelper.GetString("HelpMinimize.Text")),
-            ("Ctrl+P", LocalizationHelper.GetString("HelpCoreToggle.Text")),
-            ("Ctrl+Shift+S", LocalizationHelper.GetString("HelpProxyToggle.Text")),
-            ("Ctrl+Shift+T", LocalizationHelper.GetString("HelpThemeToggle.Text")),
-            ("Ctrl+Shift+D", LocalizationHelper.GetString("HelpCloseAllConns.Text")),
-            ("Ctrl+E", LocalizationHelper.GetString("HelpExport.Text")),
-            ("Ctrl+,", LocalizationHelper.GetString("HelpSettings.Text")),
-            ("Ctrl+Q", LocalizationHelper.GetString("HelpQuit.Text")),
-            ("Escape", LocalizationHelper.GetString("HelpEscape.Text")),
-            ("F1", LocalizationHelper.GetString("HelpShowHelp.Text")),
-        };
+        NavigateTo("Tools");
+        var toolIndex = PageMap.Keys.ToList().IndexOf("Tools");
+        if (toolIndex >= 0 && toolIndex < RootNavigation.MenuItems.Count)
+            RootNavigation.SelectedItem = RootNavigation.MenuItems[toolIndex];
 
-        var panel = new StackPanel { Spacing = 6, MinWidth = 360 };
-        foreach (var (key, desc) in shortcuts)
+        _dispatcher.TryEnqueue(() =>
         {
-            var row = new Grid { ColumnSpacing = 16 };
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-            var keyText = new TextBlock
+            try
             {
-                Text = key,
-                FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas"),
-                FontSize = 12,
-                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                VerticalAlignment = VerticalAlignment.Center,
-            };
-            Grid.SetColumn(keyText, 0);
-
-            var descText = new TextBlock
-            {
-                Text = desc,
-                FontSize = 12,
-                Opacity = 0.7,
-                VerticalAlignment = VerticalAlignment.Center,
-                TextWrapping = TextWrapping.Wrap,
-            };
-            Grid.SetColumn(descText, 1);
-
-            row.Children.Add(keyText);
-            row.Children.Add(descText);
-            panel.Children.Add(row);
-        }
-
-        var dialog = new ContentDialog
-        {
-            Title = LocalizationHelper.GetString("HelpTitle.Text"),
-            XamlRoot = (this.Content as FrameworkElement)?.XamlRoot,
-            CloseButtonText = LocalizationHelper.GetString("CommonClose.Content"),
-            Content = panel,
-        };
-
-        await dialog.ShowAsync();
+                var toolsVm = ServiceLocator.Get<ViewModels.ToolsViewModel>();
+                toolsVm.OpenSettingCommand.Execute("Shortcuts");
+                if (ContentFrame.Content is Views.ToolsView toolsView)
+                    toolsView.SyncSubPage(toolsVm.CurrentPage);
+            }
+            catch { }
+        });
     }
 
     private void RefreshCurrentPage()
@@ -554,103 +495,6 @@ public sealed partial class MainWindow : Window
         {
             ContentFrame.Navigate(pageType);
         }
-    }
-
-    // ── 搜索 ──────────────────────────────────────────────────────────────────
-
-    private record SearchSuggestion(string Title, string Tag, string Category);
-
-    private SearchSuggestion[]? _allSuggestions;
-    private SearchSuggestion[] AllSuggestions => _allSuggestions ??=
-    [
-        new(LocalizationHelper.GetString("NavDashboard.Content"), "Dashboard", LocalizationHelper.GetString("SearchCategoryPage.Text")),
-        new(LocalizationHelper.GetString("NavProxies.Content"), "Proxies", LocalizationHelper.GetString("SearchCategoryPage.Text")),
-        new(LocalizationHelper.GetString("NavProfiles.Content"), "Profiles", LocalizationHelper.GetString("SearchCategoryPage.Text")),
-        new(LocalizationHelper.GetString("NavRequests.Content"), "Requests", LocalizationHelper.GetString("SearchCategoryPage.Text")),
-        new(LocalizationHelper.GetString("NavConnections.Content"), "Connections", LocalizationHelper.GetString("SearchCategoryPage.Text")),
-        new(LocalizationHelper.GetString("NavResources.Content"), "Resources", LocalizationHelper.GetString("SearchCategoryPage.Text")),
-        new(LocalizationHelper.GetString("NavRules.Content"), "Rules", LocalizationHelper.GetString("SearchCategoryPage.Text")),
-        new(LocalizationHelper.GetString("NavLogs.Content"), "Logs", LocalizationHelper.GetString("SearchCategoryPage.Text")),
-        new(LocalizationHelper.GetString("NavTools.Content"), "Tools", LocalizationHelper.GetString("SearchCategoryPage.Text")),
-        new(LocalizationHelper.GetString("SettingsLanguage.Text"), "Tools|LanguageSettings", LocalizationHelper.GetString("SearchCategorySettings.Text")),
-        new(LocalizationHelper.GetString("SettingsBasicConfig.Text"), "Tools|BasicConfig", LocalizationHelper.GetString("SearchCategorySettings.Text")),
-        new(LocalizationHelper.GetString("SettingsTheme.Text"), "Tools|ThemeSettings", LocalizationHelper.GetString("SearchCategorySettings.Text")),
-        new(LocalizationHelper.GetString("SettingsApp.Text"), "Tools|AppSettings", LocalizationHelper.GetString("SearchCategorySettings.Text")),
-        new(LocalizationHelper.GetString("SettingsAbout.Text"), "Tools|About", LocalizationHelper.GetString("SearchCategorySettings.Text")),
-    ];
-
-    private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-    {
-        if (args.Reason != AutoSuggestionBoxTextChangeReason.UserInput) return;
-
-        var query = sender.Text.Trim();
-        if (string.IsNullOrEmpty(query))
-        {
-            sender.ItemsSource = null;
-            return;
-        }
-
-        var matches = AllSuggestions
-            .Where(s => s.Title.Contains(query, StringComparison.OrdinalIgnoreCase)
-                     || s.Category.Contains(query, StringComparison.OrdinalIgnoreCase))
-            .Select(s => $"{s.Category} › {s.Title}")
-            .ToList();
-
-        sender.ItemsSource = matches;
-    }
-
-    private void SearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
-    {
-        var chosen = args.SelectedItem?.ToString() ?? "";
-        // 解析 "类别 › 名称" 格式
-        var parts = chosen.Split(" › ", 2);
-        if (parts.Length < 2) return;
-
-        var category = parts[0];
-        var title = parts[1];
-
-        var match = AllSuggestions.FirstOrDefault(s => s.Title == title);
-        if (match is null) return;
-
-        if (match.Tag.Contains('|'))
-        {
-            // 设置子页面: 先导航到 Tools，再打开子页面
-            var segments = match.Tag.Split('|');
-            NavigateTo(segments[0]);
-            // 同步侧边栏
-            var toolIndex = PageMap.Keys.ToList().IndexOf(segments[0]);
-            if (toolIndex >= 0 && toolIndex < RootNavigation.MenuItems.Count)
-                RootNavigation.SelectedItem = RootNavigation.MenuItems[toolIndex];
-
-            // 延迟发送子页面导航消息
-            _dispatcher.TryEnqueue(() =>
-            {
-                try
-                {
-                    var toolsVm = ServiceLocator.Get<ViewModels.ToolsViewModel>();
-                    var pageKey = segments[1]; // "BasicConfig", "ThemeSettings" 等
-                    if (!string.IsNullOrEmpty(pageKey))
-                    {
-                        toolsVm.OpenSettingCommand.Execute(pageKey);
-                        // ToolsView 需要在 code-behind 中同步 Content
-                        if (ContentFrame.Content is Views.ToolsView toolsView)
-                        {
-                            toolsView.SyncSubPage(toolsVm.CurrentPage);
-                        }
-                    }
-                }
-                catch { }
-            });
-        }
-        else
-        {
-            NavigateTo(match.Tag);
-            var index = PageMap.Keys.ToList().IndexOf(match.Tag);
-            if (index >= 0 && index < RootNavigation.MenuItems.Count)
-                RootNavigation.SelectedItem = RootNavigation.MenuItems[index];
-        }
-
-        sender.Text = "";
     }
 
     // ── 窗口标题 ────────────────────────────────────────────────────────────
@@ -709,23 +553,11 @@ public sealed partial class MainWindow : Window
                     _lastConnectionCount = connections.Count;
                     ConnectionCountText.Text = connections.Count.ToString();
                     UpdateTrayTooltip();
-
-                    // Update navigation badge for connections
-                    if (connections.Count > 0)
-                    {
-                        ConnectionsBadge.Value = connections.Count;
-                        ConnectionsBadge.Visibility = Visibility.Visible;
-                    }
-                    else
-                    {
-                        ConnectionsBadge.Visibility = Visibility.Collapsed;
-                    }
                 }
                 catch
                 {
                     _lastConnectionCount = 0;
                     ConnectionCountText.Text = "0";
-                    ConnectionsBadge.Visibility = Visibility.Collapsed;
                 }
 
                 // Update memory usage
@@ -740,32 +572,6 @@ public sealed partial class MainWindow : Window
                 }
             };
             _statusBarConnTimer.Start();
-
-            // Subscribe to request count changes for the requests badge
-            try
-            {
-                var requestsVm = ServiceLocator.Get<ViewModels.RequestsViewModel>();
-                requestsVm.PropertyChanged += (_, e) =>
-                {
-                    if (e.PropertyName == nameof(ViewModels.RequestsViewModel.RequestCount))
-                    {
-                        _dispatcher.TryEnqueue(() =>
-                        {
-                            var count = requestsVm.RequestCount;
-                            if (count > 0)
-                            {
-                                RequestsBadge.Value = count;
-                                RequestsBadge.Visibility = Visibility.Visible;
-                            }
-                            else
-                            {
-                                RequestsBadge.Visibility = Visibility.Collapsed;
-                            }
-                        });
-                    }
-                };
-            }
-            catch { }
         }
         catch { /* ServiceLocator 未初始化时忽略 */ }
     }

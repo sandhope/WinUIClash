@@ -42,99 +42,58 @@
             x:Name="RootNavigation"
             Grid.Row="1"
             PaneDisplayMode="Left"
-            IsPaneToggleButtonVisible="False"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False"
             AlwaysShowHeader="False"
-            OpenPaneLength="200"
             SelectionChanged="RootNavigation_SelectionChanged">
 
-            <NavigationView.PaneHeader>
-                <StackPanel Margin="16,12,12,8" Spacing="8">
-                    <AutoSuggestBox
-                        x:Name="SearchBox"
-                        PlaceholderText="{Binding Source={StaticResource S}, Path=SearchBox_PlaceholderText}"
-                        QueryIcon="Find"
-                        TextChanged="SearchBox_TextChanged"
-                        SuggestionChosen="SearchBox_SuggestionChosen"
-                        FontSize="12" />
-                </StackPanel>
-            </NavigationView.PaneHeader>
-
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavDashboard_Content}" Tag="Dashboard"
-                                    ToolTipService.ToolTip="Ctrl+1">
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavDashboard_Content}" Tag="Dashboard">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Home" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavProxies_Content}" Tag="Proxies"
-                                    ToolTipService.ToolTip="Ctrl+2">
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavProxies_Content}" Tag="Proxies">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Globe" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavProfiles_Content}" Tag="Profiles"
-                                    ToolTipService.ToolTip="Ctrl+3">
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavProfiles_Content}" Tag="Profiles">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Folder" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavRequests_Content}" Tag="Requests"
-                                    ToolTipService.ToolTip="Ctrl+4">
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavRequests_Content}" Tag="Requests">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="List" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.InfoBadge>
-                        <InfoBadge x:Name="RequestsBadge" Value="0" Visibility="Collapsed" />
-                    </NavigationViewItem.InfoBadge>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavConnections_Content}" Tag="Connections"
-                                    ToolTipService.ToolTip="Ctrl+5">
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavConnections_Content}" Tag="Connections">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Link" />
                     </NavigationViewItem.Icon>
-                    <NavigationViewItem.InfoBadge>
-                        <InfoBadge x:Name="ConnectionsBadge" Value="0" Visibility="Collapsed" />
-                    </NavigationViewItem.InfoBadge>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavResources_Content}" Tag="Resources"
-                                    ToolTipService.ToolTip="Ctrl+6">
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavResources_Content}" Tag="Resources">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Library" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavRules_Content}" Tag="Rules"
-                                    ToolTipService.ToolTip="Ctrl+7">
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavRules_Content}" Tag="Rules">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Filter" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavLogs_Content}" Tag="Logs"
-                                    ToolTipService.ToolTip="Ctrl+8">
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavLogs_Content}" Tag="Logs">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Notepad" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavTools_Content}" Tag="Tools"
-                                    ToolTipService.ToolTip="Ctrl+9">
+                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavTools_Content}" Tag="Tools">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Wrench" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
-
-            <NavigationView.PaneFooter>
-                <Button
-                    x:Name="SidebarToggleButton"
-                    Click="SidebarToggleButton_Click"
-                    HorizontalAlignment="Center"
-                    Margin="0,0,0,16"
-                    Background="Transparent"
-                    BorderThickness="0">
-                    <fluent:SymbolIcon Symbol="Navigation" />
-                </Button>
-            </NavigationView.PaneFooter>
 
             <Frame x:Name="ContentFrame" />
         </NavigationView>

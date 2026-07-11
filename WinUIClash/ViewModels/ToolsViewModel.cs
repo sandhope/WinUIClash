@@ -39,6 +39,7 @@ public partial class ToolsViewModel : ObservableObject
         "BasicConfig" => LocalizationHelper.GetString("SettingsBasicConfig.Text"),
         "AppSettings" => LocalizationHelper.GetString("SettingsApp.Text"),
         "About" => LocalizationHelper.GetString("SettingsAbout.Text"),
+        "Shortcuts" => LocalizationHelper.GetString("ShortcutsTitle.Text"),
         _ => key
     };
 
@@ -87,6 +88,7 @@ public partial class ToolsViewModel : ObservableObject
             "BasicConfig" => new Views.Settings.BasicConfigView(),
             "AppSettings" => new Views.Settings.AppSettingsView(),
             "About" => new Views.Settings.AboutView(),
+            "Shortcuts" => new Views.ShortcutsView(),
             _ => null
         };
     }
