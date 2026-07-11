@@ -238,62 +238,103 @@ public partial class ThemeSettingsViewModel : ObservableObject
         ApplyAccentColorInternal(color);
     }
 
-    private static void ApplyAccentColorInternal(Color color)
-    {
-        if (App.CurrentWindow?.Content is FrameworkElement element)
-        {
-            var res = element.Resources;
-
-            // ── 基础色系（Color） ──
-            res["SystemAccentColor"] = color;
-            res["SystemAccentColorLight1"] = LightenColor(color, 0.2);
-            res["SystemAccentColorLight2"] = LightenColor(color, 0.4);
-            res["SystemAccentColorLight3"] = LightenColor(color, 0.6);
-            res["SystemAccentColorDark1"] = DarkenColor(color, 0.2);
-            res["SystemAccentColorDark2"] = DarkenColor(color, 0.4);
-            res["SystemAccentColorDark3"] = DarkenColor(color, 0.6);
-
-            // ── 填充画刷 ──
-            res["AccentFillColorDefaultBrush"] = Brush(color);
-            res["AccentFillColorSecondaryBrush"] = Brush(color, 0.9);
-            res["AccentFillColorTertiaryBrush"] = Brush(color, 0.8);
-            res["AccentFillColorDisabledBrush"] = Brush(color, 0.36);
-
-            // ── 文本画刷 ──
-            res["AccentTextFillColorPrimaryBrush"] = Brush(color);
-            res["AccentTextFillColorSecondaryBrush"] = Brush(color);
-            res["AccentTextFillColorTertiaryBrush"] = Brush(color, 0.8);
-            res["AccentTextFillColorDisabledBrush"] = Brush(color, 0.36);
-
-            // ── 描边 / 控件边框 ──
-            res["AccentControlElevationBorderBrush"] = Brush(color);
-            res["ControlStrokeColorOnAccentDefaultBrush"] = Brush(color, 0.14);
-            res["ControlStrokeColorOnAccentSecondaryBrush"] = Brush(color, 0.08);
-
-            // ── Accent 上的文本 ──
-            var onAccent = Luminance(color) > 0.5 ? Dark : White;
-            res["TextOnAccentFillColorPrimaryBrush"] = Brush(onAccent);
-            res["TextOnAccentFillColorSecondaryBrush"] = Brush(onAccent, 0.7);
-            res["TextOnAccentFillColorDisabledBrush"] = Brush(onAccent, 0.5);
-            res["TextOnAccentFillColorSelectedTextBrush"] = Brush(onAccent);
-
-            // ── NavigationView 选中态 ──
-            res["NavigationViewSelectionIndicator"] = Brush(color);
-            res["NavigationViewItemBackgroundSelected"] = Brush(color, 0.12);
-            res["NavigationViewItemBackgroundSelectedPointerOver"] = Brush(color, 0.16);
-            res["NavigationViewItemBackgroundSelectedPressed"] = Brush(color, 0.08);
-            res["NavigationViewItemForegroundSelected"] = Brush(color);
-            res["NavigationViewItemForegroundSelectedPointerOver"] = Brush(color);
-            res["NavigationViewItemForegroundSelectedPressed"] = Brush(color);
-            res["NavigationViewItemSeparatorForeground"] = Brush(color, 0.2);
-        }
-    }
-
     private static readonly Color Dark = Color.FromArgb(255, 0, 0, 0);
     private static readonly Color White = Color.FromArgb(255, 255, 255, 255);
 
-    private static SolidColorBrush Brush(Color c, double opacity = 1.0)
-        => new() { Color = opacity < 1.0 ? WithOpacity(c, opacity) : c };
+    // ── 持久化主题色画刷 ──
+    // 只创建一次并注册进资源字典；换色时仅修改其 .Color 属性。
+    // 由于 SolidColorBrush.Color 是依赖属性，任何正在使用该画刷的控件
+    // （含 NavigationView 选中态）都会即时重绘，无需等待 hover 或
+    // 重新进入视觉状态——这正是旧实现每次 new 新实例导致选中底不刷新的根因。
+    private static readonly SolidColorBrush
+        _accentFillDefault = new(), _accentFillSecondary = new(), _accentFillTertiary = new(), _accentFillDisabled = new(),
+        _accentTextPrimary = new(), _accentTextSecondary = new(), _accentTextTertiary = new(), _accentTextDisabled = new(),
+        _accentElevationBorder = new(), _strokeOnAccentDefault = new(), _strokeOnAccentSecondary = new(),
+        _textOnAccentPrimary = new(), _textOnAccentSecondary = new(), _textOnAccentDisabled = new(), _textOnAccentSelected = new(),
+        _navIndicator = new(), _navSelectedBg = new(), _navSelectedBgHover = new(), _navSelectedBgPressed = new(),
+        _navSelectedFg = new(), _navSelectedFgHover = new(), _navSelectedFgPressed = new(), _navSeparator = new();
+
+    private static bool _accentBrushesRegistered;
+
+    private static void ApplyAccentColorInternal(Color color)
+    {
+        if (App.CurrentWindow?.Content is not FrameworkElement element)
+            return;
+
+        var res = element.Resources;
+
+        // 首次调用时把持久画刷注册进资源字典（同一实例长期存在，保证引用稳定）
+        if (!_accentBrushesRegistered)
+        {
+            res["AccentFillColorDefaultBrush"] = _accentFillDefault;
+            res["AccentFillColorSecondaryBrush"] = _accentFillSecondary;
+            res["AccentFillColorTertiaryBrush"] = _accentFillTertiary;
+            res["AccentFillColorDisabledBrush"] = _accentFillDisabled;
+            res["AccentTextFillColorPrimaryBrush"] = _accentTextPrimary;
+            res["AccentTextFillColorSecondaryBrush"] = _accentTextSecondary;
+            res["AccentTextFillColorTertiaryBrush"] = _accentTextTertiary;
+            res["AccentTextFillColorDisabledBrush"] = _accentTextDisabled;
+            res["AccentControlElevationBorderBrush"] = _accentElevationBorder;
+            res["ControlStrokeColorOnAccentDefaultBrush"] = _strokeOnAccentDefault;
+            res["ControlStrokeColorOnAccentSecondaryBrush"] = _strokeOnAccentSecondary;
+            res["TextOnAccentFillColorPrimaryBrush"] = _textOnAccentPrimary;
+            res["TextOnAccentFillColorSecondaryBrush"] = _textOnAccentSecondary;
+            res["TextOnAccentFillColorDisabledBrush"] = _textOnAccentDisabled;
+            res["TextOnAccentFillColorSelectedTextBrush"] = _textOnAccentSelected;
+            res["NavigationViewSelectionIndicator"] = _navIndicator;
+            res["NavigationViewItemBackgroundSelected"] = _navSelectedBg;
+            res["NavigationViewItemBackgroundSelectedPointerOver"] = _navSelectedBgHover;
+            res["NavigationViewItemBackgroundSelectedPressed"] = _navSelectedBgPressed;
+            res["NavigationViewItemForegroundSelected"] = _navSelectedFg;
+            res["NavigationViewItemForegroundSelectedPointerOver"] = _navSelectedFgHover;
+            res["NavigationViewItemForegroundSelectedPressed"] = _navSelectedFgPressed;
+            res["NavigationViewItemSeparatorForeground"] = _navSeparator;
+            _accentBrushesRegistered = true;
+        }
+
+        // ── 基础色系（Color，作为部分默认模板的中间量） ──
+        res["SystemAccentColor"] = color;
+        res["SystemAccentColorLight1"] = LightenColor(color, 0.2);
+        res["SystemAccentColorLight2"] = LightenColor(color, 0.4);
+        res["SystemAccentColorLight3"] = LightenColor(color, 0.6);
+        res["SystemAccentColorDark1"] = DarkenColor(color, 0.2);
+        res["SystemAccentColorDark2"] = DarkenColor(color, 0.4);
+        res["SystemAccentColorDark3"] = DarkenColor(color, 0.6);
+
+        // ── 填充画刷 ──
+        _accentFillDefault.Color = color;
+        _accentFillSecondary.Color = WithOpacity(color, 0.9);
+        _accentFillTertiary.Color = WithOpacity(color, 0.8);
+        _accentFillDisabled.Color = WithOpacity(color, 0.36);
+
+        // ── 文本画刷 ──
+        _accentTextPrimary.Color = color;
+        _accentTextSecondary.Color = color;
+        _accentTextTertiary.Color = WithOpacity(color, 0.8);
+        _accentTextDisabled.Color = WithOpacity(color, 0.36);
+
+        // ── 描边 / 控件边框 ──
+        _accentElevationBorder.Color = color;
+        _strokeOnAccentDefault.Color = WithOpacity(color, 0.14);
+        _strokeOnAccentSecondary.Color = WithOpacity(color, 0.08);
+
+        // ── Accent 上的文本 ──
+        var onAccent = Luminance(color) > 0.5 ? Dark : White;
+        _textOnAccentPrimary.Color = onAccent;
+        _textOnAccentSecondary.Color = WithOpacity(onAccent, 0.7);
+        _textOnAccentDisabled.Color = WithOpacity(onAccent, 0.5);
+        _textOnAccentSelected.Color = onAccent;
+
+        // ── NavigationView 选中态 ──
+        _navIndicator.Color = color;
+        _navSelectedBg.Color = WithOpacity(color, 0.12);
+        _navSelectedBgHover.Color = WithOpacity(color, 0.16);
+        _navSelectedBgPressed.Color = WithOpacity(color, 0.08);
+        _navSelectedFg.Color = color;
+        _navSelectedFgHover.Color = color;
+        _navSelectedFgPressed.Color = color;
+        _navSeparator.Color = WithOpacity(color, 0.2);
+    }
 
     private static Color WithOpacity(Color c, double opacity)
         => Color.FromArgb((byte)(c.A * opacity), c.R, c.G, c.B);
