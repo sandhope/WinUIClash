@@ -67,6 +67,17 @@ public partial class ToolsViewModel : ObservableObject
         _backStack.Clear();
     }
 
+    /// <summary>
+    /// 当页面被 Frame.Navigate 重建后，重新创建子页面实例（因为旧的 UserControl 仍挂在旧页面的可视化树上）
+    /// </summary>
+    public void RecreateCurrentPage()
+    {
+        if (_currentPageKey != null)
+        {
+            CurrentPage = CreatePage(_currentPageKey);
+        }
+    }
+
     private static UserControl? CreatePage(string key)
     {
         return key switch
