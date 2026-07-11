@@ -21,6 +21,30 @@
             <SolidColorBrush x:Key="UploadIndicatorBrush" Color="#4FC3F7" />
             <SolidColorBrush x:Key="DownloadIndicatorBrush" Color="#81C784" />
             <SolidColorBrush x:Key="ActiveBadgeBrush" Color="#4CAF50" />
+
+            <!-- 监控图表主题颜色资源（区分 Light/Dark，供 Win2D 绘制与 tooltip 使用） -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="ChartUploadBrush" Color="#29B6F6" />
+                    <SolidColorBrush x:Key="ChartDownloadBrush" Color="#66BB6A" />
+                    <SolidColorBrush x:Key="ChartGridLineBrush" Color="#E0E0E0" />
+                    <SolidColorBrush x:Key="ChartAxisLabelBrush" Color="#9E9E9E" />
+                    <SolidColorBrush x:Key="ChartBaselineBrush" Color="#BDBDBD" />
+                    <SolidColorBrush x:Key="ChartTooltipBackgroundBrush" Color="#2D2D2D" />
+                    <SolidColorBrush x:Key="ChartTooltipTextBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="ChartTooltipLineBrush" Color="#888888" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="ChartUploadBrush" Color="#4FC3F7" />
+                    <SolidColorBrush x:Key="ChartDownloadBrush" Color="#81C784" />
+                    <SolidColorBrush x:Key="ChartGridLineBrush" Color="#2E2E2E" />
+                    <SolidColorBrush x:Key="ChartAxisLabelBrush" Color="#808080" />
+                    <SolidColorBrush x:Key="ChartBaselineBrush" Color="#4A4A4A" />
+                    <SolidColorBrush x:Key="ChartTooltipBackgroundBrush" Color="#1E1E1E" />
+                    <SolidColorBrush x:Key="ChartTooltipTextBrush" Color="#E0E0E0" />
+                    <SolidColorBrush x:Key="ChartTooltipLineBrush" Color="#AAAAAA" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
