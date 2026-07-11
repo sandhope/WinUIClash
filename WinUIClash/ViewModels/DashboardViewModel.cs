@@ -259,7 +259,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     // ── 网络检测 ──
 
     [ObservableProperty] private string _externalIp = "";
-    [ObservableProperty] private string _countryFlag = "🌐";
+    [ObservableProperty] private string _countryFlag = "---";
     [ObservableProperty] private bool _isCheckingIp;
 
     [RelayCommand]
@@ -603,7 +603,9 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
 
     private static string CountryCodeToFlag(string code)
     {
-        if (string.IsNullOrEmpty(code) || code.Length != 2) return "🌐";
-        return string.Concat(code.ToUpper().Select(c => (char)(0x1F1E6 + c - 'A')));
+        // 使用国家代码文本代替 Unicode 国旗表情，
+        // 因为 Windows 10 的 Segoe UI Emoji 字体不支持区域指示符国旗渲染（显示为白框）。
+        if (string.IsNullOrEmpty(code) || code.Length != 2) return "---";
+        return code.ToUpper();
     }
 }
