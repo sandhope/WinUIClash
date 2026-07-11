@@ -43,7 +43,7 @@ public sealed partial class ProfilesView : Page
             {
                 Title = LocalizationHelper.GetString("ProfilesClipboardTitle.Text"),
                 Content = string.Format(LocalizationHelper.GetString("ProfilesClipboardContent.Text"), text),
-                PrimaryButtonText = LocalizationHelper.GetString("ProfilesImport.Content"),
+                PrimaryButtonText = LocalizationHelper.GetString("ProfilesImport.Text"),
                 CloseButtonText = LocalizationHelper.GetString("CommonCancel.Content"),
                 DefaultButton = ContentDialogButton.Primary,
                 XamlRoot = XamlRoot,
@@ -156,7 +156,7 @@ public sealed partial class ProfilesView : Page
         {
             Title = LocalizationHelper.GetString("ProfilesImportTitle.Text"),
             XamlRoot = XamlRoot,
-            PrimaryButtonText = LocalizationHelper.GetString("ProfilesImport.Content"),
+            PrimaryButtonText = LocalizationHelper.GetString("ProfilesImport.Text"),
             CloseButtonText = LocalizationHelper.GetString("CommonCancel.Content"),
             DefaultButton = ContentDialogButton.Primary,
             Content = new StackPanel
@@ -544,7 +544,7 @@ public sealed partial class ProfilesView : Page
     private void Page_DragOver(object sender, DragEventArgs e)
     {
         e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Copy;
-        e.DragUIOverride.Caption = LocalizationHelper.GetString("ProfilesImport.Content");
+        e.DragUIOverride.Caption = LocalizationHelper.GetString("ProfilesImport.Text");
     }
 
     private async void Page_Drop(object sender, DragEventArgs e)
