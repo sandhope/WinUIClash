@@ -67,6 +67,12 @@ public sealed partial class MainWindow : Window
         Title = "WinUIClash";
         AppWindow.SetIcon("Assets/AppIcon.ico");
 
+        // 接管标题栏：将内容延伸到非客户区并指定自定义标题栏，
+        // 使其跟随应用明暗主题（修复深色模式下标题栏仍为浅色的问题），
+        // 同时与左侧导航栏在视觉上融为一体。
+        ExtendsContentIntoTitleBar = true;
+        SetTitleBar(AppTitleBar);
+
         // 从设置恢复窗口状态
         RestoreWindowState();
 
@@ -655,10 +661,13 @@ public sealed partial class MainWindow : Window
         {
             var profilesVm = ServiceLocator.Get<ViewModels.ProfilesViewModel>();
             var label = profilesVm.ActiveProfile?.Label;
-            Title = string.IsNullOrEmpty(label) ? "WinUIClash" : $"WinUIClash — {label}";
+            var text = string.IsNullOrEmpty(label) ? "WinUIClash" : $"WinUIClash — {label}";
+            AppTitleBar.Title = text;
+            Title = text;
         }
         catch
         {
+            AppTitleBar.Title = "WinUIClash";
             Title = "WinUIClash";
         }
     }
