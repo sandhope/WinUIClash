@@ -60,11 +60,22 @@ public sealed partial class DashboardView : Page
         if (SpeedChart.ActualWidth <= 0 || SpeedChart.ActualHeight <= 0) return;
 
         SpeedChart.Children.Clear();
-        var history = ViewModel.TrafficHistory;
-        if (history.Count < 2) return;
-
         double w = SpeedChart.ActualWidth;
         double h = SpeedChart.ActualHeight;
+
+        var history = ViewModel.TrafficHistory;
+
+        // 始终绘制基线（即使没有数据）
+        var baseColor = new SolidColorBrush(Windows.UI.Color.FromArgb(35, 128, 128, 128));
+        var baseLine = new Line
+        {
+            X1 = 0, Y1 = h - 1, X2 = w, Y2 = h - 1,
+            Stroke = baseColor,
+            StrokeThickness = 1,
+        };
+        SpeedChart.Children.Add(baseLine);
+
+        if (history.Count < 2) return;
 
         long maxVal = 1;
         foreach (var t in history)

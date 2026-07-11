@@ -45,7 +45,6 @@
     <x:String x:Key="DashSystemInfo.Text">System Info</x:String>
     <x:String x:Key="DashRefreshMemory.Content">Recycle Memory</x:String>
     <x:String x:Key="DashCoreVersion.Text">Core Version</x:String>
-    <x:String x:Key="DashForceGc.Content">Force GC</x:String>
     <x:String x:Key="DashIpLocalFetching.Text">Fetching…</x:String>
     <x:String x:Key="DashIpLocalFailed.Text">Not available</x:String>
 
@@ -430,22 +429,10 @@
     <!-- Messages -->
     <x:String x:Key="BasicConfigAppliedTitle.Text">Settings Applied</x:String>
     <x:String x:Key="BasicConfigAppliedMsg.Text">Configuration changes have been applied to the running core.</x:String>
-    <x:String x:Key="DashDnsPlaceholder.PlaceholderText">Domain name…</x:String>
-    <x:String x:Key="DashDnsFailed.Text">DNS query failed</x:String>
     <x:String x:Key="ProfilesSyncDoneTitle.Text">Sync Complete</x:String>
     <x:String x:Key="ProfilesSyncAllDoneMsg.Text">All subscriptions updated</x:String>
     <x:String x:Key="ProfilesSwitchedTitle.Text">Profile Switched</x:String>
     <x:String x:Key="ProfilesSwitching.Text">Switching profile…</x:String>
-    <x:String x:Key="DashFlushFakeIp.Content">Flush Fake-IP Cache</x:String>
-    <x:String x:Key="DashSpeedTest.Text">Speed Test</x:String>
-    <x:String x:Key="DashSpeedTestStart.Text">Start</x:String>
-    <x:String x:Key="DashSpeedTestRunning.Text">Testing…</x:String>
-    <x:String x:Key="DashSpeedTestFailed.Text">Test failed</x:String>
-    <x:String x:Key="DashQuickActions.Text">Quick Actions</x:String>
-    <x:String x:Key="DashCloseAllConns.Text">Close All</x:String>
-    <x:String x:Key="DashForceGcLabel.Text">Force GC</x:String>
-    <x:String x:Key="DashFlushFakeIpLabel.Text">Flush Cache</x:String>
-    <x:String x:Key="DashResetTrafficLabel.Text">Reset</x:String>
     <x:String x:Key="NetworkChanged.Text">Network Changed</x:String>
     <x:String x:Key="NetworkChangedMsg.Text">Network connectivity changed, reconnecting…</x:String>
     <x:String x:Key="NetworkRestored.Text">Network Restored</x:String>

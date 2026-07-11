@@ -37,9 +37,17 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _isRunning;
     [ObservableProperty] private string _statusText = "";
     [ObservableProperty] private SolidColorBrush _statusBrush = new(Color.FromArgb(255, 255, 107, 107));
+    // FAB 启动按钮：状态联动色（停止=绿引导启动 / 运行=橙红提示停止）
+    [ObservableProperty] private SolidColorBrush _startButtonBrush = new(Color.FromArgb(255, 76, 175, 80));
     [ObservableProperty] private string _runtimeText = "";
 
-    partial void OnIsRunningChanged(bool value) => OnPropertyChanged(nameof(CoreToggleText));
+    partial void OnIsRunningChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CoreToggleText));
+        StartButtonBrush = value
+            ? new SolidColorBrush(Color.FromArgb(255, 255, 87, 34))   // 运行时：橙红（提示可停止）
+            : new SolidColorBrush(Color.FromArgb(255, 76, 175, 80));  // 停止时：绿色（引导启动）
+    }
 
     private DateTime? _startTime;
 
@@ -283,28 +291,6 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         }
     }
 
-    // ── DNS 查询 ──
-
-    [ObservableProperty] private string _dnsQueryName = "";
-    [ObservableProperty] private string _dnsQueryType = "A";
-    [ObservableProperty] private string? _dnsResult;
-    public string[] DnsTypeOptions { get; } = ["A", "AAAA", "CNAME", "MX", "TXT", "NS"];
-
-    [RelayCommand]
-    private async Task QueryDnsAsync()
-    {
-        if (string.IsNullOrWhiteSpace(DnsQueryName)) return;
-        try
-        {
-            DnsResult = "…";
-            DnsResult = await _clash.QueryDnsAsync(DnsQueryName.Trim(), DnsQueryType);
-        }
-        catch
-        {
-            DnsResult = LocalizationHelper.GetString("DashDnsFailed.Text");
-        }
-    }
-
     // ── 内存 ──
 
     [ObservableProperty] private string _coreMemory = "--";
@@ -315,149 +301,6 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     {
         var bytes = await _clash.GetCoreMemoryAsync();
         CoreMemory = Converters.ByteFormatter.Format(bytes);
-    }
-
-    [RelayCommand]
-    private async Task ForceGcAsync()
-    {
-        try
-        {
-            await _clash.ForceGcAsync();
-            await RefreshMemoryAsync();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"ForceGC error: {ex.Message}");
-        }
-    }
-
-    // ── Fake-IP 缓存 ──
-
-    [ObservableProperty] private bool _isFlushingCache;
-
-    [RelayCommand]
-    private async Task FlushFakeIpCacheAsync()
-    {
-        IsFlushingCache = true;
-        try
-        {
-            await _clash.FlushFakeIpCacheAsync();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Flush fake-ip cache error: {ex.Message}");
-        }
-        finally
-        {
-            IsFlushingCache = false;
-        }
-    }
-
-    // ── 快速操作 ──
-
-    [RelayCommand]
-    private async Task CloseAllConnectionsAsync()
-    {
-        try
-        {
-            await _clash.CloseAllConnectionsAsync();
-            ActiveConnections = 0;
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Close all connections error: {ex.Message}");
-        }
-    }
-
-    // ── 网速测试 ──
-
-    [ObservableProperty] private bool _isSpeedTesting;
-    [ObservableProperty] private string _speedTestResult = "";
-    [ObservableProperty] private double _speedTestProgress;
-    [ObservableProperty] private string _speedTestUrl = "https://speed.cloudflare.com/__down?bytes=25000000";
-
-    public string[] SpeedTestUrls { get; } =
-    [
-        "https://speed.cloudflare.com/__down?bytes=25000000",
-        "https://speed.cloudflare.com/__down?bytes=100000000",
-        "https://proof.ovh.net/files/1Mb.dat",
-    ];
-
-    public string[] SpeedTestLabels { get; } =
-    [
-        "Cloudflare 25MB",
-        "Cloudflare 100MB",
-        "OVH 1MB",
-    ];
-
-    [ObservableProperty] private int _selectedSpeedTestIndex = 0;
-
-    partial void OnSelectedSpeedTestIndexChanged(int value)
-    {
-        if (value >= 0 && value < SpeedTestUrls.Length)
-            SpeedTestUrl = SpeedTestUrls[value];
-    }
-
-    [RelayCommand]
-    private async Task SpeedTestAsync()
-    {
-        if (IsSpeedTesting) return;
-        IsSpeedTesting = true;
-        SpeedTestResult = LocalizationHelper.GetString("DashSpeedTestRunning.Text");
-        SpeedTestProgress = 0;
-
-        try
-        {
-            using var httpClient = new System.Net.Http.HttpClient();
-            httpClient.Timeout = TimeSpan.FromSeconds(30);
-
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            long totalBytes = 0;
-
-            using var response = await httpClient.GetAsync(SpeedTestUrl, System.Net.Http.HttpCompletionOption.ResponseHeadersRead);
-            response.EnsureSuccessStatusCode();
-
-            using var stream = await response.Content.ReadAsStreamAsync();
-            var buffer = new byte[81920];
-            int bytesRead;
-            long contentLength = response.Content.Headers.ContentLength ?? 0;
-
-            while ((bytesRead = await stream.ReadAsync(buffer)) > 0)
-            {
-                totalBytes += bytesRead;
-                if (contentLength > 0)
-                    SpeedTestProgress = (double)totalBytes / contentLength * 100;
-            }
-
-            sw.Stop();
-            var seconds = sw.Elapsed.TotalSeconds;
-            var bytesPerSec = totalBytes / seconds;
-            var speedMbps = (bytesPerSec * 8) / 1_000_000;
-
-            SpeedTestResult = speedMbps >= 1
-                ? $"{speedMbps:F1} Mbps ({Converters.ByteFormatter.Format(totalBytes)} / {seconds:F1}s)"
-                : $"{bytesPerSec:F0} B/s ({Converters.ByteFormatter.Format(totalBytes)} / {seconds:F1}s)";
-        }
-        catch (Exception ex)
-        {
-            SpeedTestResult = $"{LocalizationHelper.GetString("DashSpeedTestFailed.Text")}: {ex.Message}";
-        }
-        finally
-        {
-            IsSpeedTesting = false;
-            SpeedTestProgress = 0;
-        }
-    }
-
-    // ── 复制 DNS 结果 ──
-
-    [RelayCommand]
-    private void CopyDnsResult()
-    {
-        if (string.IsNullOrEmpty(DnsResult)) return;
-        var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
-        dp.SetText(DnsResult);
-        Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
     }
 
     // ── 内网 IP ──

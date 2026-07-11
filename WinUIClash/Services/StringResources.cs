@@ -76,7 +76,6 @@ public class StringResources : INotifyPropertyChanged
     public string DashSystemInfo_Text => Get("DashSystemInfo.Text");
     public string DashRefreshMemory_Content => Get("DashRefreshMemory.Content");
     public string DashCoreVersion_Text => Get("DashCoreVersion.Text");
-    public string DashForceGc_Content => Get("DashForceGc.Content");
     public string DashIpLocalFetching_Text => Get("DashIpLocalFetching.Text");
     public string DashIpLocalFailed_Text => Get("DashIpLocalFailed.Text");
 
@@ -428,22 +427,10 @@ public class StringResources : INotifyPropertyChanged
 
     public string BasicConfigAppliedTitle_Text => Get("BasicConfigAppliedTitle.Text");
     public string BasicConfigAppliedMsg_Text => Get("BasicConfigAppliedMsg.Text");
-    public string DashDnsPlaceholder_PlaceholderText => Get("DashDnsPlaceholder.PlaceholderText");
-    public string DashDnsFailed_Text => Get("DashDnsFailed.Text");
     public string ProfilesSyncDoneTitle_Text => Get("ProfilesSyncDoneTitle.Text");
     public string ProfilesSyncAllDoneMsg_Text => Get("ProfilesSyncAllDoneMsg.Text");
     public string ProfilesSwitchedTitle_Text => Get("ProfilesSwitchedTitle.Text");
     public string ProfilesSwitching_Text => Get("ProfilesSwitching.Text");
-    public string DashFlushFakeIp_Content => Get("DashFlushFakeIp.Content");
-    public string DashSpeedTest_Text => Get("DashSpeedTest.Text");
-    public string DashSpeedTestStart_Text => Get("DashSpeedTestStart.Text");
-    public string DashSpeedTestRunning_Text => Get("DashSpeedTestRunning.Text");
-    public string DashSpeedTestFailed_Text => Get("DashSpeedTestFailed.Text");
-    public string DashQuickActions_Text => Get("DashQuickActions.Text");
-    public string DashCloseAllConns_Text => Get("DashCloseAllConns.Text");
-    public string DashForceGcLabel_Text => Get("DashForceGcLabel.Text");
-    public string DashFlushFakeIpLabel_Text => Get("DashFlushFakeIpLabel.Text");
-    public string DashResetTrafficLabel_Text => Get("DashResetTrafficLabel.Text");
     public string NetworkChanged_Text => Get("NetworkChanged.Text");
     public string NetworkChangedMsg_Text => Get("NetworkChangedMsg.Text");
     public string NetworkRestored_Text => Get("NetworkRestored.Text");

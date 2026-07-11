@@ -45,7 +45,6 @@
     <x:String x:Key="DashSystemInfo.Text">系统信息</x:String>
     <x:String x:Key="DashRefreshMemory.Content">回收内存</x:String>
     <x:String x:Key="DashCoreVersion.Text">核心版本</x:String>
-    <x:String x:Key="DashForceGc.Content">强制 GC</x:String>
     <x:String x:Key="DashIpLocalFetching.Text">获取中…</x:String>
     <x:String x:Key="DashIpLocalFailed.Text">未获取</x:String>
 
@@ -430,22 +429,10 @@
     <!-- Messages -->
     <x:String x:Key="BasicConfigAppliedTitle.Text">设置已生效</x:String>
     <x:String x:Key="BasicConfigAppliedMsg.Text">配置更改已应用到运行中的核心。</x:String>
-    <x:String x:Key="DashDnsPlaceholder.PlaceholderText">域名…</x:String>
-    <x:String x:Key="DashDnsFailed.Text">DNS 查询失败</x:String>
     <x:String x:Key="ProfilesSyncDoneTitle.Text">同步完成</x:String>
     <x:String x:Key="ProfilesSyncAllDoneMsg.Text">所有订阅已更新</x:String>
     <x:String x:Key="ProfilesSwitchedTitle.Text">配置已切换</x:String>
     <x:String x:Key="ProfilesSwitching.Text">正在切换配置…</x:String>
-    <x:String x:Key="DashFlushFakeIp.Content">清除 Fake-IP 缓存</x:String>
-    <x:String x:Key="DashSpeedTest.Text">网速测试</x:String>
-    <x:String x:Key="DashSpeedTestStart.Text">开始</x:String>
-    <x:String x:Key="DashSpeedTestRunning.Text">测试中…</x:String>
-    <x:String x:Key="DashSpeedTestFailed.Text">测试失败</x:String>
-    <x:String x:Key="DashQuickActions.Text">快捷操作</x:String>
-    <x:String x:Key="DashCloseAllConns.Text">关闭全部</x:String>
-    <x:String x:Key="DashForceGcLabel.Text">内存回收</x:String>
-    <x:String x:Key="DashFlushFakeIpLabel.Text">清除缓存</x:String>
-    <x:String x:Key="DashResetTrafficLabel.Text">重置</x:String>
     <x:String x:Key="NetworkChanged.Text">网络变化</x:String>
     <x:String x:Key="NetworkChangedMsg.Text">网络连接已变化，正在重新连接…</x:String>
     <x:String x:Key="NetworkRestored.Text">网络已恢复</x:String>

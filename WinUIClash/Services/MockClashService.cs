@@ -419,18 +419,6 @@ public class MockClashService : IClashService
         return Task.FromResult(infos[_rng.Next(infos.Length)]);
     }
 
-    public Task<string> QueryDnsAsync(string name, string type = "A")
-    {
-        var result = type.ToUpperInvariant() switch
-        {
-            "A" => $"{_rng.Next(1, 223)}.{_rng.Next(0, 255)}.{_rng.Next(0, 255)}.{_rng.Next(1, 254)}  (type 1)",
-            "AAAA" => $"2001:db8::{_rng.Next(1, 9999):x4}  (type 28)",
-            "CNAME" => $"cdn.{name}  (type 5)",
-            _ => "No answer"
-        };
-        return Task.FromResult(result);
-    }
-
     // ── 外部提供者 ──
 
     public Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync()
