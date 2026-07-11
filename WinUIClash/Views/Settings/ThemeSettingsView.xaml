@@ -42,7 +42,8 @@
 
                     <ContentControl IsEnabled="{x:Bind ViewModel.UsePresetColors, Mode=OneWay}"
                                     HorizontalContentAlignment="Stretch">
-                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.PrimaryColors}">
+                        <ItemsRepeater x:Name="ColorsRepeater" ItemsSource="{x:Bind ViewModel.PrimaryColors}"
+                                       ElementPrepared="ColorsRepeater_ElementPrepared">
                             <ItemsRepeater.Layout>
                                 <UniformGridLayout MinItemWidth="48" MinItemHeight="48"
                                                    MinRowSpacing="8" MinColumnSpacing="8"
@@ -51,11 +52,18 @@
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate>
                                     <Button Width="48" Height="48" Padding="0"
+                                            BorderThickness="0" CornerRadius="4"
                                             Tag="{Binding}" Click="Color_Click"
                                             ToolTipService.ToolTip="{Binding Name}">
                                         <Button.Background>
                                             <SolidColorBrush Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
                                         </Button.Background>
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
+                                            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
+                                            <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="Transparent" />
+                                            <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="Transparent" />
+                                        </Button.Resources>
                                     </Button>
                                 </DataTemplate>
                             </ItemsRepeater.ItemTemplate>
