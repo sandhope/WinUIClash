@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
@@ -141,14 +142,15 @@ public partial class ThemeSettingsViewModel : ObservableObject
     {
         // WinUI 3 中 Application.RequestedTheme 是只读的，
         // 必须设置到窗口根 FrameworkElement 上才能生效
+        var theme = mode switch
+        {
+            "Light" => ApplicationTheme.Light,
+            "Dark" => ApplicationTheme.Dark,
+            _ => GetSystemTheme() // "System" → 跟随系统
+        };
+
         if (App.CurrentWindow?.Content is FrameworkElement root)
         {
-            var theme = mode switch
-            {
-                "Light" => ApplicationTheme.Light,
-                "Dark" => ApplicationTheme.Dark,
-                _ => GetSystemTheme() // "System" → 跟随系统
-            };
             root.RequestedTheme = theme switch
             {
                 ApplicationTheme.Light => ElementTheme.Light,
@@ -157,7 +159,50 @@ public partial class ThemeSettingsViewModel : ObservableObject
             };
         }
 
+        // 同步非客户区按钮（最小化/最大化/关闭）的颜色，
+        // 让自定义标题栏在明暗两种模式下都清晰可读
+        ApplyCaptionButtonColors(theme);
+
         ApplyAccentColor();
+    }
+
+    /// <summary>
+    /// 根据当前主题设置窗口标题栏按钮（最小化/最大化/关闭）的前景色与悬停态。
+    /// 在接管标题栏（ExtendsContentIntoTitleBar）后，这些按钮由 AppWindow 绘制，
+    /// 不会自动跟随应用主题，必须手动同步。
+    /// </summary>
+    private static void ApplyCaptionButtonColors(ApplicationTheme theme)
+    {
+        try
+        {
+            var titleBar = App.CurrentWindow?.AppWindow?.TitleBar;
+            if (titleBar is null) return;
+
+            var dark = theme == ApplicationTheme.Dark;
+            var normal = dark ? White : Dark;
+            var hoverBg = dark
+                ? Color.FromArgb(40, 255, 255, 255)
+                : Color.FromArgb(40, 0, 0, 0);
+            var pressedBg = dark
+                ? Color.FromArgb(64, 255, 255, 255)
+                : Color.FromArgb(64, 0, 0, 0);
+            var inactiveFg = dark
+                ? Color.FromArgb(255, 150, 150, 150)
+                : Color.FromArgb(255, 120, 120, 120);
+
+            titleBar.ButtonForegroundColor = normal;
+            titleBar.ButtonBackgroundColor = Color.FromArgb(0, 0, 0, 0);
+            titleBar.ButtonHoverForegroundColor = normal;
+            titleBar.ButtonHoverBackgroundColor = hoverBg;
+            titleBar.ButtonPressedForegroundColor = normal;
+            titleBar.ButtonPressedBackgroundColor = pressedBg;
+            titleBar.ButtonInactiveForegroundColor = inactiveFg;
+            titleBar.ButtonInactiveBackgroundColor = Color.FromArgb(0, 0, 0, 0);
+        }
+        catch
+        {
+            // 标题栏尚未就绪时忽略
+        }
     }
 
     /// <summary>
@@ -197,20 +242,64 @@ public partial class ThemeSettingsViewModel : ObservableObject
     {
         if (App.CurrentWindow?.Content is FrameworkElement element)
         {
-            element.Resources["SystemAccentColor"] = color;
-            element.Resources["SystemAccentColorLight1"] = LightenColor(color, 0.2);
-            element.Resources["SystemAccentColorLight2"] = LightenColor(color, 0.4);
-            element.Resources["SystemAccentColorLight3"] = LightenColor(color, 0.6);
-            element.Resources["SystemAccentColorDark1"] = DarkenColor(color, 0.2);
-            element.Resources["SystemAccentColorDark2"] = DarkenColor(color, 0.4);
-            element.Resources["SystemAccentColorDark3"] = DarkenColor(color, 0.6);
+            var res = element.Resources;
 
-            // Also store SolidColorBrush versions — WinUI 3 internally may try
-            // to resolve accent-derived resources as Brush, causing InvalidCastException
-            element.Resources["AccentFillColorDefaultBrush"] = new SolidColorBrush(color);
-            element.Resources["AccentTextFillColorPrimaryBrush"] = new SolidColorBrush(color);
+            // ── 基础色系（Color） ──
+            res["SystemAccentColor"] = color;
+            res["SystemAccentColorLight1"] = LightenColor(color, 0.2);
+            res["SystemAccentColorLight2"] = LightenColor(color, 0.4);
+            res["SystemAccentColorLight3"] = LightenColor(color, 0.6);
+            res["SystemAccentColorDark1"] = DarkenColor(color, 0.2);
+            res["SystemAccentColorDark2"] = DarkenColor(color, 0.4);
+            res["SystemAccentColorDark3"] = DarkenColor(color, 0.6);
+
+            // ── 填充画刷 ──
+            res["AccentFillColorDefaultBrush"] = Brush(color);
+            res["AccentFillColorSecondaryBrush"] = Brush(color, 0.9);
+            res["AccentFillColorTertiaryBrush"] = Brush(color, 0.8);
+            res["AccentFillColorDisabledBrush"] = Brush(color, 0.36);
+
+            // ── 文本画刷 ──
+            res["AccentTextFillColorPrimaryBrush"] = Brush(color);
+            res["AccentTextFillColorSecondaryBrush"] = Brush(color);
+            res["AccentTextFillColorTertiaryBrush"] = Brush(color, 0.8);
+            res["AccentTextFillColorDisabledBrush"] = Brush(color, 0.36);
+
+            // ── 描边 / 控件边框 ──
+            res["AccentControlElevationBorderBrush"] = Brush(color);
+            res["ControlStrokeColorOnAccentDefaultBrush"] = Brush(color, 0.14);
+            res["ControlStrokeColorOnAccentSecondaryBrush"] = Brush(color, 0.08);
+
+            // ── Accent 上的文本 ──
+            var onAccent = Luminance(color) > 0.5 ? Dark : White;
+            res["TextOnAccentFillColorPrimaryBrush"] = Brush(onAccent);
+            res["TextOnAccentFillColorSecondaryBrush"] = Brush(onAccent, 0.7);
+            res["TextOnAccentFillColorDisabledBrush"] = Brush(onAccent, 0.5);
+            res["TextOnAccentFillColorSelectedTextBrush"] = Brush(onAccent);
+
+            // ── NavigationView 选中态 ──
+            res["NavigationViewSelectionIndicator"] = Brush(color);
+            res["NavigationViewItemBackgroundSelected"] = Brush(color, 0.12);
+            res["NavigationViewItemBackgroundSelectedPointerOver"] = Brush(color, 0.16);
+            res["NavigationViewItemBackgroundSelectedPressed"] = Brush(color, 0.08);
+            res["NavigationViewItemForegroundSelected"] = Brush(color);
+            res["NavigationViewItemForegroundSelectedPointerOver"] = Brush(color);
+            res["NavigationViewItemForegroundSelectedPressed"] = Brush(color);
+            res["NavigationViewItemSeparatorForeground"] = Brush(color, 0.2);
         }
     }
+
+    private static readonly Color Dark = Color.FromArgb(255, 0, 0, 0);
+    private static readonly Color White = Color.FromArgb(255, 255, 255, 255);
+
+    private static SolidColorBrush Brush(Color c, double opacity = 1.0)
+        => new() { Color = opacity < 1.0 ? WithOpacity(c, opacity) : c };
+
+    private static Color WithOpacity(Color c, double opacity)
+        => Color.FromArgb((byte)(c.A * opacity), c.R, c.G, c.B);
+
+    private static double Luminance(Color c)
+        => (0.299 * c.R + 0.587 * c.G + 0.114 * c.B) / 255;
 
     /// <summary>
     /// 应用启动时调用一次，恢复保存的主题和主题色
