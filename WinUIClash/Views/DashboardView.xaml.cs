@@ -1,11 +1,12 @@
 using System.Collections.Specialized;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Geometry;
+using Microsoft.Graphics.Canvas.Text;
+using Microsoft.Graphics.Canvas.UI.Xaml;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
 using Windows.UI;
 using WinUIClash.Models;
 
@@ -14,66 +15,70 @@ namespace WinUIClash.Views;
 public sealed partial class DashboardView : Page
 {
     public ViewModels.DashboardViewModel ViewModel { get; }
+
     private readonly NotifyCollectionChangedEventHandler _chartChangedHandler;
 
     // Chart state for hit-testing
-    private long _chartMaxVal;
     private double _chartStepX;
 
-    // Reusable tooltip elements
-    private Line? _tooltipLine;
-    private Border? _tooltipPanel;
-    private TextBlock? _tooltipTime;
-    private TextBlock? _tooltipUp;
-    private TextBlock? _tooltipDown;
+    // Reusable Win2D resources (created once, reused across draw calls)
+    private CanvasTextFormat? _textFormat;
+    private static readonly CanvasStrokeStyle GridDashStyle = new() { DashStyle = CanvasDashStyle.Dash };
 
     public DashboardView()
     {
         ViewModel = ServiceLocator.Get<ViewModels.DashboardViewModel>();
         InitializeComponent();
 
+        // 流量数据变化时触发 Win2D 重绘（Invalidate 合并多次调用，下一帧只 Draw 一次）
         _chartChangedHandler = (_, e) =>
         {
             if (e.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Remove)
             {
-                DispatcherQueue.TryEnqueue(DrawChart);
+                DispatcherQueue.TryEnqueue(() => SpeedChart.Invalidate());
             }
         };
 
         Loaded += async (_, _) =>
         {
             await ViewModel.InitializeAsync();
-            DrawChart();
+            _textFormat = new CanvasTextFormat { FontSize = 9, FontFamily = "Consolas" };
+            SpeedChart.ActualThemeChanged += SpeedChart_ThemeChanged;
+            SpeedChart.Invalidate();
         };
-        Unloaded += (_, _) => ViewModel.TrafficHistory.CollectionChanged -= _chartChangedHandler;
+        Unloaded += (_, _) =>
+        {
+            ViewModel.TrafficHistory.CollectionChanged -= _chartChangedHandler;
+            SpeedChart.ActualThemeChanged -= SpeedChart_ThemeChanged;
+        };
 
-        // 流量数据变化时重绘图表
         ViewModel.TrafficHistory.CollectionChanged += _chartChangedHandler;
     }
 
-    // ── 网速面积图绘制 ──
+    private void SpeedChart_ThemeChanged(FrameworkElement sender, object e) => SpeedChart.Invalidate();
 
-    private void SpeedChart_SizeChanged(object sender, SizeChangedEventArgs e) => DrawChart();
+    // ── 网速面积图绘制（Win2D GPU 即时模式，不创建任何 XAML 元素） ──
 
-    private void DrawChart()
+    private void SpeedChart_SizeChanged(object sender, SizeChangedEventArgs e) => SpeedChart.Invalidate();
+
+    private void SpeedChart_Draw(CanvasControl sender, CanvasDrawEventArgs args)
     {
-        if (SpeedChart.ActualWidth <= 0 || SpeedChart.ActualHeight <= 0) return;
-
-        SpeedChart.Children.Clear();
-        double w = SpeedChart.ActualWidth;
-        double h = SpeedChart.ActualHeight;
+        var ds = args.DrawingSession;
+        double w = sender.ActualWidth;
+        double h = sender.ActualHeight;
+        if (w <= 0 || h <= 0) return;
 
         var history = ViewModel.TrafficHistory;
 
-        // 始终绘制基线（即使没有数据）
-        var baseColor = new SolidColorBrush(Windows.UI.Color.FromArgb(35, 128, 128, 128));
-        var baseLine = new Line
-        {
-            X1 = 0, Y1 = h - 1, X2 = w, Y2 = h - 1,
-            Stroke = baseColor,
-            StrokeThickness = 1,
-        };
-        SpeedChart.Children.Add(baseLine);
+        // 主题颜色（根据 ActualTheme 从 ThemeDictionaries 读取）
+        var baselineColor = GetThemeColor("ChartBaselineBrush");
+        var gridColor = GetThemeColor("ChartGridLineBrush");
+        var labelColor = GetThemeColor("ChartAxisLabelBrush");
+        var upColor = GetThemeColor("ChartUploadBrush");
+        var downColor = GetThemeColor("ChartDownloadBrush");
+
+        // 基线（即使无数据也绘制）
+        ds.DrawLine(0, (float)(h - 1), (float)w, (float)(h - 1), baselineColor, 1);
 
         if (history.Count < 2) return;
 
@@ -83,122 +88,94 @@ public sealed partial class DashboardView : Page
             if (t.Down > maxVal) maxVal = t.Down;
             if (t.Up > maxVal) maxVal = t.Up;
         }
-
-        // 将 maxVal 向上取整到整数值（方便标注）
         maxVal = (long)(maxVal * 1.1);
         if (maxVal < 1024) maxVal = 1024;
 
         double stepX = w / (history.Count - 1);
-
-        // Save chart state for hit-testing
-        _chartMaxVal = maxVal;
         _chartStepX = stepX;
 
-        // 绘制网格线（3条水平线）
-        var gridColor = new SolidColorBrush(Windows.UI.Color.FromArgb(30, 128, 128, 128));
+        // 网格线 + Y 轴标签（3 条水平虚线）
         for (int i = 1; i <= 3; i++)
         {
             double y = h * i / 4.0;
-            var line = new Line
-            {
-                X1 = 0, Y1 = y, X2 = w, Y2 = y,
-                Stroke = gridColor,
-                StrokeThickness = 0.5,
-                StrokeDashArray = new DoubleCollection { 4, 4 },
-            };
-            SpeedChart.Children.Add(line);
+            ds.DrawLine(0, (float)y, (float)w, (float)y, gridColor, 0.5f, GridDashStyle);
 
-            // Y轴标签
-            var labelVal = (long)(maxVal * (1.0 - i / 4.0));
-            var label = new TextBlock
-            {
-                Text = Converters.ByteFormatter.FormatSpeed(labelVal),
-                FontSize = 9,
-                Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(100, 128, 128, 128)),
-                FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas"),
-            };
-            Canvas.SetLeft(label, 4);
-            Canvas.SetTop(label, y - 12);
-            SpeedChart.Children.Add(label);
+            long labelVal = (long)(maxVal * (1.0 - i / 4.0));
+            string label = Converters.ByteFormatter.FormatSpeed(labelVal);
+            ds.DrawText(label, 4, (float)(y - 12), labelColor, _textFormat!);
         }
 
-        // 下载面积（先绘制，在下层）
-        var downFill = BuildFill(history, t => t.Down, stepX, h, maxVal,
-            Windows.UI.Color.FromArgb(35, 129, 199, 132));
-        var downLine = BuildLine(history, t => t.Down, stepX, h, maxVal,
-            Windows.UI.Color.FromArgb(200, 129, 199, 132));
+        // 下载面积 + 线（下层）
+        using var downFill = BuildAreaGeometry(sender, history, t => t.Down, stepX, h, maxVal);
+        ds.FillGeometry(downFill, Color.FromArgb(45, downColor.R, downColor.G, downColor.B));
+        using var downLine = BuildLineGeometry(sender, history, t => t.Down, stepX, h, maxVal);
+        ds.DrawGeometry(downLine, Color.FromArgb(220, downColor.R, downColor.G, downColor.B), 1.5f);
 
-        // 上传面积（后绘制，在上层）
-        var upFill = BuildFill(history, t => t.Up, stepX, h, maxVal,
-            Windows.UI.Color.FromArgb(35, 79, 195, 247));
-        var upLine = BuildLine(history, t => t.Up, stepX, h, maxVal,
-            Windows.UI.Color.FromArgb(200, 79, 195, 247));
-
-        SpeedChart.Children.Add(downFill);
-        SpeedChart.Children.Add(upFill);
-        SpeedChart.Children.Add(downLine);
-        SpeedChart.Children.Add(upLine);
-
-        // Tooltip overlay (created once, reused on hover)
-        EnsureTooltipElements();
+        // 上传面积 + 线（上层）
+        using var upFill = BuildAreaGeometry(sender, history, t => t.Up, stepX, h, maxVal);
+        ds.FillGeometry(upFill, Color.FromArgb(45, upColor.R, upColor.G, upColor.B));
+        using var upLine = BuildLineGeometry(sender, history, t => t.Up, stepX, h, maxVal);
+        ds.DrawGeometry(upLine, Color.FromArgb(220, upColor.R, upColor.G, upColor.B), 1.5f);
     }
 
-    private void EnsureTooltipElements()
+    private static CanvasGeometry BuildAreaGeometry(
+        ICanvasResourceCreatorWithDpi resourceCreator,
+        System.Collections.ObjectModel.ObservableCollection<Traffic> data,
+        Func<Traffic, long> selector,
+        double stepX, double h, long maxVal)
     {
-        double h = SpeedChart.ActualHeight;
-
-        if (_tooltipLine == null)
+        using var pb = new CanvasPathBuilder(resourceCreator);
+        pb.BeginFigure(0, (float)h);
+        for (int i = 0; i < data.Count; i++)
         {
-            _tooltipLine = new Line
-            {
-                Y1 = 0, Y2 = h,
-                Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(80, 255, 255, 255)),
-                StrokeThickness = 1,
-                StrokeDashArray = new DoubleCollection { 3, 3 },
-                Visibility = Visibility.Collapsed,
-                IsHitTestVisible = false,
-            };
+            double x = i * stepX;
+            double y = h - (double)selector(data[i]) / maxVal * (h - 2);
+            pb.AddLine((float)x, (float)Math.Max(0, y));
         }
-        else
-        {
-            _tooltipLine.Y2 = h;
-        }
-
-        if (_tooltipPanel == null)
-        {
-            _tooltipTime = new TextBlock { FontSize = 10, Opacity = 0.7, FontFamily = new FontFamily("Consolas") };
-            _tooltipUp = new TextBlock { FontSize = 11, Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 79, 195, 247)) };
-            _tooltipDown = new TextBlock { FontSize = 11, Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 129, 199, 132)) };
-
-            var stack = new StackPanel { Spacing = 2 };
-            stack.Children.Add(_tooltipTime);
-            stack.Children.Add(_tooltipUp);
-            stack.Children.Add(_tooltipDown);
-
-            _tooltipPanel = new Border
-            {
-                Background = new SolidColorBrush(Windows.UI.Color.FromArgb(220, 30, 30, 30)),
-                CornerRadius = new CornerRadius(6),
-                Padding = new Thickness(8, 6, 8, 6),
-                Child = stack,
-                Visibility = Visibility.Collapsed,
-                IsHitTestVisible = false,
-            };
-        }
-
-        // Add to canvas if not already present
-        if (!SpeedChart.Children.Contains(_tooltipLine))
-            SpeedChart.Children.Add(_tooltipLine);
-        if (!SpeedChart.Children.Contains(_tooltipPanel))
-            SpeedChart.Children.Add(_tooltipPanel);
+        pb.AddLine((float)((data.Count - 1) * stepX), (float)h);
+        pb.EndFigure(CanvasFigureLoop.Closed);
+        return CanvasGeometry.CreatePath(pb);
     }
 
-    // ── Chart hover tooltip ──
+    private static CanvasGeometry BuildLineGeometry(
+        ICanvasResourceCreatorWithDpi resourceCreator,
+        System.Collections.ObjectModel.ObservableCollection<Traffic> data,
+        Func<Traffic, long> selector,
+        double stepX, double h, long maxVal)
+    {
+        using var pb = new CanvasPathBuilder(resourceCreator);
+        double y0 = h - (double)selector(data[0]) / maxVal * (h - 2);
+        pb.BeginFigure(0, (float)Math.Max(0, y0));
+        for (int i = 1; i < data.Count; i++)
+        {
+            double x = i * stepX;
+            double y = h - (double)selector(data[i]) / maxVal * (h - 2);
+            pb.AddLine((float)x, (float)Math.Max(0, y));
+        }
+        pb.EndFigure(CanvasFigureLoop.Open);
+        return CanvasGeometry.CreatePath(pb);
+    }
+
+    private Color GetThemeColor(string key)
+    {
+        var theme = SpeedChart.ActualTheme;
+        string themeKey = theme == ElementTheme.Dark ? "Dark" : "Light";
+        if (Application.Current.Resources.ThemeDictionaries.TryGetValue(themeKey, out var td)
+            && td is ResourceDictionary rd
+            && rd.TryGetValue(key, out var res)
+            && res is SolidColorBrush b)
+        {
+        return b.Color;
+        }
+        return Color.FromArgb(255, 128, 128, 128);
+    }
+
+    // ── Chart hover tooltip（XAML 覆盖层，TranslateTransform 定位） ──
 
     private void SpeedChart_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
         var history = ViewModel.TrafficHistory;
-        if (history.Count < 2 || _tooltipLine == null || _tooltipPanel == null) return;
+        if (history.Count < 2 || _chartStepX <= 0) return;
 
         var pos = e.GetCurrentPoint(SpeedChart).Position;
         double w = SpeedChart.ActualWidth;
@@ -210,29 +187,26 @@ public sealed partial class DashboardView : Page
             return;
         }
 
-        // Find nearest data point index
         int index = (int)Math.Round(pos.X / _chartStepX);
         index = Math.Clamp(index, 0, history.Count - 1);
 
         var traffic = history[index];
         double snapX = index * _chartStepX;
 
-        // Update vertical line position
-        _tooltipLine.X1 = snapX;
-        _tooltipLine.X2 = snapX;
-        _tooltipLine.Y2 = h;
-        _tooltipLine.Visibility = Visibility.Visible;
+        // 竖线
+        TooltipLineTransform.X = snapX;
+        TooltipLine.Visibility = Visibility.Visible;
 
-        // Update tooltip text
-        _tooltipTime!.Text = traffic.Timestamp.ToString("HH:mm:ss");
-        _tooltipUp!.Text = "↑ " + Converters.ByteFormatter.FormatSpeed(traffic.Up);
-        _tooltipDown!.Text = "↓ " + Converters.ByteFormatter.FormatSpeed(traffic.Down);
+        // 文字
+        TooltipTime.Text = traffic.Timestamp.ToString("HH:mm:ss");
+        TooltipUp.Text = "↑ " + Converters.ByteFormatter.FormatSpeed(traffic.Up);
+        TooltipDown.Text = "↓ " + Converters.ByteFormatter.FormatSpeed(traffic.Down);
 
-        // Position tooltip panel — flip side when near right edge
-        _tooltipPanel.Visibility = Visibility.Visible;
-        _tooltipPanel.UpdateLayout();
-        double panelW = _tooltipPanel.ActualWidth;
-        double panelH = _tooltipPanel.ActualHeight;
+        // 面板定位（贴右边缘时翻转到左侧）
+        TooltipPanel.Visibility = Visibility.Visible;
+        TooltipPanel.UpdateLayout();
+        double panelW = TooltipPanel.ActualWidth;
+        double panelH = TooltipPanel.ActualHeight;
 
         double tooltipX = snapX + 10;
         if (tooltipX + panelW > w)
@@ -242,16 +216,16 @@ public sealed partial class DashboardView : Page
         if (tooltipY + panelH > h)
             tooltipY = h - panelH;
 
-        Canvas.SetLeft(_tooltipPanel, tooltipX);
-        Canvas.SetTop(_tooltipPanel, tooltipY);
+        TooltipPanelTransform.X = tooltipX;
+        TooltipPanelTransform.Y = tooltipY;
     }
 
     private void SpeedChart_PointerExited(object sender, PointerRoutedEventArgs e) => HideTooltip();
 
     private void HideTooltip()
     {
-        if (_tooltipLine != null) _tooltipLine.Visibility = Visibility.Collapsed;
-        if (_tooltipPanel != null) _tooltipPanel.Visibility = Visibility.Collapsed;
+        TooltipLine.Visibility = Visibility.Collapsed;
+        TooltipPanel.Visibility = Visibility.Collapsed;
     }
 
     // ── Copy IP handlers ──
@@ -284,42 +258,5 @@ public sealed partial class DashboardView : Page
                 ViewModel.ToggleTunModeCommand.Execute(null);
             }
         }
-    }
-
-    private static Polygon BuildFill(
-        System.Collections.ObjectModel.ObservableCollection<Traffic> data,
-        Func<Traffic, long> selector,
-        double stepX, double h, long maxVal, Color color)
-    {
-        var pts = new PointCollection();
-        pts.Add(new Windows.Foundation.Point(0, h));
-        for (int i = 0; i < data.Count; i++)
-        {
-            double x = i * stepX;
-            double y = h - (double)selector(data[i]) / maxVal * (h - 2);
-            pts.Add(new Windows.Foundation.Point(x, Math.Max(0, y)));
-        }
-        pts.Add(new Windows.Foundation.Point((data.Count - 1) * stepX, h));
-        return new Polygon { Fill = new SolidColorBrush(color), Points = pts };
-    }
-
-    private static Polyline BuildLine(
-        System.Collections.ObjectModel.ObservableCollection<Traffic> data,
-        Func<Traffic, long> selector,
-        double stepX, double h, long maxVal, Color color)
-    {
-        var pts = new PointCollection();
-        for (int i = 0; i < data.Count; i++)
-        {
-            double x = i * stepX;
-            double y = h - (double)selector(data[i]) / maxVal * (h - 2);
-            pts.Add(new Windows.Foundation.Point(x, Math.Max(0, y)));
-        }
-        return new Polyline
-        {
-            Stroke = new SolidColorBrush(color),
-            StrokeThickness = 1.5,
-            Points = pts
-        };
     }
 }

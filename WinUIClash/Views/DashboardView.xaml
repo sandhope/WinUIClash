@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:fluent="using:FluentIcons.WinUI"
+    xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
     xmlns:vm="using:WinUIClash.ViewModels"
     mc:Ignorable="d">
 
@@ -71,11 +72,44 @@
                             </StackPanel>
                         </Grid>
 
-                        <!-- 简易面积图 -->
-                        <Canvas x:Name="SpeedChart" Grid.Row="1" Height="150"
-                                SizeChanged="SpeedChart_SizeChanged"
-                                PointerMoved="SpeedChart_PointerMoved"
-                                PointerExited="SpeedChart_PointerExited" />
+                        <!-- 网速面积图（Win2D GPU 绘制 + XAML tooltip 覆盖层） -->
+                        <Grid Grid.Row="1" Height="150">
+                            <canvas:CanvasControl x:Name="SpeedChart"
+                                                  ClearColor="Transparent"
+                                                  Draw="SpeedChart_Draw"
+                                                  SizeChanged="SpeedChart_SizeChanged"
+                                                  PointerMoved="SpeedChart_PointerMoved"
+                                                  PointerExited="SpeedChart_PointerExited" />
+                            <!-- 悬停竖线 -->
+                            <Border x:Name="TooltipLine"
+                                    Width="1"
+                                    Background="{ThemeResource ChartTooltipLineBrush}"
+                                    Visibility="Collapsed" IsHitTestVisible="False"
+                                    HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                                <Border.RenderTransform>
+                                    <TranslateTransform x:Name="TooltipLineTransform" />
+                                </Border.RenderTransform>
+                            </Border>
+                            <!-- 悬停信息面板 -->
+                            <Border x:Name="TooltipPanel"
+                                    Background="{ThemeResource ChartTooltipBackgroundBrush}"
+                                    CornerRadius="6" Padding="8,6"
+                                    Visibility="Collapsed" IsHitTestVisible="False"
+                                    HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <Border.RenderTransform>
+                                    <TranslateTransform x:Name="TooltipPanelTransform" />
+                                </Border.RenderTransform>
+                                <StackPanel Spacing="2">
+                                    <TextBlock x:Name="TooltipTime" FontSize="10"
+                                               Foreground="{ThemeResource ChartTooltipTextBrush}"
+                                               Opacity="0.7" FontFamily="Consolas" />
+                                    <TextBlock x:Name="TooltipUp" FontSize="11"
+                                               Foreground="{ThemeResource ChartUploadBrush}" />
+                                    <TextBlock x:Name="TooltipDown" FontSize="11"
+                                               Foreground="{ThemeResource ChartDownloadBrush}" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
 
                         <!-- 底部连接数 / 运行时长 -->
                         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right">
