@@ -307,8 +307,25 @@ public class ClashOrchestrator : IClashService
 
     // ── 代理 ──
 
-    public Task<IReadOnlyList<ProxyGroup>> GetProxyGroupsAsync() =>
-        SafeFetchAsync(() => _httpClashService.GetProxyGroupsAsync(), Array.Empty<ProxyGroup>());
+    public async Task<IReadOnlyList<ProxyGroup>> GetProxyGroupsAsync()
+    {
+        var groups = await SafeFetchAsync(() => _httpClashService.GetProxyGroupsAsync(), Array.Empty<ProxyGroup>());
+        if (groups.Count == 0) return groups;
+
+        // mihomo REST /proxies 返回 Go map（JSON 序列化按键 Unicode 排序），
+        // 不保留 config.yaml 中 proxy-groups 的原始顺序。
+        // 从 config 文件读取原始顺序并对齐（1:1 对齐 FlClash gRPC/FFI 的 all 列表行为）。
+        var order = _configBuild.GetProxyGroupOrder();
+        if (order.Count == 0) return groups;
+
+        return groups
+            .OrderBy(g =>
+            {
+                var idx = order.IndexOf(g.Name);
+                return idx >= 0 ? idx : int.MaxValue;
+            })
+            .ToList();
+    }
     public Task ChangeProxyAsync(string groupName, string proxyName) =>
         SafeRunAsync(() => _httpClashService.ChangeProxyAsync(groupName, proxyName));
     public Task<int> TestDelayAsync(string proxyName, string? testUrl = null) =>

@@ -171,4 +171,63 @@ public class ConfigBuildService
                "  - GEOIP,CN,DIRECT\n" +
                "  - MATCH,PROXY\n";
     }
+
+    /// <summary>
+    /// 从生成的 config.yaml 中读取 proxy-groups 的名称顺序。
+    /// mihomo REST /proxies 返回 Go map（JSON 序列化时按键 Unicode 排序），
+    /// 不保留 config.yaml 中 proxy-groups 的原始顺序。
+    /// FlClash 通过 gRPC/FFI 接口的 all 列表保留了顺序，
+    /// WinUIClash 用此方法从 config 文件还原顺序以 1:1 对齐。
+    /// </summary>
+    public List<string> GetProxyGroupOrder()
+    {
+        var result = new List<string>();
+        if (!File.Exists(ConfigPath)) return result;
+
+        try
+        {
+            var lines = File.ReadAllLines(ConfigPath);
+            bool inProxyGroups = false;
+            foreach (var line in lines)
+            {
+                // Detect top-level "proxy-groups:" key
+                if (!line.StartsWith(" ") && !line.StartsWith("\t") && !line.StartsWith("#"))
+                {
+                    var idx = line.IndexOf(':');
+                    if (idx > 0 && line[..idx].Trim() == "proxy-groups")
+                    {
+                        inProxyGroups = true;
+                        continue;
+                    }
+                    // Exit if we've entered proxy-groups and hit another top-level key
+                    if (inProxyGroups && idx > 0)
+                        break;
+                    if (inProxyGroups && line.Trim() == "")
+                        continue;
+                }
+
+                if (!inProxyGroups) continue;
+
+                // Match "  - name: ..." (list item under proxy-groups)
+                var trimmed = line.TrimStart();
+                if (trimmed.StartsWith("- name:") || trimmed.StartsWith("-name:"))
+                {
+                    var colonIdx = trimmed.IndexOf(':');
+                    if (colonIdx < 0) continue;
+                    var value = trimmed[(colonIdx + 1)..].Trim();
+                    // Strip quotes
+                    if ((value.StartsWith('"') && value.EndsWith('"')) ||
+                        (value.StartsWith('\'') && value.EndsWith('\'')))
+                        value = value[1..^1];
+                    if (!string.IsNullOrEmpty(value))
+                        result.Add(value);
+                }
+            }
+        }
+        catch
+        {
+            // Best-effort; if parsing fails, return empty (caller falls back to API order)
+        }
+        return result;
+    }
 }
