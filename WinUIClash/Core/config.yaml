@@ -65,11 +65,11 @@ proxy-groups:
 # 规则
 rules:
   # 国内域名直连
-  - DOMAIN-SUFFIX,cn,Direct
-  - DOMAIN-KEYWORD,-cn,Direct
+  - DOMAIN-SUFFIX,cn,DIRECT
+  - DOMAIN-KEYWORD,-cn,DIRECT
 
   # GeoIP 中国直连
-  - GEOIP,CN,Direct
+  - GEOIP,CN,DIRECT
 
   # 最终规则
   - MATCH,Proxy

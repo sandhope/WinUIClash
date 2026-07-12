@@ -30,62 +30,12 @@
                             PlaceholderText="{Binding Source={StaticResource S}, Path=ConnSearchPlaceholder_PlaceholderText}"
                             QueryIcon="Find"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" />
-            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <ComboBox ItemsSource="{x:Bind ViewModel.NetworkFilterOptions}"
-                          SelectedItem="{x:Bind ViewModel.NetworkFilter, Mode=TwoWay}"
-                          Width="80" Height="32" FontSize="11"
-                          ToolTipService.ToolTip="Network" />
-                <TextBlock VerticalAlignment="Center" FontSize="11" Opacity="0.5">
-                    <Run Text="{x:Bind ViewModel.ConnectionCount, Mode=OneWay}" />
-                    <Run Text="{Binding Source={StaticResource S}, Path=ConnCountSuffix_Text}" />
-                </TextBlock>
-                <TextBlock VerticalAlignment="Center" FontSize="10" Opacity="0.4">
-                    <Run Text="↑" />
-                    <Run Text="{x:Bind ViewModel.TotalUploadText, Mode=OneWay}" />
-                    <Run Text=" ↓" />
-                    <Run Text="{x:Bind ViewModel.TotalDownloadText, Mode=OneWay}" />
-                </TextBlock>
-                <Button Command="{x:Bind ViewModel.CycleSortModeCommand}"
-                        ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ProxySwitchSort_Content}"
-                        Height="32">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <fluent:SymbolIcon Symbol="ArrowSort" FontSize="12" />
-                        <TextBlock Text="{x:Bind ViewModel.SortModeLabel, Mode=OneWay}" FontSize="11" />
-                    </StackPanel>
-                </Button>
-                <Button Command="{x:Bind ViewModel.RefreshCommand}" ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=CommonRefresh_ToolTip}" Height="32">
-                    <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
-                </Button>
-                <Grid>
-                    <Button Command="{x:Bind ViewModel.TogglePauseCommand}"
-                            ToolTipService.ToolTip="{x:Bind ViewModel.PauseLabel, Mode=OneWay}"
-                            Height="32"
-                            Visibility="{x:Bind ViewModel.IsPaused, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <fluent:SymbolIcon Symbol="Pause" FontSize="12" />
-                            <TextBlock Text="{x:Bind ViewModel.PauseLabel, Mode=OneWay}" FontSize="11" />
-                        </StackPanel>
-                    </Button>
-                    <Button Command="{x:Bind ViewModel.TogglePauseCommand}"
-                            ToolTipService.ToolTip="{x:Bind ViewModel.PauseLabel, Mode=OneWay}"
-                            Height="32"
-                            Visibility="{x:Bind ViewModel.IsPaused, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <fluent:SymbolIcon Symbol="Play" FontSize="12" />
-                            <TextBlock Text="{x:Bind ViewModel.PauseLabel, Mode=OneWay}" FontSize="11" />
-                        </StackPanel>
-                    </Button>
-                </Grid>
-                <Button Command="{x:Bind ViewModel.ExportCommand}" ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ConnExport_ToolTip}" Height="32">
-                    <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
-                </Button>
-                <Button Click="CloseAll_Click" Height="32">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <fluent:SymbolIcon Symbol="DismissCircle" FontSize="14" />
-                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConnCloseAll_Text}" FontSize="12" />
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+            <Button Grid.Row="1" Grid.Column="1" Click="CloseAll_Click" Height="32">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <fluent:SymbolIcon Symbol="DismissCircle" FontSize="14" />
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=ConnCloseAll_Text}" FontSize="12" />
+                </StackPanel>
+            </Button>
         </Grid>
 
         <!-- 连接列表 -->
@@ -95,9 +45,7 @@
                   SelectedItem="{x:Bind ViewModel.SelectedConnection, Mode=TwoWay}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:ConnectionInfo">
-                    <Grid Padding="4,8" ColumnSpacing="12" RowSpacing="4"
-                          RightTapped="ConnectionItem_RightTapped"
-                          DoubleTapped="ConnectionItem_DoubleTapped">
+                    <Grid Padding="4,8" ColumnSpacing="12" RowSpacing="4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -168,7 +116,6 @@
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1" CornerRadius="8"
                 Padding="16,12"
-                RightTapped="DetailPanel_RightTapped"
                 Visibility="{x:Bind ViewModel.SelectedConnection, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
             <Grid ColumnSpacing="24" RowSpacing="8"
                   Visibility="{x:Bind ViewModel.SelectedConnection, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
@@ -215,21 +162,6 @@
                     <TextBlock x:Name="DetailStart" FontSize="12" />
                     <TextBlock FontSize="11" Opacity="0.5" Text="{Binding Source={StaticResource S}, Path=ConnDuration_Text}" Margin="0,4,0,0" />
                     <TextBlock x:Name="DetailDuration" FontSize="13" FontWeight="SemiBold" />
-                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
-                        <Button Click="CopyHost_Click" Padding="8,4"
-                                Background="Transparent" BorderThickness="0">
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                <fluent:SymbolIcon Symbol="Copy" FontSize="12" />
-                                <TextBlock Text="{Binding Source={StaticResource S}, Path=ConnCopyHost_Text}" FontSize="11" />
-                            </StackPanel>
-                        </Button>
-                        <Button Click="CloseSelected_Click">
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                <fluent:SymbolIcon Symbol="DismissCircle" FontSize="12" />
-                                <TextBlock Text="{Binding Source={StaticResource S}, Path=ConnCloseThis_Text}" FontSize="11" />
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
                 </StackPanel>
             </Grid>
         </Border>

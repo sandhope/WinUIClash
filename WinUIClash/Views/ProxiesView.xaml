@@ -33,72 +33,42 @@
                             QueryIcon="Find"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}" />
             <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <ComboBox ItemsSource="{x:Bind ViewModel.TestUrlLabels}"
-                          SelectedIndex="{x:Bind ViewModel.SelectedTestUrlIndex, Mode=TwoWay}"
-                          Width="130" Height="32" FontSize="11"
-                          ToolTipService.ToolTip="Test URL" />
-                <Button Command="{x:Bind ViewModel.RefreshCommand}"
-                        ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=CommonRefresh_ToolTip}"
-                        Height="32">
-                    <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
-                </Button>
                 <Button Command="{x:Bind ViewModel.TestAllDelaysCommand}" Height="32">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <fluent:SymbolIcon Symbol="Gauge" FontSize="14" />
                         <TextBlock Text="{Binding Source={StaticResource S}, Path=ProxyTestAll_Text}" FontSize="12" />
                     </StackPanel>
                 </Button>
-                <Button Command="{x:Bind ViewModel.SelectBestCommand}"
-                        Height="32">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <fluent:SymbolIcon Symbol="Star" FontSize="12" />
-                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ProxySelectBest_Text}" FontSize="11" />
-                    </StackPanel>
-                </Button>
             </StackPanel>
         </Grid>
 
-        <!-- 代理组 Tab 栏 + 排序 -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Disabled">
-                <ItemsRepeater x:Name="GroupTabsRepeater"
-                               ItemsSource="{x:Bind ViewModel.Groups, Mode=OneWay}"
-                               ElementPrepared="GroupTabsRepeater_ElementPrepared">
-                    <ItemsRepeater.Layout>
-                        <StackLayout Orientation="Horizontal" Spacing="4" />
-                    </ItemsRepeater.Layout>
-                    <ItemsRepeater.ItemTemplate>
-                        <DataTemplate x:DataType="models:ProxyGroup">
-                            <Button Padding="12,6" CornerRadius="6"
-                                    Click="GroupTab_Click"
-                                    Tag="{x:Bind}"
-                                    ToolTipService.ToolTip="{x:Bind Now, Mode=OneWay}">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="{x:Bind Name}" VerticalAlignment="Center" />
-                                    <TextBlock Text="{x:Bind NodeCountText}" FontSize="10" Opacity="0.4"
-                                               VerticalAlignment="Center" />
-                                    <TextBlock Text="{x:Bind Type}" FontSize="10" Opacity="0.5"
-                                               VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                </ItemsRepeater>
-            </ScrollViewer>
-            <Button Grid.Column="1" Command="{x:Bind ViewModel.CycleSortModeCommand}"
-                    ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ProxySwitchSort_Content}"
-                    Padding="8,4" Background="Transparent" BorderThickness="0">
-                <StackPanel Orientation="Horizontal" Spacing="4">
-                    <fluent:SymbolIcon Symbol="ArrowSort" FontSize="12" />
-                    <TextBlock Text="{x:Bind ViewModel.SortModeLabel, Mode=OneWay}" FontSize="11" />
-                </StackPanel>
-            </Button>
-        </Grid>
+        <!-- 代理组 Tab 栏 -->
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled">
+            <ItemsRepeater x:Name="GroupTabsRepeater"
+                           ItemsSource="{x:Bind ViewModel.Groups, Mode=OneWay}"
+                           ElementPrepared="GroupTabsRepeater_ElementPrepared">
+                <ItemsRepeater.Layout>
+                    <StackLayout Orientation="Horizontal" Spacing="4" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="models:ProxyGroup">
+                        <Button Padding="12,6" CornerRadius="6"
+                                Click="GroupTab_Click"
+                                Tag="{x:Bind}"
+                                ToolTipService.ToolTip="{x:Bind Now, Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="{x:Bind Name}" VerticalAlignment="Center" />
+                                <TextBlock Text="{x:Bind NodeCountText}" FontSize="10" Opacity="0.4"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="{x:Bind Type}" FontSize="10" Opacity="0.5"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </ScrollViewer>
 
         <!-- 测试进度条 -->
         <ProgressBar Grid.Row="2"

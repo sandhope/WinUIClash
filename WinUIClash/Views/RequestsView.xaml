@@ -35,40 +35,6 @@
                     <ToggleSwitch MinWidth="0" OffContent="" OnContent=""
                                   IsOn="{x:Bind ViewModel.AutoScroll, Mode=TwoWay}" />
                 </StackPanel>
-                <Grid>
-                    <Button Command="{x:Bind ViewModel.TogglePauseCommand}"
-                            ToolTipService.ToolTip="{x:Bind ViewModel.PauseLabel, Mode=OneWay}"
-                            Height="32"
-                            Visibility="{x:Bind ViewModel.IsPaused, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <fluent:SymbolIcon Symbol="Pause" FontSize="12" />
-                            <TextBlock Text="{x:Bind ViewModel.PauseLabel, Mode=OneWay}" FontSize="11" />
-                        </StackPanel>
-                    </Button>
-                    <Button Command="{x:Bind ViewModel.TogglePauseCommand}"
-                            ToolTipService.ToolTip="{x:Bind ViewModel.PauseLabel, Mode=OneWay}"
-                            Height="32"
-                            Visibility="{x:Bind ViewModel.IsPaused, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <fluent:SymbolIcon Symbol="Play" FontSize="12" />
-                            <TextBlock Text="{x:Bind ViewModel.PauseLabel, Mode=OneWay}" FontSize="11" />
-                        </StackPanel>
-                    </Button>
-                </Grid>
-                <Button Command="{x:Bind ViewModel.CycleSortModeCommand}"
-                        ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ProxySwitchSort_Content}"
-                        Height="32">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <fluent:SymbolIcon Symbol="ArrowSort" FontSize="12" />
-                        <TextBlock Text="{x:Bind ViewModel.SortModeLabel, Mode=OneWay}" FontSize="11" />
-                    </StackPanel>
-                </Button>
-                <Button Command="{x:Bind ViewModel.ExportCommand}" ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=RequestsExport_ToolTip}" Height="32">
-                    <fluent:SymbolIcon Symbol="ArrowExport" FontSize="14" />
-                </Button>
-                <Button Command="{x:Bind ViewModel.ClearCommand}" ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=CommonClear_ToolTip}" Height="32">
-                    <fluent:SymbolIcon Symbol="Delete" FontSize="14" />
-                </Button>
             </StackPanel>
         </Grid>
 
@@ -79,8 +45,6 @@
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:ConnectionInfo">
                     <Grid Padding="4,6" ColumnSpacing="10"
-                          RightTapped="RequestItem_RightTapped"
-                          DoubleTapped="RequestItem_DoubleTapped"
                           Tag="{x:Bind}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />

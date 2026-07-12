@@ -52,24 +52,25 @@ public partial class Profile : ObservableObject
         SubscriptionInfo == null ? 0 :
         Math.Max(0, SubscriptionInfo.Total - SubscriptionInfo.Upload - SubscriptionInfo.Download);
 
-    /// <summary>已用流量百分比文本</summary>
+    /// <summary>已用/总流量文本，如 "82.8 GB / 150 GB"</summary>
     public string UsedPercentText => SubscriptionInfo == null ? "" :
-        $"{LocalizationHelper.GetString("SubUsed.Text")}{UsedPercent:F0}%";
+        $"{Converters.ByteFormatter.Format(SubscriptionInfo.Upload + SubscriptionInfo.Download)} / {Converters.ByteFormatter.Format(SubscriptionInfo.Total)}";
 
     /// <summary>剩余流量文本</summary>
     public string RemainingText => SubscriptionInfo == null ? "" :
-        $"{LocalizationHelper.GetString("SubRemaining.Text")}{Converters.ByteFormatter.Format(RemainingBytes)}";
+        Converters.ByteFormatter.Format(RemainingBytes);
 
-    /// <summary>订阅过期显示文本</summary>
+    /// <summary>订阅过期显示文本，如 "· 长期有效" 或 "· 已过期" 或 "· 剩余7天"</summary>
     public string ExpiryText
     {
         get
         {
-            if (SubscriptionInfo?.Expire == null) return "";
+            if (SubscriptionInfo?.Expire == null) return $"· {LocalizationHelper.GetString("SubLongTerm.Text")}";
             var remaining = SubscriptionInfo.Expire.Value - DateTime.Now;
-            if (remaining.TotalDays < 0) return LocalizationHelper.GetString("SubExpired.Text");
-            if (remaining.TotalDays < 1) return $"{LocalizationHelper.GetString("SubRemaining.Text")}{remaining.Hours}{LocalizationHelper.GetString("SubHoursRemaining.Text")}";
-            return $"{LocalizationHelper.GetString("SubRemaining.Text")}{(int)remaining.TotalDays}{LocalizationHelper.GetString("SubDaysRemaining.Text")}";
+            if (remaining.TotalDays < 0) return $"· {LocalizationHelper.GetString("SubExpired.Text")}";
+            if (remaining.TotalDays < 1) return $"· {LocalizationHelper.GetString("SubRemaining.Text")}{remaining.Hours}{LocalizationHelper.GetString("SubHoursRemaining.Text")}";
+            if (remaining.TotalDays >= 365 * 10) return $"· {LocalizationHelper.GetString("SubLongTerm.Text")}";
+            return $"· {LocalizationHelper.GetString("SubRemaining.Text")}{(int)remaining.TotalDays}{LocalizationHelper.GetString("SubDaysRemaining.Text")}";
         }
     }
 

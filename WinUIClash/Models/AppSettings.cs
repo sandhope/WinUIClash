@@ -12,6 +12,8 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private int _mixedPort = 7890;
     [ObservableProperty] private int _socksPort = 7891;
     [ObservableProperty] private int _httpPort = 7892;
+    /// <summary>外部控制器（Clash REST API）监听端口。应用连接此端口，配置生成时写入 external-controller，二者必须一致。</summary>
+    [ObservableProperty] private int _apiPort = 9090;
     [ObservableProperty] private string _logLevel = "info";
     [ObservableProperty] private string _userAgent = "clash-verge";
     [ObservableProperty] private int _keepAliveInterval = 30;
@@ -24,6 +26,8 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private bool _externalController = true;
     [ObservableProperty] private string _apiSecret = "";
     [ObservableProperty] private string _coreBinaryPath = "";
+    /// <summary>持久化的出站模式：rule / global / direct</summary>
+    [ObservableProperty] private string _outboundMode = "rule";
 
     // ── 应用设置 ──
 

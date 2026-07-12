@@ -42,7 +42,8 @@ public sealed partial class DashboardView : Page
         Loaded += async (_, _) =>
         {
             _textFormat?.Dispose();
-            await ViewModel.InitializeAsync();
+            try { await ViewModel.InitializeAsync(); }
+            catch { /* 核心未运行或初始化出错时保持空状态，避免崩溃 */ }
             _textFormat = new CanvasTextFormat { FontSize = 9, FontFamily = "Consolas" };
             SpeedChart.ActualThemeChanged += SpeedChart_ThemeChanged;
             SpeedChart.Invalidate();

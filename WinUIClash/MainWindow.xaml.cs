@@ -31,7 +31,6 @@ public sealed partial class MainWindow : Window
         ["Requests"]    = typeof(Views.RequestsView),
         ["Connections"] = typeof(Views.ConnectionsView),
         ["Resources"]   = typeof(Views.ResourcesView),
-        ["Rules"]       = typeof(Views.RulesView),
         ["Logs"]        = typeof(Views.LogsView),
         ["Tools"]       = typeof(Views.ToolsView),
     };
@@ -47,7 +46,6 @@ public sealed partial class MainWindow : Window
 
     // 托盘菜单项（需要动态更新状态）
     private ToggleMenuFlyoutItem? _trayProxyItem;
-    private ToggleMenuFlyoutItem? _trayRunItem;
     private MenuFlyoutSubItem? _trayProfileMenu;
 
     // 状态栏连接数轮询定时器
@@ -207,6 +205,21 @@ public sealed partial class MainWindow : Window
         return RootNavigation.SelectedItem is NavigationViewItem item ? item.Tag as string : null;
     }
 
+    /// <summary>
+    /// 按 Tag 在菜单项中查找导航项（工具页已回归主菜单，与 FlClash 1:1 一致）。
+    /// </summary>
+    private NavigationViewItem? FindNavItem(string tag)
+    {
+        var inMenu = RootNavigation.MenuItems
+                .OfType<NavigationViewItem>()
+                .FirstOrDefault(m => m.Tag as string == tag);
+        if (inMenu != null) return inMenu;
+
+        var footer = RootNavigation.FooterMenuItems;
+        return footer?.OfType<NavigationViewItem>()
+                .FirstOrDefault(m => m.Tag as string == tag);
+    }
+
     // ── 键盘快捷键 ──────────────────────────────────────────────────────────────
 
     private void InitKeyboardShortcuts()
@@ -223,17 +236,14 @@ public sealed partial class MainWindow : Window
                 Key = (Windows.System.VirtualKey)((int)Windows.System.VirtualKey.Number1 + i),
                 Modifiers = Windows.System.VirtualKeyModifiers.Control,
             };
-            accel.Invoked += (_, _) =>
-            {
-                NavigateTo(tag);
-                // 同步选中侧边栏：按 Tag 查找对应项，避免捕获循环变量 i
-                // （for 循环的 i 在闭包中被共享，触发时恒为 9，导致 SelectedItem 不更新）
-                var item = RootNavigation.MenuItems
-                    .OfType<NavigationViewItem>()
-                    .FirstOrDefault(m => m.Tag as string == tag);
-                if (item != null)
-                    RootNavigation.SelectedItem = item;
-            };
+                accel.Invoked += (_, _) =>
+                {
+                    NavigateTo(tag);
+                    // 同步选中侧边栏：按 Tag 查找对应项（含底部菜单），避免捕获循环变量 i
+                    var item = FindNavItem(tag);
+                    if (item != null)
+                        RootNavigation.SelectedItem = item;
+                };
             RootGrid.KeyboardAccelerators.Add(accel);
         }
 
@@ -303,22 +313,6 @@ public sealed partial class MainWindow : Window
                 _appSettings.SystemProxy = !_appSettings.SystemProxy;
         };
         RootGrid.KeyboardAccelerators.Add(proxyToggleAccel);
-
-        // Ctrl+P 切换核心启动/停止
-        var coreToggleAccel = new KeyboardAccelerator
-        {
-            Key = Windows.System.VirtualKey.P,
-            Modifiers = Windows.System.VirtualKeyModifiers.Control,
-        };
-        coreToggleAccel.Invoked += async (_, _) =>
-        {
-            if (_clash == null) return;
-            if (_clash.CoreState == CoreState.Running)
-                await _clash.StopAsync();
-            else if (_clash.CoreState == CoreState.Stopped)
-                await _clash.StartAsync();
-        };
-        RootGrid.KeyboardAccelerators.Add(coreToggleAccel);
 
         // F1 快捷键帮助
         var helpAccel = new KeyboardAccelerator
@@ -438,10 +432,8 @@ public sealed partial class MainWindow : Window
         {
             try
             {
-                // Navigate to Tools page
-                var toolsItem = RootNavigation.MenuItems
-                    .OfType<NavigationViewItem>()
-                    .FirstOrDefault(i => i.Tag is string t && t == "tools");
+                // Navigate to Tools (settings hub) — now in footer
+                var toolsItem = FindNavItem("tools");
                 if (toolsItem != null)
                 {
                     RootNavigation.SelectedItem = toolsItem;
@@ -472,9 +464,9 @@ public sealed partial class MainWindow : Window
     private void OpenShortcuts()
     {
         NavigateTo("Tools");
-        var toolIndex = PageMap.Keys.ToList().IndexOf("Tools");
-        if (toolIndex >= 0 && toolIndex < RootNavigation.MenuItems.Count)
-            RootNavigation.SelectedItem = RootNavigation.MenuItems[toolIndex];
+        var toolsItem = FindNavItem("Tools");
+        if (toolsItem != null)
+            RootNavigation.SelectedItem = toolsItem;
 
         _dispatcher.TryEnqueue(() =>
         {
@@ -600,10 +592,6 @@ public sealed partial class MainWindow : Window
         };
 
         StatusText.Opacity = state == CoreState.Running ? 0.8 : 0.6;
-
-        // 同步托盘菜单的核心开关状态
-        if (_trayRunItem != null)
-            _trayRunItem.IsChecked = state == CoreState.Running;
 
         // 运行时长计时器
         if (state == CoreState.Running)
@@ -752,26 +740,16 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private async void StatusDot_Click(object sender, RoutedEventArgs e)
+    private void StatusDot_Click(object sender, RoutedEventArgs e)
     {
+        // 核心由应用启动/退出时自动管理，点击状态点仅提示，不启停核心
         try
         {
-            var clash = ServiceLocator.Get<IClashService>();
-            if (clash.CoreState == CoreState.Running)
-                await clash.StopAsync();
-            else if (clash.CoreState == CoreState.Stopped)
-                await clash.StartAsync();
+            ServiceLocator.Get<Services.NotificationService>().Info(
+                Services.LocalizationHelper.GetString("CoreAutoManaged.Text"),
+                "");
         }
-        catch (Exception ex)
-        {
-            try
-            {
-                ServiceLocator.Get<Services.NotificationService>().Error(
-                    Services.LocalizationHelper.GetString("AppErrorTitle.Text"),
-                    ex.Message);
-            }
-            catch { }
-        }
+        catch { }
     }
 
     private void StatusProxy_Click(object sender, RoutedEventArgs e)
@@ -807,23 +785,7 @@ public sealed partial class MainWindow : Window
         showItem.Click += (_, _) => ShowWindow();
         menu.Items.Add(showItem);
 
-        menu.Items.Add(new MenuFlyoutSeparator());
-
-        // ── 核心开关 ──
-        _trayRunItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayRun.Text") };
-        _trayRunItem.Click += async (_, _) =>
-        {
-            try
-            {
-                var clash = ServiceLocator.Get<IClashService>();
-                if (_trayRunItem.IsChecked)
-                    await clash.StartAsync();
-                else
-                    await clash.StopAsync();
-            }
-            catch (Exception ex) { Debug.WriteLine($"Tray core toggle error: {ex.Message}"); }
-        };
-        menu.Items.Add(_trayRunItem);
+        // 核心由应用启动/退出时自动管理，不在托盘提供启停入口
 
         // ── 系统代理 ──
         _trayProxyItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TraySystemProxy.Text") };
@@ -994,8 +956,7 @@ public sealed partial class MainWindow : Window
         // 初始化核心运行状态
         try
         {
-            var clash = ServiceLocator.Get<IClashService>();
-            _trayRunItem.IsChecked = clash.CoreState == CoreState.Running;
+            // 核心由应用自动管理，托盘不再提供核心启停入口
         }
         catch { }
     }

@@ -1,0 +1,174 @@
+using System.Text;
+using Microsoft.Extensions.Logging;
+using WinUIClash.Models;
+
+namespace WinUIClash.Services;
+
+/// <summary>
+/// 运行时构建 mihomo 的 config.yaml。
+/// 把“活动订阅/配置”与“应用托管的控制器设置”（端口、secret、external-controller）
+/// 合并后写出到 %LOCALAPPDATA%\WinUIClash\config.yaml，
+/// 从而保证核心监听的外部控制器端口与应用连接的端口永远一致。
+/// </summary>
+public class ConfigBuildService
+{
+    private readonly AppSettings _settings;
+    private readonly ProfileStorageService _profileStorage;
+    private readonly ILogger<ConfigBuildService> _logger;
+
+    public const int DefaultApiPort = 9090;
+
+    public int ApiPort => _settings.ApiPort > 0 ? _settings.ApiPort : DefaultApiPort;
+
+    public ConfigBuildService(AppSettings settings, ProfileStorageService profileStorage, ILogger<ConfigBuildService> logger)
+    {
+        _settings = settings;
+        _profileStorage = profileStorage;
+        _logger = logger;
+    }
+
+    public string ConfigDirectory =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WinUIClash");
+
+    public string ConfigPath => Path.Combine(ConfigDirectory, "config.yaml");
+
+    /// <summary>
+    /// 根据当前设置与活动配置生成最终的 config.yaml，返回其完整路径。
+    /// </summary>
+    public async Task<string> BuildConfigAsync()
+    {
+        Directory.CreateDirectory(ConfigDirectory);
+
+        var profile = await GetActiveProfileAsync();
+        string baseYaml;
+        if (profile != null && File.Exists(profile.Path))
+        {
+            baseYaml = await File.ReadAllTextAsync(profile.Path);
+            _logger.LogInformation("使用活动配置 {Label} 生成 config.yaml: {Path}", profile.Label, profile.Path);
+        }
+        else
+        {
+            baseYaml = LoadBundledDefaultConfig();
+            _logger.LogInformation("没有活动配置，使用内置默认配置模板");
+        }
+
+        var merged = InjectControllerSettings(baseYaml);
+        await File.WriteAllTextAsync(ConfigPath, merged);
+        return ConfigPath;
+    }
+
+    private async Task<Profile?> GetActiveProfileAsync()
+    {
+        try
+        {
+            var list = await _profileStorage.LoadProfileListAsync();
+            return list.FirstOrDefault(p => p.IsActive)
+                ?? (list.Count > 0 ? list.OrderBy(p => p.Order).First() : null);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "读取配置列表失败，回退到默认配置");
+            return null;
+        }
+    }
+
+    // 这些顶层键由应用托管，合并时从订阅原文中剥离后重新写入，避免重复键导致解析失败
+    private static readonly HashSet<string> OverrideKeys = new()
+    {
+        "external-controller", "secret", "mixed-port", "socks-port", "port",
+        "mode", "log-level", "allow-lan", "ipv6",
+    };
+
+    private string InjectControllerSettings(string yaml)
+    {
+        var lines = yaml.Replace("\r\n", "\n").Split('\n');
+        var kept = new List<string>(lines.Length);
+        foreach (var line in lines)
+        {
+            if (IsTopLevelOverride(line)) continue;
+            kept.Add(line);
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("# ------------------------------------------------------------------");
+        sb.AppendLine("# 本文件由 WinUIClash 自动生成，控制器相关设置由应用托管。");
+        sb.AppendLine("# ------------------------------------------------------------------");
+        sb.AppendLine($"mixed-port: {_settings.MixedPort}");
+        sb.AppendLine($"socks-port: {_settings.SocksPort}");
+        sb.AppendLine($"port: {_settings.HttpPort}");
+        sb.AppendLine($"external-controller: 127.0.0.1:{ApiPort}");
+        if (!string.IsNullOrWhiteSpace(_settings.ApiSecret))
+            sb.AppendLine($"secret: \"{_settings.ApiSecret}\"");
+        sb.AppendLine($"mode: {NormalizeMode(_settings.OutboundMode)}");
+        sb.AppendLine($"log-level: {_settings.LogLevel}");
+        sb.AppendLine($"allow-lan: {(_settings.AllowLan ? "true" : "false")}");
+        sb.AppendLine($"ipv6: {(_settings.Ipv6 ? "true" : "false")}");
+        sb.AppendLine();
+
+        foreach (var line in kept)
+            sb.AppendLine(line);
+
+        return sb.ToString();
+    }
+
+    /// <summary>判断是否为需要被应用托管的顶层键（忽略注释与缩进的行）。</summary>
+    private static bool IsTopLevelOverride(string line)
+    {
+        if (string.IsNullOrWhiteSpace(line)) return false;
+        if (line.StartsWith(" ") || line.StartsWith("\t")) return false;
+        if (line.StartsWith("#")) return false;
+        var idx = line.IndexOf(':');
+        if (idx <= 0) return false;
+        var key = line[..idx].Trim();
+        return OverrideKeys.Contains(key);
+    }
+
+    private static string NormalizeMode(string? mode) => mode?.ToLowerInvariant() switch
+    {
+        "global" => "global",
+        "direct" => "direct",
+        _ => "rule",
+    };
+
+    private string LoadBundledDefaultConfig()
+    {
+        // 优先使用打包的默认模板（含 DNS / proxy-groups / rules）
+        var bundled = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Core", "config.yaml");
+        if (File.Exists(bundled))
+            return File.ReadAllText(bundled);
+
+        // 极端兜底：内置最小化配置
+        return "mixed-port: " + _settings.MixedPort + "\n" +
+               "socks-port: " + _settings.SocksPort + "\n" +
+               "port: " + _settings.HttpPort + "\n" +
+               "external-controller: 127.0.0.1:" + ApiPort + "\n" +
+               "mode: rule\n" +
+               "log-level: " + _settings.LogLevel + "\n" +
+               "allow-lan: false\n" +
+               "ipv6: false\n" +
+               "dns:\n" +
+               "  enable: true\n" +
+               "  enhanced-mode: fake-ip\n" +
+               "  fake-ip-range: 198.18.0.1/16\n" +
+               "  default-nameserver:\n" +
+               "    - 223.5.5.5\n" +
+               "    - 119.29.29.29\n" +
+               "  nameserver:\n" +
+               "    - https://doh.pub/dns-query\n" +
+               "    - https://dns.alidns.com/dns-query\n" +
+               "proxy-groups:\n" +
+               "  - name: \"PROXY\"\n" +
+               "    type: select\n" +
+               "    proxies:\n" +
+               "      - DIRECT\n" +
+               "  - name: \"AUTO\"\n" +
+               "    type: url-test\n" +
+               "    proxies:\n" +
+               "      - DIRECT\n" +
+               "    url: \"https://www.gstatic.com/generate_204\"\n" +
+               "    interval: 300\n" +
+               "rules:\n" +
+               "  - GEOIP,CN,DIRECT\n" +
+               "  - MATCH,PROXY\n";
+    }
+}

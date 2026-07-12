@@ -9,7 +9,6 @@
     <x:String x:Key="NavRequests.Content">请求</x:String>
     <x:String x:Key="NavConnections.Content">连接</x:String>
     <x:String x:Key="NavResources.Content">资源</x:String>
-    <x:String x:Key="NavRules.Content">规则</x:String>
     <x:String x:Key="NavLogs.Content">日志</x:String>
     <x:String x:Key="NavTools.Content">工具</x:String>
     <x:String x:Key="NavShortcuts.Content">快捷键</x:String>
@@ -40,6 +39,9 @@
     <x:String x:Key="DashCoreMemory.Text">核心内存</x:String>
     <x:String x:Key="DashCoreStart.Text">启动</x:String>
     <x:String x:Key="DashCoreStop.Text">停止</x:String>
+    <x:String x:Key="CoreAutoManaged.Text">核心由应用自动管理，无需手动启停</x:String>
+    <x:String x:Key="DashProxyStart.Text">启动代理</x:String>
+    <x:String x:Key="DashProxyStop.Text">停止代理</x:String>
     <x:String x:Key="DashRuntime.Text">运行 </x:String>
     <x:String x:Key="DashOutboundMode.Text">出站模式</x:String>
     <x:String x:Key="DashSystemProxy.Text">系统代理</x:String>
@@ -74,10 +76,12 @@
 
     <!-- Settings -->
     <x:String x:Key="SettingsLanguage.Text">语言设置</x:String>
+    <x:String x:Key="LanguageSettingsDesc.Text">选择界面显示语言，更改后即时生效</x:String>
     <x:String x:Key="SettingsBasicConfig.Text">基础配置</x:String>
     <x:String x:Key="SettingsApp.Text">应用设置</x:String>
     <x:String x:Key="SettingsTheme.Text">主题设置</x:String>
     <x:String x:Key="SettingsAbout.Text">关于</x:String>
+    <x:String x:Key="Settings_Text">设置</x:String>
 
     <!-- Basic Config Settings -->
     <x:String x:Key="ConfigPort.Text">混合端口</x:String>
@@ -152,6 +156,7 @@
     <x:String x:Key="AppOnlyStatisticsProxy.Text">仅统计代理流量</x:String>
     <x:String x:Key="AppOnlyStatisticsProxyDesc.Text">流量统计仅计算经过代理的部分</x:String>
     <x:String x:Key="SettingsBackup.Text">备份与恢复</x:String>
+    <x:String x:Key="SettingsBackupDesc.Text">导出或导入当前所有设置</x:String>
     <x:String x:Key="SettingsExportSettings.Text">导出设置</x:String>
     <x:String x:Key="SettingsImportSettings.Text">导入设置</x:String>
     <x:String x:Key="SettingsExportDone.Title">导出成功</x:String>
@@ -237,12 +242,17 @@
 
     <!-- Basic Config - Section Headers -->
     <x:String x:Key="ConfigPortSettings.Text">端口设置</x:String>
+    <x:String x:Key="ConfigPortSettingsDesc.Text">混合端口、SOCKS 与 HTTP 代理端口</x:String>
     <x:String x:Key="ConfigFeatureSwitches.Text">功能开关</x:String>
+    <x:String x:Key="ConfigFeatureSwitchesDesc.Text">核心运行时行为的各项开关</x:String>
 
     <!-- App Settings - Section Headers -->
     <x:String x:Key="AppStartupExit.Text">启动与退出</x:String>
+    <x:String x:Key="AppStartupExitDesc.Text">控制应用与核心的启动、退出行为</x:String>
     <x:String x:Key="AppProxyBehavior.Text">代理行为</x:String>
+    <x:String x:Key="AppProxyBehaviorDesc.Text">系统代理、TUN 模式与连接管理</x:String>
     <x:String x:Key="AppOther.Text">其他</x:String>
+    <x:String x:Key="AppOtherDesc.Text">更新检查与通知</x:String>
     <x:String x:Key="AppSilentLaunch.Text">静默启动</x:String>
     <x:String x:Key="AppSilentLaunchDesc.Text">启动时最小化，不显示主窗口</x:String>
 
@@ -263,6 +273,7 @@
     <x:String x:Key="AboutVersion.Text">版本 </x:String>
     <x:String x:Key="AboutDescription.Text">基于 FlClash UI 设计的 ClashMeta 客户端</x:String>
     <x:String x:Key="AboutTechStack.Text">技术栈</x:String>
+    <x:String x:Key="AboutProjectLinks.Text">项目链接</x:String>
     <x:String x:Key="AboutActions.Text">操作</x:String>
     <x:String x:Key="AboutFlClash.Content">FlClash 原项目</x:String>
     <x:String x:Key="AboutMihomo.Content">ClashMeta 核心 (Mihomo)</x:String>
@@ -280,7 +291,7 @@
     <x:String x:Key="ToolsLanguageSub.Text">界面显示语言</x:String>
     <x:String x:Key="ToolsAboutSub.Text">版本信息、项目链接</x:String>
 
-    <x:String x:Key="ToolsShortcutsSub.Text\">查看全部键盘快捷键</x:String>
+    <x:String x:Key="ToolsShortcutsSub.Text">查看全部键盘快捷键</x:String>
 
     <!-- Proxies - Additional -->
     <x:String x:Key="ProxyTitle.Text">代理</x:String>
@@ -356,6 +367,7 @@
     <x:String x:Key="SubExpired.Text">已过期</x:String>
     <x:String x:Key="SubHoursRemaining.Text">小时</x:String>
     <x:String x:Key="SubDaysRemaining.Text">天</x:String>
+    <x:String x:Key="SubLongTerm.Text">长期有效</x:String>
 
     <!-- Proxies -->
     <x:String x:Key="ProxySortDefault.Text">默认</x:String>
@@ -433,6 +445,8 @@
     <x:String x:Key="BasicConfigAppliedMsg.Text">配置更改已应用到运行中的核心。</x:String>
     <x:String x:Key="ProfilesSyncDoneTitle.Text">同步完成</x:String>
     <x:String x:Key="ProfilesSyncAllDoneMsg.Text">所有订阅已更新</x:String>
+    <x:String x:Key="ProfilesSyncUrlHint.Text">请检查订阅地址是否正确或已过期</x:String>
+    <x:String x:Key="ProfilesSyncAuthHint.Text">请检查订阅链接或联系服务提供者</x:String>
     <x:String x:Key="ProfilesSwitchedTitle.Text">配置已切换</x:String>
     <x:String x:Key="ProfilesSwitching.Text">正在切换配置…</x:String>
     <x:String x:Key="NetworkChanged.Text">网络变化</x:String>
@@ -445,20 +459,6 @@
     <x:String x:Key="ProfilesExportConfig.Text">导出配置</x:String>
     <x:String x:Key="ProfilesAutoStartTitle.Text">启动核心</x:String>
     <x:String x:Key="ProfilesAutoStartMsg.Text">核心未运行，正在自动启动…</x:String>
-
-    <!-- Rules Page -->
-    <x:String x:Key="RulesTitle.Text">规则</x:String>
-    <x:String x:Key="RulesSearchPlaceholder.PlaceholderText">搜索规则…</x:String>
-    <x:String x:Key="RulesTypeCol.Text">类型</x:String>
-    <x:String x:Key="RulesPayloadCol.Text">匹配内容</x:String>
-    <x:String x:Key="RulesTargetCol.Text">目标</x:String>
-    <x:String x:Key="RulesAllProxiesFilter.Text">全部目标</x:String>
-    <x:String x:Key="RulesAllTypes.Text">全部类型</x:String>
-    <x:String x:Key="RulesAllProxies.Text">全部代理</x:String>
-    <x:String x:Key="RulesCopyType.Text">复制类型</x:String>
-    <x:String x:Key="RulesCopyPayload.Text">复制匹配内容</x:String>
-    <x:String x:Key="RulesCopyProxy.Text">复制目标代理</x:String>
-    <x:String x:Key="RulesCopyAll.Text">复制整条规则</x:String>
 
     <!-- Proxy Context Menu -->
     <x:String x:Key="ProxyCtxTestDelay.Text">测试延迟</x:String>
@@ -500,6 +500,11 @@
     <!-- Service Error Messages -->
     <x:String x:Key="ErrorCoreBinaryNotFound.Text">未找到 mihomo 可执行文件，请在设置中指定路径</x:String>
     <x:String x:Key="ErrorCoreBinaryNotFoundMsg.Text">请在工具页设置中指定 mihomo 可执行文件路径</x:String>
+    <x:String x:Key="CoreDownloadingTitle.Text">正在下载核心引擎</x:String>
+    <x:String x:Key="CoreDownloadingMsg.Text">本地未找到 mihomo，正在从网络下载核心引擎…</x:String>
+    <x:String x:Key="CoreDownloadedTitle.Text">核心引擎已就绪</x:String>
+    <x:String x:Key="CoreDownloadedMsg.Text">mihomo 核心已下载完成</x:String>
+    <x:String x:Key="CoreApiTimeout.Text">8 秒内未响应</x:String>
     <x:String x:Key="ErrorConfigNotFound.Text">配置文件不存在: {0}</x:String>
     <x:String x:Key="ErrorRegistryAccess.Text">无法打开 Internet Settings 注册表项</x:String>
     <x:String x:Key="CoreStartedTitle.Text">核心已启动</x:String>
@@ -507,7 +512,7 @@
     <x:String x:Key="CoreStoppedTitle.Text">核心已停止</x:String>
     <x:String x:Key="CoreStoppedMsg.Text">ClashMeta 核心已停止运行</x:String>
     <x:String x:Key="ErrorCoreStartFailed.Text">核心启动失败</x:String>
-    <x:String x:Key="ErrorCoreStartFailedMsg.Text">无法启动 ClashMeta 核心: {0}，已切换到模拟数据</x:String>
+    <x:String x:Key="ErrorCoreStartFailedMsg.Text">无法启动 ClashMeta 核心: {0}</x:String>
     <x:String x:Key="ErrorCoreStopFailed.Text">核心停止失败</x:String>
     <x:String x:Key="ErrorCoreStopFailedMsg.Text">停止核心时出错: {0}</x:String>
     <x:String x:Key="CoreCrashedTitle.Text">核心崩溃</x:String>

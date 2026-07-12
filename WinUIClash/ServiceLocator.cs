@@ -34,7 +34,8 @@ public static class ServiceLocator
         services.AddSingleton<CoreProcessService>();
         services.AddSingleton<UpdateService>();
         services.AddSingleton<ProfileStorageService>();
-        services.AddSingleton<MockClashService>();
+        services.AddSingleton<ConfigBuildService>();
+        services.AddSingleton<CoreDownloadService>();
         services.AddSingleton<HttpClashService>();
         services.AddSingleton<ClashOrchestrator>();
         services.AddSingleton<IClashService>(sp => sp.GetRequiredService<ClashOrchestrator>());
@@ -49,7 +50,6 @@ public static class ServiceLocator
         services.AddSingleton<ConnectionsViewModel>();
         services.AddSingleton<RequestsViewModel>();
         services.AddSingleton<ResourcesViewModel>();
-        services.AddSingleton<RulesViewModel>();
         services.AddSingleton<ToolsViewModel>();
 
         services.AddSingleton<ViewModels.Settings.LanguageSettingsViewModel>();

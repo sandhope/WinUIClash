@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Net.Http;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using WinUIClash.Models;
@@ -135,6 +136,18 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             _notification.Success(
                 LocalizationHelper.GetString("ProfilesSyncDoneTitle.Text"),
                 profile.Label);
+        }
+        catch (HttpRequestException httpEx)
+        {
+            var hint = httpEx.StatusCode switch
+            {
+                System.Net.HttpStatusCode.NotFound => LocalizationHelper.GetString("ProfilesSyncUrlHint.Text"),
+                System.Net.HttpStatusCode.Unauthorized => LocalizationHelper.GetString("ProfilesSyncAuthHint.Text"),
+                _ => null
+            };
+            _notification.Error(
+                LocalizationHelper.GetString("ErrorSyncTitle.Text"),
+                $"{profile.Label}: {httpEx.Message}{(hint != null ? $"\n{hint}" : "")}");
         }
         catch (Exception ex)
         {

@@ -21,79 +21,22 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Row="0" Grid.ColumnSpan="6" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Source={StaticResource S}, Path=ResTitle_Text}" FontSize="20" FontWeight="SemiBold" />
-                <TextBlock FontSize="12" Opacity="0.5" VerticalAlignment="Bottom">
-                    <Run Text="{x:Bind ViewModel.TotalCount, Mode=OneWay}" />
-                    <Run Text="{Binding Source={StaticResource S}, Path=ResCountSuffix_Text}" />
-                </TextBlock>
-            </StackPanel>
-            <!-- 类型筛选 -->
-            <ComboBox Grid.Row="1" Grid.Column="0" Width="130" Height="32" VerticalAlignment="Center"
-                      x:Name="TypeFilterCombo"
-                      SelectionChanged="TypeFilter_SelectionChanged"
-                      FontSize="12" SelectedIndex="0">
-                <ComboBoxItem Content="{Binding Source={StaticResource S}, Path=ResFilterAll_Content}" Tag="ALL" />
-                <ComboBoxItem Content="{Binding Source={StaticResource S}, Path=ResFilterProxy_Content}" Tag="Proxy" />
-                <ComboBoxItem Content="{Binding Source={StaticResource S}, Path=ResFilterRule_Content}" Tag="Rule" />
-            </ComboBox>
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding Source={StaticResource S}, Path=ResTitle_Text}" FontSize="20" FontWeight="SemiBold" />
             <!-- 搜索框 -->
-            <AutoSuggestBox Grid.Row="1" Grid.Column="2" Width="200" Height="32" Margin="8,0,0,0" VerticalAlignment="Center"
+            <AutoSuggestBox Grid.Row="1" Grid.Column="0" Width="200" Height="32" Margin="0,0,8,0" VerticalAlignment="Center"
                             PlaceholderText="{Binding Source={StaticResource S}, Path=ResSearchPlaceholder_PlaceholderText}"
                             QueryIcon="Find"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <!-- GeoIP/GeoSite 更新 -->
-            <Button Grid.Row="1" Grid.Column="3" Margin="8,0,0,0" Height="32" VerticalAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <fluent:SymbolIcon Symbol="Globe" FontSize="14" />
-                    <TextBlock Text="{Binding Source={StaticResource S}, Path=ResGeoUpdate_Text}" FontSize="12" />
-                </StackPanel>
-                <Button.Flyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem Text="{Binding Source={StaticResource S}, Path=ResUpdateGeoIp_Text}" Click="UpdateGeoIp_Click">
-                            <MenuFlyoutItem.Icon>
-                                <fluent:SymbolIcon Symbol="GlobeLocation" />
-                            </MenuFlyoutItem.Icon>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="{Binding Source={StaticResource S}, Path=ResUpdateGeoSite_Text}" Click="UpdateGeoSite_Click">
-                            <MenuFlyoutItem.Icon>
-                                <fluent:SymbolIcon Symbol="GlobeSurface" />
-                            </MenuFlyoutItem.Icon>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutSeparator />
-                        <MenuFlyoutItem Text="{Binding Source={StaticResource S}, Path=ResUpdateMmdb_Text}" Click="UpdateMmdb_Click">
-                            <MenuFlyoutItem.Icon>
-                                <fluent:SymbolIcon Symbol="Database" />
-                            </MenuFlyoutItem.Icon>
-                        </MenuFlyoutItem>
-                        <MenuFlyoutItem Text="{Binding Source={StaticResource S}, Path=ResUpdateAsn_Text}" Click="UpdateAsn_Click">
-                            <MenuFlyoutItem.Icon>
-                                <fluent:SymbolIcon Symbol="Server" />
-                            </MenuFlyoutItem.Icon>
-                        </MenuFlyoutItem>
-                    </MenuFlyout>
-                </Button.Flyout>
-            </Button>
             <!-- 全部更新 -->
-            <Button Grid.Row="1" Grid.Column="4" Margin="8,0,0,0" Height="32" VerticalAlignment="Center"
+            <Button Grid.Row="1" Grid.Column="1" Height="32" VerticalAlignment="Center"
                     Command="{x:Bind ViewModel.UpdateAllCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
                     <TextBlock Text="{Binding Source={StaticResource S}, Path=ResUpdateAll_Text}" FontSize="12" />
                 </StackPanel>
-            </Button>
-            <!-- 刷新列表 -->
-            <Button Grid.Row="1" Grid.Column="5" Margin="8,0,0,0" Height="32" VerticalAlignment="Center"
-                    Command="{x:Bind ViewModel.RefreshCommand}"
-                    ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=CommonRefresh_ToolTip}">
-                <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
             </Button>
         </Grid>
 
@@ -116,8 +59,6 @@
                         <Grid ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
@@ -167,16 +108,6 @@
                                     Tag="{x:Bind}">
                                 <fluent:SymbolIcon Symbol="ArrowSync" FontSize="13" />
                             </Button>
-                            <Button Grid.Column="3" Padding="8,4"
-                                    ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ResHealthCheck_ToolTip}"
-                                    Click="HealthCheck_Click"
-                                    Tag="{x:Bind}"
-                                    Visibility="{x:Bind IsHealthChecking, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <fluent:SymbolIcon Symbol="HeartPulse" FontSize="13" />
-                            </Button>
-                            <ProgressRing Grid.Column="3" IsActive="{x:Bind IsHealthChecking, Mode=OneWay}"
-                                          Visibility="{x:Bind IsHealthChecking, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                          Width="22" Height="22" />
                         </Grid>
                     </Border>
                 </DataTemplate>

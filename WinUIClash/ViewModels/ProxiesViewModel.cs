@@ -13,13 +13,24 @@ public partial class ProxiesViewModel : ObservableObject
 {
     private readonly IClashService _clash;
     private readonly NotificationService _notification;
+    private readonly AppSettings _settings;
     private readonly SemaphoreSlim _testSemaphore = new(5, 5);
     private bool _initialized;
 
-    public ProxiesViewModel(IClashService clash, NotificationService notification)
+    public ProxiesViewModel(IClashService clash, NotificationService notification, AppSettings settings)
     {
         _clash = clash;
         _notification = notification;
+        _settings = settings;
+        _customTestUrl = settings.TestUrl;
+        // 核心启动后自动重新加载代理列表（解决核心未就绪时首次加载返回空后无法自愈）
+        _clash.CoreStateChanged += OnCoreStateChanged;
+    }
+
+    private async void OnCoreStateChanged(CoreState state)
+    {
+        if (state == CoreState.Running && _initialized)
+            await LoadAsync();
     }
 
     [ObservableProperty] private ObservableCollection<ProxyGroup> _groups = new();
@@ -47,14 +58,31 @@ public partial class ProxiesViewModel : ObservableObject
         "Cloudflare",
         "Apple",
         "Google (alt)",
+        "自定义",
     ];
 
     [ObservableProperty] private int _selectedTestUrlIndex = 0;
 
+    /// <summary>索引等于 TestUrlOptions.Length 时表示「自定义」项。</summary>
+    public int CustomTestUrlIndex => TestUrlOptions.Length;
+
+    [ObservableProperty] private string _customTestUrl = "";
+
+    /// <summary>当前是否选中「自定义」测速 URL 项。</summary>
+    public bool IsCustomTestUrl => SelectedTestUrlIndex == CustomTestUrlIndex;
+
     public string SelectedTestUrl =>
-        SelectedTestUrlIndex >= 0 && SelectedTestUrlIndex < TestUrlOptions.Length
-            ? TestUrlOptions[SelectedTestUrlIndex]
-            : TestUrlOptions[0];
+        SelectedTestUrlIndex == CustomTestUrlIndex
+            ? (string.IsNullOrWhiteSpace(CustomTestUrl) ? TestUrlOptions[0] : CustomTestUrl)
+            : (SelectedTestUrlIndex >= 0 && SelectedTestUrlIndex < TestUrlOptions.Length
+                ? TestUrlOptions[SelectedTestUrlIndex]
+                : TestUrlOptions[0]);
+
+    partial void OnSelectedTestUrlIndexChanged(int value) =>
+        OnPropertyChanged(nameof(IsCustomTestUrl));
+
+    partial void OnCustomTestUrlChanged(string value) =>
+        _settings.TestUrl = _customTestUrl;
 
     public enum SortMode { Default, Name, Delay, Type }
 
@@ -291,7 +319,7 @@ public partial class ProxiesViewModel : ObservableObject
     public async Task InitializeAsync()
     {
         if (_initialized) return;
-        _initialized = true;
         await LoadAsync();
+        _initialized = true;
     }
 }

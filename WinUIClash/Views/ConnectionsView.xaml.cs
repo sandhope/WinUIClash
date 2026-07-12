@@ -15,7 +15,11 @@ public sealed partial class ConnectionsView : Page
     {
         ViewModel = ServiceLocator.Get<ConnectionsViewModel>();
         InitializeComponent();
-        Loaded += async (_, _) => await ViewModel.InitializeAsync();
+        Loaded += async (_, _) =>
+        {
+            try { await ViewModel.InitializeAsync(); }
+            catch { /* 核心未运行或初始化出错时保持空状态，避免崩溃 */ }
+        };
         Unloaded += (_, _) =>
         {
             _detailTimer?.Stop();
@@ -90,60 +94,10 @@ public sealed partial class ConnectionsView : Page
                 : $"{duration.Seconds}s";
     }
 
-    private void CopyHost_Click(object sender, RoutedEventArgs e)
-    {
-        if (ViewModel.SelectedConnection != null)
-            CopyToClipboard(ViewModel.SelectedConnection.Metadata.Host);
-    }
-
     private void CloseConnection_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button btn && btn.Tag is ConnectionInfo conn)
             ViewModel.CloseConnectionCommand.Execute(conn);
-    }
-
-    private void ConnectionItem_RightTapped(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)
-    {
-        if (sender is not FrameworkElement element) return;
-        if (element.DataContext is not ConnectionInfo conn) return;
-
-        var menu = new MenuFlyout();
-
-        var copyHost = new MenuFlyoutItem { Text = LocalizationHelper.GetString("RequestsCopyHost.Text") };
-        copyHost.Click += (_, _) => CopyToClipboard(conn.Metadata.Host);
-        menu.Items.Add(copyHost);
-
-        var copySource = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ConnCopySource.Text") };
-        copySource.Click += (_, _) => CopyToClipboard($"{conn.Metadata.SourceIP}:{conn.Metadata.SourcePort}");
-        menu.Items.Add(copySource);
-
-        var copyChains = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ConnCopyChains.Text") };
-        copyChains.Click += (_, _) => CopyToClipboard(string.Join(" → ", conn.Chains));
-        menu.Items.Add(copyChains);
-
-        menu.Items.Add(new MenuFlyoutSeparator());
-
-        var closeSimilar = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ConnCloseSimilar.Text") };
-        closeSimilar.Click += (_, _) => ViewModel.CloseSimilarCommand.Execute(conn);
-        menu.Items.Add(closeSimilar);
-
-        var close = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ConnClose.ToolTip") };
-        close.Click += (_, _) => ViewModel.CloseConnectionCommand.Execute(conn);
-        menu.Items.Add(close);
-
-        menu.ShowAt(element, e.GetPosition(element));
-    }
-
-    private void ConnectionItem_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
-    {
-        if (sender is FrameworkElement { DataContext: ConnectionInfo conn })
-            CopyToClipboard(conn.Metadata.Host);
-    }
-
-    private void CloseSelected_Click(object sender, RoutedEventArgs e)
-    {
-        if (ViewModel.SelectedConnection != null)
-            ViewModel.CloseConnectionCommand.Execute(ViewModel.SelectedConnection);
     }
 
     private async void CloseAll_Click(object sender, RoutedEventArgs e)
@@ -162,40 +116,4 @@ public sealed partial class ConnectionsView : Page
             ViewModel.CloseAllCommand.Execute(null);
     }
 
-    private void DetailPanel_RightTapped(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)
-    {
-        var conn = ViewModel.SelectedConnection;
-        if (conn == null || sender is not FrameworkElement element) return;
-
-        var menu = new MenuFlyout();
-
-        var copyHost = new MenuFlyoutItem { Text = LocalizationHelper.GetString("RequestsCopyHost.Text") };
-        copyHost.Click += (_, _) => CopyToClipboard(conn.Metadata.Host);
-        menu.Items.Add(copyHost);
-
-        var copyChains = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ConnCopyChains.Text") };
-        copyChains.Click += (_, _) => CopyToClipboard(string.Join(" → ", conn.Chains));
-        menu.Items.Add(copyChains);
-
-        var copyRule = new MenuFlyoutItem { Text = LocalizationHelper.GetString("RequestsCopyRule.Text") };
-        copyRule.Click += (_, _) => CopyToClipboard(
-            string.IsNullOrEmpty(conn.RulePayload) ? conn.Rule : $"{conn.Rule} ({conn.RulePayload})");
-        menu.Items.Add(copyRule);
-
-        menu.Items.Add(new MenuFlyoutSeparator());
-
-        var copyAll = new MenuFlyoutItem { Text = LocalizationHelper.GetString("RequestsCopyAll.Text") };
-        copyAll.Click += (_, _) => CopyToClipboard(
-            $"{conn.Metadata.Host} | {conn.Metadata.SourceIP}:{conn.Metadata.SourcePort} → {conn.Metadata.DestinationIP}:{conn.Metadata.DestinationPort} | {string.Join(", ", conn.Chains)} | {conn.Rule}");
-        menu.Items.Add(copyAll);
-
-        menu.ShowAt(element, e.GetPosition(element));
-    }
-
-    private static void CopyToClipboard(string text)
-    {
-        var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
-        dp.SetText(text);
-        Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
-    }
 }
