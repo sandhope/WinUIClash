@@ -456,22 +456,45 @@ public class HttpClashService : IClashService, IDisposable
 
     public async Task<IpInfo> GetIpInfoAsync()
     {
-        // Use a public API to check IP
-        try
+        // 对齐 FlClash: IP 检测走系统代理（代理开启时经过 mihomo → 显示代理出口 IP）
+        // 代理关闭时系统代理 ProxyEnable=0 → 自动直连 → 显示真实 IP
+        // 多源容错: 取第一个成功响应（对齐 FlClash request.dart checkIp）
+        var sources = new (string Url, Func<JsonElement, IpInfo> Parse)[]
         {
-            using var client = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(5) };
-            var json = await client.GetStringAsync("https://api.ip.sb/geoip");
-            var dto = JsonSerializer.Deserialize<IpGeoDto>(json, JsonOpts);
-            return new IpInfo
+            ("https://api.ip.sb/geoip", d => new IpInfo
             {
-                Ip = dto?.Ip ?? "Unknown",
-                CountryCode = dto?.CountryCode ?? "",
-            };
-        }
-        catch
+                Ip = d.TryGetProperty("ip", out var ip1) ? ip1.GetString() ?? "" : "",
+                CountryCode = d.TryGetProperty("country_code", out var cc1) ? cc1.GetString() ?? "" : "",
+            }),
+            ("https://ipinfo.io/json", d => new IpInfo
+            {
+                Ip = d.TryGetProperty("ip", out var ip2) ? ip2.GetString() ?? "" : "",
+                CountryCode = d.TryGetProperty("country", out var cc2) ? cc2.GetString() ?? "" : "",
+            }),
+            ("https://ipwho.is", d => new IpInfo
+            {
+                Ip = d.TryGetProperty("ip", out var ip3) ? ip3.GetString() ?? "" : "",
+                CountryCode = d.TryGetProperty("country_code", out var cc3) ? cc3.GetString() ?? "" : "",
+            }),
+        };
+
+        using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+        foreach (var (url, parse) in sources)
         {
-            return new IpInfo { Ip = "Unknown", CountryCode = "" };
+            try
+            {
+                var json = await client.GetStringAsync(url);
+                var dto = JsonSerializer.Deserialize<JsonElement>(json);
+                var info = parse(dto);
+                if (!string.IsNullOrEmpty(info.Ip))
+                    return info;
+            }
+            catch
+            {
+                // Try next source
+            }
         }
+        return new IpInfo { Ip = "Unknown", CountryCode = "" };
     }
 
     // ── 外部提供者 ──
