@@ -29,6 +29,15 @@ public partial class AppSettings : ObservableObject
     /// <summary>持久化的出站模式：rule / global / direct</summary>
     [ObservableProperty] private string _outboundMode = "rule";
 
+    // ── Geo 资源（与 FlClash 的 geox-url / geo-auto-update 对应）──
+
+    [ObservableProperty] private bool _geoAutoUpdate = false;
+    [ObservableProperty] private int _geoUpdateInterval = 24;
+    [ObservableProperty] private string _geoMmdbUrl = "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb";
+    [ObservableProperty] private string _geoAsnUrl = "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb";
+    [ObservableProperty] private string _geoIpUrl = "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat";
+    [ObservableProperty] private string _geoSiteUrl = "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat";
+
     // ── 应用设置 ──
 
     [ObservableProperty] private bool _minimizeOnExit = true;
