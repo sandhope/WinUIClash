@@ -10,4 +10,7 @@
     <Platform Solution="*|x86" Project="x86" />
     <Deploy />
   </Project>
+  <Project Path="WinUIClash.HelperService/WinUIClash.HelperService.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
 </Solution>
