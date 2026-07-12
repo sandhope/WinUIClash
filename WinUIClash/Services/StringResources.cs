@@ -86,8 +86,6 @@ public class StringResources : INotifyPropertyChanged
     public string DashCoreStart_Text => Get("DashCoreStart.Text");
     public string DashCoreStop_Text => Get("DashCoreStop.Text");
     public string CoreAutoManaged_Text => Get("CoreAutoManaged.Text");
-    public string DashProxyStart_Text => Get("DashProxyStart.Text");
-    public string DashProxyStop_Text => Get("DashProxyStop.Text");
     public string DashRuntime_Text => Get("DashRuntime.Text");
     public string DashOutboundMode_Text => Get("DashOutboundMode.Text");
     public string DashSystemProxy_Text => Get("DashSystemProxy.Text");

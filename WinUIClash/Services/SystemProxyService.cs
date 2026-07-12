@@ -63,7 +63,9 @@ public class SystemProxyService
     }
 
     /// <summary>
-    /// 注册属性变更监听，自动响应 SystemProxy 切换
+    /// 注册属性变更监听，自动响应端口/绕过域名变化并刷新已启用的系统代理。
+    /// 注意：SystemProxy 开关本身由 DashboardViewModel 在核心状态变化时统一应用，
+    /// 避免核心未运行时就写入注册表导致指向死端口。
     /// </summary>
     public void WatchSettings()
     {
@@ -71,20 +73,13 @@ public class SystemProxyService
         {
             switch (e.PropertyName)
             {
-                case nameof(AppSettings.SystemProxy):
-                    ApplyCurrentState();
-                    // Start/stop guard based on proxy state
-                    if (_settings.SystemProxy && _settings.ProxyGuardEnabled)
-                        StartGuard();
-                    else
-                        StopGuard();
-                    break;
                 case nameof(AppSettings.MixedPort):
                 case nameof(AppSettings.BypassDomains):
-                    if (_settings.SystemProxy) Enable();
+                    // 仅在系统代理已启用时刷新设置
+                    if (IsEnabled()) Enable();
                     break;
                 case nameof(AppSettings.ProxyGuardEnabled):
-                    if (_settings.SystemProxy && _settings.ProxyGuardEnabled)
+                    if (IsEnabled() && _settings.ProxyGuardEnabled)
                         StartGuard();
                     else
                         StopGuard();
@@ -98,6 +93,20 @@ public class SystemProxyService
                     break;
             }
         };
+    }
+
+    /// <summary>
+    /// 检查系统代理当前是否已启用（读注册表）
+    /// </summary>
+    public bool IsEnabled()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(InternetSettingsKey, false);
+            if (key == null) return false;
+            return (key.GetValue("ProxyEnable") as int?) == 1;
+        }
+        catch { return false; }
     }
 
     /// <summary>
@@ -160,11 +169,11 @@ public class SystemProxyService
 
     private static void NotifyProxyChanged()
     {
-        InternetSetOption(IntPtr.Zero, InternetOptionSettingsChanged, IntPtr.Zero, 0);
-        InternetSetOption(IntPtr.Zero, InternetOptionRefresh, IntPtr.Zero, 0);
+        InternetSetOptionW(IntPtr.Zero, InternetOptionSettingsChanged, IntPtr.Zero, 0);
+        InternetSetOptionW(IntPtr.Zero, InternetOptionRefresh, IntPtr.Zero, 0);
     }
 
-    [DllImport("wininet.dll", SetLastError = true)]
-    private static extern bool InternetSetOption(
+    [DllImport("wininet.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern bool InternetSetOptionW(
         IntPtr hInternet, int dwOption, IntPtr lpBuffer, int lpdwBufferLength);
 }

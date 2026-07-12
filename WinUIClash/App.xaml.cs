@@ -154,31 +154,22 @@ namespace WinUIClash
             settingsService.Load();
             settingsService.EnableAutoSave();
 
-            // 初始化系统代理：启动时不自动启用代理，仅启动核心。
-            // 代理是否启用完全由用户手动操作（默认关闭），核心启动不等于代理启动。
+            // 初始化系统代理：核心尚未启动，先禁用系统代理，避免指向死端口。
+            // 系统代理的实际启用/禁用由 DashboardViewModel 在核心状态变化时根据设置统一处理。
             var appSettings = ServiceLocator.Get<Models.AppSettings>();
             var proxyService = ServiceLocator.Get<Services.SystemProxyService>();
             proxyService.Disable();
-            appSettings.SystemProxy = false;
             proxyService.WatchSettings();
 
-            // 监听 TUN 模式变化，实时调用核心 API
+            // 监听 TUN 模式变化：需要重建 config.yaml 并重启核心
+            // （TUN 配置在 config.yaml 里，核心需要重新读取才能创建/关闭虚拟网卡）
             appSettings.PropertyChanged += async (s, e) =>
             {
                 if (e.PropertyName == nameof(Models.AppSettings.TunMode) ||
                     e.PropertyName == nameof(Models.AppSettings.TunStack))
                 {
-                    try
-                    {
-                        var clash = ServiceLocator.Get<Services.IClashService>();
-                        if (clash.CoreState == Models.CoreState.Running)
-                        {
-                            await clash.SetTunEnabledAsync(appSettings.TunMode);
-                            if (appSettings.TunMode)
-                                await clash.SetTunStackAsync(appSettings.TunStack);
-                        }
-                    }
-                    catch { }
+                    if (_tunWatcherSuppressed) return;
+                    await ApplyTunChangeAsync();
                 }
             };
 
@@ -203,10 +194,16 @@ namespace WinUIClash
 
             // 启动时自动拉起 Clash 核心（与 FlClash 一致：应用启动即连接核心，
             // 使网络/测速/代理页立即可用，避免手动点击启动的等待）。
+            // 但 TUN 模式需要 UAC 提权注册 Helper Service，不在启动时自动拉起，
+            // 避免软件一启动就弹管理员权限提示；TUN 模式下由用户点击开始按钮时触发。
             var clash = ServiceLocator.Get<Services.IClashService>();
             _ = Task.Run(async () =>
             {
-                try { await clash.StartAsync(); }
+                try
+                {
+                    if (!appSettings.TunMode)
+                        await clash.StartAsync();
+                }
                 catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Core auto-start failed: {ex.Message}"); }
             });
 
@@ -242,6 +239,49 @@ namespace WinUIClash
                 var mainWindow = CurrentWindow as MainWindow;
                 mainWindow?.NavigateTo(_savedNavigationTag);
                 _savedNavigationTag = null;
+            }
+        }
+
+        // TUN 变更（仪表盘切换 / 托盘项 / 设置页）统一入口：开启弹 UAC 提权 + 经 Helper 重启核心
+        private static bool _tunWatcherSuppressed;
+
+        private static async Task ApplyTunChangeAsync()
+        {
+            try
+            {
+                var appSettings = ServiceLocator.Get<Models.AppSettings>();
+                var clash = ServiceLocator.Get<Services.IClashService>();
+                var helper = ServiceLocator.Get<Services.HelperServiceManager>();
+                var notification = ServiceLocator.Get<Services.NotificationService>();
+
+                var enabling = appSettings.TunMode; // 仅 TunMode 决定是否提权；TunStack 仅重建
+
+                if (enabling)
+                {
+                    // 开启 TUN 必须提权：未注册时 RegisterServiceAsync 内部弹 UAC
+                    var registered = await helper.RegisterServiceAsync();
+                    if (!registered)
+                    {
+                        // 用户拒绝或 exe 缺失：回退开关，避免 UI 与实际状态不一致
+                        _tunWatcherSuppressed = true;
+                        appSettings.TunMode = false;
+                        _tunWatcherSuppressed = false;
+                        notification.Warning(
+                            Services.LocalizationHelper.GetString("TunAdminRequired.Title"),
+                            Services.LocalizationHelper.GetString("TunAdminRequired.Msg"));
+                        return;
+                    }
+                }
+
+                // 重建核心进程以套用 TUN 配置（开启经 Helper 以 SYSTEM 拉起，可建虚拟网卡；关闭则普通启动）
+                await clash.RestartAsync();
+
+                // 校准 TUN 开关 UI（实际网卡状态）
+                await ServiceLocator.Get<ViewModels.DashboardViewModel>().SyncTunStateAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ApplyTunChange error: {ex.Message}");
             }
         }
 

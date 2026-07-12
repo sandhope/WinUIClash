@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using WinUIClash.Models;
@@ -23,12 +24,27 @@ public sealed partial class ProxiesView : Page
             catch { /* 核心未运行或初始化出错时保持空状态，避免崩溃 */ }
         };
 
+        // 配置增删/切换后自动刷新代理列表（BUG-5：纯刷新，无新 UI）
+        ServiceLocator.Get<ProfilesViewModel>().ProfilesChanged += (_, _) =>
+        {
+            if (ServiceLocator.Get<IClashService>().CoreState == CoreState.Running)
+                _ = ViewModel.ReloadAsync();
+        };
+
         // 当选中组变化时刷新高亮
         ViewModel.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(ProxiesViewModel.SelectedGroup))
                 RefreshSelectionHighlights();
         };
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        // 每次进入代理页都重新拉取当前激活配置的代理组（绕过 InitializeAsync 的 _initialized 守卫）
+        if (ServiceLocator.Get<IClashService>().CoreState == CoreState.Running)
+            _ = ViewModel.ReloadAsync();
     }
 
     private void GroupTab_Click(object sender, RoutedEventArgs e)

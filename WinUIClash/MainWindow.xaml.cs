@@ -46,6 +46,7 @@ public sealed partial class MainWindow : Window
 
     // 托盘菜单项（需要动态更新状态）
     private ToggleMenuFlyoutItem? _trayProxyItem;
+    private ToggleMenuFlyoutItem? _trayConnectItem;
     private MenuFlyoutSubItem? _trayProfileMenu;
 
     // 状态栏连接数轮询定时器
@@ -585,10 +586,10 @@ public sealed partial class MainWindow : Window
 
         StatusText.Text = state switch
         {
-            CoreState.Running  => Services.LocalizationHelper.GetString("DashRunning.Text"),
+            CoreState.Running  => Services.LocalizationHelper.GetString("StatusCoreRunning.Text"),
             CoreState.Starting => Services.LocalizationHelper.GetString("DashStarting.Text"),
             CoreState.Stopping => Services.LocalizationHelper.GetString("DashStopping.Text"),
-            _                  => Services.LocalizationHelper.GetString("DashStopped.Text"),
+            _                  => Services.LocalizationHelper.GetString("StatusCoreStopped.Text"),
         };
 
         StatusText.Opacity = state == CoreState.Running ? 0.8 : 0.6;
@@ -740,17 +741,7 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private void StatusDot_Click(object sender, RoutedEventArgs e)
-    {
-        // 核心由应用启动/退出时自动管理，点击状态点仅提示，不启停核心
-        try
-        {
-            ServiceLocator.Get<Services.NotificationService>().Info(
-                Services.LocalizationHelper.GetString("CoreAutoManaged.Text"),
-                "");
-        }
-        catch { }
-    }
+    // 状态点改为纯展示（BUG-2）：核心由应用自动管理，点击逻辑已移除。
 
     private void StatusProxy_Click(object sender, RoutedEventArgs e)
     {
@@ -772,6 +763,9 @@ public sealed partial class MainWindow : Window
         {
             ToolTipText = "WinUIClash",
             Icon = _currentTrayIcon,
+            // 修复 WinUI 3 下 ContextFlyout 点击事件路由断裂（BUG-001）：
+            // SecondWindow 模式在独立窗口中渲染原生菜单，点击能正确触发逻辑。
+            ContextMenuMode = H.NotifyIcon.ContextMenuMode.SecondWindow,
         };
 
         // 双击托盘图标 → 显示窗口
@@ -785,7 +779,35 @@ public sealed partial class MainWindow : Window
         showItem.Click += (_, _) => ShowWindow();
         menu.Items.Add(showItem);
 
-        // 核心由应用启动/退出时自动管理，不在托盘提供启停入口
+        // ── 连接 / 断开代理（核心常驻，此处仅切换模式 + 系统代理）──
+        _trayConnectItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayConnectProxy.Text") };
+        try
+        {
+            var dashVm = ServiceLocator.Get<ViewModels.DashboardViewModel>();
+            _trayConnectItem.IsChecked = dashVm.IsRunning;
+            dashVm.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(ViewModels.DashboardViewModel.IsRunning))
+                    _dispatcher.TryEnqueue(() =>
+                    {
+                        _trayConnectItem.IsChecked = dashVm.IsRunning;
+                        _trayConnectItem.Text = dashVm.IsRunning
+                            ? Services.LocalizationHelper.GetString("TrayDisconnectProxy.Text")
+                            : Services.LocalizationHelper.GetString("TrayConnectProxy.Text");
+                    });
+            };
+        }
+        catch (Exception ex) { Debug.WriteLine($"Tray connect init error: {ex.Message}"); }
+        _trayConnectItem.Click += async (_, _) =>
+        {
+            try
+            {
+                var dashVm = ServiceLocator.Get<ViewModels.DashboardViewModel>();
+                await dashVm.ToggleCoreCommand.ExecuteAsync(null);
+            }
+            catch (Exception ex) { Debug.WriteLine($"Tray connect toggle error: {ex.Message}"); }
+        };
+        menu.Items.Add(_trayConnectItem);
 
         // ── 系统代理 ──
         _trayProxyItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TraySystemProxy.Text") };
@@ -800,7 +822,7 @@ public sealed partial class MainWindow : Window
             try
             {
                 var settings = ServiceLocator.Get<AppSettings>();
-                settings.SystemProxy = _trayProxyItem.IsChecked;
+                settings.SystemProxy = !settings.SystemProxy;
             }
             catch (Exception ex) { Debug.WriteLine($"Tray proxy toggle error: {ex.Message}"); }
         };
@@ -819,7 +841,7 @@ public sealed partial class MainWindow : Window
             try
             {
                 var tunSettings = ServiceLocator.Get<AppSettings>();
-                tunSettings.TunMode = trayTunItem.IsChecked;
+                tunSettings.TunMode = !tunSettings.TunMode;
             }
             catch (Exception ex) { Debug.WriteLine($"Tray TUN toggle error: {ex.Message}"); }
         };
@@ -858,11 +880,7 @@ public sealed partial class MainWindow : Window
             {
                 var clash = ServiceLocator.Get<IClashService>();
                 if (clash.CoreState == CoreState.Running)
-                {
-                    await clash.StopAsync();
-                    await Task.Delay(500);
-                    await clash.StartAsync();
-                }
+                    await clash.RestartAsync();
             }
             catch (Exception ex) { Debug.WriteLine($"Tray restart error: {ex.Message}"); }
         };
@@ -1027,6 +1045,8 @@ public sealed partial class MainWindow : Window
         _trayIcon = null;
         _currentTrayIcon?.Dispose();
         _currentTrayIcon = null;
+
+        // 先触发窗口关闭流程，再强制退出应用（Close 后如果进程仍在，Exit 兜底）
         Close();
         Application.Current.Exit();
     }
@@ -1089,10 +1109,10 @@ public sealed partial class MainWindow : Window
                 _appSettings.PropertyChanged -= OnSettingsPropertyChanged;
             }
 
-            // Stop core process
-            var core = ServiceLocator.Get<Services.CoreProcessService>();
-            await core.StopAsync();
-            core.Dispose();
+            // 退出时彻底终止常驻核心进程（仅 App 退出才杀进程，符合 REFACTOR_GUIDE T3）
+            var clash = ServiceLocator.Get<IClashService>();
+            await clash.ShutdownAsync();
+            try { ServiceLocator.Get<Services.CoreProcessService>().Dispose(); } catch { }
 
             // Disable system proxy and stop guard
             ServiceLocator.Get<Services.SystemProxyService>().EnsureDisabledOnExit();

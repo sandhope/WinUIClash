@@ -5,6 +5,7 @@
 *.dat
 geoip.dat
 geosite.dat
+geoip.metadb
 
 # 保留配置文件模板（可选）
 # config.yaml

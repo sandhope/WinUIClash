@@ -21,6 +21,10 @@
     <x:String x:Key="DashActiveConnections.Text">Active Connections</x:String>
     <x:String x:Key="DashRunning.Text">Running</x:String>
     <x:String x:Key="DashStopped.Text">Stopped</x:String>
+    <x:String x:Key="StatusCoreRunning.Text">Core Running</x:String>
+    <x:String x:Key="StatusCoreStopped.Text">Core Stopped</x:String>
+    <x:String x:Key="TunAdminRequired.Title">Administrator required</x:String>
+    <x:String x:Key="TunAdminRequired.Msg">Enabling TUN mode requires administrator privileges to create the virtual adapter. TUN was not enabled.</x:String>
     <x:String x:Key="DashStarting.Text">Starting…</x:String>
     <x:String x:Key="DashStopping.Text">Stopping…</x:String>
     <x:String x:Key="DashModeRule.Content">Rule Mode</x:String>
@@ -40,8 +44,6 @@
     <x:String x:Key="DashCoreStart.Text">Start</x:String>
     <x:String x:Key="DashCoreStop.Text">Stop</x:String>
     <x:String x:Key="CoreAutoManaged.Text">Core is auto-managed by the app</x:String>
-    <x:String x:Key="DashProxyStart.Text">Start Proxy</x:String>
-    <x:String x:Key="DashProxyStop.Text">Stop Proxy</x:String>
     <x:String x:Key="DashRuntime.Text">Running </x:String>
     <x:String x:Key="DashOutboundMode.Text">Outbound Mode</x:String>
     <x:String x:Key="DashSystemProxy.Text">System Proxy</x:String>
@@ -229,6 +231,8 @@
     <x:String x:Key="TrayTunMode.Text">TUN Mode</x:String>
     <x:String x:Key="TrayForceGc.Text">Force GC</x:String>
     <x:String x:Key="TrayRestartCore.Text">Restart Core</x:String>
+    <x:String x:Key="TrayConnectProxy.Text">Connect Proxy</x:String>
+    <x:String x:Key="TrayDisconnectProxy.Text">Disconnect Proxy</x:String>
 
     <!-- Time Formatting -->
     <x:String x:Key="TimeJustNow.Text">just now</x:String>

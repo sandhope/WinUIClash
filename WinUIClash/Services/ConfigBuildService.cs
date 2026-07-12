@@ -99,7 +99,9 @@ public class ConfigBuildService
         sb.AppendLine($"external-controller: 127.0.0.1:{ApiPort}");
         if (!string.IsNullOrWhiteSpace(_settings.ApiSecret))
             sb.AppendLine($"secret: \"{_settings.ApiSecret}\"");
-        sb.AppendLine($"mode: {NormalizeMode(_settings.OutboundMode)}");
+        // 初始为直连模式：核心常驻后台但不代理任何流量（符合 REFACTOR_GUIDE T2）。
+        // 真正的“连接”由 UI 在用户点击时通过 PATCH /configs 切换为 rule/global。
+        sb.AppendLine("mode: direct");
         sb.AppendLine($"log-level: {_settings.LogLevel}");
         sb.AppendLine($"allow-lan: {(_settings.AllowLan ? "true" : "false")}");
         sb.AppendLine($"ipv6: {(_settings.Ipv6 ? "true" : "false")}");
@@ -154,7 +156,7 @@ public class ConfigBuildService
                "socks-port: " + _settings.SocksPort + "\n" +
                "port: " + _settings.HttpPort + "\n" +
                "external-controller: 127.0.0.1:" + ApiPort + "\n" +
-               "mode: rule\n" +
+               "mode: direct\n" +
                "log-level: " + _settings.LogLevel + "\n" +
                "allow-lan: false\n" +
                "ipv6: false\n" +

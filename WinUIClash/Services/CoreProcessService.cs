@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 using WinUIClash.Models;
 
 namespace WinUIClash.Services;
@@ -137,15 +138,22 @@ public class CoreProcessService : IDisposable
     /// <summary>
     /// 启动 mihomo 核心进程
     /// </summary>
-    public Task StartAsync()
+    /// <returns>启动结果；失败时返回错误信息。</returns>
+    public async Task<(bool Success, string? ErrorMessage)> StartAsync()
     {
-        if (IsRunning) return Task.CompletedTask;
+        if (IsRunning) return (true, null);
 
         if (string.IsNullOrEmpty(_binaryPath))
-            throw new FileNotFoundException(LocalizationHelper.GetString("ErrorCoreBinaryNotFound.Text"));
+            return (false, LocalizationHelper.GetString("ErrorCoreBinaryNotFound.Text"));
+
+        if (!File.Exists(_binaryPath))
+            return (false, $"mihomo binary not found: {_binaryPath}");
 
         if (!File.Exists(_configPath))
-            throw new FileNotFoundException(string.Format(LocalizationHelper.GetString("ErrorConfigNotFound.Text"), _configPath));
+            return (false, string.Format(LocalizationHelper.GetString("ErrorConfigNotFound.Text"), _configPath));
+
+        _outputBuffer.Clear();
+        _errorBuffer.Clear();
 
         var startInfo = new ProcessStartInfo
         {
@@ -161,6 +169,8 @@ public class CoreProcessService : IDisposable
         _process = new Process { StartInfo = startInfo };
         _process.EnableRaisingEvents = true;
         _process.Exited += OnProcessExited;
+        _process.OutputDataReceived += OnOutputDataReceived;
+        _process.ErrorDataReceived += OnErrorDataReceived;
 
         _process.Start();
 
@@ -172,8 +182,63 @@ public class CoreProcessService : IDisposable
         _process.BeginErrorReadLine();
         _process.BeginOutputReadLine();
 
+        // 给核心 500ms 时间，如果启动即崩溃则立刻捕获错误
+        await Task.Delay(500);
+        if (_process.HasExited)
+        {
+            var reason = BuildExitReason();
+            return (false, $"mihomo exited immediately. {reason}");
+        }
+
         ProcessStateChanged?.Invoke(true);
-        return Task.CompletedTask;
+        return (true, null);
+    }
+
+    private readonly List<string> _outputBuffer = new(50);
+    private readonly List<string> _errorBuffer = new(50);
+
+    private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.Data)) return;
+        lock (_outputBuffer)
+        {
+            _outputBuffer.Add(e.Data);
+            if (_outputBuffer.Count > 50) _outputBuffer.RemoveAt(0);
+        }
+    }
+
+    private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(e.Data)) return;
+        lock (_errorBuffer)
+        {
+            _errorBuffer.Add(e.Data);
+            if (_errorBuffer.Count > 50) _errorBuffer.RemoveAt(0);
+        }
+    }
+
+    /// <summary>获取最近的核心输出/错误日志，用于启动失败诊断。</summary>
+    public string GetRecentLogs()
+    {
+        lock (_outputBuffer) lock (_errorBuffer)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("-- stdout --");
+            foreach (var line in _outputBuffer) sb.AppendLine(line);
+            sb.AppendLine("-- stderr --");
+            foreach (var line in _errorBuffer) sb.AppendLine(line);
+            return sb.ToString();
+        }
+    }
+
+    private string BuildExitReason()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"Exit code: {_process?.ExitCode}");
+        var logs = GetRecentLogs();
+        if (!string.IsNullOrWhiteSpace(logs.Replace("-- stdout --", "").Replace("-- stderr --", "")))
+            sb.AppendLine(logs);
+        return sb.ToString();
     }
 
     /// <summary>
@@ -226,7 +291,9 @@ public class CoreProcessService : IDisposable
     {
         await StopAsync();
         await Task.Delay(500);
-        await StartAsync();
+        var result = await StartAsync();
+        if (!result.Success)
+            throw new InvalidOperationException(result.ErrorMessage ?? "Restart failed");
     }
 
     private void OnProcessExited(object? sender, EventArgs e)

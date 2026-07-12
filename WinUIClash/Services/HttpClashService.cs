@@ -48,11 +48,16 @@ public class HttpClashService : IClashService, IDisposable
 
     public void SetApiEndpoint(string host, int port, string? secret = null)
     {
-        _http.BaseAddress = new Uri($"http://{host}:{port}");
-        if (!string.IsNullOrEmpty(secret))
+        // HttpClient 在发送第一个请求后不能再修改 BaseAddress 和 DefaultRequestHeaders。
+        // 端口固定为 9090，因此只设置一次；后续重启核心不再重复设置。
+        if (_http.BaseAddress == null)
         {
-            _http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", secret);
+            _http.BaseAddress = new Uri($"http://{host}:{port}");
+            if (!string.IsNullOrEmpty(secret))
+            {
+                _http.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", secret);
+            }
         }
     }
 
@@ -74,13 +79,17 @@ public class HttpClashService : IClashService, IDisposable
         }
     }
 
-    public Task StopAsync()
+    // 对应 IClashService.ShutdownAsync：仅停止 WS 流量流（进程由 CoreProcessService 负责）
+    public Task ShutdownAsync()
     {
         StopTrafficStream();
         _coreState = CoreState.Stopped;
         CoreStateChanged?.Invoke(_coreState);
         return Task.CompletedTask;
     }
+
+    // HttpClashService 为纯 REST 客户端，无进程可重启；重启由 ClashOrchestrator 协调。
+    public Task RestartAsync() => Task.CompletedTask;
 
     private async Task CheckHealthAsync()
     {
