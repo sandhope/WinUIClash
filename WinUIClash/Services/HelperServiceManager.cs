@@ -99,8 +99,8 @@ public class HelperServiceManager
         var command = BuildScCreateCommand(helperPath, status);
         _logger.LogInformation("注册 Helper Service，命令: {Command}", command);
 
-        // ShellExecuteW runas 触发 UAC 提权
-        var runasResult = ShellExecuteRunas(command);
+        // ShellExecuteW runas 触发 UAC 提权（放在后台线程执行，避免阻塞 UI）
+        var runasResult = await ShellExecuteRunasAsync(command);
         if (!runasResult)
         {
             _logger.LogWarning("UAC 提权被拒绝或失败");
@@ -139,7 +139,7 @@ public class HelperServiceManager
 
         // sc delete 需管理员权限
         var command = $"/c sc delete {ServiceName}";
-        var runasResult = ShellExecuteRunas(command);
+        var runasResult = await ShellExecuteRunasAsync(command);
         if (!runasResult) return false;
 
         await Task.Delay(1000);
@@ -226,13 +226,15 @@ public class HelperServiceManager
             if (File.Exists(path)) return path;
         }
 
-        // 开发模式下查找 build 输出
+        // 开发模式下查找 build 输出（与主项目目标框架 net10.0-windows10.0.26100.0 对齐）
+        // 注意：appDir 为 WinUIClash\bin\Debug\net10.0...，需上溯 4 层到 WinUIClash 仓库根目录，
+        // 再拼 WinUIClash.HelperService\bin\...（原先多算一层 bin\ 导致找不到 exe，提权从未触发）。
         var devPaths = new[]
         {
-            Path.Combine(Directory.GetParent(appDir)?.Parent?.Parent?.FullName ?? "", 
-                "WinUIClash.HelperService", "bin", "Debug", "net9.0-windows", "win-x64", "WinUIClash.HelperService.exe"),
-            Path.Combine(Directory.GetParent(appDir)?.Parent?.Parent?.FullName ?? "", 
-                "WinUIClash.HelperService", "bin", "Release", "net9.0-windows", "win-x64", "WinUIClash.HelperService.exe"),
+            Path.Combine(Directory.GetParent(appDir)?.Parent?.Parent?.Parent?.Parent?.FullName ?? "",
+                "WinUIClash.HelperService", "bin", "Debug", "net10.0-windows10.0.26100.0", "win-x64", "WinUIClash.HelperService.exe"),
+            Path.Combine(Directory.GetParent(appDir)?.Parent?.Parent?.Parent?.Parent?.FullName ?? "",
+                "WinUIClash.HelperService", "bin", "Release", "net10.0-windows10.0.26100.0", "win-x64", "WinUIClash.HelperService.exe"),
         };
 
         foreach (var path in devPaths)
@@ -258,32 +260,35 @@ public class HelperServiceManager
         return string.Join(" ", parts);
     }
 
-    /// <summary>通过 ShellExecuteW runas 触发 UAC 提权执行命令</summary>
-    private bool ShellExecuteRunas(string command)
+    /// <summary>通过 ShellExecuteW runas 触发 UAC 提权执行命令（后台线程执行，不阻塞 UI）</summary>
+    private Task<bool> ShellExecuteRunasAsync(string command)
     {
-        try
+        return Task.Run(() =>
         {
-            var startInfo = new ProcessStartInfo
+            try
             {
-                FileName = "cmd.exe",
-                Arguments = command,
-                UseShellExecute = true,
-                Verb = "runas", // 触发 UAC 提权
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden,
-            };
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = command,
+                    UseShellExecute = true,
+                    Verb = "runas", // 触发 UAC 提权
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                };
 
-            var process = Process.Start(startInfo);
-            if (process == null) return false;
+                using var process = Process.Start(startInfo);
+                if (process == null) return false;
 
-            process.WaitForExit(30000); // 等待 UAC + 命令执行（最多 30 秒）
-            return process.ExitCode == 0;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "ShellExecuteW runas 失败（可能用户拒绝 UAC）");
-            return false;
-        }
+                process.WaitForExit(30000); // 等待 UAC + 命令执行（最多 30 秒）
+                return process.ExitCode == 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "ShellExecuteW runas 失败（可能用户拒绝 UAC）");
+                return false;
+            }
+        });
     }
 
     private async Task<ScResult> RunScCommandAsync(string action, string serviceName)

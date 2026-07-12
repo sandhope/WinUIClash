@@ -111,9 +111,8 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Button Background="Transparent" BorderThickness="0" Padding="0"
-                    Click="StatusDot_Click"
-                    ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=StatusToggle_ToolTip}">
+            <Border Background="Transparent" Padding="0"
+                    IsHitTestVisible="False">
                 <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
                             Margin="12,0,16,0">
                     <Ellipse Width="8" Height="8" x:Name="StatusDot"
@@ -121,7 +120,7 @@
                     <TextBlock Text="{Binding Source={StaticResource S}, Path=StatusStopped_Text}" FontSize="11" x:Name="StatusText"
                                Opacity="0.6" />
                 </StackPanel>
-            </Button>
+            </Border>
 
             <Border Grid.Column="1" Width="1" Margin="4,4"
                     Background="{ThemeResource DividerStrokeColorDefaultBrush}" />

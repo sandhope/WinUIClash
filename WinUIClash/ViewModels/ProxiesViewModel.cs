@@ -150,6 +150,9 @@ public partial class ProxiesViewModel : ObservableObject
         }
     }
 
+    /// <summary>供导航/配置变更触发强制刷新（绕过 InitializeAsync 的 _initialized 守卫）</summary>
+    public Task ReloadAsync() => LoadAsync();
+
     /// <summary>切换代理组 Tab</summary>
     [RelayCommand]
     private void SelectGroup(ProxyGroup? group)

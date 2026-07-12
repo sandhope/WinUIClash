@@ -10,7 +10,8 @@ public interface IClashService
     // ── 生命周期 ──
     CoreState CoreState { get; }
     Task StartAsync();
-    Task StopAsync();
+    Task ShutdownAsync();
+    Task RestartAsync();
     Task<string> GetVersionAsync();
 
     // ── 流量 ──

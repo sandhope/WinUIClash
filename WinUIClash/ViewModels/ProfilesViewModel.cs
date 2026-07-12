@@ -18,6 +18,11 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
     private Timer? _autoUpdateTimer;
     private bool _initialized;
 
+    /// <summary>配置增删/切换/激活状态变化时触发，供代理页等订阅刷新（BUG-5）</summary>
+    public event EventHandler? ProfilesChanged;
+
+    private void RaiseProfilesChanged() => ProfilesChanged?.Invoke(this, EventArgs.Empty);
+
     public ProfilesViewModel(IClashService clash, NotificationService notification)
     {
         _clash = clash;
@@ -70,11 +75,12 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             if (string.IsNullOrWhiteSpace(configPath))
                 configPath = _storage.GetConfigPath(profile.Id);
 
-            await _clash.SwitchProfileAsync(profile.Id, configPath);
-
+            // 先更新激活状态并落盘，确保 BuildConfigAsync（SwitchProfileAsync 内部）读取到新激活配置
             foreach (var p in Profiles) p.IsActive = p.Id == profile.Id;
             ActiveProfile = Profiles.FirstOrDefault(p => p.IsActive);
             await SaveProfileListAsync();
+
+            await _clash.SwitchProfileAsync(profile.Id, configPath);
 
             _notification.Success(
                 LocalizationHelper.GetString("ProfilesSwitchedTitle.Text"),
@@ -98,6 +104,7 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         finally
         {
             IsSwitching = false;
+            RaiseProfilesChanged();
         }
     }
 
@@ -155,6 +162,8 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
                 LocalizationHelper.GetString("ErrorSyncTitle.Text"),
                 $"{profile.Label}: {ex.Message}");
         }
+
+        RaiseProfilesChanged();
     }
 
     [RelayCommand]
@@ -192,6 +201,8 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         _notification.Success(
             LocalizationHelper.GetString("ProfilesSyncDoneTitle.Text"),
             LocalizationHelper.GetString("ProfilesSyncAllDoneMsg.Text"));
+
+        RaiseProfilesChanged();
     }
 
     [RelayCommand]
@@ -202,14 +213,23 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         {
             await _clash.DeleteProfileAsync(profile.Id);
             _storage.DeleteConfig(profile.Id);
+            var wasActive = profile.IsActive;
             Profiles.Remove(profile);
             await SaveProfileListAsync();
+
+            // 删除的是当前激活配置：自动切换到剩余第一个，保证代理页不会停留在已删除数据
+            if (wasActive && Profiles.Count > 0)
+                await SelectProfileAsync(Profiles[0]);
         }
         catch (Exception ex)
         {
             _notification.Error(
                 LocalizationHelper.GetString("ErrorDeleteTitle.Text"),
                 $"{profile.Label}: {ex.Message}");
+        }
+        finally
+        {
+            RaiseProfilesChanged();
         }
     }
 
@@ -268,7 +288,6 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
                 profile.SubscriptionInfo = result.SubInfo;
                 profile.NotifySubscriptionChanged();
             }
-            await _clash.SyncProfileAsync(profileId, url, configPath);
         }
         catch (Exception ex)
         {
@@ -278,7 +297,16 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         }
 
         Profiles.Add(profile);
+
+        // 导入即激活（对齐 FlClash）：设为当前激活配置并让核心热重载，代理页即可见其节点
+        foreach (var p in Profiles) p.IsActive = p.Id == profile.Id;
+        ActiveProfile = profile;
         await SaveProfileListAsync();
+
+        if (_clash.CoreState == CoreState.Running)
+            await _clash.SwitchProfileAsync(profile.Id, configPath);
+
+        RaiseProfilesChanged();
     }
 
     /// <summary>编辑已有档案的 URL 和标签</summary>
@@ -316,6 +344,7 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         }
 
         await SaveProfileListAsync();
+        RaiseProfilesChanged();
     }
 
     public async Task InitializeAsync()

@@ -33,6 +33,9 @@ public class ClashOrchestrator : IClashService
     private int _restartAttempts;
     private const int MaxRestartAttempts = 3;
 
+    // 代理是否已激活（对应 UI 的 IsRunning）。核心常驻，此标志与进程存活解耦。
+    private bool _proxyActive;
+
     // ── 网络变化检测 ──
     private bool _wasRunningBeforeNetworkLoss;
     private bool _networkLost;
@@ -199,6 +202,10 @@ public class ClashOrchestrator : IClashService
             var configPath = await _configBuild.BuildConfigAsync();
             _processService.SetConfigPath(configPath);
 
+            // 2.5 将内置 Geo 数据文件复制到核心 -d 目录（首次启动或 MMDB 无效时 mihomo 会尝试
+            // 下载，但下载期间不监听端口导致超时。内置 Geo 数据可让 mihomo 在 1-2 秒内就绪）。
+            CopyBundledGeoData(configPath);
+
             // 3. 启动核心进程（TUN 模式需 Helper Service 提权运行）
             if (_settings.TunMode)
             {
@@ -212,19 +219,25 @@ public class ClashOrchestrator : IClashService
                     if (!coreStarted)
                     {
                         _logger.LogWarning("通过 Helper Service 启动核心失败，回退到直接启动");
-                        await _processService.StartAsync();
+                        var directResult = await _processService.StartAsync();
+                        if (!directResult.Success)
+                            throw new InvalidOperationException(directResult.ErrorMessage ?? "直接启动核心失败");
                     }
                 }
                 else
                 {
                     _logger.LogWarning("Helper Service 注册失败，回退到直接启动（TUN 可能无法创建虚拟网卡）");
-                    await _processService.StartAsync();
+                    var directResult = await _processService.StartAsync();
+                    if (!directResult.Success)
+                        throw new InvalidOperationException(directResult.ErrorMessage ?? "直接启动核心失败");
                 }
             }
             else
             {
                 // 非 TUN 模式：直接启动 mihomo 进程（无需提权）
-                await _processService.StartAsync();
+                var directResult = await _processService.StartAsync();
+                if (!directResult.Success)
+                    throw new InvalidOperationException(directResult.ErrorMessage ?? "直接启动核心失败");
             }
             _logger.LogInformation("mihomo 核心进程已启动");
 
@@ -243,6 +256,11 @@ public class ClashOrchestrator : IClashService
             // 6. 启动成功
             SetCoreState(CoreState.Running);
 
+            // 核心常驻：若本次启动是重启（如 TUN 切换），且此前处于“已连接”状态，
+            // 则恢复代理模式，避免重启后回落到直连。
+            if (_proxyActive)
+                await SafeRunAsync(() => _httpClashService.SetOutboundModeAsync(GetOutboundMode()));
+
             // TUN 配置已在 config.yaml 中注入（ConfigBuildService.InjectControllerSettings），
             // mihomo 启动时即知 TUN 参数，不再需要运行时 PATCH（对齐 FlClash 写入 config 的方式）
 
@@ -259,15 +277,18 @@ public class ClashOrchestrator : IClashService
         }
     }
 
-    public async Task StopAsync()
+    public async Task ShutdownAsync()
     {
         try
         {
             _intentionalStop = true;
+
+            // 先记录是否在运行，再改状态
+            var wasRunning = _coreState == CoreState.Running;
             SetCoreState(CoreState.Stopping);
 
-            if (_coreState == CoreState.Running)
-                await _httpClashService.StopAsync();
+            if (wasRunning)
+                await _httpClashService.ShutdownAsync();
 
             // TUN 模式下通过 Helper Service API 停止核心
             if (_settings.TunMode)
@@ -291,6 +312,17 @@ public class ClashOrchestrator : IClashService
                 LocalizationHelper.GetString("ErrorCoreStopFailed.Text"),
                 string.Format(LocalizationHelper.GetString("ErrorCoreStopFailedMsg.Text"), ex.Message));
         }
+    }
+
+    /// <summary>
+    /// 重启常驻核心进程（用于 TUN 模式切换、托盘“重启核心”等需要重建进程的场景）。
+    /// 重启后会自动恢复此前的代理激活状态（_proxyActive）。
+    /// </summary>
+    public async Task RestartAsync()
+    {
+        await ShutdownAsync();
+        await Task.Delay(500);
+        await StartAsync();
     }
 
     public Task<string> GetVersionAsync() =>
@@ -320,6 +352,8 @@ public class ClashOrchestrator : IClashService
             OutboundMode.Direct => "direct",
             _ => "rule",
         };
+        // 记录代理激活状态：直连 = 未连接，rule/global = 已连接
+        _proxyActive = mode != OutboundMode.Direct;
         await SafeRunAsync(() => _httpClashService.SetOutboundModeAsync(mode));
     }
 
@@ -382,7 +416,12 @@ public class ClashOrchestrator : IClashService
         // 重新生成 config.yaml（已包含新活动配置），运行中对核心热重载
         var builtPath = await _configBuild.BuildConfigAsync();
         if (_coreState == CoreState.Running && File.Exists(builtPath))
+        {
             await _httpClashService.SwitchProfileAsync(profileId, builtPath);
+            // 热重载会重置 config 中的 mode；若当前已连接，恢复代理模式
+            if (_proxyActive)
+                await _httpClashService.SetOutboundModeAsync(GetOutboundMode());
+        }
     }
 
     public async Task SyncProfileAsync(string profileId, string? url = null, string configPath = "")
@@ -390,7 +429,12 @@ public class ClashOrchestrator : IClashService
         // VM 已负责下载订阅内容；此处重新生成 config.yaml 并在运行时热重载
         var builtPath = await _configBuild.BuildConfigAsync();
         if (_coreState == CoreState.Running && File.Exists(builtPath))
+        {
             await _httpClashService.SwitchProfileAsync(profileId, builtPath);
+            // 热重载会重置 config 中的 mode；若当前已连接，恢复代理模式
+            if (_proxyActive)
+                await _httpClashService.SetOutboundModeAsync(GetOutboundMode());
+        }
     }
 
     // ── 连接 ──
@@ -439,9 +483,73 @@ public class ClashOrchestrator : IClashService
 
     // ── 私有辅助 ──
 
+    /// <summary>
+    /// 将内置 Geo 数据文件从打包的 Core 目录复制到核心 -d 目录。
+    /// mihomo 发现 MMDB 无效/不存在时会删除并从网络下载，但下载期间不监听端口。
+    /// 内置 Geo 数据可确保 mihomo 启动时即有有效数据，1-2 秒内就绪。
+    /// 仅在目标文件缺失或比内置文件更旧时才复制，避免每次启动都 IO。
+    /// </summary>
+    private void CopyBundledGeoData(string configPath)
+    {
+        var destDir = Path.GetDirectoryName(configPath);
+        if (string.IsNullOrEmpty(destDir)) return;
+
+        var bundledDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Core");
+        if (!Directory.Exists(bundledDir)) return;
+
+        // mihomo 需要的关键 Geo 文件（小写文件名，与 mihomo 源码一致）
+        var geoFiles = new[] { "geoip.metadb", "geosite.dat", "geoip.dat", "GeoIP.dat", "GeoSite.dat" };
+
+        foreach (var fileName in geoFiles)
+        {
+            var srcPath = Path.Combine(bundledDir, fileName);
+            if (!File.Exists(srcPath)) continue;
+
+            var destPath = Path.Combine(destDir, fileName);
+
+            // 仅在目标文件缺失或比内置文件更旧时复制
+            if (!File.Exists(destPath))
+            {
+                try
+                {
+                    Directory.CreateDirectory(destDir);
+                    File.Copy(srcPath, destPath, overwrite: false);
+                    _logger.LogInformation("复制内置 Geo 文件: {File}", fileName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "复制内置 Geo 文件 {File} 失败", fileName);
+                }
+            }
+            else
+            {
+                // 目标文件已存在，但可能无效（mihomo 删掉后只剩空文件/损坏文件）
+                // 检查大小：如果目标比源小很多（损坏），用内置覆盖
+                try
+                {
+                    var srcSize = new FileInfo(srcPath).Length;
+                    var destSize = new FileInfo(destPath).Length;
+                    if (destSize < srcSize * 0.5 || destSize < 1024)
+                    {
+                        File.Copy(srcPath, destPath, overwrite: true);
+                        _logger.LogInformation("覆盖损坏的 Geo 文件: {File} (src={SrcSize}, dest={DestSize})",
+                            fileName, srcSize, destSize);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "检查 Geo 文件 {File} 大小失败", fileName);
+                }
+            }
+        }
+    }
+
     private async Task<bool> WaitForApiAsync(int port, TimeSpan timeout)
     {
         using var http = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(2) };
+        if (!string.IsNullOrWhiteSpace(_settings.ApiSecret))
+            http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _settings.ApiSecret);
+
         var deadline = DateTime.UtcNow + timeout;
 
         while (DateTime.UtcNow < deadline)

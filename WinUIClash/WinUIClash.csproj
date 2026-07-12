@@ -12,6 +12,7 @@
     <UseWinUI>true</UseWinUI>
     <WinUISDKReferences>false</WinUISDKReferences>
     <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <NoWarn>$(NoWarn);MVVMTK0045</NoWarn>
@@ -52,6 +53,10 @@
       <Pack>true</Pack>
     </Content>
     <!-- GeoIP/GeoSite 数据库（可选） -->
+    <Content Include="Core\geoip.metadb" Condition="exists('Core\geoip.metadb')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+    </Content>
     <Content Include="Core\geoip.dat" Condition="exists('Core\geoip.dat')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Pack>true</Pack>
@@ -103,4 +108,14 @@
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
+
+  <!-- TUN 提权依赖 Helper Service 可执行文件：将其拷贝到输出 Core\（GetHelperExePath 会从该路径发现）。
+       开发模式下 HelperService 的 bin 已存在，拷贝即可；打包时同理确保随包发布。 -->
+  <Target Name="CopyHelperService" AfterTargets="Build">
+    <MakeDir Directories="$(OutDir)Core" Condition="!Exists('$(OutDir)Core')" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\$(Configuration)\net10.0-windows10.0.26100.0\win-x64\WinUIClash.HelperService.exe"
+          DestinationFolder="$(OutDir)Core"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\$(Configuration)\net10.0-windows10.0.26100.0\win-x64\WinUIClash.HelperService.exe')" />
+  </Target>
 </Project>

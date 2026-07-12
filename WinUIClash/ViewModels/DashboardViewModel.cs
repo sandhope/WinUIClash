@@ -37,7 +37,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _isRunning;
     [ObservableProperty] private string _statusText = "";
     [ObservableProperty] private SolidColorBrush _statusBrush = new(Color.FromArgb(255, 255, 107, 107));
-    // FAB 启动按钮：状态联动色（停止=绿引导启动 / 运行=橙红提示停止）
+    // FAB 启动按钮：颜色随核心状态联动（停止=绿引导启动 / 运行=橙红提示停止）
     [ObservableProperty] private SolidColorBrush _startButtonBrush = new(Color.FromArgb(255, 76, 175, 80));
     [ObservableProperty] private string _runtimeText = "";
 
@@ -53,29 +53,45 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         _dispatcher.TryEnqueue(() =>
         {
             CoreState = state;
-            IsRunning = state == CoreState.Running;
-            StatusText = state switch
+
+            // 启动中 / 停止中：仅反映过渡态
+            if (state == CoreState.Starting)
             {
-                CoreState.Running => LocalizationHelper.GetString("DashRunning.Text"),
-                CoreState.Starting => LocalizationHelper.GetString("DashStarting.Text"),
-                CoreState.Stopping => LocalizationHelper.GetString("DashStopping.Text"),
-                _ => LocalizationHelper.GetString("DashStopped.Text")
-            };
-            StatusBrush = state switch
+                StatusText = LocalizationHelper.GetString("DashStarting.Text");
+                StatusBrush = new SolidColorBrush(Color.FromArgb(255, 255, 193, 7));
+                StartButtonBrush = new SolidColorBrush(Color.FromArgb(255, 76, 175, 80));
+                return;
+            }
+            if (state == CoreState.Stopping)
             {
-                CoreState.Running => new SolidColorBrush(Color.FromArgb(255, 76, 175, 80)),
-                CoreState.Starting => new SolidColorBrush(Color.FromArgb(255, 255, 193, 7)),
-                CoreState.Stopping => new SolidColorBrush(Color.FromArgb(255, 255, 152, 0)),
-                _ => new SolidColorBrush(Color.FromArgb(255, 255, 107, 107))
-            };
+                StatusText = LocalizationHelper.GetString("DashStopping.Text");
+                StatusBrush = new SolidColorBrush(Color.FromArgb(255, 255, 152, 0));
+                StartButtonBrush = new SolidColorBrush(Color.FromArgb(255, 76, 175, 80));
+                return;
+            }
+
+            // 核心常驻：进程存活 ≠ 已连接。状态文本/图标跟随“代理是否激活”(IsRunning)。
+            StatusText = IsRunning
+                ? LocalizationHelper.GetString("DashRunning.Text")
+                : LocalizationHelper.GetString("DashStopped.Text");
+            StatusBrush = IsRunning
+                ? new SolidColorBrush(Color.FromArgb(255, 76, 175, 80))
+                : new SolidColorBrush(Color.FromArgb(255, 255, 107, 107));
+            // FAB 颜色随代理状态联动（对齐 FlClash startButton 动画）
+            StartButtonBrush = IsRunning
+                ? new SolidColorBrush(Color.FromArgb(255, 255, 87, 34))   // 橙红 = 提示停止
+                : new SolidColorBrush(Color.FromArgb(255, 76, 175, 80));  // 绿色 = 引导启动
+
             if (state == CoreState.Running)
             {
-                _startTime = DateTime.Now;
+                _startTime ??= DateTime.Now;
                 RuntimeText = LocalizationHelper.GetString("DashRuntime.Text") + Converters.TimeFormatter.Duration(TimeSpan.Zero);
-                // Refresh profile, proxy, and IP info when core starts
+                // 核心常驻就绪后刷新数据（不在这里启停系统代理，系统代理由 ToggleCoreAsync 控制）
                 _ = RefreshActiveProfileAsync();
                 _ = RefreshActiveProxyNodeAsync();
                 _ = CheckIpAsync();
+                // 校准 TUN 实际状态（虚拟网卡由核心创建，启动后才可知真实状态），保持 UI 与托盘一致
+                _ = SyncTunStateAsync();
             }
             else
             {
@@ -86,18 +102,63 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    private async Task ToggleProxyAsync()
+    private async Task ToggleCoreAsync()
     {
         try
         {
-            // 仅切换系统代理（核心由应用启动/退出时自动管理，用户操作不启停核心）
-            IsSystemProxyOn = !IsSystemProxyOn;
+            // 核心常驻后台：FAB 仅切换“代理是否激活”，绝不启停进程。
+            if (_isRunning)
+                await DisconnectProxyAsync();
+            else
+                await ConnectProxyAsync();
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"ToggleProxy error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"ToggleCore error: {ex.Message}");
         }
-        await Task.CompletedTask;
+    }
+
+    /// <summary>连接代理：确保常驻核心存活 → PATCH mode 为选定模式 → 开启系统代理。</summary>
+    private async Task ConnectProxyAsync()
+    {
+        try
+        {
+            // 兜底：确保常驻核心进程存活（非 TUN 模式启动时已拉起）
+            if (_clash.CoreState != CoreState.Running)
+                await _clash.StartAsync();
+
+            // 按用户选择的出站模式激活（直连选择视为 Rule，以便真正建立连接）
+            var mode = _outboundMode == OutboundMode.Direct ? OutboundMode.Rule : _outboundMode;
+            await _clash.SetOutboundModeAsync(mode);
+
+            // 仅当用户开启了“系统代理”开关时才启用 Windows 系统代理（对齐 FlClash）
+            if (_settings.SystemProxy)
+                ServiceLocator.Get<SystemProxyService>().Enable();
+            IsRunning = true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Connect proxy error: {ex.Message}");
+        }
+    }
+
+    /// <summary>断开代理：PATCH mode 为 direct → 关闭系统代理。核心继续常驻。</summary>
+    private async Task DisconnectProxyAsync()
+    {
+        try
+        {
+            // 切回直连模式（核心继续常驻，0 性能开销）
+            await _clash.SetOutboundModeAsync(OutboundMode.Direct);
+
+            // 仅当用户开启了“系统代理”开关时才关闭（未开启则本就未启用，无需动作）
+            if (_settings.SystemProxy)
+                ServiceLocator.Get<SystemProxyService>().Disable();
+            IsRunning = false;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Disconnect proxy error: {ex.Message}");
+        }
     }
 
     // ── 实时网速 ──
@@ -172,18 +233,28 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
 
     partial void OnIsModeRuleChanged(bool value)
     {
-        if (value && OutboundMode != OutboundMode.Rule)
+        if (!value) return;
+        // 已连接：立即切换模式；未连接：仅记录偏好，连接时再应用
+        if (IsRunning && OutboundMode != OutboundMode.Rule)
             _ = SetModeInternalAsync(OutboundMode.Rule);
+        else
+            SyncModeState(OutboundMode.Rule);
     }
     partial void OnIsModeGlobalChanged(bool value)
     {
-        if (value && OutboundMode != OutboundMode.Global)
+        if (!value) return;
+        if (IsRunning && OutboundMode != OutboundMode.Global)
             _ = SetModeInternalAsync(OutboundMode.Global);
+        else
+            SyncModeState(OutboundMode.Global);
     }
     partial void OnIsModeDirectChanged(bool value)
     {
-        if (value && OutboundMode != OutboundMode.Direct)
-            _ = SetModeInternalAsync(OutboundMode.Direct);
+        if (!value) return;
+        if (IsRunning)
+            _ = DisconnectProxyAsync();   // 选择直连 = 断开代理
+        else
+            SyncModeState(OutboundMode.Direct);
     }
 
     private async Task SetModeInternalAsync(OutboundMode mode)
@@ -200,11 +271,11 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         IsModeDirect = mode == OutboundMode.Direct;
     }
 
-    // ── 代理开关文本（FAB 按钮：启动/停止系统代理，不启停核心）──
+    // ── 核心启停按钮文本（FAB：启动/停止核心，对齐 FlClash isStart）──
 
-    public string CoreToggleText => IsSystemProxyOn
-        ? LocalizationHelper.GetString("DashProxyStop.Text")
-        : LocalizationHelper.GetString("DashProxyStart.Text");
+    public string CoreToggleText => IsRunning
+        ? LocalizationHelper.GetString("DashCoreStop.Text")
+        : LocalizationHelper.GetString("DashCoreStart.Text");
 
     // ── 流量统计 ──
 
@@ -370,17 +441,8 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
             {
                 _settings.SystemProxy = value;
                 OnPropertyChanged();
-                // FAB 颜色随代理状态联动（关=绿引导启动 / 开=橙红提示停止）
-                StartButtonBrush = value
-                    ? new SolidColorBrush(Color.FromArgb(255, 255, 87, 34))
-                    : new SolidColorBrush(Color.FromArgb(255, 76, 175, 80));
-                OnPropertyChanged(nameof(CoreToggleText));
-                // 代理状态切换后重新检测 IP（对齐 FlClash checkIpNumProvider 触发机制）
-                // 延迟 1.5 秒等待系统代理生效
-                _ = Task.Delay(1500).ContinueWith(_ => _dispatcher.TryEnqueue(() =>
-                {
-                    _ = CheckIpAsync();
-                }));
+                // 仅持久化偏好。系统代理的实际启用/禁用由开始/停止按钮按 _settings.SystemProxy 决定，
+                // 单独切换此开关不做即时动作（对齐 FlClash）。
             }
         }
     }
@@ -396,17 +458,20 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private async Task ToggleTunModeAsync()
     {
+        // 仅翻转发开关；实际的 UAC 提权 + 经 Helper 重启核心由 App.xaml.cs 的设置监听统一处理，
+        // 保证仪表盘切换、托盘项、设置页三处行为一致。UI 状态由 OnSettingsPropertyChanged / 校准逻辑同步。
+        _settings.TunMode = !IsTunEnabled;
+    }
+
+    /// <summary>从核心实际状态校准 TUN 开关 UI（核心启动后才可知虚拟网卡真实状态）</summary>
+    public async Task SyncTunStateAsync()
+    {
         try
         {
-            var newState = !IsTunEnabled;
-            await _clash.SetTunEnabledAsync(newState);
-            IsTunEnabled = newState;
-            _settings.TunMode = newState;
+            var tun = await _clash.GetTunEnabledAsync();
+            _dispatcher.TryEnqueue(() => IsTunEnabled = tun);
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Toggle TUN error: {ex.Message}");
-        }
+        catch { /* 核心未就绪时不强行变更 */ }
     }
 
     // ── 初始化 ──

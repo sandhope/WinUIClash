@@ -21,6 +21,10 @@
     <x:String x:Key="DashActiveConnections.Text">活跃连接</x:String>
     <x:String x:Key="DashRunning.Text">运行中</x:String>
     <x:String x:Key="DashStopped.Text">已停止</x:String>
+    <x:String x:Key="StatusCoreRunning.Text">核心运行中</x:String>
+    <x:String x:Key="StatusCoreStopped.Text">核心已停止</x:String>
+    <x:String x:Key="TunAdminRequired.Title">需要管理员权限</x:String>
+    <x:String x:Key="TunAdminRequired.Msg">启用 TUN 模式需要以管理员身份运行才能创建虚拟网卡，已取消开启。</x:String>
     <x:String x:Key="DashStarting.Text">启动中…</x:String>
     <x:String x:Key="DashStopping.Text">停止中…</x:String>
     <x:String x:Key="DashModeRule.Content">规则模式</x:String>
@@ -40,8 +44,6 @@
     <x:String x:Key="DashCoreStart.Text">启动</x:String>
     <x:String x:Key="DashCoreStop.Text">停止</x:String>
     <x:String x:Key="CoreAutoManaged.Text">核心由应用自动管理，无需手动启停</x:String>
-    <x:String x:Key="DashProxyStart.Text">启动代理</x:String>
-    <x:String x:Key="DashProxyStop.Text">停止代理</x:String>
     <x:String x:Key="DashRuntime.Text">运行 </x:String>
     <x:String x:Key="DashOutboundMode.Text">出站模式</x:String>
     <x:String x:Key="DashSystemProxy.Text">系统代理</x:String>
@@ -229,6 +231,8 @@
     <x:String x:Key="TrayTunMode.Text">TUN 模式</x:String>
     <x:String x:Key="TrayForceGc.Text">强制 GC</x:String>
     <x:String x:Key="TrayRestartCore.Text">重启核心</x:String>
+    <x:String x:Key="TrayConnectProxy.Text">连接代理</x:String>
+    <x:String x:Key="TrayDisconnectProxy.Text">断开代理</x:String>
 
     <!-- Time Formatting -->
     <x:String x:Key="TimeJustNow.Text">刚刚</x:String>
