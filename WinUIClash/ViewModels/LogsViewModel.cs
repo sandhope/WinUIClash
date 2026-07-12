@@ -22,6 +22,7 @@ public partial class LogsViewModel : ObservableObject, IDisposable
         _clash = clash;
         _dispatcher = DispatcherQueue.GetForCurrentThread()!;
         _clash.LogReceived += OnLogReceived;
+        _clash.CoreStateChanged += OnCoreStateChanged;
     }
 
     [ObservableProperty] private ObservableCollection<LogEntry> _logs = new();
@@ -41,17 +42,7 @@ public partial class LogsViewModel : ObservableObject, IDisposable
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
 
-    async partial void OnSelectedLevelChanged(string value)
-    {
-        ApplyFilter();
-
-        // Reconnect the log WebSocket with the new server-side level filter
-        if (_started)
-        {
-            await _clash.StopLogAsync();
-            await _clash.StartLogAsync(value);
-        }
-    }
+    partial void OnSelectedLevelChanged(string value) => ApplyFilter();
 
     private void OnLogReceived(LogEntry entry)
     {
@@ -71,6 +62,16 @@ public partial class LogsViewModel : ObservableObject, IDisposable
                 LogAppended?.Invoke();
             }
         });
+    }
+
+    /// <summary>核心就绪后自动（重新）连接日志 WS 流（解决页面加载时核心未 Running 导致 SafeRunAsync 静默跳过）</summary>
+    private async void OnCoreStateChanged(CoreState state)
+    {
+        if (state == CoreState.Running)
+        {
+            _started = true;
+            await _clash.StartLogAsync("debug");
+        }
     }
 
     private bool MatchesFilter(LogEntry entry)
@@ -112,7 +113,7 @@ public partial class LogsViewModel : ObservableObject, IDisposable
     {
         if (_started) return;
         _started = true;
-        await _clash.StartLogAsync(SelectedLevel);
+        await _clash.StartLogAsync("debug");
     }
 
     [RelayCommand]
@@ -182,5 +183,6 @@ public partial class LogsViewModel : ObservableObject, IDisposable
     public void Dispose()
     {
         _clash.LogReceived -= OnLogReceived;
+        _clash.CoreStateChanged -= OnCoreStateChanged;
     }
 }
