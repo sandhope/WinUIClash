@@ -336,6 +336,7 @@
 
         <!-- 右下角悬浮启动按钮（FAB，唯一启动入口，状态联动色，悬停保持颜色） -->
         <Button x:Name="StartFab"
+                Grid.RowSpan="2"
                 Command="{x:Bind ViewModel.ToggleProxyCommand}"
                 Width="56" Height="56" CornerRadius="28"
                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
