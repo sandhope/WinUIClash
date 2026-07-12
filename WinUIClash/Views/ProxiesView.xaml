@@ -8,9 +8,8 @@
     xmlns:models="using:WinUIClash.Models"
     mc:Ignorable="d">
 
-    <Grid Padding="24,16" RowSpacing="12">
+    <Grid Padding="24,16">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -18,7 +17,7 @@
         </Grid.RowDefinitions>
 
         <!-- 顶部工具栏 -->
-        <Grid RowSpacing="24">
+        <Grid Grid.Row="0" Margin="0,0,0,12" RowSpacing="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -43,7 +42,7 @@
         </Grid>
 
         <!-- 代理组 Tab 栏 -->
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+        <ScrollViewer Grid.Row="1" Margin="0,0,0,12" HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Disabled">
             <ItemsRepeater x:Name="GroupTabsRepeater"
                            ItemsSource="{x:Bind ViewModel.Groups, Mode=OneWay}"
@@ -70,21 +69,13 @@
             </ItemsRepeater>
         </ScrollViewer>
 
-        <!-- 测试进度条 -->
-        <ProgressBar Grid.Row="2"
-                     IsIndeterminate="False"
-                     Minimum="0"
-                     Maximum="{x:Bind ViewModel.TestTotal, Mode=OneWay}"
-                     Value="{x:Bind ViewModel.TestProgress, Mode=OneWay}"
-                     Visibility="{x:Bind ViewModel.IsTesting, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-
         <!-- 延迟测试摘要 -->
-        <TextBlock Grid.Row="3" FontSize="11" Opacity="0.5" Margin="0,-4,0,0"
+        <TextBlock Grid.Row="2" FontSize="11" Opacity="0.5" Margin="0,0,0,8"
                    Text="{x:Bind ViewModel.TestSummaryText, Mode=OneWay}"
                    Visibility="{x:Bind ViewModel.HasTestSummary, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
 
         <!-- 代理卡片网格 -->
-        <GridView Grid.Row="4" x:Name="ProxyGrid"
+        <GridView Grid.Row="3" x:Name="ProxyGrid"
                   ItemsSource="{x:Bind ViewModel.FilteredProxies, Mode=OneWay}"
                   SelectionMode="Single"
                   IsItemClickEnabled="True"
@@ -142,7 +133,7 @@
         </GridView>
 
         <!-- 空状态 -->
-        <StackPanel Grid.Row="4"
+        <StackPanel Grid.Row="3"
                     Visibility="{x:Bind ViewModel.FilteredProxies, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
                     HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
             <fluent:SymbolIcon Symbol="Globe" FontSize="32" Opacity="0.3" />
@@ -150,7 +141,7 @@
         </StackPanel>
 
         <!-- 加载指示 -->
-        <ProgressRing Grid.Row="2"
+        <ProgressRing Grid.Row="3"
                       IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
                       HorizontalAlignment="Center" VerticalAlignment="Center" />
     </Grid>

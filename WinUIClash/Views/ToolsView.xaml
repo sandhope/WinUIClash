@@ -7,13 +7,22 @@
     xmlns:fluent="using:FluentIcons.WinUI"
     mc:Ignorable="d">
 
-    <Grid Padding="24,16">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- 主页标题 -->
+        <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource S}, Path=ToolsTitle_Text}" FontSize="20" FontWeight="SemiBold" Margin="24,16,24,0"
+                   Visibility="{x:Bind ViewModel.IsSubPage, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+
         <!-- 主页：设置列表 -->
-        <ScrollViewer x:Name="MainPanel"
+        <ScrollViewer Grid.Row="1" x:Name="MainPanel"
+                      Padding="24,16,24,16"
                       VerticalScrollBarVisibility="Auto"
                       Visibility="{x:Bind ViewModel.IsSubPage, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-            <StackPanel Spacing="24" Margin="0,0,16,0">
-                <TextBlock Text="{Binding Source={StaticResource S}, Path=ToolsTitle_Text}" FontSize="20" FontWeight="SemiBold" />
+            <StackPanel Spacing="24">
 
                 <!-- 设置区域 -->
                 <TextBlock Text="{Binding Source={StaticResource S}, Path=ToolsSettingsSection_Text}" FontSize="14" Opacity="0.6" Margin="0,0,0,-8" />
@@ -144,7 +153,8 @@
         </ScrollViewer>
 
         <!-- 子页面 -->
-        <Grid x:Name="SubPanel"
+        <Grid Grid.Row="0" Grid.RowSpan="2" x:Name="SubPanel"
+              Padding="24,16"
               Visibility="{x:Bind ViewModel.IsSubPage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />

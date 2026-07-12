@@ -24,9 +24,13 @@
     </Page.Resources>
 
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,16,24,96">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource S}, Path=NavDashboard_Content}" FontSize="20" FontWeight="SemiBold" Margin="24,16,24,0" />
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,16,24,96">
             <StackPanel Spacing="24">
-                <TextBlock Text="{Binding Source={StaticResource S}, Path=NavDashboard_Content}" FontSize="20" FontWeight="SemiBold" />
             <Grid RowSpacing="16" ColumnSpacing="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*" />

@@ -8,16 +8,16 @@
     xmlns:models="using:WinUIClash.Models"
     mc:Ignorable="d">
 
-    <Grid Padding="24,16" RowSpacing="16">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource S}, Path=ResTitle_Text}" FontSize="20" FontWeight="SemiBold" />
+        <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource S}, Path=ResTitle_Text}" FontSize="20" FontWeight="SemiBold" Margin="24,16,24,0" />
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="20" Margin="0,0,16,0">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,16,24,16">
+            <StackPanel Spacing="20">
                 <!-- Geo 选项 -->
                 <StackPanel Spacing="8">
                     <TextBlock Text="{Binding Source={StaticResource S}, Path=GeoOptions_Text}" FontSize="14" FontWeight="SemiBold" Opacity="0.8" />
