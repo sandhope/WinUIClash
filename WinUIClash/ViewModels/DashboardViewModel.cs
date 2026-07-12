@@ -375,6 +375,12 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
                     ? new SolidColorBrush(Color.FromArgb(255, 255, 87, 34))
                     : new SolidColorBrush(Color.FromArgb(255, 76, 175, 80));
                 OnPropertyChanged(nameof(CoreToggleText));
+                // 代理状态切换后重新检测 IP（对齐 FlClash checkIpNumProvider 触发机制）
+                // 延迟 1.5 秒等待系统代理生效
+                _ = Task.Delay(1500).ContinueWith(_ => _dispatcher.TryEnqueue(() =>
+                {
+                    _ = CheckIpAsync();
+                }));
             }
         }
     }
