@@ -8,119 +8,94 @@
     xmlns:models="using:WinUIClash.Models"
     mc:Ignorable="d">
 
-    <Grid Padding="24,16" RowSpacing="12">
+    <Grid Padding="24,16" RowSpacing="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- 顶部工具栏 -->
-        <Grid RowSpacing="24">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding Source={StaticResource S}, Path=ResTitle_Text}" FontSize="20" FontWeight="SemiBold" />
-            <!-- 搜索框 -->
-            <AutoSuggestBox Grid.Row="1" Grid.Column="0" Width="200" Height="32" Margin="0,0,8,0" VerticalAlignment="Center"
-                            PlaceholderText="{Binding Source={StaticResource S}, Path=ResSearchPlaceholder_PlaceholderText}"
-                            QueryIcon="Find"
-                            Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <!-- 全部更新 -->
-            <Button Grid.Row="1" Grid.Column="1" Height="32" VerticalAlignment="Center"
-                    Command="{x:Bind ViewModel.UpdateAllCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                    <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
-                    <TextBlock Text="{Binding Source={StaticResource S}, Path=ResUpdateAll_Text}" FontSize="12" />
-                </StackPanel>
-            </Button>
-        </Grid>
+        <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource S}, Path=ResTitle_Text}" FontSize="20" FontWeight="SemiBold" />
 
-        <!-- 更新进度 -->
-        <TextBlock Grid.Row="1" VerticalAlignment="Top" Margin="0,0,0,-20"
-                   FontSize="11" Opacity="0.6"
-                   Text="{x:Bind ViewModel.UpdateAllProgressText, Mode=OneWay}"
-                   Visibility="{x:Bind ViewModel.IsUpdatingAll, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-
-        <!-- 资源列表 -->
-        <ListView Grid.Row="1"
-                  ItemsSource="{x:Bind ViewModel.FilteredProviders, Mode=OneWay}"
-                  SelectionMode="None">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="models:ExternalProvider">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="20" Margin="0,0,16,0">
+                <!-- Geo 选项 -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=GeoOptions_Text}" FontSize="14" FontWeight="SemiBold" Opacity="0.8" />
                     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            CornerRadius="8" Padding="16,12" Margin="0,0,0,8"
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                            BorderThickness="1">
-                        <Grid ColumnSpacing="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Spacing="4" VerticalAlignment="Center">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="{x:Bind Name}" FontSize="14" FontWeight="SemiBold"
-                                               VerticalAlignment="Center" />
-                                    <!-- 类别标签 -->
-                                    <Border CornerRadius="4" Padding="6,2"
-                                            VerticalAlignment="Center">
-                                        <Border.Background>
-                                            <SolidColorBrush Color="{ThemeResource SubtleFillColorSecondary}" />
-                                        </Border.Background>
-                                        <TextBlock Text="{x:Bind Category}" FontSize="10"
-                                                   FontFamily="Consolas" FontWeight="SemiBold"
-                                                   Opacity="0.7" />
-                                    </Border>
-                                    <!-- 类型标签 -->
-                                    <Border CornerRadius="4" Padding="6,2"
-                                            Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
-                                            VerticalAlignment="Center">
-                                        <TextBlock Text="{x:Bind Type}" FontSize="10"
-                                                   FontFamily="Consolas" Opacity="0.7" />
-                                    </Border>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Spacing="16">
-                                    <TextBlock FontSize="11" Opacity="0.5">
-                                        <Run Text="{Binding Source={StaticResource S}, Path=ResEntries_Text}" />
-                                        <Run Text="{x:Bind Count}" />
-                                    </TextBlock>
-                                    <TextBlock FontSize="11" Opacity="0.4">
-                                        <Run Text="{Binding Source={StaticResource S}, Path=ResSource_Text}" />
-                                        <Run Text="{x:Bind VehicleType}" />
-                                    </TextBlock>
-                                    <TextBlock FontSize="11" Opacity="0.3"
-                                               Text="{x:Bind Path}"
-                                               TextTrimming="CharacterEllipsis"
-                                               MaxWidth="300" />
-                                </StackPanel>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1" FontSize="11" Opacity="0.5"
-                                       Text="{x:Bind UpdateAt, Mode=OneWay, Converter={StaticResource DateTimeToRelativeConverter}}"
-                                       VerticalAlignment="Center" />
-                            <Button Grid.Column="2" Padding="8,4"
-                                    ToolTipService.ToolTip="{Binding Source={StaticResource S}, Path=ResUpdate_ToolTip}"
-                                    Click="UpdateProvider_Click"
-                                    Tag="{x:Bind}">
-                                <fluent:SymbolIcon Symbol="ArrowSync" FontSize="13" />
-                            </Button>
-                        </Grid>
+                            BorderThickness="1" CornerRadius="8" Padding="16">
+                        <StackPanel Spacing="12">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Source={StaticResource S}, Path=GeoAutoUpdate_Text}" VerticalAlignment="Center" />
+                                <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.GeoAutoUpdate, Mode=TwoWay}"
+                                               OnContent="" OffContent="" MinWidth="0" />
+                            </Grid>
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding Source={StaticResource S}, Path=GeoAutoUpdateInterval_Text}" VerticalAlignment="Center" />
+                                <NumberBox Grid.Column="1" Value="{x:Bind ViewModel.GeoUpdateInterval, Mode=TwoWay}"
+                                           Minimum="1" Maximum="8760" Width="120" SpinButtonPlacementMode="Inline" />
+                            </Grid>
+                        </StackPanel>
                     </Border>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                </StackPanel>
 
-        <!-- 空状态 -->
-        <StackPanel Grid.Row="1"
-                    Visibility="{x:Bind ViewModel.FilteredProviders, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
-                    HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-            <fluent:SymbolIcon Symbol="Database" FontSize="32" Opacity="0.3" />
-            <TextBlock Text="{Binding Source={StaticResource S}, Path=EmptyResources_Text}" Opacity="0.5" HorizontalAlignment="Center" />
-        </StackPanel>
+                <!-- Geo 资源 -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{Binding Source={StaticResource S}, Path=GeoResources_Text}" FontSize="14" FontWeight="SemiBold" Opacity="0.8" />
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="models:GeoResourceItem">
+                                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1" CornerRadius="8" Padding="16,12" Margin="0,0,0,8">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Spacing="4" VerticalAlignment="Center">
+                                            <TextBlock Text="{x:Bind DisplayName}" FontSize="15" FontWeight="SemiBold" />
+                                            <TextBlock FontSize="11" Opacity="0.5" Text="{x:Bind FileInfoText, Mode=OneWay}" />
+                                            <TextBlock FontSize="11" Opacity="0.4"
+                                                       Text="{x:Bind Url, Mode=OneWay}"
+                                                       TextTrimming="CharacterEllipsis" MaxWidth="520" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Padding="10,6" VerticalAlignment="Center"
+                                                Click="EditUrl_Click" Tag="{x:Bind}">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <fluent:SymbolIcon Symbol="Edit" FontSize="14" />
+                                                <TextBlock Text="{Binding Source={StaticResource S}, Path=GeoEditUrl_Text}" FontSize="12" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Grid.Column="2" Padding="10,6" VerticalAlignment="Center"
+                                                Click="Sync_Click" Tag="{x:Bind}"
+                                                Visibility="{x:Bind IsUpdating, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <fluent:SymbolIcon Symbol="ArrowSync" FontSize="14" />
+                                                <TextBlock Text="{Binding Source={StaticResource S}, Path=GeoSync_Text}" FontSize="12" />
+                                            </StackPanel>
+                                        </Button>
+                                        <ProgressRing Grid.Column="2" Width="22" Height="22"
+                                                      IsActive="{x:Bind IsUpdating, Mode=OneWay}"
+                                                      Visibility="{x:Bind IsUpdating, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                      VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
 
         <ProgressRing Grid.Row="1"
                       IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"

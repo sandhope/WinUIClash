@@ -223,6 +223,10 @@ public class HttpClashService : IClashService, IDisposable
         var groups = new List<ProxyGroup>();
         foreach (var (name, info) in dto.Proxies)
         {
+            // FlClash 1:1：代理页 Tab 不包含 GLOBAL 组（它由出站模式选择器 Global/Rule/Direct 表示）。
+            if (name.Equals("GLOBAL", StringComparison.OrdinalIgnoreCase))
+                continue;
+
             if (info.Type == "Selector" || info.Type == "URLTest" ||
                 info.Type == "Fallback" || info.Type == "LoadBalance")
             {

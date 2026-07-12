@@ -564,4 +564,12 @@ public class StringResources : INotifyPropertyChanged
     public string ResUpdateGeoSite_Text => Get("ResGeoUpdateGeoSite.Text");
     public string ResUpdateMmdb_Text => Get("ResGeoUpdateMmdb.Text");
     public string ResUpdateAsn_Text => Get("ResGeoUpdateAsn.Text");
+
+    // --- Geo Resources page (1:1 with FlClash) ---
+    public string GeoOptions_Text => Get("GeoOptions.Text");
+    public string GeoAutoUpdate_Text => Get("GeoAutoUpdate.Text");
+    public string GeoAutoUpdateInterval_Text => Get("GeoAutoUpdateInterval.Text");
+    public string GeoResources_Text => Get("GeoResources.Text");
+    public string GeoEditUrl_Text => Get("GeoEditUrl.Text");
+    public string GeoSync_Text => Get("GeoSync.Text");
 }

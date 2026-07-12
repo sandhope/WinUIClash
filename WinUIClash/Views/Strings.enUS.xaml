@@ -413,8 +413,16 @@
     <x:String x:Key="ConnResume.Content">Resume</x:String>
     <x:String x:Key="ConnPause.ToolTip">Pause/Resume auto-refresh</x:String>
 
-    <!-- Resources Page -->
+    <!-- Resources Page (Geo resources, 1:1 with FlClash) -->
     <x:String x:Key="ResTitle.Text">Resources</x:String>
+    <x:String x:Key="GeoOptions.Text">Geo Options</x:String>
+    <x:String x:Key="GeoAutoUpdate.Text">Geo auto-update</x:String>
+    <x:String x:Key="GeoAutoUpdateInterval.Text">Geo update interval (hours)</x:String>
+    <x:String x:Key="GeoResources.Text">Geo Resources</x:String>
+    <x:String x:Key="GeoNotDownloaded.Text">Not downloaded</x:String>
+    <x:String x:Key="GeoEditUrl.Text">Edit URL</x:String>
+    <x:String x:Key="GeoEditUrlTitle.Text">Edit Geo resource URL</x:String>
+    <x:String x:Key="GeoSync.Text">Update</x:String>
     <x:String x:Key="ResCountSuffix.Text">providers</x:String>
     <x:String x:Key="ResFilterAll.Content">All</x:String>
     <x:String x:Key="ResFilterProxy.Content">Proxy Providers</x:String>

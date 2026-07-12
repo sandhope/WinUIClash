@@ -36,6 +36,7 @@ public static class ServiceLocator
         services.AddSingleton<ProfileStorageService>();
         services.AddSingleton<ConfigBuildService>();
         services.AddSingleton<CoreDownloadService>();
+        services.AddSingleton<GeoResourceService>();
         services.AddSingleton<HttpClashService>();
         services.AddSingleton<ClashOrchestrator>();
         services.AddSingleton<IClashService>(sp => sp.GetRequiredService<ClashOrchestrator>());

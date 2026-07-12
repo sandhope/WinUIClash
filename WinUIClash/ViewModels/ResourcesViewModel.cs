@@ -8,23 +8,26 @@ using WinUIClash.Services;
 namespace WinUIClash.ViewModels;
 
 /// <summary>
-/// 资源页 ViewModel — GeoIP/GeoSite/ASN 等数据文件管理，支持筛选和自动更新
+/// 资源页 ViewModel — 1:1 还原 FlClash 的 Geo 资源页（MMDB / ASN / GEOIP / GEOSITE），
+/// 展示每个数据库文件的大小/修改时间与下载地址，并支持更新与地址编辑。
 /// </summary>
 public partial class ResourcesViewModel : ObservableObject, IDisposable
 {
-    private readonly IClashService _clash;
+    private readonly GeoResourceService _geo;
     private readonly NotificationService _notification;
+    private readonly AppSettings _settings;
     private readonly DispatcherQueue _dispatcher;
     private readonly System.Threading.Timer _autoUpdateTimer;
     private bool _initialized;
 
-    public ResourcesViewModel(IClashService clash, NotificationService notification)
+    public ResourcesViewModel(GeoResourceService geo, NotificationService notification, AppSettings settings)
     {
-        _clash = clash;
+        _geo = geo;
         _notification = notification;
-        _dispatcher = DispatcherQueue.GetForCurrentThread()!;
+        _dispatcher = DispatcherQueue.GetForCurrentThread();
+        _settings = settings;
 
-        // 自动更新定时器：每 5 分钟检查一次
+        // 自动更新定时器：每 30 分钟检查一次
         _autoUpdateTimer = new System.Threading.Timer(
             async _ => await AutoUpdateCheckAsync(),
             null,
@@ -32,38 +35,47 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
             System.Threading.Timeout.Infinite);
     }
 
-    [ObservableProperty] private ObservableCollection<ExternalProvider> _providers = new();
-    [ObservableProperty] private ObservableCollection<ExternalProvider> _filteredProviders = new();
+    public ObservableCollection<GeoResourceItem> Items { get; } = new();
+
     [ObservableProperty] private bool _isLoading;
-    [ObservableProperty] private string _searchText = "";
-    [ObservableProperty] private string _typeFilter = "ALL";
-    [ObservableProperty] private int _totalCount;
-    [ObservableProperty] private int _proxyProviderCount;
-    [ObservableProperty] private int _ruleProviderCount;
+    [ObservableProperty] private bool _geoAutoUpdate;
+    [ObservableProperty] private int _geoUpdateInterval = 24;
 
-    /// <summary>上次全量更新时间</summary>
-    [ObservableProperty] private DateTime? _lastUpdateAllTime;
-
-    [ObservableProperty] private bool _isUpdatingAll;
-    [ObservableProperty] private string _updateAllProgressText = "";
-
-    partial void OnSearchTextChanged(string value) => ApplyFilter();
-    partial void OnTypeFilterChanged(string value) => ApplyFilter();
+    partial void OnGeoAutoUpdateChanged(bool value) => _settings.GeoAutoUpdate = value;
+    partial void OnGeoUpdateIntervalChanged(int value) => _settings.GeoUpdateInterval = value;
 
     [RelayCommand]
     private async Task LoadAsync()
     {
         IsLoading = true;
-        var list = await _clash.GetExternalProvidersAsync();
-        Providers = new ObservableCollection<ExternalProvider>(list);
-        TotalCount = list.Count;
-        ProxyProviderCount = list.Count(p => IsProxyProvider(p));
-        RuleProviderCount = list.Count(p => !IsProxyProvider(p));
-        ApplyFilter();
-        IsLoading = false;
+        try
+        {
+            Items.Clear();
+            foreach (var type in new[]
+            {
+                GeoResourceType.MMDB,
+                GeoResourceType.ASN,
+                GeoResourceType.GEOIP,
+                GeoResourceType.GEOSITE,
+            })
+            {
+                var item = new GeoResourceItem(type, GeoResourceService.FileNameFor(type))
+                {
+                    Url = UrlFor(type),
+                };
+                RefreshFileInfo(item);
+                Items.Add(item);
+            }
 
-        // 启动自动更新定时器
-        _autoUpdateTimer.Change(TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(5));
+            GeoAutoUpdate = _settings.GeoAutoUpdate;
+            GeoUpdateInterval = _settings.GeoUpdateInterval;
+
+            _autoUpdateTimer.Change(TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(30));
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     [RelayCommand]
@@ -73,138 +85,111 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
         await InitializeAsync();
     }
 
-    [RelayCommand]
-    private async Task UpdateProviderAsync(ExternalProvider? provider)
+    private string UrlFor(GeoResourceType type) => type switch
     {
-        if (provider == null) return;
-        try
+        GeoResourceType.MMDB => _settings.GeoMmdbUrl,
+        GeoResourceType.ASN => _settings.GeoAsnUrl,
+        GeoResourceType.GEOIP => _settings.GeoIpUrl,
+        GeoResourceType.GEOSITE => _settings.GeoSiteUrl,
+        _ => "",
+    };
+
+    private void RefreshFileInfo(GeoResourceItem item)
+    {
+        var info = _geo.GetFileInfo(item.Type);
+        if (info.HasValue)
         {
-            await _clash.UpdateExternalProviderAsync(provider.Name, provider.Category);
-            provider.UpdateAt = DateTime.Now;
+            item.Size = info.Value.size;
+            item.LastModified = info.Value.lastModified;
+            item.FileInfoText = $"{FormatSize(info.Value.size)} · {info.Value.lastModified:yyyy-MM-dd HH:mm}";
         }
-        catch (Exception ex)
+        else
         {
-            _notification.Error(
-                LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
-                $"{provider.Name}: {ex.Message}");
+            item.Size = 0;
+            item.LastModified = null;
+            item.FileInfoText = LocalizationHelper.GetString("GeoNotDownloaded.Text");
         }
     }
 
-    [RelayCommand]
-    private async Task UpdateAllAsync()
+    private static string FormatSize(long bytes)
     {
-        IsUpdatingAll = true;
-        var total = Providers.Count;
-        var updated = 0;
-        var failed = 0;
-
-        for (int i = 0; i < total; i++)
+        if (bytes < 1024) return $"{bytes} B";
+        double value = bytes;
+        string[] units = ["KB", "MB", "GB"];
+        int i = -1;
+        do
         {
-            var p = Providers[i];
-            UpdateAllProgressText = $"{LocalizationHelper.GetString("ResUpdating.Text")} {i + 1}/{total}";
-            try
-            {
-                await _clash.UpdateExternalProviderAsync(p.Name, p.Category);
-                p.UpdateAt = DateTime.Now;
-                updated++;
-            }
-            catch
-            {
-                failed++;
-            }
-        }
-
-        LastUpdateAllTime = DateTime.Now;
-        UpdateAllProgressText = failed > 0
-            ? $"{LocalizationHelper.GetString("ResUpdateAllDone.Text")} ({updated}✓ {failed}✗)"
-            : $"{LocalizationHelper.GetString("ResUpdateAllDone.Text")} ({updated}✓)";
-        IsUpdatingAll = false;
+            value /= 1024.0;
+            i++;
+        } while (value >= 1024 && i < units.Length - 1);
+        return $"{value:F1} {units[i]}";
     }
 
+    /// <summary>更新单个 Geo 资源（下载到核心数据目录）。</summary>
     [RelayCommand]
-    private async Task HealthCheckProviderAsync(ExternalProvider? provider)
+    private async Task UpdateItemAsync(GeoResourceItem? item)
     {
-        if (provider == null) return;
-        provider.IsHealthChecking = true;
+        if (item == null) return;
+        item.IsUpdating = true;
         try
         {
-            await _clash.HealthCheckProviderAsync(provider.Name, provider.Category);
+            var progress = new Progress<double>(_ => { });
+            await _geo.UpdateAsync(item.Type, item.Url, progress);
+            _dispatcher.TryEnqueue(() => RefreshFileInfo(item));
             _notification.Success(
-                LocalizationHelper.GetString("ResHealthCheckDone.Text"),
-                provider.Name);
+                LocalizationHelper.GetString("ResGeoUpdateSuccess.Text"),
+                item.DisplayName);
         }
         catch (Exception ex)
         {
             _notification.Error(
                 LocalizationHelper.GetString("ErrorUpdateTitle.Text"),
-                $"{provider.Name}: {ex.Message}");
+                $"{item.DisplayName}: {ex.Message}");
         }
         finally
         {
-            provider.IsHealthChecking = false;
+            item.IsUpdating = false;
         }
     }
 
-    /// <summary>自动更新：更新超过 24 小时未更新的 provider</summary>
+    /// <summary>保存用户编辑后的 Geo 资源下载地址。</summary>
+    public void SetUrl(GeoResourceItem item, string url)
+    {
+        item.Url = url;
+        switch (item.Type)
+        {
+            case GeoResourceType.MMDB: _settings.GeoMmdbUrl = url; break;
+            case GeoResourceType.ASN: _settings.GeoAsnUrl = url; break;
+            case GeoResourceType.GEOIP: _settings.GeoIpUrl = url; break;
+            case GeoResourceType.GEOSITE: _settings.GeoSiteUrl = url; break;
+        }
+    }
+
+    /// <summary>自动更新：更新超过 geoUpdateInterval 小时未更新的资源。</summary>
     private async Task AutoUpdateCheckAsync()
     {
-        var threshold = DateTime.Now.AddHours(-24);
-        foreach (var p in Providers)
+        if (!_settings.GeoAutoUpdate) return;
+        var threshold = DateTime.Now.AddHours(-Math.Max(1, _settings.GeoUpdateInterval));
+        foreach (var item in Items)
         {
-            if (p.UpdateAt < threshold)
+            var info = _geo.GetFileInfo(item.Type);
+            if (info == null || info.Value.lastModified < threshold)
             {
                 try
                 {
-                    await _clash.UpdateExternalProviderAsync(p.Name, p.Category);
-                    _dispatcher.TryEnqueue(() => p.UpdateAt = DateTime.Now);
+                    await _geo.UpdateAsync(item.Type, item.Url);
+                    _dispatcher.TryEnqueue(() => RefreshFileInfo(item));
                 }
                 catch { /* 自动更新失败静默 */ }
             }
         }
     }
 
-    private void ApplyFilter()
-    {
-        IEnumerable<ExternalProvider> query = Providers;
-
-        // 按类型筛选
-        if (TypeFilter == "Proxy")
-        {
-            query = query.Where(p => IsProxyProvider(p));
-        }
-        else if (TypeFilter == "Rule")
-        {
-            query = query.Where(p => !IsProxyProvider(p));
-        }
-
-        // 按关键词搜索
-        if (!string.IsNullOrWhiteSpace(SearchText))
-        {
-            var keyword = SearchText.Trim();
-            query = query.Where(p =>
-                p.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                p.Type.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                p.Path.Contains(keyword, StringComparison.OrdinalIgnoreCase));
-        }
-
-        FilteredProviders = new ObservableCollection<ExternalProvider>(query);
-    }
-
-    /// <summary>根据 Category 字段判断是否为代理提供者</summary>
-    public static bool IsProxyProvider(ExternalProvider p) =>
-        p.Category == "proxy";
-
-    /// <summary>获取提供者类型标签</summary>
-    public static string GetProviderTypeLabel(ExternalProvider p) =>
-        IsProxyProvider(p)
-            ? LocalizationHelper.GetString("ProviderTypeProxy.Text")
-            : LocalizationHelper.GetString("ProviderTypeRule.Text");
-
     public async Task InitializeAsync()
     {
         if (_initialized) return;
-        _initialized = true;
         await LoadAsync();
+        _initialized = true;
     }
 
     public void Dispose()

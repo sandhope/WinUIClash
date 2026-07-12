@@ -25,9 +25,37 @@ public sealed partial class ResourcesView : Page
         };
     }
 
-    private void UpdateProvider_Click(object sender, RoutedEventArgs e)
+    private async void Sync_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button btn && btn.Tag is ExternalProvider provider)
-            ViewModel.UpdateProviderCommand.Execute(provider);
+        if (sender is Button btn && btn.Tag is GeoResourceItem item)
+            await ViewModel.UpdateItemCommand.ExecuteAsync(item);
+    }
+
+    private async void EditUrl_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn || btn.Tag is not GeoResourceItem item) return;
+
+        var box = new TextBox
+        {
+            Text = item.Url,
+            AcceptsReturn = false,
+            Header = LocalizationHelper.GetString("GeoEditUrlTitle.Text"),
+        };
+        var dialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = item.DisplayName,
+            Content = box,
+            PrimaryButtonText = LocalizationHelper.GetString("CommonConfirm.Content"),
+            CloseButtonText = LocalizationHelper.GetString("CommonClose.Content"),
+            DefaultButton = ContentDialogButton.Primary,
+        };
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            var url = box.Text?.Trim() ?? "";
+            if (!string.IsNullOrEmpty(url))
+                ViewModel.SetUrl(item, url);
+        }
     }
 }

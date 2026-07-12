@@ -33,7 +33,9 @@ public class SystemProxyService
             ?? throw new InvalidOperationException(LocalizationHelper.GetString("ErrorRegistryAccess.Text"));
 
         key.SetValue("ProxyEnable", 1, RegistryValueKind.DWord);
-        key.SetValue("ProxyServer", $"127.0.0.1:{_settings.HttpPort}", RegistryValueKind.String);
+        // FlClash 对齐：系统代理指向核心的 mixed-port（混合端口，HTTP/SOCKS 均可），
+        // 与 proxy_manager 使用的 proxyState.port == mixedPort 一致。
+        key.SetValue("ProxyServer", $"127.0.0.1:{_settings.MixedPort}", RegistryValueKind.String);
         key.SetValue("ProxyOverride", _settings.BypassDomains, RegistryValueKind.String);
 
         NotifyProxyChanged();
@@ -77,7 +79,7 @@ public class SystemProxyService
                     else
                         StopGuard();
                     break;
-                case nameof(AppSettings.HttpPort):
+                case nameof(AppSettings.MixedPort):
                 case nameof(AppSettings.BypassDomains):
                     if (_settings.SystemProxy) Enable();
                     break;
@@ -142,7 +144,7 @@ public class SystemProxyService
             var proxyServer = key.GetValue("ProxyServer") as string ?? "";
             var proxyOverride = key.GetValue("ProxyOverride") as string ?? "";
 
-            var expectedServer = $"127.0.0.1:{_settings.HttpPort}";
+            var expectedServer = $"127.0.0.1:{_settings.MixedPort}";
 
             if (proxyEnable != 1 || proxyServer != expectedServer || proxyOverride != _settings.BypassDomains)
             {
