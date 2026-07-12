@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace WinUIClash.Services;
@@ -6,6 +7,10 @@ namespace WinUIClash.Services;
 public class StringResources : INotifyPropertyChanged
 {
     private ResourceDictionary? _rd;
+    // Plain managed snapshot of all strings. Populated in Load() on the UI thread,
+    // then read from any thread — avoids touching the WinRT ResourceDictionary off
+    // the UI thread (which throws RPC_E_WRONG_THREAD / 0x8001010E).
+    private readonly Dictionary<string, string> _entries = new();
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -23,14 +28,24 @@ public class StringResources : INotifyPropertyChanged
             Source = new Uri($"ms-appx:///Views/{file}", UriKind.Absolute)
         };
 
+        // Snapshot into a plain managed dictionary so Get() is thread-safe
+        // (no WinRT COM access). Load() always runs on the UI thread.
+        _entries.Clear();
+        foreach (var key in _rd.Keys)
+        {
+            var k = key?.ToString();
+            if (k != null && _rd[key] is string s)
+                _entries[k] = s;
+        }
+
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
     }
 
     public string Get(string key)
     {
-        if (_rd != null && _rd.ContainsKey(key))
+        if (_entries.TryGetValue(key, out var value))
         {
-            return (string)_rd[key]!;
+            return value;
         }
         return key;
     }
@@ -41,7 +56,6 @@ public class StringResources : INotifyPropertyChanged
     public string NavRequests_Content => Get("NavRequests.Content");
     public string NavConnections_Content => Get("NavConnections.Content");
     public string NavResources_Content => Get("NavResources.Content");
-    public string NavRules_Content => Get("NavRules.Content");
     public string NavLogs_Content => Get("NavLogs.Content");
     public string NavTools_Content => Get("NavTools.Content");
     public string NavShortcuts_Content => Get("NavShortcuts.Content");
@@ -71,6 +85,9 @@ public class StringResources : INotifyPropertyChanged
     public string DashCoreMemory_Text => Get("DashCoreMemory.Text");
     public string DashCoreStart_Text => Get("DashCoreStart.Text");
     public string DashCoreStop_Text => Get("DashCoreStop.Text");
+    public string CoreAutoManaged_Text => Get("CoreAutoManaged.Text");
+    public string DashProxyStart_Text => Get("DashProxyStart.Text");
+    public string DashProxyStop_Text => Get("DashProxyStop.Text");
     public string DashRuntime_Text => Get("DashRuntime.Text");
     public string DashOutboundMode_Text => Get("DashOutboundMode.Text");
     public string DashSystemProxy_Text => Get("DashSystemProxy.Text");
@@ -277,6 +294,7 @@ public class StringResources : INotifyPropertyChanged
     public string AboutVersion_Text => Get("AboutVersion.Text");
     public string AboutDescription_Text => Get("AboutDescription.Text");
     public string AboutTechStack_Text => Get("AboutTechStack.Text");
+    public string AboutProjectLinks_Text => Get("AboutProjectLinks.Text");
     public string AboutActions_Text => Get("AboutActions.Text");
     public string AboutFlClash_Content => Get("AboutFlClash.Content");
     public string AboutMihomo_Content => Get("AboutMihomo.Content");
@@ -425,6 +443,8 @@ public class StringResources : INotifyPropertyChanged
     public string BasicConfigAppliedMsg_Text => Get("BasicConfigAppliedMsg.Text");
     public string ProfilesSyncDoneTitle_Text => Get("ProfilesSyncDoneTitle.Text");
     public string ProfilesSyncAllDoneMsg_Text => Get("ProfilesSyncAllDoneMsg.Text");
+    public string ProfilesSyncUrlHint_Text => Get("ProfilesSyncUrlHint.Text");
+    public string ProfilesSyncAuthHint_Text => Get("ProfilesSyncAuthHint.Text");
     public string ProfilesSwitchedTitle_Text => Get("ProfilesSwitchedTitle.Text");
     public string ProfilesSwitching_Text => Get("ProfilesSwitching.Text");
     public string NetworkChanged_Text => Get("NetworkChanged.Text");
@@ -437,19 +457,6 @@ public class StringResources : INotifyPropertyChanged
     public string ProfilesExportConfig_Text => Get("ProfilesExportConfig.Text");
     public string ProfilesAutoStartTitle_Text => Get("ProfilesAutoStartTitle.Text");
     public string ProfilesAutoStartMsg_Text => Get("ProfilesAutoStartMsg.Text");
-
-    public string RulesTitle_Text => Get("RulesTitle.Text");
-    public string RulesSearchPlaceholder_PlaceholderText => Get("RulesSearchPlaceholder.PlaceholderText");
-    public string RulesTypeCol_Text => Get("RulesTypeCol.Text");
-    public string RulesPayloadCol_Text => Get("RulesPayloadCol.Text");
-    public string RulesTargetCol_Text => Get("RulesTargetCol.Text");
-    public string RulesAllProxiesFilter_Text => Get("RulesAllProxiesFilter.Text");
-    public string RulesAllTypes_Text => Get("RulesAllTypes.Text");
-    public string RulesAllProxies_Text => Get("RulesAllProxies.Text");
-    public string RulesCopyType_Text => Get("RulesCopyType.Text");
-    public string RulesCopyPayload_Text => Get("RulesCopyPayload.Text");
-    public string RulesCopyProxy_Text => Get("RulesCopyProxy.Text");
-    public string RulesCopyAll_Text => Get("RulesCopyAll.Text");
 
     public string ProxyCtxTestDelay_Text => Get("ProxyCtxTestDelay.Text");
     public string ProxyCtxSelect_Text => Get("ProxyCtxSelect.Text");

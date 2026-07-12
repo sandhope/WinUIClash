@@ -1,33 +1,43 @@
-using System.Net.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.UI.Dispatching;
+using System.Net.Http;
+using System.Net.Sockets;
 using WinUIClash.Models;
 
 namespace WinUIClash.Services;
 
 /// <summary>
-/// Coordinates CoreProcessService (process lifecycle) and IClashService (API client).
-/// Delegates all IClashService calls to either HttpClashService (real core) or MockClashService (fallback).
+/// 协调 CoreProcessService（进程生命周期）与 HttpClashService（REST/WebSocket 客户端）。
+/// 始终使用真实核心；核心未运行时状态为 Stopped，数据调用将抛出并由各 ViewModel 处理为空状态。
+/// 不提供任何 mock/假数据回退。
 /// </summary>
 public class ClashOrchestrator : IClashService
 {
     private readonly CoreProcessService _processService;
     private readonly HttpClashService _httpClashService;
-    private readonly MockClashService _mockClashService;
+    private readonly ConfigBuildService _configBuild;
+    private readonly CoreDownloadService _coreDownload;
+    private readonly ProfileStorageService _profileStorage;
     private readonly NotificationService _notificationService;
     private readonly AppSettings _settings;
     private readonly ILogger<ClashOrchestrator> _logger;
 
-    private IClashService _activeService;
+    // UI 线程调度器：核心事件（CoreStateChanged/TrafficUpdated/...）大多在后台线程
+    // （进程退出线程、WebSocket 接收线程、Task.Run）上抛出，订阅者多为 UI 绑定，
+    // 必须派发回 UI 线程，否则会抛 RPC_E_WRONG_THREAD / 跨线程修改集合异常。
+    private readonly DispatcherQueue? _uiDispatcher;
+
+    private CoreState _coreState = CoreState.Stopped;
     private bool _intentionalStop;
     private int _restartAttempts;
     private const int MaxRestartAttempts = 3;
 
-    // ── Network change detection ──
+    // ── 网络变化检测 ──
     private bool _wasRunningBeforeNetworkLoss;
     private bool _networkLost;
     private CancellationTokenSource? _networkDebounceCts;
 
-    // ── Events (forwarded from active service) ──
+    // ── 事件 ──
     public event Action<Traffic>? TrafficUpdated;
     public event Action<CoreState>? CoreStateChanged;
     public event Action<LogEntry>? LogReceived;
@@ -36,103 +46,179 @@ public class ClashOrchestrator : IClashService
     public ClashOrchestrator(
         CoreProcessService processService,
         HttpClashService httpClashService,
-        MockClashService mockClashService,
+        ConfigBuildService configBuild,
+        CoreDownloadService coreDownload,
+        ProfileStorageService profileStorage,
         NotificationService notificationService,
         AppSettings settings,
         ILogger<ClashOrchestrator> logger)
     {
         _processService = processService;
         _httpClashService = httpClashService;
-        _mockClashService = mockClashService;
+        _configBuild = configBuild;
+        _coreDownload = coreDownload;
+        _profileStorage = profileStorage;
         _notificationService = notificationService;
         _settings = settings;
         _logger = logger;
 
-        // Start with mock service as the active backend
-        _activeService = _mockClashService;
-        SubscribeToEvents(_mockClashService);
+        try { _uiDispatcher = DispatcherQueue.GetForCurrentThread(); }
+        catch { _uiDispatcher = null; }
 
-        // Watch for unexpected core process exits
+        // 转发真实核心的事件
+        _httpClashService.TrafficUpdated += OnTrafficUpdated;
+        _httpClashService.LogReceived += OnLogReceived;
+        _httpClashService.OutboundModeChanged += OnOutboundModeChanged;
+
+        // 监听核心进程意外退出
         _processService.ProcessStateChanged += OnProcessStateChanged;
 
-        // Watch for network connectivity changes
         try
         {
             Windows.Networking.Connectivity.NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to subscribe to network status changes");
+            _logger.LogWarning(ex, "无法订阅网络状态变化");
         }
     }
 
-    /// <summary>Whether the real ClashMeta core process is running and connected.</summary>
-    public bool IsRealCore => _activeService == _httpClashService;
+    public CoreState CoreState => _coreState;
+
+    private void SetCoreState(CoreState state)
+    {
+        if (_coreState == state) return;
+        _coreState = state;
+        RaiseOnUiThread(() => CoreStateChanged?.Invoke(state));
+    }
+
+    /// <summary>将事件派发回 UI 线程，避免后台线程（进程退出/WS/Task.Run）直接触发 UI 绑定。</summary>
+    private void RaiseOnUiThread(Action action)
+    {
+        if (_uiDispatcher == null) action();
+        else _uiDispatcher.TryEnqueue(() => action());
+    }
 
     /// <summary>
-    /// Current core state: Running when the real core is active,
-    /// otherwise delegates to the mock service's state.
+    /// 核心未运行时，数据获取直接返回空结果/默认值，避免向未监听的 REST 端口发起请求而导致崩溃。
+    /// 同时捕获核心短暂不可达（如启动中、重启、崩溃恢复窗口）时的连接异常。
     /// </summary>
-    public CoreState CoreState => IsRealCore ? CoreState.Running : _mockClashService.CoreState;
+    private async Task<T> SafeFetchAsync<T>(Func<Task<T>> fetch, T fallback)
+    {
+        if (_coreState != CoreState.Running)
+            return fallback;
+        try
+        {
+            return await fetch();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogDebug(ex, "核心请求失败（核心可能未运行）");
+            return fallback;
+        }
+        catch (SocketException ex)
+        {
+            _logger.LogDebug(ex, "核心连接失败（核心可能未运行）");
+            return fallback;
+        }
+        catch (TaskCanceledException)
+        {
+            return fallback;
+        }
+    }
 
-    // ── Lifecycle ──
+    /// <summary>
+    /// 命令型操作（写/控制）在核心未运行或短暂不可达时静默忽略，避免崩溃。
+    /// </summary>
+    private async Task SafeRunAsync(Func<Task> action)
+    {
+        if (_coreState != CoreState.Running)
+            return;
+        try
+        {
+            await action();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogDebug(ex, "核心控制请求失败（核心可能未运行）");
+        }
+        catch (SocketException ex)
+        {
+            _logger.LogDebug(ex, "核心连接失败（核心可能未运行）");
+        }
+        catch (TaskCanceledException) { }
+    }
+
+    // ── 生命周期 ──
 
     public async Task StartAsync()
     {
+        if (_coreState == CoreState.Running || _coreState == CoreState.Starting) return;
+
+        _intentionalStop = false;
+        _restartAttempts = 0;
+        SetCoreState(CoreState.Starting);
+
         try
         {
-            _intentionalStop = false;
-            _restartAttempts = 0;
-
-            // 1. Start the core process
-            try
+            // 1. 确保核心二进制存在（缺失则运行时下载）
+            if (string.IsNullOrWhiteSpace(_settings.CoreBinaryPath) && _processService.BinaryPath == null)
             {
-                // Apply custom binary path if configured
-                if (!string.IsNullOrWhiteSpace(_settings.CoreBinaryPath))
-                    _processService.SetBinaryPath(_settings.CoreBinaryPath);
+                _notificationService.Info(
+                    LocalizationHelper.GetString("CoreDownloadingTitle.Text"),
+                    LocalizationHelper.GetString("CoreDownloadingMsg.Text"));
 
-                await _processService.StartAsync();
+                var downloaded = await _coreDownload.DownloadAsync();
+                if (downloaded != null)
+                {
+                    _processService.SetBinaryPath(downloaded);
+                    _notificationService.Success(
+                        LocalizationHelper.GetString("CoreDownloadedTitle.Text"),
+                        LocalizationHelper.GetString("CoreDownloadedMsg.Text"));
+                }
             }
-            catch (FileNotFoundException ex)
+            else if (!string.IsNullOrWhiteSpace(_settings.CoreBinaryPath))
             {
-                _logger.LogWarning(ex, "ClashMeta core binary not found");
+                _processService.SetBinaryPath(_settings.CoreBinaryPath);
+            }
+
+            if (_processService.BinaryPath == null)
+            {
+                _logger.LogWarning("未找到 mihomo 核心二进制");
                 _notificationService.Error(
                     LocalizationHelper.GetString("ErrorCoreBinaryNotFound.Text"),
                     LocalizationHelper.GetString("ErrorCoreBinaryNotFoundMsg.Text"));
+                SetCoreState(CoreState.Stopped);
                 return;
             }
 
-            _logger.LogInformation("ClashMeta core process started");
+            // 2. 生成运行时 config.yaml（端口/secret/external-controller 与应用一致）
+            var configPath = await _configBuild.BuildConfigAsync();
+            _processService.SetConfigPath(configPath);
 
-            // 2. Wait for the REST API to become available (up to 5 seconds)
-            int apiPort = _settings.HttpPort + 1900;
-            bool apiReady = await WaitForApiAsync(apiPort, TimeSpan.FromSeconds(5));
+            // 3. 启动核心进程
+            await _processService.StartAsync();
+            _logger.LogInformation("mihomo 核心进程已启动");
 
+            // 4. 等待 REST API 就绪（最多 8 秒）
+            int apiPort = _settings.ApiPort;
+            bool apiReady = await WaitForApiAsync(apiPort, TimeSpan.FromSeconds(8));
             if (!apiReady)
-            {
                 throw new TimeoutException(
-                    $"ClashMeta REST API did not respond within 5 seconds on port {apiPort}");
-            }
+                    $"mihomo REST API 在端口 {apiPort} 上 {LocalizationHelper.GetString("CoreApiTimeout.Text")}");
 
-            _logger.LogInformation("ClashMeta REST API is ready on port {Port}", apiPort);
-
-            // 3. Configure the HTTP client endpoint and start (connects WebSockets)
+            // 5. 配置 HTTP 客户端端点并连接（含 WebSocket）
             _httpClashService.SetApiEndpoint("127.0.0.1", apiPort, _settings.ApiSecret);
             await _httpClashService.StartAsync();
-
-            // 4. Start the real-time traffic WebSocket stream
             _ = _httpClashService.StartTrafficStreamAsync();
 
-            // 5. Switch active service to the real backend
-            SwitchActiveService(_httpClashService);
-
-            // 6. Fire state change and notify
-            CoreStateChanged?.Invoke(CoreState.Running);
+            // 6. 启动成功
+            SetCoreState(CoreState.Running);
             _notificationService.Success(
                 LocalizationHelper.GetString("CoreStartedTitle.Text"),
                 LocalizationHelper.GetString("CoreStartedMsg.Text"));
 
-            // 7. Apply saved TUN mode if enabled
+            // 7. 应用保存的 TUN 模式
             if (_settings.TunMode)
             {
                 try
@@ -142,30 +228,17 @@ public class ClashOrchestrator : IClashService
                 }
                 catch (Exception tunEx)
                 {
-                    _logger.LogWarning(tunEx, "Failed to apply TUN mode on startup");
+                    _logger.LogWarning(tunEx, "启动时应用 TUN 模式失败");
                 }
             }
 
-            _logger.LogInformation("ClashOrchestrator: switched to HttpClashService");
+            _logger.LogInformation("ClashOrchestrator: 已连接真实核心");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to start ClashMeta core, falling back to mock service");
-
-            // Clean up: stop the process if it was started
-            try
-            {
-                await _processService.StopAsync();
-            }
-            catch (Exception stopEx)
-            {
-                _logger.LogWarning(stopEx, "Error stopping core process during fallback");
-            }
-
-            // Fall back to mock
-            SwitchActiveService(_mockClashService);
-            CoreStateChanged?.Invoke(_mockClashService.CoreState);
-
+            _logger.LogError(ex, "启动 mihomo 核心失败");
+            try { await _processService.StopAsync(); } catch { }
+            SetCoreState(CoreState.Stopped);
             _notificationService.Error(
                 LocalizationHelper.GetString("ErrorCoreStartFailed.Text"),
                 string.Format(LocalizationHelper.GetString("ErrorCoreStartFailedMsg.Text"), ex.Message));
@@ -177,115 +250,162 @@ public class ClashOrchestrator : IClashService
         try
         {
             _intentionalStop = true;
+            SetCoreState(CoreState.Stopping);
 
-            // 1. Disconnect HttpClashService WebSockets
-            if (IsRealCore)
-            {
+            if (_coreState == CoreState.Running)
                 await _httpClashService.StopAsync();
-            }
 
-            // 2. Stop the core process
             await _processService.StopAsync();
 
-            // 3. Switch back to mock service
-            SwitchActiveService(_mockClashService);
-
-            // 4. Fire state change
-            CoreStateChanged?.Invoke(_mockClashService.CoreState);
-
-            // 5. Notify
+            SetCoreState(CoreState.Stopped);
             _notificationService.Info(
                 LocalizationHelper.GetString("CoreStoppedTitle.Text"),
                 LocalizationHelper.GetString("CoreStoppedMsg.Text"));
 
-            _logger.LogInformation("ClashOrchestrator: stopped core, switched to MockClashService");
+            _logger.LogInformation("ClashOrchestrator: 核心已停止");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during stop");
+            _logger.LogError(ex, "停止核心时出错");
+            SetCoreState(CoreState.Stopped);
             _notificationService.Error(
                 LocalizationHelper.GetString("ErrorCoreStopFailed.Text"),
                 string.Format(LocalizationHelper.GetString("ErrorCoreStopFailedMsg.Text"), ex.Message));
         }
     }
 
-    public Task<string> GetVersionAsync() => _activeService.GetVersionAsync();
+    public Task<string> GetVersionAsync() =>
+        SafeFetchAsync(() => _httpClashService.GetVersionAsync(), string.Empty);
 
-    // ── Traffic ──
+    // ── 流量 ──
 
-    public Traffic GetCurrentTraffic() => _activeService.GetCurrentTraffic();
-    public Traffic GetTotalTraffic() => _activeService.GetTotalTraffic();
-    public Task ResetTrafficAsync() => _activeService.ResetTrafficAsync();
-    public Task StartTrafficStreamAsync() => _activeService.StartTrafficStreamAsync();
+    public Traffic GetCurrentTraffic() => _httpClashService.GetCurrentTraffic();
+    public Traffic GetTotalTraffic() => _httpClashService.GetTotalTraffic();
+    public Task ResetTrafficAsync() => SafeRunAsync(_httpClashService.ResetTrafficAsync);
+    public Task StartTrafficStreamAsync() => _httpClashService.StartTrafficStreamAsync();
 
-    // ── Outbound Mode ──
+    // ── 出站模式 ──
 
-    public OutboundMode GetOutboundMode() => _activeService.GetOutboundMode();
-    public Task SetOutboundModeAsync(OutboundMode mode) => _activeService.SetOutboundModeAsync(mode);
+    public OutboundMode GetOutboundMode() => _settings.OutboundMode?.ToLowerInvariant() switch
+    {
+        "global" => OutboundMode.Global,
+        "direct" => OutboundMode.Direct,
+        _ => OutboundMode.Rule,
+    };
 
-    // ── TUN Mode ──
+    public async Task SetOutboundModeAsync(OutboundMode mode)
+    {
+        _settings.OutboundMode = mode switch
+        {
+            OutboundMode.Global => "global",
+            OutboundMode.Direct => "direct",
+            _ => "rule",
+        };
+        await SafeRunAsync(() => _httpClashService.SetOutboundModeAsync(mode));
+    }
 
-    public Task<bool> GetTunEnabledAsync() => _activeService.GetTunEnabledAsync();
-    public Task SetTunEnabledAsync(bool enabled) => _activeService.SetTunEnabledAsync(enabled);
-    public Task SetTunStackAsync(string stack) => _activeService.SetTunStackAsync(stack);
+    // ── TUN 模式 ──
 
-    // ── Proxy ──
+    public Task<bool> GetTunEnabledAsync() =>
+        SafeFetchAsync(() => _httpClashService.GetTunEnabledAsync(), false);
+    public Task SetTunEnabledAsync(bool enabled) => SafeRunAsync(() => _httpClashService.SetTunEnabledAsync(enabled));
+    public Task SetTunStackAsync(string stack) => SafeRunAsync(() => _httpClashService.SetTunStackAsync(stack));
 
-    public Task<IReadOnlyList<ProxyGroup>> GetProxyGroupsAsync() => _activeService.GetProxyGroupsAsync();
-    public Task ChangeProxyAsync(string groupName, string proxyName) => _activeService.ChangeProxyAsync(groupName, proxyName);
-    public Task<int> TestDelayAsync(string proxyName, string? testUrl = null) => _activeService.TestDelayAsync(proxyName, testUrl);
-    public Task<Dictionary<string, int>> TestGroupDelayAsync(string groupName, string? testUrl = null) => _activeService.TestGroupDelayAsync(groupName, testUrl);
+    // ── 代理 ──
 
-    // ── Config ──
+    public Task<IReadOnlyList<ProxyGroup>> GetProxyGroupsAsync() =>
+        SafeFetchAsync(() => _httpClashService.GetProxyGroupsAsync(), Array.Empty<ProxyGroup>());
+    public Task ChangeProxyAsync(string groupName, string proxyName) =>
+        SafeRunAsync(() => _httpClashService.ChangeProxyAsync(groupName, proxyName));
+    public Task<int> TestDelayAsync(string proxyName, string? testUrl = null) =>
+        SafeFetchAsync(() => _httpClashService.TestDelayAsync(proxyName, testUrl), -1);
+    public Task<Dictionary<string, int>> TestGroupDelayAsync(string groupName, string? testUrl = null) =>
+        SafeFetchAsync(() => _httpClashService.TestGroupDelayAsync(groupName, testUrl), new Dictionary<string, int>());
 
-    public Task<IReadOnlyList<Profile>> GetProfilesAsync() => _activeService.GetProfilesAsync();
-    public Task AddProfileAsync(Profile profile) => _activeService.AddProfileAsync(profile);
-    public Task UpdateProfileAsync(Profile profile) => _activeService.UpdateProfileAsync(profile);
-    public Task DeleteProfileAsync(string profileId) => _activeService.DeleteProfileAsync(profileId);
-    public Task SwitchProfileAsync(string profileId, string configPath = "") => _activeService.SwitchProfileAsync(profileId, configPath);
-    public Task SyncProfileAsync(string profileId, string? url = null, string configPath = "") => _activeService.SyncProfileAsync(profileId, url, configPath);
+    // ── 配置 ──
 
-    // ── Connections ──
+    public async Task<IReadOnlyList<Profile>> GetProfilesAsync()
+    {
+        try
+        {
+            var list = await _profileStorage.LoadProfileListAsync();
+            return list;
+        }
+        catch
+        {
+            return Array.Empty<Profile>();
+        }
+    }
 
-    public Task<IReadOnlyList<ConnectionInfo>> GetConnectionsAsync() => _activeService.GetConnectionsAsync();
-    public Task CloseConnectionAsync(string connectionId) => _activeService.CloseConnectionAsync(connectionId);
-    public Task CloseAllConnectionsAsync() => _activeService.CloseAllConnectionsAsync();
+    public Task AddProfileAsync(Profile profile) => Task.CompletedTask;
+    public Task UpdateProfileAsync(Profile profile) => Task.CompletedTask;
+    public Task DeleteProfileAsync(string profileId) => Task.CompletedTask;
 
-    // ── Log ──
+    public async Task SwitchProfileAsync(string profileId, string configPath = "")
+    {
+        // 重新生成 config.yaml（已包含新活动配置），运行中对核心热重载
+        var builtPath = await _configBuild.BuildConfigAsync();
+        if (_coreState == CoreState.Running && File.Exists(builtPath))
+            await _httpClashService.SwitchProfileAsync(profileId, builtPath);
+    }
 
-    public Task StartLogAsync(string level = "info") => _activeService.StartLogAsync(level);
-    public Task StopLogAsync() => _activeService.StopLogAsync();
+    public async Task SyncProfileAsync(string profileId, string? url = null, string configPath = "")
+    {
+        // VM 已负责下载订阅内容；此处重新生成 config.yaml 并在运行时热重载
+        var builtPath = await _configBuild.BuildConfigAsync();
+        if (_coreState == CoreState.Running && File.Exists(builtPath))
+            await _httpClashService.SwitchProfileAsync(profileId, builtPath);
+    }
 
-    // ── Network ──
+    // ── 连接 ──
 
-    public Task<IpInfo> GetIpInfoAsync() => _activeService.GetIpInfoAsync();
+    public Task<IReadOnlyList<ConnectionInfo>> GetConnectionsAsync() =>
+        SafeFetchAsync(() => _httpClashService.GetConnectionsAsync(), Array.Empty<ConnectionInfo>());
+    public Task CloseConnectionAsync(string connectionId) =>
+        SafeRunAsync(() => _httpClashService.CloseConnectionAsync(connectionId));
+    public Task CloseAllConnectionsAsync() =>
+        SafeRunAsync(_httpClashService.CloseAllConnectionsAsync);
 
-    // ── External Providers ──
+    // ── 日志 ──
 
-    public Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync() => _activeService.GetExternalProvidersAsync();
-    public Task UpdateExternalProviderAsync(string name, string category = "proxy") => _activeService.UpdateExternalProviderAsync(name, category);
-    public Task UpdateGeoDatabaseAsync(string name) => _activeService.UpdateGeoDatabaseAsync(name);
-    public Task PatchCoreConfigAsync(AppSettings settings) => _activeService.PatchCoreConfigAsync(settings);
-    public Task HealthCheckProviderAsync(string name, string category = "proxy") => _activeService.HealthCheckProviderAsync(name, category);
+    public Task StartLogAsync(string level = "info") => SafeRunAsync(() => _httpClashService.StartLogAsync(level));
+    public Task StopLogAsync() => SafeRunAsync(_httpClashService.StopLogAsync);
 
-    // ── Rules ──
+    // ── 网络检测 ──
 
-    public Task<IReadOnlyList<Rule>> GetRulesAsync() => _activeService.GetRulesAsync();
+    public Task<IpInfo> GetIpInfoAsync() =>
+        SafeFetchAsync(() => _httpClashService.GetIpInfoAsync(), new IpInfo());
 
-    // ── Memory ──
+    // ── 外部提供者 ──
 
-    public Task<long> GetCoreMemoryAsync() => _activeService.GetCoreMemoryAsync();
-    public Task ForceGcAsync() => _activeService.ForceGcAsync();
-    public Task FlushFakeIpCacheAsync() => _activeService.FlushFakeIpCacheAsync();
+    public Task<IReadOnlyList<ExternalProvider>> GetExternalProvidersAsync() =>
+        SafeFetchAsync(() => _httpClashService.GetExternalProvidersAsync(), Array.Empty<ExternalProvider>());
+    public Task UpdateExternalProviderAsync(string name, string category = "proxy") =>
+        SafeRunAsync(() => _httpClashService.UpdateExternalProviderAsync(name, category));
+    public Task UpdateGeoDatabaseAsync(string name) =>
+        SafeRunAsync(() => _httpClashService.UpdateGeoDatabaseAsync(name));
+    public Task PatchCoreConfigAsync(AppSettings settings) =>
+        SafeRunAsync(() => _httpClashService.PatchCoreConfigAsync(settings));
+    public Task HealthCheckProviderAsync(string name, string category = "proxy") =>
+        SafeRunAsync(() => _httpClashService.HealthCheckProviderAsync(name, category));
 
-    // ── Private helpers ──
+    // ── 规则 ──
 
-    /// <summary>
-    /// Polls the /version endpoint until it responds or the timeout expires.
-    /// </summary>
+    public Task<IReadOnlyList<Rule>> GetRulesAsync() =>
+        SafeFetchAsync(() => _httpClashService.GetRulesAsync(), Array.Empty<Rule>());
+
+    // ── 内存 ──
+
+    public Task<long> GetCoreMemoryAsync() =>
+        SafeFetchAsync(() => _httpClashService.GetCoreMemoryAsync(), 0L);
+    public Task ForceGcAsync() => SafeRunAsync(_httpClashService.ForceGcAsync);
+    public Task FlushFakeIpCacheAsync() => SafeRunAsync(_httpClashService.FlushFakeIpCacheAsync);
+
+    // ── 私有辅助 ──
+
     private async Task<bool> WaitForApiAsync(int port, TimeSpan timeout)
     {
-        using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(2) };
+        using var http = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(2) };
         var deadline = DateTime.UtcNow + timeout;
 
         while (DateTime.UtcNow < deadline)
@@ -298,7 +418,7 @@ public class ClashOrchestrator : IClashService
             }
             catch
             {
-                // API not ready yet
+                // API 尚未就绪
             }
 
             await Task.Delay(300);
@@ -307,124 +427,82 @@ public class ClashOrchestrator : IClashService
         return false;
     }
 
-    /// <summary>
-    /// Switches the active service, unsubscribing from the old one and subscribing to the new one.
-    /// </summary>
-    private void SwitchActiveService(IClashService newService)
-    {
-        UnsubscribeFromEvents(_activeService);
-        _activeService = newService;
-        SubscribeToEvents(newService);
-    }
-
-    private void SubscribeToEvents(IClashService service)
-    {
-        service.TrafficUpdated += OnTrafficUpdated;
-        service.CoreStateChanged += OnCoreStateChanged;
-        service.LogReceived += OnLogReceived;
-        service.OutboundModeChanged += OnOutboundModeChanged;
-    }
-
-    private void UnsubscribeFromEvents(IClashService service)
-    {
-        service.TrafficUpdated -= OnTrafficUpdated;
-        service.CoreStateChanged -= OnCoreStateChanged;
-        service.LogReceived -= OnLogReceived;
-        service.OutboundModeChanged -= OnOutboundModeChanged;
-    }
-
-    private void OnTrafficUpdated(Traffic traffic) => TrafficUpdated?.Invoke(traffic);
-    private void OnCoreStateChanged(CoreState state) => CoreStateChanged?.Invoke(state);
-    private void OnLogReceived(LogEntry entry) => LogReceived?.Invoke(entry);
-    private void OnOutboundModeChanged(OutboundMode mode) => OutboundModeChanged?.Invoke(mode);
+    private void OnTrafficUpdated(Traffic traffic) => RaiseOnUiThread(() => TrafficUpdated?.Invoke(traffic));
+    private void OnLogReceived(LogEntry entry) => RaiseOnUiThread(() => LogReceived?.Invoke(entry));
+    private void OnOutboundModeChanged(OutboundMode mode) => RaiseOnUiThread(() => OutboundModeChanged?.Invoke(mode));
 
     /// <summary>
-    /// Crash recovery watchdog: if the core process exits unexpectedly and auto-restart is enabled,
-    /// attempt to restart it (up to MaxRestartAttempts consecutive times).
+    /// 崩溃恢复看门狗：核心进程意外退出且启用自动重启时，尝试重启（最多 MaxRestartAttempts 次）。
     /// </summary>
     private async void OnProcessStateChanged(bool isRunning)
     {
         if (isRunning || _intentionalStop || !_settings.AutoRestart) return;
-        if (!IsRealCore) return; // Only react when we were using the real core
+        if (_coreState != CoreState.Running) return; // 仅在我们确实在运行核心时才反应
 
         _restartAttempts++;
         if (_restartAttempts > MaxRestartAttempts)
         {
-            _logger.LogWarning("Core crash recovery: max restart attempts ({Max}) reached", MaxRestartAttempts);
+            _logger.LogWarning("核心崩溃恢复：已达到最大重启次数 ({Max})", MaxRestartAttempts);
             _notificationService.Error(
                 LocalizationHelper.GetString("ErrorCoreStartFailed.Text"),
                 LocalizationHelper.GetString("ErrorCoreCrashMaxRestarts.Text"));
-            SwitchActiveService(_mockClashService);
-            CoreStateChanged?.Invoke(CoreState.Stopped);
+            SetCoreState(CoreState.Stopped);
             return;
         }
 
-        _logger.LogWarning("Core process exited unexpectedly, attempting restart ({Attempt}/{Max})",
-            _restartAttempts, MaxRestartAttempts);
-
+        _logger.LogWarning("核心进程意外退出，尝试重启 ({Attempt}/{Max})", _restartAttempts, MaxRestartAttempts);
         _notificationService.Warning(
             LocalizationHelper.GetString("CoreCrashedTitle.Text"),
             string.Format(LocalizationHelper.GetString("CoreCrashedMsg.Text"), _restartAttempts, MaxRestartAttempts));
 
-        // Wait a bit before restarting
         await Task.Delay(TimeSpan.FromSeconds(2));
+        SetCoreState(CoreState.Stopped);
 
-        // Switch to mock temporarily
-        SwitchActiveService(_mockClashService);
-        CoreStateChanged?.Invoke(CoreState.Stopped);
-
-        // Attempt restart
         await StartAsync();
     }
 
     /// <summary>
-    /// Network change detection: when connectivity is lost, remember core state.
-    /// When connectivity is restored, auto-restart the core if it was previously running.
-    /// Uses a debounce delay to avoid reacting to transient changes.
+    /// 网络变化检测：断网时记录核心状态；恢复后若此前在运行，则自动重启核心。
+    /// 使用防抖避免瞬时变化频繁触发。
     /// </summary>
     private async void OnNetworkStatusChanged(object? sender)
     {
-        // Cancel any pending debounce
         _networkDebounceCts?.Cancel();
         _networkDebounceCts = new CancellationTokenSource();
         var token = _networkDebounceCts.Token;
 
         try
         {
-            // Debounce: wait 3 seconds before reacting
             await Task.Delay(TimeSpan.FromSeconds(3), token);
             if (token.IsCancellationRequested) return;
 
             var hasInternet = HasInternetConnectivity();
 
-            if (!hasInternet && IsRealCore && !_networkLost)
+            if (!hasInternet && _coreState == CoreState.Running && !_networkLost)
             {
-                // Network lost while core was running
                 _networkLost = true;
                 _wasRunningBeforeNetworkLoss = true;
-                _logger.LogWarning("Network connectivity lost, core may become unreachable");
+                _logger.LogWarning("网络断开，核心可能不可达");
                 _notificationService.Warning(
                     LocalizationHelper.GetString("NetworkChanged.Text"),
                     LocalizationHelper.GetString("NetworkChangedMsg.Text"));
             }
             else if (hasInternet && _networkLost)
             {
-                // Network restored
                 _networkLost = false;
-                _logger.LogInformation("Network connectivity restored");
+                _logger.LogInformation("网络已恢复");
 
-                if (_wasRunningBeforeNetworkLoss && !IsRealCore)
+                if (_wasRunningBeforeNetworkLoss && _coreState != CoreState.Running)
                 {
                     _wasRunningBeforeNetworkLoss = false;
                     _notificationService.Info(
                         LocalizationHelper.GetString("NetworkRestored.Text"),
                         LocalizationHelper.GetString("NetworkRestoredMsg.Text"));
 
-                    // Wait a bit for the network to stabilize, then restart
                     await Task.Delay(TimeSpan.FromSeconds(2), token);
                     if (token.IsCancellationRequested) return;
 
-                    _restartAttempts = 0; // Reset restart counter
+                    _restartAttempts = 0;
                     await StartAsync();
                 }
                 else
@@ -436,13 +514,10 @@ public class ClashOrchestrator : IClashService
                 }
             }
         }
-        catch (OperationCanceledException)
-        {
-            // Debounce cancelled, ignore
-        }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Error handling network status change");
+            _logger.LogWarning(ex, "处理网络状态变化出错");
         }
     }
 

@@ -16,7 +16,7 @@ public class UpdateService
     private const string GitHubRepo = "chen08209/WinUIClash"; // TODO: replace with actual repo
     private const string ReleasesUrl = $"https://api.github.com/repos/{GitHubRepo}/releases/latest";
 
-    private static readonly HttpClient Http = new()
+    private static readonly HttpClient Http = new(new HttpClientHandler { UseProxy = false })
     {
         Timeout = TimeSpan.FromSeconds(15),
         DefaultRequestHeaders = { { "User-Agent", "WinUIClash-UpdateChecker" } },

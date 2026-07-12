@@ -145,7 +145,7 @@
                                     <fluent:SymbolIcon Symbol="ArrowSwap" FontSize="14" Opacity="0.7" />
                                     <TextBlock Text="{Binding Source={StaticResource S}, Path=DashSystemProxy_Text}" FontWeight="SemiBold" FontSize="13" />
                                 </StackPanel>
-                                <TextBlock Text="选项" FontSize="11" Opacity="0.55" Margin="21,0,0,0" />
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=AppSystemProxyDesc_Text}" FontSize="11" Opacity="0.55" Margin="21,0,0,0" TextWrapping="Wrap" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" MinWidth="0" HorizontalAlignment="Right"
                                           IsOn="{x:Bind ViewModel.IsSystemProxyOn, Mode=TwoWay}"
@@ -168,7 +168,7 @@
                                     <fluent:SymbolIcon Symbol="Flashlight" FontSize="14" Opacity="0.7" />
                                     <TextBlock Text="虚拟网卡" FontWeight="SemiBold" FontSize="13" />
                                 </StackPanel>
-                                <TextBlock Text="选项" FontSize="11" Opacity="0.55" Margin="21,0,0,0" />
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=AppTunModeDesc_Text}" FontSize="11" Opacity="0.55" Margin="21,0,0,0" TextWrapping="Wrap" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" MinWidth="0" HorizontalAlignment="Right"
                                           IsOn="{x:Bind ViewModel.IsTunEnabled, Mode=OneWay}"
@@ -332,7 +332,7 @@
 
         <!-- 右下角悬浮启动按钮（FAB，唯一启动入口，状态联动色，悬停保持颜色） -->
         <Button x:Name="StartFab"
-                Command="{x:Bind ViewModel.ToggleCoreCommand}"
+                Command="{x:Bind ViewModel.ToggleProxyCommand}"
                 Width="56" Height="56" CornerRadius="28"
                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
                 Margin="0,0,28,28"
@@ -404,9 +404,9 @@
             </Button.Resources>
             <Grid>
                 <fluent:SymbolIcon Symbol="Play" FontSize="22" Foreground="White"
-                                   Visibility="{x:Bind ViewModel.IsRunning, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                                   Visibility="{x:Bind ViewModel.IsSystemProxyOn, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
                 <fluent:SymbolIcon Symbol="Pause" FontSize="22" Foreground="White"
-                                   Visibility="{x:Bind ViewModel.IsRunning, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                   Visibility="{x:Bind ViewModel.IsSystemProxyOn, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
             </Grid>
         </Button>
     </Grid>

@@ -9,7 +9,6 @@
     <x:String x:Key="NavRequests.Content">Requests</x:String>
     <x:String x:Key="NavConnections.Content">Connections</x:String>
     <x:String x:Key="NavResources.Content">Resources</x:String>
-    <x:String x:Key="NavRules.Content">Rules</x:String>
     <x:String x:Key="NavLogs.Content">Logs</x:String>
     <x:String x:Key="NavTools.Content">Tools</x:String>
     <x:String x:Key="NavShortcuts.Content">Shortcuts</x:String>
@@ -40,6 +39,9 @@
     <x:String x:Key="DashCoreMemory.Text">Core Memory</x:String>
     <x:String x:Key="DashCoreStart.Text">Start</x:String>
     <x:String x:Key="DashCoreStop.Text">Stop</x:String>
+    <x:String x:Key="CoreAutoManaged.Text">Core is auto-managed by the app</x:String>
+    <x:String x:Key="DashProxyStart.Text">Start Proxy</x:String>
+    <x:String x:Key="DashProxyStop.Text">Stop Proxy</x:String>
     <x:String x:Key="DashRuntime.Text">Running </x:String>
     <x:String x:Key="DashOutboundMode.Text">Outbound Mode</x:String>
     <x:String x:Key="DashSystemProxy.Text">System Proxy</x:String>
@@ -74,10 +76,12 @@
 
     <!-- Settings -->
     <x:String x:Key="SettingsLanguage.Text">Language</x:String>
+    <x:String x:Key="LanguageSettingsDesc.Text">Choose the display language; changes apply immediately</x:String>
     <x:String x:Key="SettingsBasicConfig.Text">Basic Config</x:String>
     <x:String x:Key="SettingsApp.Text">App Settings</x:String>
     <x:String x:Key="SettingsTheme.Text">Theme Settings</x:String>
     <x:String x:Key="SettingsAbout.Text">About</x:String>
+    <x:String x:Key="Settings_Text">Settings</x:String>
 
     <!-- Basic Config Settings -->
     <x:String x:Key="ConfigPort.Text">Mixed Port</x:String>
@@ -152,6 +156,7 @@
     <x:String x:Key="AppOnlyStatisticsProxy.Text">Proxy Traffic Only</x:String>
     <x:String x:Key="AppOnlyStatisticsProxyDesc.Text">Only count traffic going through proxy in statistics</x:String>
     <x:String x:Key="SettingsBackup.Text">Backup &amp; Restore</x:String>
+    <x:String x:Key="SettingsBackupDesc.Text">Export or import all current settings</x:String>
     <x:String x:Key="SettingsExportSettings.Text">Export Settings</x:String>
     <x:String x:Key="SettingsImportSettings.Text">Import Settings</x:String>
     <x:String x:Key="SettingsExportDone.Title">Export Successful</x:String>
@@ -237,12 +242,17 @@
 
     <!-- Basic Config - Section Headers -->
     <x:String x:Key="ConfigPortSettings.Text">Port Settings</x:String>
+    <x:String x:Key="ConfigPortSettingsDesc.Text">Mixed, SOCKS and HTTP proxy ports</x:String>
     <x:String x:Key="ConfigFeatureSwitches.Text">Feature Switches</x:String>
+    <x:String x:Key="ConfigFeatureSwitchesDesc.Text">Runtime behavior toggles for the core</x:String>
 
     <!-- App Settings - Section Headers -->
     <x:String x:Key="AppStartupExit.Text">Startup &amp; Exit</x:String>
+    <x:String x:Key="AppStartupExitDesc.Text">Control how the app and core start and exit</x:String>
     <x:String x:Key="AppProxyBehavior.Text">Proxy Behavior</x:String>
+    <x:String x:Key="AppProxyBehaviorDesc.Text">System proxy, TUN mode and connection management</x:String>
     <x:String x:Key="AppOther.Text">Other</x:String>
+    <x:String x:Key="AppOtherDesc.Text">Update checks and notifications</x:String>
     <x:String x:Key="AppSilentLaunch.Text">Silent Start</x:String>
     <x:String x:Key="AppSilentLaunchDesc.Text">Start minimized without showing main window</x:String>
 
@@ -263,6 +273,7 @@
     <x:String x:Key="AboutVersion.Text">Version </x:String>
     <x:String x:Key="AboutDescription.Text">ClashMeta client inspired by FlClash UI</x:String>
     <x:String x:Key="AboutTechStack.Text">Tech Stack</x:String>
+    <x:String x:Key="AboutProjectLinks.Text">Project Links</x:String>
     <x:String x:Key="AboutActions.Text">Actions</x:String>
     <x:String x:Key="AboutFlClash.Content">FlClash Original Project</x:String>
     <x:String x:Key="AboutMihomo.Content">ClashMeta Core (Mihomo)</x:String>
@@ -355,6 +366,7 @@
     <x:String x:Key="SubExpired.Text">Expired</x:String>
     <x:String x:Key="SubHoursRemaining.Text">h</x:String>
     <x:String x:Key="SubDaysRemaining.Text">d</x:String>
+    <x:String x:Key="SubLongTerm.Text">Long-term valid</x:String>
 
     <!-- Proxies -->
     <x:String x:Key="ProxySortDefault.Text">Default</x:String>
@@ -432,6 +444,8 @@
     <x:String x:Key="BasicConfigAppliedMsg.Text">Configuration changes have been applied to the running core.</x:String>
     <x:String x:Key="ProfilesSyncDoneTitle.Text">Sync Complete</x:String>
     <x:String x:Key="ProfilesSyncAllDoneMsg.Text">All subscriptions updated</x:String>
+    <x:String x:Key="ProfilesSyncUrlHint.Text">Please check if the subscription URL is correct or has expired</x:String>
+    <x:String x:Key="ProfilesSyncAuthHint.Text">Please check the subscription link or contact the provider</x:String>
     <x:String x:Key="ProfilesSwitchedTitle.Text">Profile Switched</x:String>
     <x:String x:Key="ProfilesSwitching.Text">Switching profile…</x:String>
     <x:String x:Key="NetworkChanged.Text">Network Changed</x:String>
@@ -444,20 +458,6 @@
     <x:String x:Key="ProfilesExportConfig.Text">Export Config</x:String>
     <x:String x:Key="ProfilesAutoStartTitle.Text">Starting Core</x:String>
     <x:String x:Key="ProfilesAutoStartMsg.Text">Core is not running, starting automatically…</x:String>
-
-    <!-- Rules Page -->
-    <x:String x:Key="RulesTitle.Text">Rules</x:String>
-    <x:String x:Key="RulesSearchPlaceholder.PlaceholderText">Search rules…</x:String>
-    <x:String x:Key="RulesTypeCol.Text">Type</x:String>
-    <x:String x:Key="RulesPayloadCol.Text">Payload</x:String>
-    <x:String x:Key="RulesTargetCol.Text">Target</x:String>
-    <x:String x:Key="RulesAllProxiesFilter.Text">All Targets</x:String>
-    <x:String x:Key="RulesAllTypes.Text">All Types</x:String>
-    <x:String x:Key="RulesAllProxies.Text">All Proxies</x:String>
-    <x:String x:Key="RulesCopyType.Text">Copy Type</x:String>
-    <x:String x:Key="RulesCopyPayload.Text">Copy Payload</x:String>
-    <x:String x:Key="RulesCopyProxy.Text">Copy Target Proxy</x:String>
-    <x:String x:Key="RulesCopyAll.Text">Copy Full Rule</x:String>
 
     <!-- Proxy Context Menu -->
     <x:String x:Key="ProxyCtxTestDelay.Text">Test Delay</x:String>
@@ -499,6 +499,11 @@
     <!-- Service Error Messages -->
     <x:String x:Key="ErrorCoreBinaryNotFound.Text">mihomo executable not found. Please specify the path in settings.</x:String>
     <x:String x:Key="ErrorCoreBinaryNotFoundMsg.Text">Please specify the mihomo executable path in Tools settings.</x:String>
+    <x:String x:Key="CoreDownloadingTitle.Text">Downloading Core Engine</x:String>
+    <x:String x:Key="CoreDownloadingMsg.Text">mihomo not found locally. Downloading the core engine from the network…</x:String>
+    <x:String x:Key="CoreDownloadedTitle.Text">Core Engine Ready</x:String>
+    <x:String x:Key="CoreDownloadedMsg.Text">mihomo core has been downloaded.</x:String>
+    <x:String x:Key="CoreApiTimeout.Text">no response within 8 seconds</x:String>
     <x:String x:Key="ErrorConfigNotFound.Text">Configuration file not found: {0}</x:String>
     <x:String x:Key="ErrorRegistryAccess.Text">Unable to open Internet Settings registry key</x:String>
     <x:String x:Key="CoreStartedTitle.Text">Core Started</x:String>
@@ -506,7 +511,7 @@
     <x:String x:Key="CoreStoppedTitle.Text">Core Stopped</x:String>
     <x:String x:Key="CoreStoppedMsg.Text">ClashMeta core has been stopped.</x:String>
     <x:String x:Key="ErrorCoreStartFailed.Text">Core Start Failed</x:String>
-    <x:String x:Key="ErrorCoreStartFailedMsg.Text">Could not start ClashMeta core: {0}. Using mock data.</x:String>
+    <x:String x:Key="ErrorCoreStartFailedMsg.Text">Could not start ClashMeta core: {0}</x:String>
     <x:String x:Key="ErrorCoreStopFailed.Text">Core Stop Failed</x:String>
     <x:String x:Key="ErrorCoreStopFailedMsg.Text">Error stopping core: {0}</x:String>
     <x:String x:Key="CoreCrashedTitle.Text">Core Crashed</x:String>

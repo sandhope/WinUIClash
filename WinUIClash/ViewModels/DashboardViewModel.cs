@@ -44,9 +44,6 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     partial void OnIsRunningChanged(bool value)
     {
         OnPropertyChanged(nameof(CoreToggleText));
-        StartButtonBrush = value
-            ? new SolidColorBrush(Color.FromArgb(255, 255, 87, 34))   // 运行时：橙红（提示可停止）
-            : new SolidColorBrush(Color.FromArgb(255, 76, 175, 80));  // 停止时：绿色（引导启动）
     }
 
     private DateTime? _startTime;
@@ -75,9 +72,10 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
             {
                 _startTime = DateTime.Now;
                 RuntimeText = LocalizationHelper.GetString("DashRuntime.Text") + Converters.TimeFormatter.Duration(TimeSpan.Zero);
-                // Refresh profile and proxy info when core starts
+                // Refresh profile, proxy, and IP info when core starts
                 _ = RefreshActiveProfileAsync();
                 _ = RefreshActiveProxyNodeAsync();
+                _ = CheckIpAsync();
             }
             else
             {
@@ -88,21 +86,18 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    private async Task ToggleCoreAsync()
+    private async Task ToggleProxyAsync()
     {
         try
         {
-            if (IsRunning)
-                await _clash.StopAsync();
-            else
-                await _clash.StartAsync();
+            // 仅切换系统代理（核心由应用启动/退出时自动管理，用户操作不启停核心）
+            IsSystemProxyOn = !IsSystemProxyOn;
         }
         catch (Exception ex)
         {
-            // Error is handled by ClashOrchestrator notifications,
-            // but catch here to prevent unhandled exception propagation
-            System.Diagnostics.Debug.WriteLine($"ToggleCore error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"ToggleProxy error: {ex.Message}");
         }
+        await Task.CompletedTask;
     }
 
     // ── 实时网速 ──
@@ -205,11 +200,11 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         IsModeDirect = mode == OutboundMode.Direct;
     }
 
-    // ── 核心开关文本 ──
+    // ── 代理开关文本（FAB 按钮：启动/停止系统代理，不启停核心）──
 
-    public string CoreToggleText => IsRunning
-        ? LocalizationHelper.GetString("DashCoreStop.Text")
-        : LocalizationHelper.GetString("DashCoreStart.Text");
+    public string CoreToggleText => IsSystemProxyOn
+        ? LocalizationHelper.GetString("DashProxyStop.Text")
+        : LocalizationHelper.GetString("DashProxyStart.Text");
 
     // ── 流量统计 ──
 
@@ -369,7 +364,19 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     public bool IsSystemProxyOn
     {
         get => _settings.SystemProxy;
-        set { if (_settings.SystemProxy != value) { _settings.SystemProxy = value; OnPropertyChanged(); } }
+        set
+        {
+            if (_settings.SystemProxy != value)
+            {
+                _settings.SystemProxy = value;
+                OnPropertyChanged();
+                // FAB 颜色随代理状态联动（关=绿引导启动 / 开=橙红提示停止）
+                StartButtonBrush = value
+                    ? new SolidColorBrush(Color.FromArgb(255, 255, 87, 34))
+                    : new SolidColorBrush(Color.FromArgb(255, 76, 175, 80));
+                OnPropertyChanged(nameof(CoreToggleText));
+            }
+        }
     }
 
     private void OnSettingsPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

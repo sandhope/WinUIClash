@@ -38,6 +38,7 @@
                  IsOpen="False"
                  IsClosable="True" />
 
+
         <NavigationView
             x:Name="RootNavigation"
             Grid.Row="1"
@@ -77,11 +78,6 @@
                 <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavResources_Content}" Tag="Resources">
                     <NavigationViewItem.Icon>
                         <fluent:SymbolIcon Symbol="Library" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavRules_Content}" Tag="Rules">
-                    <NavigationViewItem.Icon>
-                        <fluent:SymbolIcon Symbol="Filter" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="{Binding Source={StaticResource S}, Path=NavLogs_Content}" Tag="Logs">

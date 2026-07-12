@@ -39,7 +39,7 @@ public class HttpClashService : IClashService, IDisposable
 
     public HttpClashService()
     {
-        _http = new HttpClient
+        _http = new HttpClient(new HttpClientHandler { UseProxy = false })
         {
             BaseAddress = new Uri("http://127.0.0.1:9090"),
             Timeout = TimeSpan.FromSeconds(10),
@@ -279,13 +279,35 @@ public class HttpClashService : IClashService, IDisposable
     public async Task<Dictionary<string, int>> TestGroupDelayAsync(string groupName, string? testUrl = null)
     {
         var url = testUrl ?? "https://www.gstatic.com/generate_204";
-        var resp = await _http.GetAsync(
-            $"/group/{Uri.EscapeDataString(groupName)}/delay?url={Uri.EscapeDataString(url)}&timeout=5000");
-        if (!resp.IsSuccessStatusCode) return new Dictionary<string, int>();
 
-        var json = await resp.Content.ReadAsStringAsync();
-        var dto = JsonSerializer.Deserialize<Dictionary<string, int>>(json, JsonOpts);
-        return dto ?? new Dictionary<string, int>();
+        // 现代 mihomo 已移除 /group/{name}/delay 端点；改为读取该组的成员节点，
+        // 逐个调用正确的 /proxies/{name}/delay 进行测速。
+        var json = await _http.GetStringAsync("/proxies");
+        var dto = JsonSerializer.Deserialize<ProxiesResponse>(json, JsonOpts);
+        if (dto?.Proxies == null ||
+            !dto.Proxies.TryGetValue(groupName, out var groupInfo) ||
+            groupInfo.All == null)
+        {
+            return new Dictionary<string, int>();
+        }
+
+        var results = new Dictionary<string, int>(groupInfo.All.Count);
+        using var throttle = new SemaphoreSlim(8);
+        var tasks = groupInfo.All.Select(async node =>
+        {
+            await throttle.WaitAsync();
+            try
+            {
+                var delay = await TestDelayAsync(node, url);
+                lock (results) results[node] = delay;
+            }
+            finally
+            {
+                throttle.Release();
+            }
+        });
+        await Task.WhenAll(tasks);
+        return results;
     }
 
     // ── 配置 ──
@@ -433,7 +455,7 @@ public class HttpClashService : IClashService, IDisposable
         // Use a public API to check IP
         try
         {
-            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+            using var client = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(5) };
             var json = await client.GetStringAsync("https://api.ip.sb/geoip");
             var dto = JsonSerializer.Deserialize<IpGeoDto>(json, JsonOpts);
             return new IpInfo
@@ -678,9 +700,13 @@ public class HttpClashService : IClashService, IDisposable
 
     private class IpGeoDto
     {
+        [JsonPropertyName("ip")]
         public string? Ip { get; set; }
+        [JsonPropertyName("country")]
         public string? Country { get; set; }
+        [JsonPropertyName("country_code")]
         public string? CountryCode { get; set; }
+        [JsonPropertyName("isp")]
         public string? Isp { get; set; }
     }
 

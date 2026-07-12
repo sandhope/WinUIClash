@@ -19,8 +19,12 @@ public sealed partial class ProfilesView : Page
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        await ViewModel.InitializeAsync();
-        await TryClipboardImportAsync();
+        try
+        {
+            await ViewModel.InitializeAsync();
+            await TryClipboardImportAsync();
+        }
+        catch { /* 初始化出错时保持空状态，避免崩溃 */ }
     }
 
     private async Task TryClipboardImportAsync()
@@ -226,10 +230,15 @@ public sealed partial class ProfilesView : Page
 
         var menu = new MenuFlyout();
 
-        // 查看配置
+        // 查看配置（预览）
         var viewConfig = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesViewConfig.Text") };
         viewConfig.Click += async (_, _) => await ShowConfigViewerAsync(profile);
         menu.Items.Add(viewConfig);
+
+        // 编辑档案
+        var editName = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesEditProfile.Text") };
+        editName.Click += async (_, _) => await ShowEditNameDialogAsync(profile);
+        menu.Items.Add(editName);
 
         // 复制订阅链接
         var copyUrl = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesCopyUrl.Text") };
@@ -243,82 +252,6 @@ public sealed partial class ProfilesView : Page
             }
         };
         menu.Items.Add(copyUrl);
-
-        // 复制配置文件路径
-        var copyPath = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesCopyPath.Text") };
-        copyPath.Click += (_, _) =>
-        {
-            var path = profile.Path;
-            if (string.IsNullOrWhiteSpace(path))
-                path = new ProfileStorageService().GetConfigPath(profile.Id);
-            var dp = new Windows.ApplicationModel.DataTransfer.DataPackage();
-            dp.SetText(path);
-            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
-        };
-        menu.Items.Add(copyPath);
-
-        // 在文件管理器中打开
-        var openInExplorer = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesOpenInExplorer.Text") };
-        openInExplorer.Click += async (_, _) =>
-        {
-            try
-            {
-                var path = profile.Path;
-                if (string.IsNullOrWhiteSpace(path))
-                    path = new ProfileStorageService().GetConfigPath(profile.Id);
-                if (File.Exists(path))
-                {
-                    var folder = System.IO.Path.GetDirectoryName(path);
-                    if (!string.IsNullOrEmpty(folder))
-                    {
-                        var storageFolder = await Windows.Storage.StorageFolder.GetFolderFromPathAsync(folder);
-                        await Windows.System.Launcher.LaunchFolderAsync(storageFolder);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[Profiles] Open in Explorer error: {ex.Message}");
-            }
-        };
-        menu.Items.Add(openInExplorer);
-
-        menu.Items.Add(new MenuFlyoutSeparator());
-
-        // 复制配置
-        var duplicate = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesDuplicate.Text") };
-        duplicate.Click += async (_, _) =>
-        {
-            try
-            {
-                var newId = Guid.NewGuid().ToString("N")[..8];
-                var srcPath = profile.Path;
-                if (string.IsNullOrWhiteSpace(srcPath))
-                    srcPath = new ProfileStorageService().GetConfigPath(profile.Id);
-                var destPath = new ProfileStorageService().GetConfigPath(newId);
-
-                if (File.Exists(srcPath))
-                    File.Copy(srcPath, destPath);
-
-                var newProfile = new Profile
-                {
-                    Id = newId,
-                    Label = $"{profile.Label} (Copy)",
-                    Url = profile.Url,
-                    Path = destPath,
-                    LastUpdate = DateTime.Now,
-                    IsActive = false,
-                    Order = ViewModel.Profiles.Count,
-                };
-                ViewModel.Profiles.Add(newProfile);
-                await ViewModel.SaveProfileListAsync();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[Profiles] Duplicate error: {ex.Message}");
-            }
-        };
-        menu.Items.Add(duplicate);
 
         // 导出配置
         var exportConfig = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesExportConfig.Text") };
@@ -356,68 +289,47 @@ public sealed partial class ProfilesView : Page
         };
         menu.Items.Add(exportConfig);
 
-        // 自动更新开关
-        var autoUpdate = new ToggleMenuFlyoutItem
-        {
-            Text = LocalizationHelper.GetString("ProfilesAutoUpdate.Text"),
-            IsChecked = profile.AutoUpdate,
-        };
-        autoUpdate.Click += async (_, _) =>
-        {
-            profile.AutoUpdate = !profile.AutoUpdate;
-            await ViewModel.SaveProfileListAsync();
-        };
-        menu.Items.Add(autoUpdate);
-
-        menu.Items.Add(new MenuFlyoutSeparator());
-
-        // 编辑档案
-        var editName = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesEditProfile.Text") };
-        editName.Click += async (_, _) => await ShowEditNameDialogAsync(profile);
-        menu.Items.Add(editName);
-
-        menu.Items.Add(new MenuFlyoutSeparator());
-
-        // Move Up / Move Down
-        var index = ViewModel.Profiles.IndexOf(profile);
-        if (index > 0)
-        {
-            var moveUp = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesMoveUp.Text") };
-            moveUp.Click += async (_, _) =>
-            {
-                ViewModel.Profiles.Move(index, index - 1);
-                for (int i = 0; i < ViewModel.Profiles.Count; i++)
-                    ViewModel.Profiles[i].Order = i;
-                await ViewModel.SaveProfileListAsync();
-            };
-            menu.Items.Add(moveUp);
-        }
-        if (index >= 0 && index < ViewModel.Profiles.Count - 1)
-        {
-            var moveDown = new MenuFlyoutItem { Text = LocalizationHelper.GetString("ProfilesMoveDown.Text") };
-            moveDown.Click += async (_, _) =>
-            {
-                ViewModel.Profiles.Move(index, index + 1);
-                for (int i = 0; i < ViewModel.Profiles.Count; i++)
-                    ViewModel.Profiles[i].Order = i;
-                await ViewModel.SaveProfileListAsync();
-            };
-            menu.Items.Add(moveDown);
-        }
-
         menu.ShowAt(btn);
     }
 
     private async Task ShowConfigViewerAsync(Profile profile)
     {
-        // Try to read actual config from local file
-        var yaml = "";
         var storage = new ProfileStorageService();
-        var configPath = profile.Path;
-        if (string.IsNullOrWhiteSpace(configPath))
-            configPath = storage.GetConfigPath(profile.Id);
+        // Prefer the stored Path only if that file actually exists; otherwise
+        // derive the canonical path (handles MSIX LocalApplicationData redirect).
+        var configPath = !string.IsNullOrWhiteSpace(profile.Path) && File.Exists(profile.Path)
+            ? profile.Path
+            : storage.GetConfigPath(profile.Id);
 
-        if (File.Exists(configPath))
+        var hasRealFile = File.Exists(configPath);
+        string yaml;
+
+        // If no local file but profile has a subscription URL, try downloading now
+        if (!hasRealFile && !string.IsNullOrEmpty(profile.Url))
+        {
+            try
+            {
+                var dlResult = await storage.DownloadAndSaveAsync(profile.Id, profile.Url);
+                configPath = dlResult.Path;
+                hasRealFile = File.Exists(configPath);
+                if (hasRealFile)
+                {
+                    yaml = await File.ReadAllTextAsync(configPath);
+                    // Update subscription info from response headers
+                    if (dlResult.SubInfo != null)
+                    {
+                        profile.SubscriptionInfo = dlResult.SubInfo;
+                        profile.NotifySubscriptionChanged();
+                    }
+                    profile.Path = configPath;
+                    profile.LastUpdate = DateTime.Now;
+                    await ViewModel.SaveProfileListAsync();
+                }
+            }
+            catch { /* Download failed; will show template below */ }
+        }
+
+        if (hasRealFile)
         {
             try
             {
@@ -425,73 +337,44 @@ public sealed partial class ProfilesView : Page
             }
             catch
             {
-                yaml = GenerateMockConfig(profile);
+                yaml = GenerateTemplatePreview(profile);
+                hasRealFile = false;
             }
         }
         else
         {
-            yaml = GenerateMockConfig(profile);
+            yaml = GenerateTemplatePreview(profile);
         }
 
-        var editor = new TextBox
+        // 纯文本只读展示组件（TextBlock）。TextBlock 原生支持 \n 换行，
+        // 完整多行配置可直接正确呈现，且不可编辑（仅用于查看）。
+        var editor = new TextBlock
         {
             Text = yaml,
-            IsReadOnly = false,
-            AcceptsReturn = true,
             FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas"),
             FontSize = 12,
-            TextWrapping = TextWrapping.NoWrap,
-            MinWidth = 560,
-            MinHeight = 400,
+            TextWrapping = TextWrapping.Wrap,
+            IsTextSelectionEnabled = true,
         };
 
         var scrollViewer = new ScrollViewer
         {
             Content = editor,
-            HorizontalScrollMode = ScrollMode.Auto,
+            MaxHeight = 480,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
         };
-
-        var capturedPath = configPath;
-        var capturedProfile = profile;
 
         var dialog = new ContentDialog
         {
             Title = LocalizationHelper.GetString("ProfilesConfigViewerTitle.Text") + profile.Label,
             XamlRoot = XamlRoot,
-            PrimaryButtonText = LocalizationHelper.GetString("CommonSave.Content"),
-            SecondaryButtonText = LocalizationHelper.GetString("ConfigSaveReload.Text"),
             CloseButtonText = LocalizationHelper.GetString("CommonClose.Content"),
-            DefaultButton = ContentDialogButton.Secondary,
+            DefaultButton = ContentDialogButton.Close,
             Content = scrollViewer,
         };
 
-        var result = await dialog.ShowAsync();
-
-        if (result == ContentDialogResult.Primary || result == ContentDialogResult.Secondary)
-        {
-            try
-            {
-                // Save to file
-                await File.WriteAllTextAsync(capturedPath, editor.Text);
-                capturedProfile.Path = capturedPath;
-
-                // If secondary (Save & Reload), also reload config in the running core
-                if (result == ContentDialogResult.Secondary)
-                {
-                    try
-                    {
-                        var clash = ServiceLocator.Get<IClashService>();
-                        await clash.SwitchProfileAsync(capturedProfile.Id, capturedPath);
-                    }
-                    catch { }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[Profiles] Config save error: {ex.Message}");
-            }
-        }
+        await dialog.ShowAsync();
     }
 
     private async Task ShowEditNameDialogAsync(Profile profile)
@@ -586,9 +469,11 @@ public sealed partial class ProfilesView : Page
         }
     }
 
-    private static string GenerateMockConfig(Profile profile)
+    private static string GenerateTemplatePreview(Profile profile)
     {
         return $$"""
+            # 注意：这是配置模板预览（本地尚未生成该订阅/配置的真实文件）。
+            # 启动核心或同步订阅后，WinUIClash 会基于该订阅自动生成真实 config.yaml。
             # WinUIClash Configuration
             # Profile: {{profile.Label}}
 

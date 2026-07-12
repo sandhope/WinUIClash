@@ -17,10 +17,23 @@ public class ProfileStorageService
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "WinUIClash", "profilelist.json");
 
-    private static readonly HttpClient _httpClient = new()
+    private static readonly HttpClient _httpClient = new(new HttpClientHandler
+    {
+        UseProxy = false
+    })
     {
         Timeout = TimeSpan.FromSeconds(30)
     };
+
+    static ProfileStorageService()
+    {
+        // FlClash sends a UA containing "clash-verge" for subscription downloads
+        // (lib/common/request.dart via globalState.ua = packageInfo.ua). Most
+        // Clash/Mihomo providers only accept requests with a recognised UA, so
+        // we mirror that exact behaviour here.
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(
+            "FlClash/1.0.0 clash-verge Platform/Windows");
+    }
 
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
@@ -146,12 +159,22 @@ public class ProfileStorageService
 
             return entries.Select(e =>
             {
+                // The persisted absolute Path can become invalid when the app
+                // runs packaged (MSIX) vs unpackaged: LocalApplicationData is
+                // redirected, so an old absolute path no longer exists. Always
+                // prefer GetConfigPath(profile.Id) — which derives the path from
+                // the current LocalApplicationData — and only keep the persisted
+                // Path when that file actually exists (external/local imports).
+                var resolvedPath = !string.IsNullOrEmpty(e.Path) && File.Exists(e.Path)
+                    ? e.Path
+                    : GetConfigPath(e.Id);
+
                 var profile = new Profile
                 {
                     Id = e.Id,
                     Label = e.Label,
                     Url = e.Url,
-                    Path = e.Path,
+                    Path = resolvedPath,
                     LastUpdate = e.LastUpdate,
                     AutoUpdate = e.AutoUpdate,
                     AutoUpdateInterval = TimeSpan.FromSeconds(e.AutoUpdateIntervalSeconds),

@@ -146,6 +146,7 @@ namespace WinUIClash
             Resources.Add("InverseBoolConverter", new Converters.InverseBoolConverter());
 
             var stringResources = (Services.StringResources)Resources["S"];
+            Services.LocalizationHelper.Initialize(stringResources);
             ServiceLocator.Build(stringResources);
 
             // 加载持久化设置
@@ -153,15 +154,13 @@ namespace WinUIClash
             settingsService.Load();
             settingsService.EnableAutoSave();
 
-            // 初始化系统代理
+            // 初始化系统代理：启动时不自动启用代理，仅启动核心。
+            // 代理是否启用完全由用户手动操作（默认关闭），核心启动不等于代理启动。
             var appSettings = ServiceLocator.Get<Models.AppSettings>();
             var proxyService = ServiceLocator.Get<Services.SystemProxyService>();
-            proxyService.ApplyCurrentState();
+            proxyService.Disable();
+            appSettings.SystemProxy = false;
             proxyService.WatchSettings();
-            if (appSettings.SystemProxy && appSettings.ProxyGuardEnabled)
-            {
-                proxyService.StartGuard();
-            }
 
             // 监听 TUN 模式变化，实时调用核心 API
             appSettings.PropertyChanged += async (s, e) =>
@@ -202,21 +201,14 @@ namespace WinUIClash
                 CurrentWindow.AppWindow.Hide();
             }
 
-            // 如果设置了自动运行，启动 Clash 核心
-            if (appSettings.AutoRun)
+            // 启动时自动拉起 Clash 核心（与 FlClash 一致：应用启动即连接核心，
+            // 使网络/测速/代理页立即可用，避免手动点击启动的等待）。
+            var clash = ServiceLocator.Get<Services.IClashService>();
+            _ = Task.Run(async () =>
             {
-                var coreService = ServiceLocator.Get<Services.CoreProcessService>();
-
-                // Apply custom binary path if set
-                if (!string.IsNullOrWhiteSpace(appSettings.CoreBinaryPath))
-                    coreService.SetBinaryPath(appSettings.CoreBinaryPath);
-
-                _ = Task.Run(async () =>
-                {
-                    try { await coreService.StartAsync(); }
-                    catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Core auto-start failed: {ex.Message}"); }
-                });
-            }
+                try { await clash.StartAsync(); }
+                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Core auto-start failed: {ex.Message}"); }
+            });
 
             // 启动时自动检查更新
             if (appSettings.AutoCheckUpdate)
