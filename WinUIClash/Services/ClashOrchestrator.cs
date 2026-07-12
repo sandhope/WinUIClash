@@ -19,6 +19,7 @@ public class ClashOrchestrator : IClashService
     private readonly CoreDownloadService _coreDownload;
     private readonly ProfileStorageService _profileStorage;
     private readonly NotificationService _notificationService;
+    private readonly HelperServiceManager _helperServiceManager;
     private readonly AppSettings _settings;
     private readonly ILogger<ClashOrchestrator> _logger;
 
@@ -50,6 +51,7 @@ public class ClashOrchestrator : IClashService
         CoreDownloadService coreDownload,
         ProfileStorageService profileStorage,
         NotificationService notificationService,
+        HelperServiceManager helperServiceManager,
         AppSettings settings,
         ILogger<ClashOrchestrator> logger)
     {
@@ -59,6 +61,7 @@ public class ClashOrchestrator : IClashService
         _coreDownload = coreDownload;
         _profileStorage = profileStorage;
         _notificationService = notificationService;
+        _helperServiceManager = helperServiceManager;
         _settings = settings;
         _logger = logger;
 
@@ -196,8 +199,33 @@ public class ClashOrchestrator : IClashService
             var configPath = await _configBuild.BuildConfigAsync();
             _processService.SetConfigPath(configPath);
 
-            // 3. 启动核心进程
-            await _processService.StartAsync();
+            // 3. 启动核心进程（TUN 模式需 Helper Service 提权运行）
+            if (_settings.TunMode)
+            {
+                // TUN 模式：注册 Helper Service（UAC 提权）并通过 API 启动 mihomo
+                var serviceRegistered = await _helperServiceManager.RegisterServiceAsync();
+                if (serviceRegistered)
+                {
+                    var coreArgs = $"-d \"{Path.GetDirectoryName(configPath)}\" -f \"{configPath}\"";
+                    var coreStarted = await _helperServiceManager.StartCoreViaHelperAsync(
+                        _processService.BinaryPath ?? "", coreArgs);
+                    if (!coreStarted)
+                    {
+                        _logger.LogWarning("通过 Helper Service 启动核心失败，回退到直接启动");
+                        await _processService.StartAsync();
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Helper Service 注册失败，回退到直接启动（TUN 可能无法创建虚拟网卡）");
+                    await _processService.StartAsync();
+                }
+            }
+            else
+            {
+                // 非 TUN 模式：直接启动 mihomo 进程（无需提权）
+                await _processService.StartAsync();
+            }
             _logger.LogInformation("mihomo 核心进程已启动");
 
             // 4. 等待 REST API 就绪（最多 8 秒）
@@ -215,19 +243,8 @@ public class ClashOrchestrator : IClashService
             // 6. 启动成功
             SetCoreState(CoreState.Running);
 
-            // 7. 应用保存的 TUN 模式
-            if (_settings.TunMode)
-            {
-                try
-                {
-                    await _httpClashService.SetTunEnabledAsync(true);
-                    await _httpClashService.SetTunStackAsync(_settings.TunStack);
-                }
-                catch (Exception tunEx)
-                {
-                    _logger.LogWarning(tunEx, "启动时应用 TUN 模式失败");
-                }
-            }
+            // TUN 配置已在 config.yaml 中注入（ConfigBuildService.InjectControllerSettings），
+            // mihomo 启动时即知 TUN 参数，不再需要运行时 PATCH（对齐 FlClash 写入 config 的方式）
 
             _logger.LogInformation("ClashOrchestrator: 已连接真实核心");
         }
@@ -252,7 +269,15 @@ public class ClashOrchestrator : IClashService
             if (_coreState == CoreState.Running)
                 await _httpClashService.StopAsync();
 
-            await _processService.StopAsync();
+            // TUN 模式下通过 Helper Service API 停止核心
+            if (_settings.TunMode)
+            {
+                await _helperServiceManager.StopCoreViaHelperAsync();
+            }
+            else
+            {
+                await _processService.StopAsync();
+            }
 
             SetCoreState(CoreState.Stopped);
 

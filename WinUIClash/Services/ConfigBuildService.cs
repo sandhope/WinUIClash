@@ -76,7 +76,7 @@ public class ConfigBuildService
     private static readonly HashSet<string> OverrideKeys = new()
     {
         "external-controller", "secret", "mixed-port", "socks-port", "port",
-        "mode", "log-level", "allow-lan", "ipv6",
+        "mode", "log-level", "allow-lan", "ipv6", "tun",
     };
 
     private string InjectControllerSettings(string yaml)
@@ -103,6 +103,18 @@ public class ConfigBuildService
         sb.AppendLine($"log-level: {_settings.LogLevel}");
         sb.AppendLine($"allow-lan: {(_settings.AllowLan ? "true" : "false")}");
         sb.AppendLine($"ipv6: {(_settings.Ipv6 ? "true" : "false")}");
+
+        // TUN 配置（对齐 FlClash config 写入方式，核心启动时即知 TUN 参数）
+        sb.AppendLine("tun:");
+        sb.AppendLine($"  enable: {(_settings.TunMode ? "true" : "false")}");
+        sb.AppendLine($"  device: WinUIClash");
+        sb.AppendLine($"  stack: {_settings.TunStack}");
+        sb.AppendLine("  dns-hijack:");
+        sb.AppendLine("    - any:53");
+        sb.AppendLine("    - tcp://any:53");
+        sb.AppendLine("  auto-route: true");
+        sb.AppendLine("  auto-detect-interface: true");
+        sb.AppendLine("  strict-route: true");
         sb.AppendLine();
 
         foreach (var line in kept)
