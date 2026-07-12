@@ -208,7 +208,7 @@ public class ConfigBuildService
 
                 if (!inProxyGroups) continue;
 
-                // Match "  - name: ..." (list item under proxy-groups)
+                // Block style: "  - name: 维云云"
                 var trimmed = line.TrimStart();
                 if (trimmed.StartsWith("- name:") || trimmed.StartsWith("-name:"))
                 {
@@ -221,6 +221,23 @@ public class ConfigBuildService
                         value = value[1..^1];
                     if (!string.IsNullOrEmpty(value))
                         result.Add(value);
+                    continue;
+                }
+
+                // Flow style: "  - { name: 维云云, type: select, ... }"
+                if (trimmed.StartsWith("- {") || trimmed.StartsWith("-{"))
+                {
+                    var nameMatch = System.Text.RegularExpressions.Regex.Match(
+                        trimmed, @"name:\s*([^,}]+)");
+                    if (nameMatch.Success)
+                    {
+                        var value = nameMatch.Groups[1].Value.Trim();
+                        if ((value.StartsWith('"') && value.EndsWith('"')) ||
+                            (value.StartsWith('\'') && value.EndsWith('\'')))
+                            value = value[1..^1];
+                        if (!string.IsNullOrEmpty(value))
+                            result.Add(value);
+                    }
                 }
             }
         }
