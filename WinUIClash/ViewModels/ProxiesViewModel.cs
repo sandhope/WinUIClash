@@ -42,6 +42,10 @@ public partial class ProxiesViewModel : ObservableObject
     [ObservableProperty] private int _testTotal;
     [ObservableProperty] private string _testSummaryText = "";
     [ObservableProperty] private bool _hasTestSummary;
+    [ObservableProperty] private bool _isTestAreaVisible;
+
+    partial void OnIsTestingChanged(bool value) => IsTestAreaVisible = IsTesting || HasTestSummary;
+    partial void OnHasTestSummaryChanged(bool value) => IsTestAreaVisible = IsTesting || HasTestSummary;
 
     // Test URL selector
     public string[] TestUrlOptions { get; } =

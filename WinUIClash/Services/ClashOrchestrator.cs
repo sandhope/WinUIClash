@@ -214,9 +214,6 @@ public class ClashOrchestrator : IClashService
 
             // 6. 启动成功
             SetCoreState(CoreState.Running);
-            _notificationService.Success(
-                LocalizationHelper.GetString("CoreStartedTitle.Text"),
-                LocalizationHelper.GetString("CoreStartedMsg.Text"));
 
             // 7. 应用保存的 TUN 模式
             if (_settings.TunMode)
@@ -258,9 +255,6 @@ public class ClashOrchestrator : IClashService
             await _processService.StopAsync();
 
             SetCoreState(CoreState.Stopped);
-            _notificationService.Info(
-                LocalizationHelper.GetString("CoreStoppedTitle.Text"),
-                LocalizationHelper.GetString("CoreStoppedMsg.Text"));
 
             _logger.LogInformation("ClashOrchestrator: 核心已停止");
         }
