@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using Windows.UI;
 using WinUIClash.Models;
 using WinUIClash.ViewModels;
 
@@ -13,6 +14,9 @@ namespace WinUIClash.Views;
 public sealed partial class ProxiesView : Page
 {
     public ProxiesViewModel ViewModel { get; }
+
+    /// <summary>上一次左键点击的代理节点（用于「点击态」中性色高亮）</summary>
+    private Proxy? _lastClickedProxy;
 
     public ProxiesView()
     {
@@ -37,11 +41,14 @@ public sealed partial class ProxiesView : Page
                 _ = ViewModel.ReloadAsync();
         };
 
-        // 当选中组变化时刷新高亮
+        // 当选中组变化时刷新高亮 + 清除上次点击态
         ViewModel.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(ProxiesViewModel.SelectedGroup))
+            {
+                _lastClickedProxy = null;
                 RefreshSelectionHighlights();
+            }
         };
     }
 
@@ -65,16 +72,7 @@ public sealed partial class ProxiesView : Page
         if (btn.Tag is not ProxyGroup group) return;
 
         var isSelected = ViewModel.SelectedGroup?.Name == group.Name;
-        if (isSelected)
-        {
-            btn.Background = (Brush)Application.Current.Resources["AccentFillColorDefaultBrush"];
-            btn.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255));
-        }
-        else
-        {
-            btn.Background = (Brush)Application.Current.Resources["SubtleFillColorSecondaryBrush"];
-            btn.Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"];
-        }
+        ApplyGroupTabState(btn, isSelected);
 
         // Inject group type icon if not already present
         if (btn.Content is StackPanel panel && panel.Children.Count > 0)
@@ -96,10 +94,32 @@ public sealed partial class ProxiesView : Page
         }
     }
 
+    /// <summary>对 GroupTab 按钮应用选中/未选中视觉状态。</summary>
+    private void ApplyGroupTabState(Button btn, bool isSelected)
+    {
+        if (isSelected)
+        {
+            // 选中背景使用 12% 透明度主题色，与侧边栏选中态背景一致
+            btn.Background = TryGetAccentBrushAtOpacity(0.12);
+            btn.Foreground = TryGetAccentBrush();
+            //btn.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255));
+        }
+        else
+        {
+            btn.Background = (Brush)Application.Current.Resources["SubtleFillColorSecondaryBrush"];
+            btn.Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"];
+        }
+    }
+
     private void ProxyGrid_ItemClick(object sender, ItemClickEventArgs e)
     {
-        if (e.ClickedItem is Proxy proxy)
-            ViewModel.SelectProxyCommand.Execute(proxy);
+        if (e.ClickedItem is not Proxy proxy) return;
+
+        // 左键点击仅标记选中态，不切换节点（切换由右键菜单完成）
+        _lastClickedProxy = proxy;
+
+        // 直接更新旧点击态和新点击态的容器，避免 ItemsSource 重置导致的抖动
+        RefreshProxyCardVisuals();
     }
 
     private void ProxyGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
@@ -107,30 +127,43 @@ public sealed partial class ProxiesView : Page
         if (args.ItemContainer.ContentTemplateRoot is not Border cardBorder) return;
         if (args.Item is not Proxy proxy) return;
 
-        var isSelected = ViewModel.SelectedGroup?.Now == proxy.Name;
-
-        // 更新边框颜色
-        if (isSelected)
-        {
-            cardBorder.BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["AccentFillColorDefaultBrush"];
-            cardBorder.BorderThickness = new Thickness(2);
-        }
-        else
-        {
-            cardBorder.BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"];
-            cardBorder.BorderThickness = new Thickness(1);
-        }
-
-        // 更新选中标记图标
-        if (cardBorder.FindName("SelectedIcon") is FluentIcons.WinUI.SymbolIcon selectedIcon)
-        {
-            selectedIcon.Visibility = isSelected ? Visibility.Visible : Visibility.Collapsed;
-        }
+        var isActive = ViewModel.SelectedGroup?.Now == proxy.Name;
+        var isClicked = ReferenceEquals(proxy, _lastClickedProxy);
+        ApplyProxyCardState(cardBorder, proxy, isActive, isClicked);
 
         // Color the type dot based on protocol
         if (cardBorder.FindName("TypeDot") is Ellipse typeDot)
         {
             typeDot.Fill = GetProtocolBrush(proxy.Type);
+        }
+    }
+
+    /// <summary>对指定卡片 Border 应用三态视觉（激活 / 点击 / 默认）</summary>
+    private void ApplyProxyCardState(Border cardBorder, Proxy proxy, bool isActive, bool isClicked)
+    {
+        if (isActive)
+        {
+            // 边框使用 12% 透明度主题色，与侧边栏选中态背景一致
+            cardBorder.BorderBrush = TryGetAccentBrushAtOpacity(0.6);
+            cardBorder.BorderThickness = new Thickness(2);
+            cardBorder.Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"];
+        }
+        else if (isClicked)
+        {
+            cardBorder.BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"];
+            cardBorder.BorderThickness = new Thickness(1);
+            cardBorder.Background = (Brush)Application.Current.Resources["CardBackgroundFillColorSecondaryBrush"];
+        }
+        else
+        {
+            cardBorder.BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"];
+            cardBorder.BorderThickness = new Thickness(1);
+            cardBorder.Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"];
+        }
+
+        if (cardBorder.FindName("SelectedIcon") is FluentIcons.WinUI.SymbolIcon selectedIcon)
+        {
+            selectedIcon.Visibility = isActive ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 
@@ -148,21 +181,90 @@ public sealed partial class ProxiesView : Page
             "vless" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 63, 81, 181)),     // Indigo
             "tuic" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 233, 30, 99)),      // Pink
             "wireguard" => new SolidColorBrush(Windows.UI.Color.FromArgb(255, 139, 195, 74)), // Light green
-            _ => (Brush)Application.Current.Resources["AccentFillColorDefaultBrush"],
+            _ => TryGetAccentBrush(),
         };
     }
 
+    /// <summary>
+    /// 获取主题强调色画刷 — 优先从窗口级资源查找（用户自定义主题色），
+    /// 找不到时回退到 Application 级（WinUI 默认蓝色）。
+    /// </summary>
+    private static Brush TryGetAccentBrush()
+    {
+        if (App.CurrentWindow?.Content is FrameworkElement root &&
+            root.Resources.TryGetValue("AccentFillColorDefaultBrush", out var value) &&
+            value is Brush windowBrush)
+        {
+            return windowBrush;
+        }
+        return (Brush)Application.Current.Resources["AccentFillColorDefaultBrush"];
+    }
+
+    /// <summary>提取主题强调色的 Color 值。</summary>
+    private static Color TryGetAccentColor()
+    {
+        if (TryGetAccentBrush() is SolidColorBrush solid)
+            return solid.Color;
+        return Microsoft.UI.Colors.Blue;
+    }
+
+    /// <summary>
+    /// 获取带透明度的主题强调色画刷，用于边框 / 背景等弱化强调场景，
+    /// 与侧边栏 NavigationViewItem 选中背景（12% 不透明度）保持一致。
+    /// </summary>
+    private static Brush TryGetAccentBrushAtOpacity(double opacity)
+    {
+        var c = TryGetAccentColor();
+        return new SolidColorBrush(Color.FromArgb((byte)(c.A * opacity), c.R, c.G, c.B));
+    }
+
+    /// <summary>
+    /// 直接迭代 GridView 已实现的容器来更新视觉状态，
+    /// 避免重置 ItemsSource 造成的页面抖动。
+    /// 未实现（不可见）的容器会在滚动时由 ContainerContentChanging 正确渲染。
+    /// </summary>
+    private void RefreshProxyCardVisuals()
+    {
+        for (int i = 0; i < ProxyGrid.Items.Count; i++)
+        {
+            var container = ProxyGrid.ContainerFromIndex(i) as GridViewItem;
+            if (container?.ContentTemplateRoot is not Border cardBorder) continue;
+            if (ProxyGrid.Items[i] is not Proxy proxy) continue;
+
+            var isActive = ViewModel.SelectedGroup?.Now == proxy.Name;
+            var isClicked = ReferenceEquals(proxy, _lastClickedProxy);
+            ApplyProxyCardState(cardBorder, proxy, isActive, isClicked);
+        }
+    }
+
+    /// <summary>
+    /// 直接迭代 ItemsRepeater 已实现的元素来更新 Tab 高亮，
+    /// 避免重置 ItemsSource 造成的抖动。
+    /// </summary>
+    private void RefreshGroupTabVisuals()
+    {
+        var repeater = GroupTabsRepeater;
+        // ItemsSourceView.Count 可能不可用，用 ViewModel.Groups 兜底
+        var count = ViewModel.Groups.Count;
+        for (int i = 0; i < count; i++)
+        {
+            var element = repeater.TryGetElement(i);
+            if (element is not Button btn) continue;
+
+            var group = ViewModel.Groups[i];
+            var isSelected = ViewModel.SelectedGroup?.Name == group.Name;
+            ApplyGroupTabState(btn, isSelected);
+        }
+    }
+
+    /// <summary>
+    /// 刷新全部高亮（代理卡片 + Tab 栏），用于代理切换完成后的更新。
+    /// 使用容器直更方式，不重置 ItemsSource。
+    /// </summary>
     private void RefreshSelectionHighlights()
     {
-        // 触发 GridView 重新渲染所有项
-        var itemsSource = ProxyGrid.ItemsSource;
-        ProxyGrid.ItemsSource = null;
-        ProxyGrid.ItemsSource = itemsSource;
-
-        // 刷新代理组 Tab 高亮
-        var tabSource = GroupTabsRepeater.ItemsSource;
-        GroupTabsRepeater.ItemsSource = null;
-        GroupTabsRepeater.ItemsSource = tabSource;
+        RefreshProxyCardVisuals();
+        RefreshGroupTabVisuals();
     }
 
     private async void ProxyCard_RightTapped(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)

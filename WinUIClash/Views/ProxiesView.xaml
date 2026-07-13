@@ -77,7 +77,7 @@
         <!-- 代理卡片网格 -->
         <GridView Grid.Row="3" x:Name="ProxyGrid"
                   ItemsSource="{x:Bind ViewModel.FilteredProxies, Mode=OneWay}"
-                  SelectionMode="Single"
+                  SelectionMode="None"
                   IsItemClickEnabled="True"
                   ItemClick="ProxyGrid_ItemClick"
                   ContainerContentChanging="ProxyGrid_ContainerContentChanging">
