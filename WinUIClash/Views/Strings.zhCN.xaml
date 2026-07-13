@@ -35,7 +35,6 @@
     <x:String x:Key="DashModeDirectDesc.Text">所有流量直连</x:String>
     <x:String x:Key="DashTrafficStats.Text">流量统计</x:String>
     <x:String x:Key="DashNetworkInfo.Text">网络信息</x:String>
-    <x:String x:Key="DashResetTraffic.Content">重置</x:String>
     <x:String x:Key="DashCheckIp.Content">检测 IP</x:String>
     <x:String x:Key="DashIpChecking.Text">检测中…</x:String>
     <x:String x:Key="DashIpFailed.Text">检测失败</x:String>
