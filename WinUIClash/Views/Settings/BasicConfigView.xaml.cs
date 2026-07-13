@@ -13,6 +13,7 @@ public sealed partial class BasicConfigView : UserControl
     {
         ViewModel = ServiceLocator.Get<BasicConfigViewModel>();
         InitializeComponent();
+        Unloaded += (_, _) => Bindings.StopTracking();
     }
 
     private async void BrowseCoreBinary_Click(object sender, RoutedEventArgs e)

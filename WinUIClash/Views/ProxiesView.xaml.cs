@@ -94,20 +94,32 @@ public sealed partial class ProxiesView : Page
         }
     }
 
-    /// <summary>对 GroupTab 按钮应用选中/未选中视觉状态。</summary>
+    /// <summary>对 GroupTab 按钮应用选中/未选中视觉状态。<br/>
+    /// 未选中态不覆盖 Foreground/Background，让 Button 默认样式中的 {ThemeResource} 绑定
+    /// 在深色/浅色主题间自动切换。<br/>
+    /// 选中态同步覆盖 PointerOver/Pressed 背景资源，避免悬停跳变为白色。</summary>
     private void ApplyGroupTabState(Button btn, bool isSelected)
     {
+        // 复用的透明画刷
+        var transparent = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+
         if (isSelected)
         {
-            // 选中背景使用 12% 透明度主题色，与侧边栏选中态背景一致
             btn.Background = TryGetAccentBrushAtOpacity(0.12);
             btn.Foreground = TryGetAccentBrush();
-            //btn.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255));
+            btn.Resources["ButtonBackgroundPointerOver"] = TryGetAccentBrushAtOpacity(0.16);
+            btn.Resources["ButtonBackgroundPressed"] = TryGetAccentBrushAtOpacity(0.08);
+            btn.Resources["ButtonBorderBrushPointerOver"] = transparent;
+            btn.Resources["ButtonBorderBrushPressed"] = transparent;
         }
         else
         {
-            btn.Background = (Brush)Application.Current.Resources["SubtleFillColorSecondaryBrush"];
-            btn.Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"];
+            btn.ClearValue(Control.BackgroundProperty);
+            btn.ClearValue(Control.ForegroundProperty);
+            btn.Resources.Remove("ButtonBackgroundPointerOver");
+            btn.Resources.Remove("ButtonBackgroundPressed");
+            btn.Resources.Remove("ButtonBorderBrushPointerOver");
+            btn.Resources.Remove("ButtonBorderBrushPressed");
         }
     }
 
@@ -138,27 +150,21 @@ public sealed partial class ProxiesView : Page
         }
     }
 
-    /// <summary>对指定卡片 Border 应用三态视觉（激活 / 点击 / 默认）</summary>
+    /// <summary>对指定卡片 Border 应用激活/默认视觉。<br/>
+    /// Background 保留 XAML 中的 {ThemeResource} 绑定，不在此处覆盖，
+    /// 确保深色/浅色主题切换时自动更新。仅调整 BorderBrush/BorderThickness 与选中图标。</summary>
     private void ApplyProxyCardState(Border cardBorder, Proxy proxy, bool isActive, bool isClicked)
     {
         if (isActive)
         {
-            // 边框使用 12% 透明度主题色，与侧边栏选中态背景一致
-            cardBorder.BorderBrush = TryGetAccentBrushAtOpacity(0.6);
-            cardBorder.BorderThickness = new Thickness(2);
-            cardBorder.Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"];
-        }
-        else if (isClicked)
-        {
-            cardBorder.BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"];
+            cardBorder.BorderBrush = TryGetAccentBrushAtOpacity(0.9);
             cardBorder.BorderThickness = new Thickness(1);
-            cardBorder.Background = (Brush)Application.Current.Resources["CardBackgroundFillColorSecondaryBrush"];
         }
         else
         {
-            cardBorder.BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"];
+            // 恢复 XAML 中定义的 ThemeResource 绑定，而非硬编码值
+            cardBorder.ClearValue(Border.BorderBrushProperty);
             cardBorder.BorderThickness = new Thickness(1);
-            cardBorder.Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"];
         }
 
         if (cardBorder.FindName("SelectedIcon") is FluentIcons.WinUI.SymbolIcon selectedIcon)
