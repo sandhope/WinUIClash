@@ -106,6 +106,7 @@ public partial class LogsViewModel : ObservableObject, IDisposable
 
         FilteredLogs = new ObservableCollection<LogEntry>(filtered);
         LogCount = FilteredLogs.Count;
+        HasLogs = Logs.Count > 0;
     }
 
     [RelayCommand]

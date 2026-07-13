@@ -83,7 +83,7 @@
 
         <!-- 空状态 -->
         <StackPanel Grid.Row="1"
-                    Visibility="{x:Bind ViewModel.FilteredLogs, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
+                    Visibility="{x:Bind ViewModel.LogCount, Mode=OneWay, Converter={StaticResource EmptyCollectionToVisibilityConverter}}"
                     HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
             <fluent:SymbolIcon Symbol="DocumentBulletList" FontSize="32" Opacity="0.3" />
             <TextBlock Text="{Binding Source={StaticResource S}, Path=EmptyLogs_Text}" Opacity="0.5" HorizontalAlignment="Center" />
