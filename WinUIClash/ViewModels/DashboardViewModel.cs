@@ -213,6 +213,10 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
             {
                 RuntimeText = LocalizationHelper.GetString("DashRuntime.Text") + Converters.TimeFormatter.Duration(DateTime.Now - _startTime.Value);
             }
+
+            var total = _clash.GetTotalTraffic();
+            TotalUpload = Converters.ByteFormatter.Format(total.Up);
+            TotalDownload = Converters.ByteFormatter.Format(total.Down);
         });
     }
 
