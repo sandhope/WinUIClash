@@ -46,6 +46,7 @@ public class ClashOrchestrator : IClashService
     public event Action<CoreState>? CoreStateChanged;
     public event Action<LogEntry>? LogReceived;
     public event Action<OutboundMode>? OutboundModeChanged;
+    public event Action<long>? MemoryUpdated;
 
     public ClashOrchestrator(
         CoreProcessService processService,
@@ -75,6 +76,7 @@ public class ClashOrchestrator : IClashService
         _httpClashService.TrafficUpdated += OnTrafficUpdated;
         _httpClashService.LogReceived += OnLogReceived;
         _httpClashService.OutboundModeChanged += OnOutboundModeChanged;
+        _httpClashService.MemoryUpdated += OnMemoryUpdated;
 
         // 监听核心进程意外退出
         _processService.ProcessStateChanged += OnProcessStateChanged;
@@ -252,6 +254,7 @@ public class ClashOrchestrator : IClashService
             _httpClashService.SetApiEndpoint("127.0.0.1", apiPort, _settings.ApiSecret);
             await _httpClashService.StartAsync();
             _ = _httpClashService.StartTrafficStreamAsync();
+            _ = _httpClashService.StartMemoryStreamAsync();
 
             // 6. 启动成功
             SetCoreState(CoreState.Running);
@@ -479,6 +482,7 @@ public class ClashOrchestrator : IClashService
     public Task<long> GetCoreMemoryAsync() =>
         SafeFetchAsync(() => _httpClashService.GetCoreMemoryAsync(), 0L);
     public Task ForceGcAsync() => SafeRunAsync(_httpClashService.ForceGcAsync);
+    public Task StartMemoryStreamAsync() => SafeRunAsync(_httpClashService.StartMemoryStreamAsync);
     public Task FlushFakeIpCacheAsync() => SafeRunAsync(_httpClashService.FlushFakeIpCacheAsync);
 
     // ── 私有辅助 ──
@@ -574,6 +578,7 @@ public class ClashOrchestrator : IClashService
     private void OnTrafficUpdated(Traffic traffic) => RaiseOnUiThread(() => TrafficUpdated?.Invoke(traffic));
     private void OnLogReceived(LogEntry entry) => RaiseOnUiThread(() => LogReceived?.Invoke(entry));
     private void OnOutboundModeChanged(OutboundMode mode) => RaiseOnUiThread(() => OutboundModeChanged?.Invoke(mode));
+    private void OnMemoryUpdated(long memory) => RaiseOnUiThread(() => MemoryUpdated?.Invoke(memory));
 
     /// <summary>
     /// 崩溃恢复看门狗：核心进程意外退出且启用自动重启时，尝试重启（最多 MaxRestartAttempts 次）。

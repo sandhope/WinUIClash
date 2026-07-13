@@ -43,6 +43,7 @@ public sealed partial class MainWindow : Window
     // 状态栏引用的服务
     private IClashService? _clash;
     private AppSettings? _appSettings;
+    private ViewModels.DashboardViewModel? _dashboardVm;
 
     // 托盘菜单项（需要动态更新状态）
     private ToggleMenuFlyoutItem? _trayProxyItem;
@@ -517,6 +518,7 @@ public sealed partial class MainWindow : Window
         {
             _clash = ServiceLocator.Get<IClashService>();
             _appSettings = ServiceLocator.Get<AppSettings>();
+            _dashboardVm = ServiceLocator.Get<ViewModels.DashboardViewModel>();
 
             // 订阅核心状态变化
             _clash.CoreStateChanged += OnCoreStateChanged;
@@ -525,13 +527,16 @@ public sealed partial class MainWindow : Window
             // 订阅实时流量
             _clash.TrafficUpdated += OnTrafficUpdated;
 
-            // 订阅系统代理设置变化
+            // 订阅系统代理设置变化（保留用于更新托盘提示）
             _appSettings.PropertyChanged += OnSettingsPropertyChanged;
-            UpdateProxyStatusUI(_appSettings.SystemProxy);
 
-            // 订阅出站模式变化
+            // 订阅代理激活状态变化（由 DashboardViewModel.IsRunning 控制）
+            _dashboardVm.PropertyChanged += OnDashboardPropertyChanged;
+            UpdateProxyStatusUI(_dashboardVm.IsRunning);
+
+            // 订阅出站模式变化（来自 DashboardViewModel，不依赖核心运行状态）
             _clash.OutboundModeChanged += OnOutboundModeChanged;
-            UpdateOutboundModeUI(_clash.GetOutboundMode());
+            UpdateOutboundModeUI(_dashboardVm.OutboundMode);
 
             // 连接数轮询（每5秒）
             _statusBarConnTimer = new DispatcherTimer
@@ -552,19 +557,11 @@ public sealed partial class MainWindow : Window
                     _lastConnectionCount = 0;
                     ConnectionCountText.Text = "0";
                 }
-
-                // Update memory usage
-                try
-                {
-                    var memBytes = await _clash.GetCoreMemoryAsync();
-                    MemoryUsageText.Text = Converters.ByteFormatter.Format(memBytes);
-                }
-                catch
-                {
-                    MemoryUsageText.Text = "--";
-                }
             };
             _statusBarConnTimer.Start();
+
+            // 内存更新事件订阅
+            _clash.MemoryUpdated += OnMemoryUpdated;
         }
         catch { /* ServiceLocator 未初始化时忽略 */ }
     }
@@ -649,6 +646,14 @@ public sealed partial class MainWindow : Window
         _dispatcher.TryEnqueue(() => UpdateOutboundModeUI(mode));
     }
 
+    private void OnMemoryUpdated(long memory)
+    {
+        _dispatcher.TryEnqueue(() =>
+        {
+            MemoryUsageText.Text = Converters.ByteFormatter.Format(memory);
+        });
+    }
+
     private void UpdateOutboundModeUI(OutboundMode mode)
     {
         OutboundModeText.Text = mode switch
@@ -664,29 +669,43 @@ public sealed partial class MainWindow : Window
     {
         if (e.PropertyName == nameof(AppSettings.SystemProxy))
         {
-            try
-            {
-                var settings = ServiceLocator.Get<AppSettings>();
-                _dispatcher.TryEnqueue(() =>
-                {
-                    UpdateProxyStatusUI(settings.SystemProxy);
-                });
-            }
-            catch { }
+            UpdateTrayTooltip();
         }
     }
 
-    private void UpdateProxyStatusUI(bool isProxyOn)
+    private void OnDashboardPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        ProxyIcon.Opacity = isProxyOn ? 1.0 : 0.3;
-        ProxyText.Opacity = isProxyOn ? 0.8 : 0.3;
-        ProxyText.Text = isProxyOn
-            ? Services.LocalizationHelper.GetString("StatusRunning.Text")
+        if (e.PropertyName == nameof(ViewModels.DashboardViewModel.IsRunning))
+        {
+            _dispatcher.TryEnqueue(() =>
+            {
+                if (_dashboardVm != null)
+                    UpdateProxyStatusUI(_dashboardVm.IsRunning);
+            });
+        }
+        else if (e.PropertyName == nameof(ViewModels.DashboardViewModel.OutboundMode))
+        {
+            _dispatcher.TryEnqueue(() =>
+            {
+                if (_dashboardVm != null)
+                    UpdateOutboundModeUI(_dashboardVm.OutboundMode);
+            });
+        }
+    }
+
+    private void UpdateProxyStatusUI(bool isActive)
+    {
+        ProxyIcon.Opacity = isActive ? 1.0 : 0.3;
+        ProxyIcon.Foreground = isActive
+            ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, 76, 175, 80))
+            : new SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0));
+        ProxyText.Opacity = isActive ? 0.8 : 0.3;
+        ProxyText.Text = isActive
+            ? Services.LocalizationHelper.GetString("StatusProxyActive.Text")
             : Services.LocalizationHelper.GetString("ProxyLabel.Text");
 
-        // 同步托盘菜单
         if (_trayProxyItem != null)
-            _trayProxyItem.IsChecked = isProxyOn;
+            _trayProxyItem.IsChecked = isActive;
 
         UpdateTrayTooltip();
     }
@@ -739,18 +758,6 @@ public sealed partial class MainWindow : Window
             _trayIcon.Icon = _currentTrayIcon;
             oldIcon?.Dispose();
         }
-    }
-
-    // 状态点改为纯展示（BUG-2）：核心由应用自动管理，点击逻辑已移除。
-
-    private void StatusProxy_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            var settings = ServiceLocator.Get<AppSettings>();
-            settings.SystemProxy = !settings.SystemProxy;
-        }
-        catch (Exception ex) { Debug.WriteLine($"Status proxy toggle error: {ex.Message}"); }
     }
 
     // ── 系统托盘 ──────────────────────────────────────────────────────────────
@@ -1107,6 +1114,10 @@ public sealed partial class MainWindow : Window
             if (_appSettings != null)
             {
                 _appSettings.PropertyChanged -= OnSettingsPropertyChanged;
+            }
+            if (_dashboardVm != null)
+            {
+                _dashboardVm.PropertyChanged -= OnDashboardPropertyChanged;
             }
 
             // 退出时彻底终止常驻核心进程（仅 App 退出才杀进程，符合 REFACTOR_GUIDE T3）

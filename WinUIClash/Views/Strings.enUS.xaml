@@ -58,6 +58,7 @@
     <x:String x:Key="StatusStopped.Text">Stopped</x:String>
     <x:String x:Key="StatusRunning.Text">Running</x:String>
     <x:String x:Key="ProxyLabel.Text">Proxy</x:String>
+    <x:String x:Key="StatusProxyActive.Text">Proxying</x:String>
     <x:String x:Key="CommonUpdateAll.Text">Update All</x:String>
     <x:String x:Key="CommonUpdate.Content">Update</x:String>
     <x:String x:Key="CommonSearch.PlaceholderText">Search…</x:String>

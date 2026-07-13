@@ -58,6 +58,7 @@
     <x:String x:Key="StatusStopped.Text">已停止</x:String>
     <x:String x:Key="StatusRunning.Text">运行中</x:String>
     <x:String x:Key="ProxyLabel.Text">代理</x:String>
+    <x:String x:Key="StatusProxyActive.Text">代理中</x:String>
     <x:String x:Key="CommonUpdateAll.Text">全部更新</x:String>
     <x:String x:Key="CommonUpdate.Content">更新</x:String>
     <x:String x:Key="CommonSearch.PlaceholderText">搜索…</x:String>
