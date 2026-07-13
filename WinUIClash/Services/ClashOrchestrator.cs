@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
+using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using WinUIClash.Models;
@@ -35,6 +36,10 @@ public class ClashOrchestrator : IClashService
 
     // 代理是否已激活（对应 UI 的 IsRunning）。核心常驻，此标志与进程存活解耦。
     private bool _proxyActive;
+
+    // 当前运行的 mihomo 是否由 Helper Service（SYSTEM）拉起。
+    // 由 SYSTEM 拉起时才能创建 TUN 虚拟网卡；该标志决定停止方式与“首次开 TUN 是否需重建核心”。
+    private bool _launchedViaHelper;
 
     // ── 网络变化检测 ──
     private bool _wasRunningBeforeNetworkLoss;
@@ -208,44 +213,53 @@ public class ClashOrchestrator : IClashService
             // 下载，但下载期间不监听端口导致超时。内置 Geo 数据可让 mihomo 在 1-2 秒内就绪）。
             CopyBundledGeoData(configPath);
 
-            // 3. 启动核心进程（TUN 模式需 Helper Service 提权运行）
-            if (_settings.TunMode)
+            // 3. 启动核心进程
+            // 对齐 FlClash：优先经 Helper(SYSTEM) 服务拉起 mihomo，使其天生拥有 SYSTEM 权限（TUN 随时可用）。
+            // 关键稳健性保证：无论 SYSTEM 路径是否成功，核心一定在严格预算内被拉起——
+            // SYSTEM 路径未在预算内就绪时，回退“当前用户直接启动”，核心常驻、绝不卡死/绝不只报失败。
+            // 仅当 Helper Service 完全不可用且直接启动也失败时，才报“启动失败”。
+
+            // 启动前清理可能残留的核心（上一轮异常退出可能让 SYSTEM/用户态 mihomo 仍占用 API 端口）
+            try { await _helperServiceManager.StopCoreViaHelperAsync(); } catch { }
+            try { await _processService.StopAsync(); } catch { }
+
+            bool launchedViaHelper = false;
+            var serviceRegistered = await _helperServiceManager.RegisterServiceAsync();
+            if (serviceRegistered && !string.IsNullOrWhiteSpace(_processService.BinaryPath))
             {
-                // TUN 模式：注册 Helper Service（UAC 提权）并通过 API 启动 mihomo
-                var serviceRegistered = await _helperServiceManager.RegisterServiceAsync();
-                if (serviceRegistered)
+                var coreArgs = $"-d \"{Path.GetDirectoryName(configPath)}\" -f \"{configPath}\"";
+                if (await _helperServiceManager.StartCoreViaHelperAsync(_processService.BinaryPath, coreArgs))
                 {
-                    var coreArgs = $"-d \"{Path.GetDirectoryName(configPath)}\" -f \"{configPath}\"";
-                    var coreStarted = await _helperServiceManager.StartCoreViaHelperAsync(
-                        _processService.BinaryPath ?? "", coreArgs);
-                    if (!coreStarted)
-                    {
-                        _logger.LogWarning("通过 Helper Service 启动核心失败，回退到直接启动");
-                        var directResult = await _processService.StartAsync();
-                        if (!directResult.Success)
-                            throw new InvalidOperationException(directResult.ErrorMessage ?? "直接启动核心失败");
-                    }
-                }
-                else
-                {
-                    _logger.LogWarning("Helper Service 注册失败，回退到直接启动（TUN 可能无法创建虚拟网卡）");
-                    var directResult = await _processService.StartAsync();
-                    if (!directResult.Success)
-                        throw new InvalidOperationException(directResult.ErrorMessage ?? "直接启动核心失败");
+                    // Helper 已接受启动请求。等待核心 REST API 就绪（SYSTEM 路径预算 4s）。
+                    // 若核心未就绪（如 mihomo 在 SYSTEM 下因端口被残留进程占用 / 配置权限而启动失败），
+                    // 则回退直接启动，确保核心一定拉起。
+                    if (await WaitForApiAsync(_settings.ApiPort, TimeSpan.FromSeconds(4)))
+                        launchedViaHelper = true;
+                    else
+                        _logger.LogWarning("经 Helper 启动的核心 API 未在预算内就绪，将回退直接启动");
                 }
             }
-            else
+
+            if (!launchedViaHelper)
             {
-                // 非 TUN 模式：直接启动 mihomo 进程（无需提权）
+                if (serviceRegistered)
+                {
+                    // SYSTEM 路径失败：先停掉 Helper 可能拉起的异常核心，释放端口，避免直接启动冲突
+                    try { await _helperServiceManager.StopCoreViaHelperAsync(); } catch { }
+                }
+                _logger.LogWarning("回退到直接启动核心（TUN 可能不可用，但核心常驻）");
                 var directResult = await _processService.StartAsync();
                 if (!directResult.Success)
                     throw new InvalidOperationException(directResult.ErrorMessage ?? "直接启动核心失败");
+                launchedViaHelper = false;
             }
-            _logger.LogInformation("mihomo 核心进程已启动");
 
-            // 4. 等待 REST API 就绪（最多 8 秒）
+            _launchedViaHelper = launchedViaHelper;
+            _logger.LogInformation("mihomo 核心进程已启动（viaHelper={ViaHelper}）", _launchedViaHelper);
+
+            // 4. 等待 REST API 就绪（最多 5 秒；有内置 Geo 数据时 mihomo 在 1-2 秒内就绪）
             int apiPort = _settings.ApiPort;
-            bool apiReady = await WaitForApiAsync(apiPort, TimeSpan.FromSeconds(8));
+            bool apiReady = await WaitForApiAsync(apiPort, TimeSpan.FromSeconds(5));
             if (!apiReady)
                 throw new TimeoutException(
                     $"mihomo REST API 在端口 {apiPort} 上 {LocalizationHelper.GetString("CoreApiTimeout.Text")}");
@@ -293,8 +307,8 @@ public class ClashOrchestrator : IClashService
             if (wasRunning)
                 await _httpClashService.ShutdownAsync();
 
-            // TUN 模式下通过 Helper Service API 停止核心
-            if (_settings.TunMode)
+            // 经 Helper(SYSTEM) 拉起的核心，由 Helper API 停止；否则直接停止本地进程
+            if (_launchedViaHelper)
             {
                 await _helperServiceManager.StopCoreViaHelperAsync();
             }
@@ -364,7 +378,48 @@ public class ClashOrchestrator : IClashService
 
     public Task<bool> GetTunEnabledAsync() =>
         SafeFetchAsync(() => _httpClashService.GetTunEnabledAsync(), false);
-    public Task SetTunEnabledAsync(bool enabled) => SafeRunAsync(() => _httpClashService.SetTunEnabledAsync(enabled));
+
+    /// <summary>
+    /// 设置 TUN 开关。核心常驻优先，且全程不弹 UAC：
+    /// - 核心未运行：TUN 由 config.yaml 注入，下次启动生效（返回 true）。
+    /// - 核心已运行且由 SYSTEM 服务拉起（_launchedViaHelper==true）：仅 PATCH /configs 完整 tun 配置（不重启、不弹 UAC）。
+    /// - 核心已运行但为用户态进程（异常降级，仅当首次启动未成功提权时才会发生）：创建虚拟网卡需要 SYSTEM 权限，
+    ///   **此处不弹 UAC 重新注册**，直接返回 false 交由 UI 提示“请重启软件并在启动时允许 UAC 提权”。
+    ///   严格保证“UAC 只在软件首次启动弹一次”，TUN 切换绝不触发第二次 UAC。
+    /// SYSTEM 态在软件首次启动时的一次 UAC 中确立（注册/替换 Helper Service 后恒由 SYSTEM 拉起核心）。
+    /// </summary>
+    public async Task<bool> SetTunEnabledAsync(bool enabled, string? stack = null)
+    {
+        if (_coreState != CoreState.Running)
+            return true; // 未运行：由 config.yaml 接管，下次启动生效
+
+        // SYSTEM 态（_launchedViaHelper==true）下仅 PATCH /configs：不重启、不弹 UAC。
+        // SYSTEM 态已在“软件首次启动那一次 UAC”中确立，之后全程无感。
+        // 若核心处于用户态降级（首次启动未成功提权），创建虚拟网卡需要 SYSTEM 权限，
+        // 此处【不再弹 UAC 重新注册】，直接返回 false，由 UI 提示“请重启软件并在启动时允许 UAC 提权”——
+        // 这是为了避免 TUN 切换触发第二次 UAC，严格满足“仅首次启动弹一次”的诉求。
+        if (enabled && !_launchedViaHelper)
+        {
+            _logger.LogWarning("TUN 需要 SYSTEM 权限，但当前核心为用户态（首次启动未成功提权），不弹 UAC，交由 UI 提示");
+            return false;
+        }
+
+        var tunStack = string.IsNullOrWhiteSpace(stack) ? _settings.TunStack : stack;
+        try
+        {
+            if (enabled)
+                await _httpClashService.SetTunEnabledAsync(true, tunStack);
+            else
+                await _httpClashService.SetTunEnabledAsync(false, tunStack);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "PATCH TUN 配置失败");
+            return false;
+        }
+    }
+
     public Task SetTunStackAsync(string stack) => SafeRunAsync(() => _httpClashService.SetTunStackAsync(stack));
 
     // ── 代理 ──
@@ -558,21 +613,42 @@ public class ClashOrchestrator : IClashService
 
         while (DateTime.UtcNow < deadline)
         {
-            try
+            // 快速 TCP 预检：端口未监听时立即跳过，避免 HttpClient 超时刷出大量 TaskCanceledException
+            if (await IsTcpPortOpenAsync("127.0.0.1", port, 400))
             {
-                var resp = await http.GetAsync($"http://127.0.0.1:{port}/version");
-                if (resp.IsSuccessStatusCode)
-                    return true;
-            }
-            catch
-            {
-                // API 尚未就绪
+                try
+                {
+                    var resp = await http.GetAsync($"http://127.0.0.1:{port}/version");
+                    if (resp.IsSuccessStatusCode)
+                        return true;
+                }
+                catch
+                {
+                    // API 尚未就绪
+                }
             }
 
             await Task.Delay(300);
         }
 
         return false;
+    }
+
+    /// <summary>在 timeoutMs 内探测 TCP 端口是否可连接。端口关闭/拒绝时快速返回 false，
+    /// 绝不抛出 TaskCanceledException（与 HelperServiceManager 中同名方法行为一致）。</summary>
+    private static async Task<bool> IsTcpPortOpenAsync(string host, int port, int timeoutMs)
+    {
+        try
+        {
+            using var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            using var cts = new CancellationTokenSource(timeoutMs);
+            await socket.ConnectAsync(new IPEndPoint(IPAddress.Loopback, port), cts.Token);
+            return socket.Connected;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private void OnTrafficUpdated(Traffic traffic) => RaiseOnUiThread(() => TrafficUpdated?.Invoke(traffic));

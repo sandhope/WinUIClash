@@ -110,10 +110,30 @@
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
 
-  <!-- TUN 提权依赖 Helper Service 可执行文件：将其拷贝到输出 Core\（GetHelperExePath 会从该路径发现）。
-       开发模式下 HelperService 的 bin 已存在，拷贝即可；打包时同理确保随包发布。 -->
+  <!-- TUN 提权依赖 Helper Service：以 SYSTEM 身份运行的常驻服务，负责拉起 mihomo（创建虚拟网卡需要系统权限）。
+       对齐 FlClash：首次开启 TUN 时弹一次 UAC 把服务安装为 start=auto 常驻，之后全程不再弹窗。
+       注意：必须拷贝整个输出目录（exe + 依赖 DLL + deps.json + runtimeconfig.json），
+       否则服务启动即崩，CheckServiceAsync 永远等不到 Running，被误判为“用户拒绝了 UAC”。 -->
+  <Target Name="EnsureHelperServiceBuilt" BeforeTargets="CopyHelperService">
+    <PropertyGroup>
+      <_HelperOutDir>$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\x64\$(Configuration)\net10.0-windows10.0.26100.0\win-x64</_HelperOutDir>
+    </PropertyGroup>
+    <Exec Command="dotnet build &quot;$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\WinUIClash.HelperService.csproj&quot; -c $(Configuration) -p:Platform=x64"
+          Condition="!Exists('$(_HelperOutDir)\WinUIClash.HelperService.exe')"
+          StandardOutputImportance="low" />
+  </Target>
+
   <Target Name="CopyHelperService" AfterTargets="Build">
-    <MakeDir Directories="$(OutDir)Core" Condition="!Exists('$(OutDir)Core')" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\$(Configuration)\net10.0-windows10.0.26100.0\win-x64\WinUIClash.HelperService.exe" DestinationFolder="$(OutDir)Core" SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\$(Configuration)\net10.0-windows10.0.26100.0\win-x64\WinUIClash.HelperService.exe')" />
+    <PropertyGroup>
+      <_HelperOutDir>$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\x64\$(Configuration)\net10.0-windows10.0.26100.0\win-x64</_HelperOutDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <_HelperFiles Include="$(_HelperOutDir)\**\*" />
+    </ItemGroup>
+    <MakeDir Directories="$(OutDir)Core\WinUIClash.HelperService" Condition="!Exists('$(OutDir)Core\WinUIClash.HelperService')" />
+    <Copy SourceFiles="@(_HelperFiles)"
+          DestinationFolder="$(OutDir)Core\WinUIClash.HelperService\%(RecursiveDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(_HelperOutDir)')" />
   </Target>
 </Project>

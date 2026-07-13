@@ -26,7 +26,7 @@ public interface IClashService
 
     // ── TUN 模式 ──
     Task<bool> GetTunEnabledAsync();
-    Task SetTunEnabledAsync(bool enabled);
+    Task<bool> SetTunEnabledAsync(bool enabled, string? stack = null);
     Task SetTunStackAsync(string stack);
 
     // ── 代理 ──

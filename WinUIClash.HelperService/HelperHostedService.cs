@@ -1,6 +1,7 @@
-using System.Net;
-using System.Net.Http.Json;
 using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -8,9 +9,15 @@ using Microsoft.Extensions.Logging;
 namespace WinUIClash.HelperService;
 
 /// <summary>
-/// Helper Service 的核心逻辑：以 SYSTEM 权限运行 HTTP API，
+/// Helper Service 的核心逻辑：以 SYSTEM 权限运行轻量 HTTP API，
 /// 主 app 通过此 API 控制 mihomo 核心进程的启停。
 /// 对齐 FlClash 的 FlClashHelperService（Rust warp HTTP API，端口 47890）。
+///
+/// 关键实现说明：这里**不使用** System.Net.HttpListener，因为它依赖 http.sys 的
+/// URL ACL 保留（在 LocalSystem 下经常绑定失败，导致服务进程“已启动”但 API 不可达，
+/// 主程序误判服务不可用、退回用户态启动核心，进而 TUN 无法创建虚拟网卡）。
+/// 改用裸 TcpListener 监听 127.0.0.1 回环地址——回环 TCP 绑定不需要任何 URL ACL，
+/// SYSTEM 下必然能绑定，从而让服务稳定可用。
 /// </summary>
 public class HelperHostedService : BackgroundService
 {
@@ -19,6 +26,7 @@ public class HelperHostedService : BackgroundService
 
     private Process? _mihomoProcess;
     private readonly ILogger<HelperHostedService> _logger;
+    private TcpListener? _listener;
 
     public HelperHostedService(ILogger<HelperHostedService> logger)
     {
@@ -27,134 +35,183 @@ public class HelperHostedService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var listener = new HttpListener();
-        listener.Prefixes.Add($"http://127.0.0.1:{ApiPort}/");
-
+        _listener = new TcpListener(IPAddress.Loopback, ApiPort);
         try
         {
-            listener.Start();
-            _logger.LogInformation("HelperService HTTP API 已启动，监听 127.0.0.1:{Port}", ApiPort);
+            _listener.Start();
         }
-        catch (HttpListenerException ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex, "无法启动 HTTP 监听器（端口 {Port} 可能已被占用）", ApiPort);
+            _logger.LogError(ex, "无法绑定 127.0.0.1:{Port}，HelperService 无法工作", ApiPort);
             return;
         }
 
-        while (!stoppingToken.IsCancellationRequested)
+        _logger.LogInformation("HelperService HTTP API 已启动，监听 127.0.0.1:{Port}", ApiPort);
+
+        try
         {
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                var context = await listener.GetContextAsync();
-                await HandleRequestAsync(context);
-            }
-            catch (ObjectDisposedException) { break; }
-            catch (HttpListenerException) { break; }
-            catch (OperationCanceledException) { break; }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "处理请求时出错");
+                TcpClient client;
+                try
+                {
+                    client = await _listener.AcceptTcpClientAsync(stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (ObjectDisposedException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "AcceptTcpClient 出错");
+                    break;
+                }
+
+                // 每个连接独立处理，不阻塞监听循环
+                _ = Task.Run(() => HandleClientAsync(client, stoppingToken), stoppingToken);
             }
         }
-
-        // 停止时清理 mihomo 进程
-        StopMihomo();
-        listener.Stop();
-        listener.Close();
+        finally
+        {
+            StopMihomo();
+            try { _listener.Stop(); } catch { }
+            _listener = null;
+        }
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         StopMihomo();
+        try { _listener?.Stop(); } catch { }
         await base.StopAsync(cancellationToken);
     }
 
-    private async Task HandleRequestAsync(HttpListenerContext context)
-    {
-        var path = context.Request.Url?.AbsolutePath ?? "/";
-        var method = context.Request.HttpMethod;
+    // ── 最小 HTTP/1.1 服务器（仅服务本地回环，接口极简）──
 
+    private async Task HandleClientAsync(TcpClient client, CancellationToken stoppingToken)
+    {
         try
         {
-            // 鉴权：所有请求需带 token 参数
-            var token = context.Request.QueryString["token"];
-            if (token != ServiceToken && path != "/ping")
+            using (client)
+            using (var stream = client.GetStream())
             {
-                context.Response.StatusCode = 403;
-                await WriteResponseAsync(context, "Forbidden: invalid token");
-                return;
-            }
+                using var reader = new StreamReader(stream, Encoding.ASCII, leaveOpen: true);
 
-            switch (path)
-            {
-                case "/ping":
-                    await HandlePingAsync(context);
-                    break;
+                var requestLine = await reader.ReadLineAsync(stoppingToken);
+                if (string.IsNullOrWhiteSpace(requestLine)) return;
 
-                case "/start":
-                    if (method == "POST")
-                        await HandleStartAsync(context);
-                    else
-                        context.Response.StatusCode = 405;
-                    break;
+                var parts = requestLine.Split(' ');
+                if (parts.Length < 2) { await SendResponseAsync(stream, 400, "Bad Request"); return; }
+                var method = parts[0];
+                var rawUrl = parts[1];
 
-                case "/stop":
-                    if (method == "POST")
-                        await HandleStopAsync(context);
-                    else
-                        context.Response.StatusCode = 405;
-                    break;
+                var path = rawUrl;
+                var query = "";
+                var qIdx = rawUrl.IndexOf('?');
+                if (qIdx >= 0)
+                {
+                    path = rawUrl.Substring(0, qIdx);
+                    query = rawUrl.Substring(qIdx + 1);
+                }
 
-                case "/status":
-                    await HandleStatusAsync(context);
-                    break;
+                // 读取请求头，解析 Content-Length
+                var contentLength = 0;
+                string? headerLine;
+                while (!string.IsNullOrWhiteSpace(headerLine = await reader.ReadLineAsync(stoppingToken)))
+                {
+                    if (headerLine.StartsWith("Content-Length:", StringComparison.OrdinalIgnoreCase) &&
+                        int.TryParse(headerLine.Substring("Content-Length:".Length).Trim(), out var cl))
+                    {
+                        contentLength = cl;
+                    }
+                }
 
-                default:
-                    context.Response.StatusCode = 404;
-                    await WriteResponseAsync(context, "Not found");
-                    break;
+                // 读取请求体
+                var body = "";
+                if (contentLength > 0)
+                {
+                    var buf = new char[contentLength];
+                    var read = 0;
+                    while (read < contentLength)
+                    {
+                        var n = await reader.ReadAsync(buf.AsMemory(read, contentLength - read), stoppingToken);
+                        if (n == 0) break;
+                        read += n;
+                    }
+                    body = new string(buf, 0, read);
+                }
+
+                // 鉴权：除 /ping 外的所有请求需带有效 token
+                var queryParams = ParseQuery(query);
+                var tokenOk = path == "/ping" ||
+                              (queryParams.TryGetValue("token", out var token) && token == ServiceToken);
+                if (!tokenOk)
+                {
+                    await SendResponseAsync(stream, 403, "Forbidden: invalid token");
+                    return;
+                }
+
+                switch (path)
+                {
+                    case "/ping":
+                        await SendResponseAsync(stream, 200, ServiceToken);
+                        break;
+                    case "/start":
+                        if (method == "POST")
+                            await HandleStartAsync(stream, body);
+                        else
+                            await SendResponseAsync(stream, 405, "Method Not Allowed");
+                        break;
+                    case "/stop":
+                        if (method == "POST")
+                        {
+                            StopMihomo();
+                            await SendResponseAsync(stream, 200, "");
+                        }
+                        else
+                            await SendResponseAsync(stream, 405, "Method Not Allowed");
+                        break;
+                    case "/status":
+                    {
+                        var running = _mihomoProcess != null && !_mihomoProcess.HasExited;
+                        var status = JsonSerializer.Serialize(new
+                        {
+                            running,
+                            pid = running ? _mihomoProcess?.Id : (int?)null,
+                        });
+                        await SendResponseAsync(stream, 200, status);
+                        break;
+                    }
+                    default:
+                        await SendResponseAsync(stream, 404, "Not found");
+                        break;
+                }
             }
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "处理 {Method} {Path} 时出错", method, path);
-            context.Response.StatusCode = 500;
-            await WriteResponseAsync(context, $"Internal error: {ex.Message}");
-        }
-        finally
-        {
-            context.Response.Close();
+            _logger.LogWarning(ex, "处理客户端请求时出错");
         }
     }
 
-    private async Task HandlePingAsync(HttpListenerContext context)
+    private async Task HandleStartAsync(NetworkStream stream, string body)
     {
-        // 简单心跳：确认 Helper Service 正在运行（对齐 FlClash pingHelper）
-        await WriteResponseAsync(context, ServiceToken);
-    }
+        StartParams? p = null;
+        try { p = JsonSerializer.Deserialize<StartParams>(body, JsonOpts); } catch { }
 
-    private async Task HandleStartAsync(HttpListenerContext context)
-    {
-        var body = await ReadBodyAsync(context);
-        if (body == null)
+        if (p == null || string.IsNullOrWhiteSpace(p.Path))
         {
-            context.Response.StatusCode = 400;
-            await WriteResponseAsync(context, "Missing request body");
+            await SendResponseAsync(stream, 400, "Invalid start params: path is required");
             return;
         }
-
-        var params_ = JsonSerializer.Deserialize<StartParams>(body);
-        if (params_ == null || string.IsNullOrWhiteSpace(params_.Path))
+        if (!File.Exists(p.Path))
         {
-            context.Response.StatusCode = 400;
-            await WriteResponseAsync(context, "Invalid start params: path is required");
-            return;
-        }
-
-        if (!File.Exists(params_.Path))
-        {
-            context.Response.StatusCode = 400;
-            await WriteResponseAsync(context, $"Core binary not found: {params_.Path}");
+            await SendResponseAsync(stream, 400, $"Core binary not found: {p.Path}");
             return;
         }
 
@@ -165,9 +222,9 @@ public class HelperHostedService : BackgroundService
         {
             var startInfo = new ProcessStartInfo
             {
-                FileName = params_.Path,
-                Arguments = params_.Arg ?? "",
-                WorkingDirectory = Path.GetDirectoryName(params_.Path) ?? "",
+                FileName = p.Path,
+                Arguments = p.Arg ?? "",
+                WorkingDirectory = Path.GetDirectoryName(p.Path) ?? "",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardError = true,
@@ -186,29 +243,15 @@ public class HelperHostedService : BackgroundService
             _mihomoProcess.BeginOutputReadLine();
 
             _logger.LogInformation("mihomo 进程已启动（PID: {Pid}，命令: {Path} {Arg})",
-                _mihomoProcess.Id, params_.Path, params_.Arg);
+                _mihomoProcess.Id, p.Path, p.Arg);
 
-            await WriteResponseAsync(context, ""); // 成功返回空串（对齐 FlClash）
+            await SendResponseAsync(stream, 200, ""); // 成功返回空串（对齐 FlClash）
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "启动 mihomo 进程失败");
-            await WriteResponseAsync(context, $"Start failed: {ex.Message}");
+            await SendResponseAsync(stream, 500, $"Start failed: {ex.Message}");
         }
-    }
-
-    private async Task HandleStopAsync(HttpListenerContext context)
-    {
-        StopMihomo();
-        await WriteResponseAsync(context, ""); // 成功返回空串（对齐 FlClash）
-    }
-
-    private async Task HandleStatusAsync(HttpListenerContext context)
-    {
-        var running = _mihomoProcess != null && !_mihomoProcess.HasExited;
-        var pid = running ? _mihomoProcess?.Id : null;
-        var status = JsonSerializer.Serialize(new { running, pid });
-        await WriteResponseAsync(context, status);
     }
 
     private void StopMihomo()
@@ -226,19 +269,47 @@ public class HelperHostedService : BackgroundService
         _mihomoProcess = null;
     }
 
-    private static async Task WriteResponseAsync(HttpListenerContext context, string content)
+    private static async Task SendResponseAsync(NetworkStream stream, int statusCode, string content)
     {
-        var bytes = System.Text.Encoding.UTF8.GetBytes(content);
-        context.Response.ContentLength64 = bytes.Length;
-        context.Response.ContentType = "text/plain; charset=utf-8";
-        await context.Response.OutputStream.WriteAsync(bytes);
+        var bodyBytes = Encoding.UTF8.GetBytes(content);
+        var header = new StringBuilder();
+        header.AppendLine($"HTTP/1.1 {statusCode} {ReasonPhrase(statusCode)}");
+        header.AppendLine("Content-Type: text/plain; charset=utf-8");
+        header.AppendLine("Content-Length: " + bodyBytes.Length);
+        header.AppendLine("Connection: close");
+        header.AppendLine();
+
+        var headerBytes = Encoding.ASCII.GetBytes(header.ToString());
+        await stream.WriteAsync(headerBytes, 0, headerBytes.Length);
+        if (bodyBytes.Length > 0)
+            await stream.WriteAsync(bodyBytes, 0, bodyBytes.Length);
+        await stream.FlushAsync();
     }
 
-    private static async Task<string?> ReadBodyAsync(HttpListenerContext context)
+    private static string ReasonPhrase(int code) => code switch
     {
-        if (context.Request.ContentLength64 == 0) return null;
-        using var reader = new StreamReader(context.Request.InputStream);
-        return await reader.ReadToEndAsync();
+        200 => "OK",
+        400 => "Bad Request",
+        403 => "Forbidden",
+        404 => "Not Found",
+        405 => "Method Not Allowed",
+        500 => "Internal Server Error",
+        _ => "OK",
+    };
+
+    private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
+
+    private static Dictionary<string, string> ParseQuery(string query)
+    {
+        var dict = new Dictionary<string, string>();
+        if (string.IsNullOrWhiteSpace(query)) return dict;
+        foreach (var pair in query.Split('&'))
+        {
+            var idx = pair.IndexOf('=');
+            if (idx > 0)
+                dict[pair.Substring(0, idx)] = pair.Substring(idx + 1);
+        }
+        return dict;
     }
 }
 
