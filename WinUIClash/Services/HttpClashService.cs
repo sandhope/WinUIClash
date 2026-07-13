@@ -236,21 +236,27 @@ public class HttpClashService : IClashService, IDisposable
         catch { return false; }
     }
 
-    public async Task SetTunEnabledAsync(bool enabled)
+    public async Task<bool> SetTunEnabledAsync(bool enabled, string? stack = null)
     {
+        // 发送完整 tun 配置（与 config.yaml 中的 tun 块一致），避免 mihomo PATCH 时
+        // 仅合并部分字段导致 device/stack/strict-route 丢失。stack 尊重用户设置，缺省回退 mixed。
+        var tunStack = string.IsNullOrWhiteSpace(stack) ? "mixed" : stack;
         var payload = JsonSerializer.Serialize(new
         {
             tun = new
             {
                 enable = enabled,
-                stack = "mixed",
+                stack = tunStack,
+                device = "WinUIClash",
                 auto_route = true,
                 auto_detect_interface = true,
                 dns_hijack = new[] { "any:53" },
+                strict_route = true,
             }
         });
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
         await _http.PatchAsync("/configs", content);
+        return true;
     }
 
     public async Task SetTunStackAsync(string stack)

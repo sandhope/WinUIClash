@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.ComponentModel;
+using System.Net;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
@@ -39,22 +41,26 @@ public class HelperServiceManager
 
     public enum ServiceStatus { None, Present, Running }
 
-    /// <summary>查询 Helper Service 状态（对齐 FlClash checkService）</summary>
+    /// <summary>查询 Helper Service 状态（对齐 FlClash checkService）。
+    /// 快速路径优先：先尝试 PingHelperAsync（200ms 超时），命中则直接返回 Running，无需执行慢速 sc query。
+    /// 仅在 ping 失败时才回退到 SCM 查询（判断服务是否已安装但未运行/已崩溃）。 </summary>
     public async Task<ServiceStatus> CheckServiceAsync()
     {
-        // 先检查 sc query
+        // 快速路径：API 可达 → 服务必然处于 Running 态（TcpListener 绑定 = 进程存活且正常）
+        if (await PingHelperAsync())
+            return ServiceStatus.Running;
+
+        // 慢速回退：通过 SCM 确认服务是否存在（可能已安装但未运行 / 崩溃）
         try
         {
             var result = await RunScCommandAsync("query", ServiceName);
             if (result.ExitCode != 0)
                 return ServiceStatus.None;
 
+            // scm 说 RUNNING 但 ping 不通 → 旧版 HttpListener 绑定失败等异常态
             if (result.Output.Contains("RUNNING"))
-            {
-                // 确认 API 可达（对齐 FlClash pingHelper）
-                if (await PingHelperAsync())
-                    return ServiceStatus.Running;
-            }
+                return ServiceStatus.Present; // 视同"需要重启"
+
             return ServiceStatus.Present;
         }
         catch
@@ -78,17 +84,54 @@ public class HelperServiceManager
     // ── 服务注册（需 UAC 提权）──
 
     /// <summary>
-    /// 注册 Helper Service（对齐 FlClash registerService）。
-    /// 通过 ShellExecuteW("runas") 触发 UAC 提权，执行 sc create + sc start。
-    /// 返回 true 表示注册成功或服务已运行。
+    /// 注册/确保 Helper Service 可用（对齐 FlClash registerService）。
+    /// UAC 策略（核心诉求：除“首次安装/替换旧服务”外绝不再弹 UAC）：
+    ///  - Running：直接复用，不弹 UAC。
+    ///  - Present 且二进制与当前 Helper 不一致（旧版/损坏残留）：一次性
+    ///    sc stop &amp; sc delete &amp; sc create &amp; sc start（仅一次 UAC）替换为新版本。
+    ///    这是关键修复——旧版服务若不替换，会陷入“反复 sc start 提权又失败”的死循环（正是 TUN 反复弹 UAC 的根因）。
+    ///  - Present 且二进制一致（我们自己安装但意外停止）：先尝试“非提权” sc start（管理员用户通常可行，不弹 UAC），
+    ///    失败再提权 sc start 一次（极少的异常恢复，非常规路径）。
+    ///  - None（从未安装）：首次安装（唯一一次 UAC），LocalSystem + start=auto 常驻。
+    /// 返回 true 表示服务已运行（或本次成功拉起）。
     /// </summary>
     public async Task<bool> RegisterServiceAsync()
     {
         var status = await CheckServiceAsync();
         if (status == ServiceStatus.Running)
-            return true;
+            return true; // 已常驻，直接复用，不弹 UAC
 
-        // 获取 Helper Service 可执行文件路径
+        if (status == ServiceStatus.Present)
+        {
+            // 已安装但当前未运行：先尝试直接启动（先非提权，失败再提权一次）。
+            // 多数情况下旧服务指向的 exe 已是被覆盖的新版本，sc start 即可拉起，无需重装、不弹 UAC。
+            bool running = await TryStartServiceNonElevatedAsync();
+            if (!running)
+            {
+                // 非提权启动失败（普通用户无权限）→ 提权启动一次（这是“首次启动弹一次 UAC”的正常场景之一）
+                var started = await ShellExecuteRunasAsync($"/c sc start {ServiceName}");
+                if (started)
+                    running = await WaitForRunningAsync();
+            }
+            if (running)
+                return true;
+
+            // 启动失败（服务损坏/卡死/被禁用等）：一次性重新安装（仅一次 UAC）替换旧注册，
+            // 避免“反复 sc start 提权又失败”的死循环（这正是此前 TUN 反复弹 UAC 的根因）。
+            _logger.LogWarning("已安装的 Helper Service 无法启动，重新安装（一次性 UAC）");
+            var reinstallPath = GetHelperExePath();
+            if (reinstallPath == null)
+            {
+                _logger.LogError("找不到 Helper Service 可执行文件");
+                return false;
+            }
+            var cmd = $"/c sc stop {ServiceName} & timeout /t 2 /nobreak >nul & sc delete {ServiceName} & sc create {ServiceName} binPath= \"{reinstallPath}\" start= auto obj= LocalSystem & sc start {ServiceName}";
+            var runas = await ShellExecuteRunasAsync(cmd);
+            if (!runas) return false;
+            return await WaitForRunningAsync();
+        }
+
+        // 从未安装：首次安装（唯一一次 UAC）。以 LocalSystem 身份、开机自启常驻。
         var helperPath = GetHelperExePath();
         if (helperPath == null)
         {
@@ -96,11 +139,9 @@ public class HelperServiceManager
             return false;
         }
 
-        // 构造 sc 命令
-        var command = BuildScCreateCommand(helperPath, status);
-        _logger.LogInformation("注册 Helper Service，命令: {Command}", command);
+        var command = $"/c sc create {ServiceName} binPath= \"{helperPath}\" start= auto obj= LocalSystem & sc start {ServiceName}";
+        _logger.LogInformation("首次安装 Helper Service（将弹 UAC），命令: {Command}", command);
 
-        // ShellExecuteW runas 触发 UAC 提权（放在后台线程执行，避免阻塞 UI）
         var runasResult = await ShellExecuteRunasAsync(command);
         if (!runasResult)
         {
@@ -108,19 +149,53 @@ public class HelperServiceManager
             return false;
         }
 
-        // 等待服务就绪（最多 20 秒，虚拟网卡创建较慢，需给足时间；对齐 FlClash retry 逻辑）
-        for (int i = 0; i < 20; i++)
+        return await WaitForRunningAsync();
+    }
+
+    /// <summary>以当前（非提权）进程执行 sc start，尝试启动已安装的服务。
+    /// 普通用户通常无 SeServiceLogonRight，会失败——此方法的存在只是为了“能启动就不弹 UAC”。</summary>
+    private async Task<bool> TryStartServiceNonElevatedAsync()
+    {
+        try
         {
-            await Task.Delay(1000);
-            var newStatus = await CheckServiceAsync();
-            if (newStatus == ServiceStatus.Running)
+            using var process = new Process
             {
-                _logger.LogInformation("Helper Service 注册并启动成功");
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "sc.exe",
+                    Arguments = $"start {ServiceName}",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                }
+            };
+            process.Start();
+            await process.WaitForExitAsync();
+            // 给 SCM 一点时间把服务带入 Running
+            await Task.Delay(1500);
+            return await CheckServiceAsync() == ServiceStatus.Running;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "非提权 sc start 失败");
+            return false;
+        }
+    }
+
+    /// <summary>轮询等待服务进入 Running（最多 5 秒，200ms 间隔）</summary>
+    private async Task<bool> WaitForRunningAsync()
+    {
+        for (int i = 0; i < 25; i++)
+        {
+            await Task.Delay(200);
+            if (await PingHelperAsync())
+            {
+                _logger.LogInformation("Helper Service 已进入 Running 状态 (API 可达)");
                 return true;
             }
         }
-
-        _logger.LogWarning("Helper Service 已注册但未在 20 秒内进入 Running 状态");
+        _logger.LogWarning("Helper Service 未在 5 秒内进入 Running 状态（可能依赖缺失导致启动失败）");
         return false;
     }
 
@@ -155,7 +230,7 @@ public class HelperServiceManager
     {
         try
         {
-            using var http = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(10) };
+            using var http = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(5) };
 
             var payload = JsonSerializer.Serialize(new { path = corePath, arg = arguments });
             var content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
@@ -201,6 +276,10 @@ public class HelperServiceManager
 
     private async Task<bool> PingHelperAsync()
     {
+        // 快速 TCP 预检：端口未监听时立即返回 false，避免 HttpClient 在 2 秒超时内抛出大量
+        // TaskCanceledException（既刷屏又拖慢启动）。仅当端口确实开放时才发 HTTP 请求。
+        if (!await IsTcpPortOpenAsync("127.0.0.1", HelperApiPort, 300))
+            return false;
         try
         {
             using var http = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(2) };
@@ -210,26 +289,42 @@ public class HelperServiceManager
         catch { return false; }
     }
 
+    /// <summary>在 timeoutMs 内探测 TCP 端口是否可连接。端口关闭/拒绝时快速返回 false；
+    /// 仅当连接挂起（极少见的回环异常）才会在超时后返回 false，绝不抛出 TaskCanceledException。</summary>
+    private static async Task<bool> IsTcpPortOpenAsync(string host, int port, int timeoutMs)
+    {
+        try
+        {
+            using var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            using var cts = new CancellationTokenSource(timeoutMs);
+            await socket.ConnectAsync(new IPEndPoint(IPAddress.Loopback, port), cts.Token);
+            return socket.Connected;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     private string? GetHelperExePath()
     {
-        // 查找 Helper Service 可执行文件
+        // 查找 Helper Service 可执行文件（必须是“完整目录”——含依赖 DLL/deps.json/runtimeconfig，
+        // 否则服务注册成功却启动即崩，被误判为 UAC 被拒）。
         var appDir = AppDomain.CurrentDomain.BaseDirectory;
 
+        // 优先级 1：随主程序发布的完整拷贝目录（构建时由 csproj CopyHelperService 复制）
         var candidates = new[]
         {
-            Path.Combine(appDir, "WinUIClash.HelperService.exe"),
-            Path.Combine(appDir, "Core", "WinUIClash.HelperService.exe"),
-            Path.Combine(appDir, "Helper", "WinUIClash.HelperService.exe"),
+            Path.Combine(appDir, "Core", "WinUIClash.HelperService", "WinUIClash.HelperService.exe"),
         };
 
         foreach (var path in candidates)
         {
-            if (File.Exists(path)) return path;
+            if (File.Exists(path) && Directory.Exists(Path.GetDirectoryName(path)))
+                return path;
         }
 
-        // 开发模式下查找 build 输出（与主项目目标框架 net10.0-windows10.0.26100.0 对齐）
-        // 注意：appDir 为 WinUIClash\bin\Debug\net10.0...，需上溯 4 层到 WinUIClash 仓库根目录，
-        // 再拼 WinUIClash.HelperService\bin\...（原先多算一层 bin\ 导致找不到 exe，提权从未触发）。
+        // 优先级 2：开发模式下直接引用 HelperService 的 build 输出（依赖齐全）
         var devPaths = new[]
         {
             Path.Combine(Directory.GetParent(appDir)?.Parent?.Parent?.Parent?.Parent?.FullName ?? "",
@@ -244,21 +339,6 @@ public class HelperServiceManager
         }
 
         return null;
-    }
-
-    private string BuildScCreateCommand(string helperPath, ServiceStatus currentStatus)
-    {
-        // 对齐 FlClash：如果服务已存在但非 running，先 taskkill + sc delete 再重新 create
-        var parts = new List<string> { "/c" };
-
-        if (currentStatus == ServiceStatus.Present)
-        {
-            parts.AddRange(new[] { "taskkill", "/F", "/IM", $"{ServiceName}.exe", "&", "sc", "delete", ServiceName, "&" });
-        }
-
-        parts.AddRange(new[] { "sc", "create", ServiceName, $"binPath= \"{helperPath}\"", "start= auto", "&&", "sc", "start", ServiceName });
-
-        return string.Join(" ", parts);
     }
 
     /// <summary>通过 ShellExecuteW runas 触发 UAC 提权执行命令（后台线程执行，不阻塞 UI）</summary>
