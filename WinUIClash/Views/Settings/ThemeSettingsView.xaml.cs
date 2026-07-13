@@ -14,7 +14,8 @@ public sealed partial class ThemeSettingsView : UserControl
     {
         ViewModel = ServiceLocator.Get<ThemeSettingsViewModel>();
         InitializeComponent();
-        Loaded += (_, _) => UpdateColorSelection();
+        Loaded += (_, _) => { Bindings.Update(); UpdateColorSelection(); };
+        Unloaded += (_, _) => Bindings.StopTracking();
     }
 
     private void Color_Click(object sender, RoutedEventArgs e)

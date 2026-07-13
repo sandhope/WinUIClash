@@ -67,7 +67,8 @@ public class NullToVisibilityConverter : IValueConverter
 }
 
 /// <summary>
-/// 代理延迟 → 颜色 (绿/黄/红/灰)
+/// 代理延迟 → 颜色 (绿/黄/红/灰)。<br/>
+/// 使用系统主题资源，确保在 Light/Dark 主题下均有良好的对比度。
 /// </summary>
 public class DelayToColorConverter : IValueConverter
 {
@@ -75,10 +76,20 @@ public class DelayToColorConverter : IValueConverter
     {
         if (value is int delay)
         {
-            if (delay <= 0) return new SolidColorBrush(Color.FromArgb(255, 130, 130, 130));
-            if (delay < 100) return new SolidColorBrush(Color.FromArgb(255, 76, 175, 80));
-            if (delay < 300) return new SolidColorBrush(Color.FromArgb(255, 255, 193, 7));
-            return new SolidColorBrush(Color.FromArgb(255, 244, 67, 54));
+            if (delay <= 0) return GetBrush("TextFillColorDisabled");
+            if (delay < 100) return GetBrush("SystemFillColorSuccess");
+            if (delay < 300) return GetBrush("SystemFillColorCaution");
+            return GetBrush("SystemFillColorCritical");
+        }
+        return GetBrush("TextFillColorDisabled");
+    }
+
+    private static Brush GetBrush(string resourceKey)
+    {
+        if (Application.Current.Resources.TryGetValue(resourceKey, out var val))
+        {
+            if (val is Color color) return new SolidColorBrush(color);
+            if (val is Brush brush) return brush;
         }
         return new SolidColorBrush(Color.FromArgb(255, 130, 130, 130));
     }

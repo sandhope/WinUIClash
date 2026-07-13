@@ -13,6 +13,7 @@ public sealed partial class AppSettingsView : UserControl
     {
         ViewModel = ServiceLocator.Get<AppSettingsViewModel>();
         InitializeComponent();
+        Unloaded += (_, _) => Bindings.StopTracking();
     }
 
     private async void ExportSettings_Click(object sender, RoutedEventArgs e)

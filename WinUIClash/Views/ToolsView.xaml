@@ -19,7 +19,7 @@
 
         <!-- 主页：设置列表 -->
         <ScrollViewer Grid.Row="1" x:Name="MainPanel"
-                      Padding="24,16,24,16"
+                      Padding="24,16,24,0"
                       VerticalScrollBarVisibility="Auto"
                       Visibility="{x:Bind ViewModel.IsSubPage, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
             <StackPanel Spacing="24">

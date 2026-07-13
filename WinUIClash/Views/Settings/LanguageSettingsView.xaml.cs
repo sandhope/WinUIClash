@@ -12,5 +12,6 @@ public sealed partial class LanguageSettingsView : UserControl
     {
         ViewModel = ServiceLocator.Get<LanguageSettingsViewModel>();
         InitializeComponent();
+        Unloaded += (_, _) => Bindings.StopTracking();
     }
 }

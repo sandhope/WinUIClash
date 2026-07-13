@@ -8,7 +8,7 @@
     xmlns:models="using:WinUIClash.Models"
     mc:Ignorable="d">
 
-    <Grid Padding="24,16">
+    <Grid Padding="24,16,24,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />

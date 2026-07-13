@@ -16,7 +16,7 @@
 
         <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource S}, Path=ResTitle_Text}" FontSize="20" FontWeight="SemiBold" Margin="24,16,24,0" />
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,16,24,16">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,16,24,0">
             <StackPanel Spacing="20">
                 <!-- Geo 选项 -->
                 <StackPanel Spacing="8">
