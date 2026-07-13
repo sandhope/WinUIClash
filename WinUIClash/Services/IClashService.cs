@@ -75,6 +75,7 @@ public interface IClashService
     // ── 内存 ──
     Task<long> GetCoreMemoryAsync();
     Task ForceGcAsync();
+    Task StartMemoryStreamAsync();
 
     // ── 缓存 ──
     Task FlushFakeIpCacheAsync();
@@ -83,4 +84,5 @@ public interface IClashService
     event Action<Traffic>? TrafficUpdated;
     event Action<CoreState>? CoreStateChanged;
     event Action<OutboundMode>? OutboundModeChanged;
+    event Action<long>? MemoryUpdated;
 }

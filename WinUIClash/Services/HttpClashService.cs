@@ -17,19 +17,23 @@ public class HttpClashService : IClashService, IDisposable
     private readonly HttpClient _http;
     private ClientWebSocket? _trafficWs;
     private ClientWebSocket? _logWs;
+    private ClientWebSocket? _memoryWs;
     private CancellationTokenSource? _trafficCts;
     private CancellationTokenSource? _logCts;
+    private CancellationTokenSource? _memoryCts;
 
     private CoreState _coreState = CoreState.Stopped;
     private Traffic _currentTraffic = new();
     private Traffic _totalTraffic = new();
     private OutboundMode _outboundMode = OutboundMode.Rule;
+    private long _currentMemory = 0;
 
     public CoreState CoreState => _coreState;
     public event Action<Traffic>? TrafficUpdated;
     public event Action<CoreState>? CoreStateChanged;
     public event Action<OutboundMode>? OutboundModeChanged;
     public event Action<LogEntry>? LogReceived;
+    public event Action<long>? MemoryUpdated;
 
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
@@ -83,6 +87,7 @@ public class HttpClashService : IClashService, IDisposable
     public Task ShutdownAsync()
     {
         StopTrafficStream();
+        StopMemoryStream();
         _coreState = CoreState.Stopped;
         CoreStateChanged?.Invoke(_coreState);
         return Task.CompletedTask;
@@ -157,6 +162,43 @@ public class HttpClashService : IClashService, IDisposable
         _trafficCts?.Cancel();
         _trafficWs?.Dispose();
         _trafficWs = null;
+    }
+
+    public async Task StartMemoryStreamAsync()
+    {
+        StopMemoryStream();
+        _memoryCts = new CancellationTokenSource();
+        _memoryWs = new ClientWebSocket();
+
+        var wsUri = new Uri($"ws://{_http.BaseAddress!.Authority}/memory?token={GetToken()}");
+        try
+        {
+            await _memoryWs.ConnectAsync(wsUri, _memoryCts.Token);
+
+            var buffer = new byte[1024];
+            while (_memoryWs.State == WebSocketState.Open && !_memoryCts.IsCancellationRequested)
+            {
+                var result = await _memoryWs.ReceiveAsync(buffer, _memoryCts.Token);
+                if (result.MessageType == WebSocketMessageType.Close) break;
+
+                var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                var dto = JsonSerializer.Deserialize<MemoryDto>(json, JsonOpts);
+                if (dto != null)
+                {
+                    _currentMemory = dto.Inuse;
+                    MemoryUpdated?.Invoke(_currentMemory);
+                }
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (WebSocketException) { }
+    }
+
+    private void StopMemoryStream()
+    {
+        _memoryCts?.Cancel();
+        _memoryWs?.Dispose();
+        _memoryWs = null;
     }
 
     // ── 出站模式 ──
@@ -622,19 +664,7 @@ public class HttpClashService : IClashService, IDisposable
 
     // ── 内存 ──
 
-    public async Task<long> GetCoreMemoryAsync()
-    {
-        try
-        {
-            var json = await _http.GetStringAsync("/memory");
-            var dto = JsonSerializer.Deserialize<MemoryDto>(json, JsonOpts);
-            return dto?.Inuse ?? 0;
-        }
-        catch
-        {
-            return 0;
-        }
-    }
+    public Task<long> GetCoreMemoryAsync() => Task.FromResult(_currentMemory);
 
     public async Task ForceGcAsync()
     {
@@ -776,6 +806,11 @@ public class HttpClashService : IClashService, IDisposable
     private class MemoryDto
     {
         public long Inuse { get; set; }
+        public long Alloc { get; set; }
+        public long Sys { get; set; }
+        public long Idle { get; set; }
+        public long Released { get; set; }
+        public long HeapObjects { get; set; }
     }
 
     private class VersionDto

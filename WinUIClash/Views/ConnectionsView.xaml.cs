@@ -22,8 +22,10 @@ public sealed partial class ConnectionsView : Page
         };
         Unloaded += (_, _) =>
         {
+            // 注意：不要在此 Dispose ViewModel —— ConnectionsViewModel 是单例，
+            // Dispose 会停掉 2 秒刷新定时器且其 _initialized 守卫导致再次进入页面时
+            // 无法重启，连接列表将永远空白。只停掉本页私有的详情刷新计时器即可。
             _detailTimer?.Stop();
-            ViewModel.Dispose();
         };
 
         // 监听选中连接变化 → 更新详情面板

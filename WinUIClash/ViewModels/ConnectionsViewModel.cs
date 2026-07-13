@@ -281,13 +281,16 @@ public partial class ConnectionsViewModel : ObservableObject, IDisposable
 
     public async Task InitializeAsync()
     {
-        if (_initialized) return;
-        _initialized = true;
-        PauseLabel = LocalizationHelper.GetString("ConnPause.Content");
-        await RefreshAsync();
+        if (!_initialized)
+        {
+            _initialized = true;
+            PauseLabel = LocalizationHelper.GetString("ConnPause.Content");
+            await RefreshAsync();
+        }
 
-        // 每 2 秒自动刷新
-        _refreshTimer = new Timer(async _ => await RefreshAsync(), null, 0, 2000);
+        // 确保刷新定时器在运行。ConnectionsViewModel 是单例，生命周期等同应用，
+        // 不应在页面 Unload 时被 Dispose 杀掉；定时器为空时（理论上不应发生）重新启动。
+        _refreshTimer ??= new Timer(async _ => await RefreshAsync(), null, 0, 2000);
     }
 
     public void Dispose()

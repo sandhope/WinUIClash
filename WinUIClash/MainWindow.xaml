@@ -109,18 +109,16 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Border Background="Transparent" Padding="0"
-                    IsHitTestVisible="False">
-                <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
-                            Margin="12,0,16,0">
-                    <Ellipse Width="8" Height="8" x:Name="StatusDot"
+            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
+                            Margin="12,0,12,0">
+                <Ellipse Width="8" Height="8" x:Name="StatusDot"
                              Fill="{ThemeResource SystemFillColorCritical}" />
-                    <TextBlock Text="{Binding Source={StaticResource S}, Path=StatusStopped_Text}" FontSize="11" x:Name="StatusText"
+                <TextBlock Text="{Binding Source={StaticResource S}, Path=StatusStopped_Text}" FontSize="11" x:Name="StatusText"
                                Opacity="0.6" />
-                </StackPanel>
-            </Border>
+            </StackPanel>
 
             <Border Grid.Column="1" Width="1" Margin="4,4"
                     Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
@@ -167,16 +165,16 @@
                 </StackPanel>
             </StackPanel>
 
-            <Button Grid.Column="8" Background="Transparent" BorderThickness="0" Padding="0"
-                    Click="StatusProxy_Click">
-                <StackPanel Orientation="Horizontal" Spacing="6"
-                            VerticalAlignment="Center" Margin="4,0,12,0">
-                    <fluent:SymbolIcon Symbol="ShieldCheckmark" FontSize="10"
+            <Border Grid.Column="8" Width="1" Margin="4,4"
+                    Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+            <StackPanel  Grid.Column="9" Orientation="Horizontal" Spacing="6"
+                            VerticalAlignment="Center" Margin="12,0,16,0">
+                <fluent:SymbolIcon Symbol="ShieldCheckmark" FontSize="10"
                                        x:Name="ProxyIcon" Opacity="0.3" />
-                    <TextBlock Text="{Binding Source={StaticResource S}, Path=StatusProxyLabel_Text}" FontSize="11" x:Name="ProxyText"
+                <TextBlock Text="{Binding Source={StaticResource S}, Path=StatusProxyLabel_Text}" FontSize="11" x:Name="ProxyText"
                                Opacity="0.3" />
-                </StackPanel>
-            </Button>
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>

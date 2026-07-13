@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
@@ -107,8 +108,8 @@ public class HelperServiceManager
             return false;
         }
 
-        // 等待服务就绪（最多 5 秒，对齐 FlClash retry 逻辑）
-        for (int i = 0; i < 5; i++)
+        // 等待服务就绪（最多 20 秒，虚拟网卡创建较慢，需给足时间；对齐 FlClash retry 逻辑）
+        for (int i = 0; i < 20; i++)
         {
             await Task.Delay(1000);
             var newStatus = await CheckServiceAsync();
@@ -119,7 +120,7 @@ public class HelperServiceManager
             }
         }
 
-        _logger.LogWarning("Helper Service 已注册但未在 5 秒内进入 Running 状态");
+        _logger.LogWarning("Helper Service 已注册但未在 20 秒内进入 Running 状态");
         return false;
     }
 
@@ -261,6 +262,7 @@ public class HelperServiceManager
     }
 
     /// <summary>通过 ShellExecuteW runas 触发 UAC 提权执行命令（后台线程执行，不阻塞 UI）</summary>
+    /// <returns>true = UAC 已批准且命令已执行（是否真的成功以 RegisterServiceAsync 轮询 CheckServiceAsync 为准）；false = 用户拒绝 UAC 或进程无法启动</returns>
     private Task<bool> ShellExecuteRunasAsync(string command)
     {
         return Task.Run(() =>
@@ -280,12 +282,23 @@ public class HelperServiceManager
                 using var process = Process.Start(startInfo);
                 if (process == null) return false;
 
-                process.WaitForExit(30000); // 等待 UAC + 命令执行（最多 30 秒）
-                return process.ExitCode == 0;
+                // 等待 UAC 确认 + 命令执行（最多 60 秒）。
+                // 注意：不再以 sc start 的退出码判定成败。虚拟网卡创建较慢，sc start 常在
+                // 服务尚未完全就绪时返回非 0，但服务随后会进入 Running 并成功创建网卡。
+                // 真正的成败交由 RegisterServiceAsync 后续的 CheckServiceAsync 轮询判定。
+                try { process.WaitForExit(60000); } catch { /* 超时也不影响轮询判定 */ }
+
+                return true; // 仅当 UAC 被拒绝（下方 catch，NativeErrorCode=1223）才返回 false
+            }
+            catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+            {
+                // 1223 = 用户取消了 UAC 提权
+                _logger.LogWarning("UAC 提权被用户拒绝");
+                return false;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "ShellExecuteW runas 失败（可能用户拒绝 UAC）");
+                _logger.LogWarning(ex, "ShellExecuteW runas 执行异常");
                 return false;
             }
         });

@@ -24,10 +24,16 @@ public sealed partial class ProxiesView : Page
             catch { /* 核心未运行或初始化出错时保持空状态，避免崩溃 */ }
         };
 
-        // 配置增删/切换后自动刷新代理列表（BUG-5：纯刷新，无新 UI）
-        ServiceLocator.Get<ProfilesViewModel>().ProfilesChanged += (_, _) =>
+        var profiles = ServiceLocator.Get<ProfilesViewModel>();
+
+        // 配置增删/切换后自动刷新代理列表（BUG-5：纯刷新，无新 UI）。
+        // 无条件刷新：GetProxyGroupsAsync 走 SafeFetchAsync，核心未就绪时返回空、不抛异常、不弹错误。
+        profiles.ProfilesChanged += (_, _) => _ = ViewModel.ReloadAsync();
+
+        // 当前激活配置变化时实时刷新（例如配置页切换/删除当前配置，而代理页正打开时）
+        profiles.PropertyChanged += (_, e) =>
         {
-            if (ServiceLocator.Get<IClashService>().CoreState == CoreState.Running)
+            if (e.PropertyName == nameof(ProfilesViewModel.ActiveProfile))
                 _ = ViewModel.ReloadAsync();
         };
 
@@ -42,9 +48,9 @@ public sealed partial class ProxiesView : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        // 每次进入代理页都重新拉取当前激活配置的代理组（绕过 InitializeAsync 的 _initialized 守卫）
-        if (ServiceLocator.Get<IClashService>().CoreState == CoreState.Running)
-            _ = ViewModel.ReloadAsync();
+        // 每次进入代理页都重新拉取当前激活配置的代理组（绕过 InitializeAsync 的 _initialized 守卫）。
+        // 无条件刷新：核心未就绪时 GetProxyGroupsAsync 返回空，不会报错。
+        _ = ViewModel.ReloadAsync();
     }
 
     private void GroupTab_Click(object sender, RoutedEventArgs e)
