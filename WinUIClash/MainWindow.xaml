@@ -169,7 +169,7 @@
                     Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
 
             <StackPanel  Grid.Column="9" Orientation="Horizontal" Spacing="6"
-                            VerticalAlignment="Center" Margin="12,0,16,0">
+                            VerticalAlignment="Center" Margin="10,0,16,0">
                 <fluent:SymbolIcon Symbol="ShieldCheckmark" FontSize="10"
                                        x:Name="ProxyIcon" Opacity="0.3" />
                 <TextBlock Text="{Binding Source={StaticResource S}, Path=StatusProxyLabel_Text}" FontSize="11" x:Name="ProxyText"
