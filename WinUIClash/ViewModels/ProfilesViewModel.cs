@@ -65,7 +65,7 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private async Task SelectProfileAsync(Profile? profile)
     {
-        if (profile == null) return;
+        if (profile == null || profile.IsActive) return;
         try
         {
             IsSwitching = true;
