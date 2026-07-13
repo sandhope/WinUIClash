@@ -82,6 +82,7 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
+    <PackageReference Include="Flags.Icons.WinUi" Version="3.3.0" />
     <PackageReference Include="FluentIcons.WinUI" Version="2.2.331" />
     <PackageReference Include="H.NotifyIcon.WinUI" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
@@ -113,9 +114,6 @@
        开发模式下 HelperService 的 bin 已存在，拷贝即可；打包时同理确保随包发布。 -->
   <Target Name="CopyHelperService" AfterTargets="Build">
     <MakeDir Directories="$(OutDir)Core" Condition="!Exists('$(OutDir)Core')" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\$(Configuration)\net10.0-windows10.0.26100.0\win-x64\WinUIClash.HelperService.exe"
-          DestinationFolder="$(OutDir)Core"
-          SkipUnchangedFiles="true"
-          Condition="Exists('$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\$(Configuration)\net10.0-windows10.0.26100.0\win-x64\WinUIClash.HelperService.exe')" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\$(Configuration)\net10.0-windows10.0.26100.0\win-x64\WinUIClash.HelperService.exe" DestinationFolder="$(OutDir)Core" SkipUnchangedFiles="true" Condition="Exists('$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\$(Configuration)\net10.0-windows10.0.26100.0\win-x64\WinUIClash.HelperService.exe')" />
   </Target>
 </Project>

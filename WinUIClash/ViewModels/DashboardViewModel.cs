@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Flags.Icons;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
@@ -333,7 +334,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     // ── 网络检测 ──
 
     [ObservableProperty] private string _externalIp = "";
-    [ObservableProperty] private string _countryFlag = "---";
+    [ObservableProperty] private LipisFlag _countryFlag = 0;
     [ObservableProperty] private bool _isCheckingIp;
 
     [RelayCommand]
@@ -349,7 +350,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         catch
         {
             ExternalIp = LocalizationHelper.GetString("DashIpFailed.Text");
-            CountryFlag = "❌";
+            CountryFlag = 0;
         }
         finally
         {
@@ -522,11 +523,9 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         _settings.PropertyChanged -= OnSettingsPropertyChanged;
     }
 
-    private static string CountryCodeToFlag(string code)
+    private static LipisFlag CountryCodeToFlag(string code)
     {
-        // 使用国家代码文本代替 Unicode 国旗表情，
-        // 因为 Windows 10 的 Segoe UI Emoji 字体不支持区域指示符国旗渲染（显示为白框）。
-        if (string.IsNullOrEmpty(code) || code.Length != 2) return "---";
-        return code.ToUpper();
+        if (string.IsNullOrEmpty(code) || code.Length != 2) return 0;
+        return Enum.TryParse<LipisFlag>(code, ignoreCase: true, out var flag) ? flag : 0;
     }
 }
