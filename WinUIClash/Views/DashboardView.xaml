@@ -29,7 +29,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource S}, Path=NavDashboard_Content}" FontSize="20" FontWeight="SemiBold" Margin="24,16,24,0" />
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,16,24,96">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,16,24,0">
             <StackPanel Spacing="24">
                 <Grid RowSpacing="16" ColumnSpacing="16">
                     <Grid.ColumnDefinitions>
