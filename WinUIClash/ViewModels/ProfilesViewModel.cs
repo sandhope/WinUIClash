@@ -220,6 +220,12 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             // 删除的是当前激活配置：自动切换到剩余第一个，保证代理页不会停留在已删除数据
             if (wasActive && Profiles.Count > 0)
                 await SelectProfileAsync(Profiles[0]);
+            else if (wasActive)
+            {
+                ActiveProfile = null;
+                await _clash.SwitchProfileAsync(string.Empty);
+                await _clash.SetOutboundModeAsync(Models.OutboundMode.Direct);
+            }
         }
         catch (Exception ex)
         {
