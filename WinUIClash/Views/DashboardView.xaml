@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:fluent="using:FluentIcons.WinUI"
     xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
+    xmlns:flag="using:Flags.Icons.WinUi"
     xmlns:vm="using:WinUIClash.ViewModels"
     mc:Ignorable="d">
 
@@ -241,16 +242,13 @@
                                     </Button>
                                 </StackPanel>
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                                    <Border CornerRadius="4" Padding="6,3"
-                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
-                                        VerticalAlignment="Center">
-                                        <TextBlock Text="{x:Bind ViewModel.CountryFlag, Mode=OneWay}"
-                                               FontSize="12" FontWeight="SemiBold"
-                                               Foreground="White" />
+                                    <Border CornerRadius="3" VerticalAlignment="Center">
+                                        <flag:FlagIcon Lipis="{x:Bind ViewModel.CountryFlag, Mode=OneWay}"
+                                              Width="20" Height="15" />
                                     </Border>
                                     <TextBlock Text="{x:Bind ViewModel.ExternalIp, Mode=OneWay}"
-                                           VerticalAlignment="Center" FontSize="13"
-                                           IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis" />
+                                   VerticalAlignment="Center" FontSize="13"
+                                   IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis" />
                                     <Button Padding="4" Background="Transparent" BorderThickness="0"
                                         VerticalAlignment="Center"
                                         Click="CopyExternalIp_Click"
