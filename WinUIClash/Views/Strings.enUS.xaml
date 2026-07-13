@@ -35,7 +35,6 @@
     <x:String x:Key="DashModeDirectDesc.Text">All traffic direct</x:String>
     <x:String x:Key="DashTrafficStats.Text">Traffic Statistics</x:String>
     <x:String x:Key="DashNetworkInfo.Text">Network Info</x:String>
-    <x:String x:Key="DashResetTraffic.Content">Reset</x:String>
     <x:String x:Key="DashCheckIp.Content">Check IP</x:String>
     <x:String x:Key="DashIpChecking.Text">Checking…</x:String>
     <x:String x:Key="DashIpFailed.Text">Check failed</x:String>

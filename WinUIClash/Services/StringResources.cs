@@ -77,7 +77,6 @@ public class StringResources : INotifyPropertyChanged
     public string DashModeDirectDesc_Text => Get("DashModeDirectDesc.Text");
     public string DashTrafficStats_Text => Get("DashTrafficStats.Text");
     public string DashNetworkInfo_Text => Get("DashNetworkInfo.Text");
-    public string DashResetTraffic_Content => Get("DashResetTraffic.Content");
     public string DashCheckIp_Content => Get("DashCheckIp.Content");
     public string DashIpChecking_Text => Get("DashIpChecking.Text");
     public string DashIpFailed_Text => Get("DashIpFailed.Text");
