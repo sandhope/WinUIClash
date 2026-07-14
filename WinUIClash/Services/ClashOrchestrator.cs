@@ -307,7 +307,10 @@ public class ClashOrchestrator : IClashService
             if (wasRunning)
                 await _httpClashService.ShutdownAsync();
 
-            // 经 Helper(SYSTEM) 拉起的核心，由 Helper API 停止；否则直接停止本地进程
+            // 经 Helper(SYSTEM) 拉起的核心，由 Helper API 停止（同时清理 TUN/wintun 虚拟网卡）；
+            // 否则直接停止本地进程。
+            // ⚠️ 关键退出契约：此处只 Kill 核心进程，绝不卸载/停止 WinUIClashHelperService 本身——
+            // 服务保持常驻（开机自启、后台待命），低权限 UI 退出时既无权也无需销毁 SYSTEM 服务。
             if (_launchedViaHelper)
             {
                 await _helperServiceManager.StopCoreViaHelperAsync();
@@ -316,6 +319,11 @@ public class ClashOrchestrator : IClashService
             {
                 await _processService.StopAsync();
             }
+
+            // 兜底：无论 Helper 是否可达，强制确保本 App 对应的 mihomo 核心进程被结束，
+            // 释放本地端口（7890/9090）并卸载 TUN 虚拟网卡，避免用户退出 UI 后电脑断网
+            // 或下次启动因“Address already in use”而崩溃。服务常驻规则不受影响。
+            try { await _processService.KillByBinaryPathAsync(); } catch { }
 
             SetCoreState(CoreState.Stopped);
 

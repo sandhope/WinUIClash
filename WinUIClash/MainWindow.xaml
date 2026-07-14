@@ -24,7 +24,9 @@
         <!-- 自定义标题栏：接管非客户区，跟随应用明暗主题（修复深色模式下顶部仍为浅色） -->
         <TitleBar x:Name="AppTitleBar"
                   Title="WinUIClash"
-                  Grid.Row="0">
+                  Grid.Row="0"
+                  IsPaneToggleButtonVisible="True"
+                  PaneToggleRequested="AppTitleBar_PaneToggleRequested">
             <TitleBar.IconSource>
                 <ImageIconSource ImageSource="ms-appx:///Assets/AppIcon.ico" />
             </TitleBar.IconSource>
@@ -46,6 +48,7 @@
             OpenPaneLength="200"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False"
+            IsPaneToggleButtonVisible="False"
             AlwaysShowHeader="False"
             SelectionChanged="RootNavigation_SelectionChanged">
 

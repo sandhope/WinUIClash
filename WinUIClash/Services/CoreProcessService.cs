@@ -285,6 +285,51 @@ public class CoreProcessService : IDisposable
     }
 
     /// <summary>
+    /// 强制结束所有由本 App 二进制路径启动的 mihomo 进程（不依赖本服务是否跟踪该进程）。
+    /// 用于 App 彻底退出时的兜底：即使 Helper Service 不可达 / 崩溃，也确保核心进程被清理，
+    /// 释放本地端口（7890/9090）并卸载 TUN 虚拟网卡，避免用户退出 UI 后电脑断网或下次启动端口冲突。
+    /// 按完整二进制路径精确匹配，避免误杀其他 mihomo 实例。
+    /// </summary>
+    public async Task KillByBinaryPathAsync()
+    {
+        // 1. 本服务跟踪的进程若仍存活，先正常停止（含优雅 REST 关闭 + Job Object 回收）
+        if (_process != null && !_process.HasExited)
+        {
+            try { await StopAsync(); } catch { }
+        }
+
+        // 2. 兜底扫描：按二进制完整路径匹配，强制杀掉任何残留的 mihomo 进程
+        if (string.IsNullOrWhiteSpace(_binaryPath)) return;
+        var processName = Path.GetFileNameWithoutExtension(_binaryPath);
+        if (string.IsNullOrWhiteSpace(processName)) return;
+
+        try
+        {
+            foreach (var proc in Process.GetProcessesByName(processName))
+            {
+                try
+                {
+                    if (proc.HasExited) continue;
+                    // 仅当主模块路径与本 App 二进制一致时才杀（精确匹配，避免误杀其他实例）
+                    string? modulePath = null;
+                    try { modulePath = proc.MainModule?.FileName; }
+                    catch { /* SYSTEM 进程可能无法读取主模块路径，跳过 */ }
+
+                    if (!string.IsNullOrEmpty(modulePath) &&
+                        string.Equals(modulePath, _binaryPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        proc.Kill(true);
+                        try { proc.WaitForExit(2000); } catch { }
+                    }
+                }
+                catch { /* 忽略无法访问的进程 */ }
+                finally { proc.Dispose(); }
+            }
+        }
+        catch { /* 扫描失败不影响主流程 */ }
+    }
+
+    /// <summary>
     /// 重启核心进程（用于配置变更后）
     /// </summary>
     public async Task RestartAsync()

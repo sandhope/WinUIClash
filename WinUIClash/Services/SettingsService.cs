@@ -87,7 +87,7 @@ public class SettingsService
             _settings.TunMode = dto.TunMode;
             if (dto.TunStack != null) _settings.TunStack = dto.TunStack;
 
-            // 窗口状态（与 WinSing 一致：0 表示使用系统默认尺寸，不再强制 1280×800）
+            // 窗口状态（0 表示使用系统默认尺寸，不再强制 1280×800）
             _settings.WindowWidth = dto.WindowWidth;
             _settings.WindowHeight = dto.WindowHeight;
             _settings.WindowX = dto.WindowX;
@@ -231,7 +231,7 @@ internal class SettingsDto
     public bool TunMode { get; set; }
     public string TunStack { get; set; } = "mixed";
 
-    // 窗口状态（0 = 使用系统默认尺寸，与 WinSing 行为一致）
+    // 窗口状态（0 = 使用系统默认尺寸）
     public int WindowWidth { get; set; }
     public int WindowHeight { get; set; }
     public int WindowX { get; set; }

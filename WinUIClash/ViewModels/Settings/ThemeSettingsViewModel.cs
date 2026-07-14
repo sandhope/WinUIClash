@@ -170,7 +170,6 @@ public partial class ThemeSettingsViewModel : ObservableObject
     /// 接管标题栏后这些按钮由 DWM 绘制、默认跟随系统主题；当应用被强制为与系统
     /// 不同的主题（例如 Ctrl+Shift+T 切到深色而系统仍是浅色）时，按钮会因配色相反
     /// 而几乎不可见。这里按应用有效主题同步，保证明暗两种模式下按钮始终清晰可读，
-    /// 观感与 WinSing 一致。
     /// </summary>
     private static void ApplyCaptionButtonColors(bool dark)
     {
