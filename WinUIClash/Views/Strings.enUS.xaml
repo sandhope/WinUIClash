@@ -388,6 +388,10 @@
     <!-- Error Notifications -->
     <x:String x:Key="ErrorUpdateTitle.Text">Update Failed</x:String>
     <x:String x:Key="ErrorSyncTitle.Text">Sync Failed</x:String>
+    <x:String x:Key="ConfigValidationFailedTitle.Text">Config Validation Failed</x:String>
+    <x:String x:Key="ConfigValidationFailedMsg.Text">Subscription config failed validation, skipped: {0}</x:String>
+    <x:String x:Key="ConfigValidationShapeError.Text">Config missing required top-level fields (proxies / proxy-groups / rules)</x:String>
+    <x:String x:Key="ConfigValidationTimeout.Text">Config validation timed out (mihomo -t did not finish within 15s)</x:String>
     <x:String x:Key="ErrorDeleteTitle.Text">Delete Failed</x:String>
     <x:String x:Key="ErrorCloseTitle.Text">Close Failed</x:String>
 

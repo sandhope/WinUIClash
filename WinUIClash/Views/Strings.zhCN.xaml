@@ -389,6 +389,10 @@
     <!-- Error Notifications -->
     <x:String x:Key="ErrorUpdateTitle.Text">更新失败</x:String>
     <x:String x:Key="ErrorSyncTitle.Text">同步失败</x:String>
+    <x:String x:Key="ConfigValidationFailedTitle.Text">配置校验失败</x:String>
+    <x:String x:Key="ConfigValidationFailedMsg.Text">订阅配置未通过校验，已跳过：{0}</x:String>
+    <x:String x:Key="ConfigValidationShapeError.Text">配置缺少必要的顶级字段（proxies / proxy-groups / rules）</x:String>
+    <x:String x:Key="ConfigValidationTimeout.Text">配置校验超时（mihomo -t 未在 15 秒内完成）</x:String>
     <x:String x:Key="ErrorDeleteTitle.Text">删除失败</x:String>
     <x:String x:Key="ErrorCloseTitle.Text">关闭失败</x:String>
 

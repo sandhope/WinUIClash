@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Net.Http;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,6 +16,7 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
     private readonly IClashService _clash;
     private readonly NotificationService _notification;
     private readonly ProfileStorageService _storage;
+    private readonly ConfigValidationService _validator;
     private Timer? _autoUpdateTimer;
     private bool _initialized;
 
@@ -23,11 +25,12 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
 
     private void RaiseProfilesChanged() => ProfilesChanged?.Invoke(this, EventArgs.Empty);
 
-    public ProfilesViewModel(IClashService clash, NotificationService notification)
+    public ProfilesViewModel(IClashService clash, NotificationService notification, ConfigValidationService validator)
     {
         _clash = clash;
         _notification = notification;
         _storage = new ProfileStorageService();
+        _validator = validator;
     }
 
     [ObservableProperty] private ObservableCollection<Profile> _profiles = new();
@@ -118,13 +121,19 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             if (string.IsNullOrWhiteSpace(configPath))
                 configPath = _storage.GetConfigPath(profile.Id);
 
-            // If this profile has a subscription URL, download the latest config
+            // 订阅 URL：下载 + 校验（P0），校验失败保留旧内容
             if (!string.IsNullOrEmpty(profile.Url))
             {
-                var result = await _storage.DownloadAndSaveAsync(profile.Id, profile.Url);
-                if (result.SubInfo != null)
+                var oldContent = File.Exists(profile.Path) ? await File.ReadAllTextAsync(profile.Path) : null;
+                var (ok, subInfo) = await TryDownloadValidatedAsync(profile.Id, profile.Url, oldContent);
+                if (!ok)
                 {
-                    profile.SubscriptionInfo = result.SubInfo;
+                    RaiseProfilesChanged();
+                    return; // 校验失败：已提示并回滚到旧内容
+                }
+                if (subInfo != null)
+                {
+                    profile.SubscriptionInfo = subInfo;
                     profile.NotifySubscriptionChanged();
                 }
             }
@@ -177,10 +186,14 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
                 if (string.IsNullOrWhiteSpace(configPath))
                     configPath = _storage.GetConfigPath(p.Id);
 
-                var result = await _storage.DownloadAndSaveAsync(p.Id, p.Url!);
-                if (result.SubInfo != null)
+                var oldContent = File.Exists(p.Path) ? await File.ReadAllTextAsync(p.Path) : null;
+                var (ok, subInfo) = await TryDownloadValidatedAsync(p.Id, p.Url!, oldContent);
+                if (!ok)
+                    continue; // 校验失败：保留旧内容，跳过此订阅
+
+                if (subInfo != null)
                 {
-                    p.SubscriptionInfo = result.SubInfo;
+                    p.SubscriptionInfo = subInfo;
                     p.NotifySubscriptionChanged();
                 }
 
@@ -244,6 +257,44 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         Profiles.Any(p => p.Url == url);
 
     /// <summary>
+    /// 下载订阅并做配置校验（P0：防止无效配置导致核心启动失败）。
+    /// 校验通过才写入本地；校验失败则回滚到 oldContent（可为 null），并通过通知提示用户。
+    /// 返回 (是否成功, 订阅信息)；失败时已提示。
+    /// </summary>
+    private async Task<(bool ok, SubscriptionInfo? subInfo)> TryDownloadValidatedAsync(
+        string profileId, string url, string? oldContent)
+    {
+        string content;
+        SubscriptionInfo? subInfo;
+        try
+        {
+            (content, subInfo) = await _storage.DownloadAsync(url);
+        }
+        catch (Exception ex)
+        {
+            _notification.Warning(
+                LocalizationHelper.GetString("ErrorSyncTitle.Text"),
+                ex.Message);
+            return (false, null);
+        }
+
+        var validation = await _validator.ValidateConfigTextAsync(content);
+        if (!validation.Valid)
+        {
+            // 回滚到旧内容（导入场景 oldContent 为 null，则不落盘）
+            if (!string.IsNullOrEmpty(oldContent))
+                await _storage.SaveContentAsync(profileId, oldContent!);
+            _notification.Error(
+                LocalizationHelper.GetString("ConfigValidationFailedTitle.Text"),
+                string.Format(LocalizationHelper.GetString("ConfigValidationFailedMsg.Text"), validation.Error ?? ""));
+            return (false, null);
+        }
+
+        await _storage.SaveContentAsync(profileId, content);
+        return (true, subInfo);
+    }
+
+    /// <summary>
     /// 从 URL 导入订阅配置
     /// </summary>
     public async Task ImportProfileAsync(string url, string? name)
@@ -285,21 +336,15 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             IsActive = false,
         };
 
-        // 首次导入尝试下载订阅配置
-        try
+        // 下载并校验订阅配置（P0：无效配置不导入）
+        var (ok, subInfo) = await TryDownloadValidatedAsync(profileId, url, null);
+        if (!ok)
+            return; // TryDownloadValidatedAsync 已提示错误
+
+        if (subInfo != null)
         {
-            var result = await _storage.DownloadAndSaveAsync(profileId, url);
-            if (result.SubInfo != null)
-            {
-                profile.SubscriptionInfo = result.SubInfo;
-                profile.NotifySubscriptionChanged();
-            }
-        }
-        catch (Exception ex)
-        {
-            _notification.Warning(
-                LocalizationHelper.GetString("ErrorSyncTitle.Text"),
-                ex.Message);
+            profile.SubscriptionInfo = subInfo;
+            profile.NotifySubscriptionChanged();
         }
 
         Profiles.Add(profile);
@@ -326,26 +371,31 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
 
         if (newUrl != profile.Url)
         {
-            profile.Url = newUrl;
-            // If URL changed and there's content, re-download
-            if (!string.IsNullOrWhiteSpace(newUrl))
+            // 清空 URL：直接保存即可
+            if (string.IsNullOrWhiteSpace(newUrl))
             {
-                try
+                profile.Url = newUrl;
+            }
+            else
+            {
+                // 备份旧 URL 与内容，校验失败回滚
+                var oldUrl = profile.Url;
+                var oldContent = File.Exists(profile.Path) ? await File.ReadAllTextAsync(profile.Path) : null;
+                profile.Url = newUrl;
+                var (ok, subInfo) = await TryDownloadValidatedAsync(profileId, newUrl, oldContent);
+                if (!ok)
                 {
-                    var result = await _storage.DownloadAndSaveAsync(profileId, newUrl);
-                    if (result.SubInfo != null)
-                    {
-                        profile.SubscriptionInfo = result.SubInfo;
-                        profile.NotifySubscriptionChanged();
-                    }
-                    profile.LastUpdate = DateTime.Now;
+                    profile.Url = oldUrl; // 回滚 URL
+                    await SaveProfileListAsync();
+                    RaiseProfilesChanged();
+                    return;
                 }
-                catch (Exception ex)
+                if (subInfo != null)
                 {
-                    _notification.Warning(
-                        LocalizationHelper.GetString("ErrorSyncTitle.Text"),
-                        ex.Message);
+                    profile.SubscriptionInfo = subInfo;
+                    profile.NotifySubscriptionChanged();
                 }
+                profile.LastUpdate = DateTime.Now;
             }
         }
 
