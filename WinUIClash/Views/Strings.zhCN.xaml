@@ -231,8 +231,8 @@
     <x:String x:Key="TrayTunMode.Text">TUN 模式</x:String>
     <x:String x:Key="TrayForceGc.Text">强制 GC</x:String>
     <x:String x:Key="TrayRestartCore.Text">重启核心</x:String>
-    <x:String x:Key="TrayConnectProxy.Text">连接代理</x:String>
-    <x:String x:Key="TrayDisconnectProxy.Text">断开代理</x:String>
+    <x:String x:Key="TrayConnectProxy.Text">启动代理</x:String>
+    <x:String x:Key="TrayDisconnectProxy.Text">停止代理</x:String>
 
     <!-- Time Formatting -->
     <x:String x:Key="TimeJustNow.Text">刚刚</x:String>

@@ -231,8 +231,8 @@
     <x:String x:Key="TrayTunMode.Text">TUN Mode</x:String>
     <x:String x:Key="TrayForceGc.Text">Force GC</x:String>
     <x:String x:Key="TrayRestartCore.Text">Restart Core</x:String>
-    <x:String x:Key="TrayConnectProxy.Text">Connect Proxy</x:String>
-    <x:String x:Key="TrayDisconnectProxy.Text">Disconnect Proxy</x:String>
+    <x:String x:Key="TrayConnectProxy.Text">Start Proxy</x:String>
+    <x:String x:Key="TrayDisconnectProxy.Text">Stop Proxy</x:String>
 
     <!-- Time Formatting -->
     <x:String x:Key="TimeJustNow.Text">just now</x:String>
