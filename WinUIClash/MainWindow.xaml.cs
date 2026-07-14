@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -35,7 +35,7 @@ public sealed partial class MainWindow : Window
         ["Tools"]       = typeof(Views.ToolsView),
     };
 
-    private TaskbarIcon? _trayIcon;
+    private TrayIconController? _tray;
     private bool _isExiting;
     private bool _cleanedUp;
     private readonly DispatcherQueue _dispatcher;
@@ -44,11 +44,6 @@ public sealed partial class MainWindow : Window
     private IClashService? _clash;
     private AppSettings? _appSettings;
     private ViewModels.DashboardViewModel? _dashboardVm;
-
-    // 托盘菜单项（需要动态更新状态）
-    private ToggleMenuFlyoutItem? _trayProxyItem;
-    private ToggleMenuFlyoutItem? _trayConnectItem;
-    private MenuFlyoutSubItem? _trayProfileMenu;
 
     // 状态栏连接数轮询定时器
     private DispatcherTimer? _statusBarConnTimer;
@@ -85,8 +80,8 @@ public sealed partial class MainWindow : Window
             }
         };
 
-        // 初始化系统托盘
-        InitTrayIcon();
+        // 初始化系统托盘（逻辑已抽离至 TrayIconController）
+        _tray = new TrayIconController(ShowWindow, ExitApp, _dispatcher);
 
         // 订阅状态栏数据源
         InitStatusBar();
@@ -705,19 +700,11 @@ public sealed partial class MainWindow : Window
             ? Services.LocalizationHelper.GetString("StatusProxyActive.Text")
             : Services.LocalizationHelper.GetString("ProxyLabel.Text");
 
-        if (_trayProxyItem != null)
-            _trayProxyItem.IsChecked = isActive;
-
         UpdateTrayTooltip();
     }
 
-    private System.Drawing.Icon? _currentTrayIcon;
-    private CoreState _lastTrayIconState = CoreState.Stopped;
-
     private void UpdateTrayTooltip()
     {
-        if (_trayIcon == null) return;
-
         var state = _clash?.CoreState ?? CoreState.Stopped;
         var stateText = state switch
         {
@@ -732,307 +719,22 @@ public sealed partial class MainWindow : Window
         var proxy = _appSettings?.SystemProxy == true ? "ON" : "OFF";
         var tun = _appSettings?.TunMode == true ? "ON" : "OFF";
 
-        _trayIcon.ToolTipText = $"WinUIClash\n{stateText}\n↑{up}  ↓{down}\n{LocalizationHelper.GetString("ConnCountSuffix.Text").Trim()}: {_lastConnectionCount}\n{LocalizationHelper.GetString("ProxyLabel.Text")}: {proxy}\nTUN: {tun}";
+        var tip = $"WinUIClash\n{stateText}\n↑{up}  ↓{down}\n{LocalizationHelper.GetString("ConnCountSuffix.Text").Trim()}: {_lastConnectionCount}\n{LocalizationHelper.GetString("ProxyLabel.Text")}: {proxy}\nTUN: {tun}";
 
         // Append active profile name if available
         try
         {
             var profilesVm = ServiceLocator.Get<ViewModels.ProfilesViewModel>();
             if (profilesVm.ActiveProfile != null)
-                _trayIcon.ToolTipText += $"\n{LocalizationHelper.GetString("NavProfiles.Content")}: {profilesVm.ActiveProfile.Label}";
+                tip += $"\n{LocalizationHelper.GetString("NavProfiles.Content")}: {profilesVm.ActiveProfile.Label}";
         }
         catch { }
 
-        // Update tray icon color based on core state
-        if (state != _lastTrayIconState)
+        if (_tray != null)
         {
-            _lastTrayIconState = state;
-            var iconColor = state switch
-            {
-                CoreState.Running => System.Drawing.Color.FromArgb(76, 175, 80),   // Green
-                CoreState.Starting => System.Drawing.Color.FromArgb(255, 193, 7),  // Yellow
-                CoreState.Stopping => System.Drawing.Color.FromArgb(255, 152, 0),  // Orange
-                _ => System.Drawing.Color.FromArgb(255, 107, 107),                 // Red
-            };
-            var oldIcon = _currentTrayIcon;
-            _currentTrayIcon = CreateTrayIcon(iconColor);
-            _trayIcon.Icon = _currentTrayIcon;
-            oldIcon?.Dispose();
+            _tray.ToolTipText = tip;
+            _tray.UpdateIcon(state);
         }
-    }
-
-    // ── 系统托盘 ──────────────────────────────────────────────────────────────
-
-    private void InitTrayIcon()
-    {
-        // Start with red (stopped) icon
-        _currentTrayIcon = CreateTrayIcon(System.Drawing.Color.FromArgb(255, 107, 107));
-        _trayIcon = new TaskbarIcon
-        {
-            ToolTipText = "WinUIClash",
-            Icon = _currentTrayIcon,
-            // 修复 WinUI 3 下 ContextFlyout 点击事件路由断裂（BUG-001）：
-            // SecondWindow 模式在独立窗口中渲染原生菜单，点击能正确触发逻辑。
-            ContextMenuMode = H.NotifyIcon.ContextMenuMode.SecondWindow,
-        };
-
-        // 双击托盘图标 → 显示窗口
-        _trayIcon.DoubleClickCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ShowWindow);
-
-        // 右键菜单
-        var menu = new MenuFlyout();
-
-        // ── 显示主窗口 ──
-        var showItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayShow.Text") };
-        showItem.Click += (_, _) => ShowWindow();
-        menu.Items.Add(showItem);
-
-        // ── 连接 / 断开代理（核心常驻，此处仅切换模式 + 系统代理）──
-        _trayConnectItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayConnectProxy.Text") };
-        try
-        {
-            var dashVm = ServiceLocator.Get<ViewModels.DashboardViewModel>();
-            _trayConnectItem.IsChecked = dashVm.IsRunning;
-            dashVm.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(ViewModels.DashboardViewModel.IsRunning))
-                    _dispatcher.TryEnqueue(() =>
-                    {
-                        _trayConnectItem.IsChecked = dashVm.IsRunning;
-                        _trayConnectItem.Text = dashVm.IsRunning
-                            ? Services.LocalizationHelper.GetString("TrayDisconnectProxy.Text")
-                            : Services.LocalizationHelper.GetString("TrayConnectProxy.Text");
-                    });
-            };
-        }
-        catch (Exception ex) { Debug.WriteLine($"Tray connect init error: {ex.Message}"); }
-        _trayConnectItem.Click += async (_, _) =>
-        {
-            try
-            {
-                var dashVm = ServiceLocator.Get<ViewModels.DashboardViewModel>();
-                await dashVm.ToggleCoreCommand.ExecuteAsync(null);
-            }
-            catch (Exception ex) { Debug.WriteLine($"Tray connect toggle error: {ex.Message}"); }
-        };
-        menu.Items.Add(_trayConnectItem);
-
-        // ── 系统代理 ──
-        _trayProxyItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TraySystemProxy.Text") };
-        try
-        {
-            var settings = ServiceLocator.Get<AppSettings>();
-            _trayProxyItem.IsChecked = settings.SystemProxy;
-        }
-        catch (Exception ex) { Debug.WriteLine($"Tray proxy init error: {ex.Message}"); }
-        _trayProxyItem.Click += (_, _) =>
-        {
-            try
-            {
-                var settings = ServiceLocator.Get<AppSettings>();
-                settings.SystemProxy = !settings.SystemProxy;
-            }
-            catch (Exception ex) { Debug.WriteLine($"Tray proxy toggle error: {ex.Message}"); }
-        };
-        menu.Items.Add(_trayProxyItem);
-
-        // ── TUN 模式 ──
-        var trayTunItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayTunMode.Text") };
-        try
-        {
-            var tunSettings = ServiceLocator.Get<AppSettings>();
-            trayTunItem.IsChecked = tunSettings.TunMode;
-        }
-        catch (Exception ex) { Debug.WriteLine($"Tray TUN init error: {ex.Message}"); }
-        trayTunItem.Click += (_, _) =>
-        {
-            try
-            {
-                var tunSettings = ServiceLocator.Get<AppSettings>();
-                tunSettings.TunMode = !tunSettings.TunMode;
-            }
-            catch (Exception ex) { Debug.WriteLine($"Tray TUN toggle error: {ex.Message}"); }
-        };
-        // Sync TUN state from settings changes
-        try
-        {
-            var tunAppSettings = ServiceLocator.Get<AppSettings>();
-            tunAppSettings.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(AppSettings.TunMode))
-                    _dispatcher.TryEnqueue(() => trayTunItem.IsChecked = tunAppSettings.TunMode);
-            };
-        }
-        catch (Exception ex) { Debug.WriteLine($"Tray TUN PropertyChanged subscription error: {ex.Message}"); }
-        menu.Items.Add(trayTunItem);
-
-        // ── 强制 GC ──
-        var gcItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayForceGc.Text") };
-        gcItem.Click += async (_, _) =>
-        {
-            try
-            {
-                var clash = ServiceLocator.Get<IClashService>();
-                if (clash.CoreState == CoreState.Running)
-                    await clash.ForceGcAsync();
-            }
-            catch (Exception ex) { Debug.WriteLine($"Tray GC error: {ex.Message}"); }
-        };
-        menu.Items.Add(gcItem);
-
-        // ── 重启核心 ──
-        var restartItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayRestartCore.Text") };
-        restartItem.Click += async (_, _) =>
-        {
-            try
-            {
-                var clash = ServiceLocator.Get<IClashService>();
-                if (clash.CoreState == CoreState.Running)
-                    await clash.RestartAsync();
-            }
-            catch (Exception ex) { Debug.WriteLine($"Tray restart error: {ex.Message}"); }
-        };
-        menu.Items.Add(restartItem);
-
-        menu.Items.Add(new MenuFlyoutSeparator());
-
-        // ── 出站模式子菜单 ──
-        var modeItem = new MenuFlyoutSubItem { Text = Services.LocalizationHelper.GetString("TrayOutboundMode.Text") };
-
-        var modeRule = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeRule.Content"), IsChecked = true };
-        var modeGlobal = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeGlobal.Content") };
-        var modeDirect = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeDirect.Content") };
-
-        void ClearModeChecks()
-        {
-            modeRule.IsChecked = false;
-            modeGlobal.IsChecked = false;
-            modeDirect.IsChecked = false;
-        }
-
-        modeRule.Click += async (_, _) =>
-        {
-            ClearModeChecks();
-            modeRule.IsChecked = true;
-            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Rule); }
-            catch (Exception ex) { Debug.WriteLine($"Tray mode Rule error: {ex.Message}"); }
-        };
-        modeGlobal.Click += async (_, _) =>
-        {
-            ClearModeChecks();
-            modeGlobal.IsChecked = true;
-            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Global); }
-            catch (Exception ex) { Debug.WriteLine($"Tray mode Global error: {ex.Message}"); }
-        };
-        modeDirect.Click += async (_, _) =>
-        {
-            ClearModeChecks();
-            modeDirect.IsChecked = true;
-            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Direct); }
-            catch (Exception ex) { Debug.WriteLine($"Tray mode Direct error: {ex.Message}"); }
-        };
-
-        modeItem.Items.Add(modeRule);
-        modeItem.Items.Add(modeGlobal);
-        modeItem.Items.Add(modeDirect);
-        menu.Items.Add(modeItem);
-
-        // ── 配置切换子菜单 ──
-        var profileItem = new MenuFlyoutSubItem { Text = Services.LocalizationHelper.GetString("NavProfiles.Content") };
-        _trayProfileMenu = profileItem;
-        menu.Items.Add(profileItem);
-
-        // Populate profiles asynchronously
-        _ = PopulateTrayProfilesAsync();
-
-        menu.Items.Add(new MenuFlyoutSeparator());
-
-        // ── 打开数据目录 ──
-        var openDataItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("AboutOpenDataFolder.Content") };
-        openDataItem.Click += (_, _) =>
-        {
-            try
-            {
-                var dataDir = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "WinUIClash");
-                Directory.CreateDirectory(dataDir);
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = dataDir,
-                    UseShellExecute = true,
-                });
-            }
-            catch (Exception ex) { Debug.WriteLine($"Open data dir error: {ex.Message}"); }
-        };
-        menu.Items.Add(openDataItem);
-
-        menu.Items.Add(new MenuFlyoutSeparator());
-
-        // ── 退出 ──
-        var exitItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayExit.Text") };
-        exitItem.Click += (_, _) => ExitApp();
-        menu.Items.Add(exitItem);
-
-        _trayIcon.ContextFlyout = menu;
-
-        // 强制创建托盘图标（确保立即显示）
-        _trayIcon.ForceCreate();
-
-        // 初始化核心运行状态
-        try
-        {
-            // 核心由应用自动管理，托盘不再提供核心启停入口
-        }
-        catch { }
-    }
-
-    private async Task PopulateTrayProfilesAsync()
-    {
-        if (_trayProfileMenu == null) return;
-
-        try
-        {
-            var storage = new Services.ProfileStorageService();
-            var profiles = await storage.LoadProfileListAsync();
-            if (profiles.Count == 0) return;
-
-            // Get active profile from the clash service
-            var clash = ServiceLocator.Get<IClashService>();
-            var apiProfiles = await clash.GetProfilesAsync();
-            var activeId = apiProfiles.FirstOrDefault(p => p.IsActive)?.Id ?? "";
-
-            _dispatcher.TryEnqueue(() =>
-            {
-                _trayProfileMenu.Items.Clear();
-                foreach (var profile in profiles)
-                {
-                    var toggleItem = new ToggleMenuFlyoutItem
-                    {
-                        Text = string.IsNullOrWhiteSpace(profile.Label) ? profile.Id : profile.Label,
-                        IsChecked = profile.Id == activeId,
-                    };
-                    var capturedProfile = profile;
-                    toggleItem.Click += async (_, _) =>
-                    {
-                        try
-                        {
-                            var c = ServiceLocator.Get<IClashService>();
-                            var configPath = storage.GetConfigPath(capturedProfile.Id);
-                            await c.SwitchProfileAsync(capturedProfile.Id, configPath);
-
-                            // Update checkmarks
-                            foreach (var item in _trayProfileMenu.Items.OfType<ToggleMenuFlyoutItem>())
-                                item.IsChecked = false;
-                            toggleItem.IsChecked = true;
-                        }
-                        catch { }
-                    };
-                    _trayProfileMenu.Items.Add(toggleItem);
-                }
-            });
-        }
-        catch { }
     }
 
     private void ShowWindow()
@@ -1049,10 +751,7 @@ public sealed partial class MainWindow : Window
         _isExiting = true;
         await PerformCleanupAsync();
 
-        _trayIcon?.Dispose();
-        _trayIcon = null;
-        _currentTrayIcon?.Dispose();
-        _currentTrayIcon = null;
+        _tray?.Dispose();
 
         // 先触发窗口关闭流程，再强制退出应用（Close 后如果进程仍在，Exit 兜底）
         Close();
@@ -1082,10 +781,7 @@ public sealed partial class MainWindow : Window
         // 正常关闭 — 执行共享清理
         await PerformCleanupAsync();
 
-        _trayIcon?.Dispose();
-        _trayIcon = null;
-        _currentTrayIcon?.Dispose();
-        _currentTrayIcon = null;
+        _tray?.Dispose();
     }
 
     /// <summary>
@@ -1135,61 +831,6 @@ public sealed partial class MainWindow : Window
         catch { }
     }
 
-    // ── 图标生成 ──────────────────────────────────────────────────────────────
-
-    private static System.Drawing.Icon CreateTrayIcon(System.Drawing.Color? circleColor = null)
-    {
-        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "AppIcon.ico");
-        if (File.Exists(iconPath))
-        {
-            var hIcon = LoadImageW(IntPtr.Zero, iconPath, IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
-            if (hIcon != IntPtr.Zero)
-            {
-                try
-                {
-                    return System.Drawing.Icon.FromHandle(hIcon);
-                }
-                catch
-                {
-                    DestroyIcon(hIcon);
-                }
-            }
-        }
-
-        var color = circleColor ?? System.Drawing.Color.FromArgb(33, 150, 243);
-        using var bmp = new Bitmap(32, 32, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-        using (var g = Graphics.FromImage(bmp))
-        {
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-            using var brush = new SolidBrush(color);
-            g.FillEllipse(brush, 1, 1, 30, 30);
-            using var font = new Font("Segoe UI", 15f, FontStyle.Bold);
-            var size = g.MeasureString("W", font);
-            g.DrawString("W", font, Brushes.White,
-                (32 - size.Width) / 2, (32 - size.Height) / 2);
-        }
-
-        var fallbackIcon = bmp.GetHicon();
-        try
-        {
-            return System.Drawing.Icon.FromHandle(fallbackIcon);
-        }
-        catch
-        {
-            DestroyIcon(fallbackIcon);
-            throw;
-        }
-    }
-
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    private static extern IntPtr LoadImageW(IntPtr hInst, string name, uint type, int cx, int cy, uint fuLoad);
-
-    [DllImport("user32.dll")]
-    private static extern bool DestroyIcon(IntPtr handle);
-
-    private const uint IMAGE_ICON = 1;
-    private const uint LR_LOADFROMFILE = 0x0010;
 
     // ── Win32 辅助 ────────────────────────────────────────────────────────────
 
