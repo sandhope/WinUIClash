@@ -475,6 +475,10 @@
     <x:String x:Key="ProfilesExportConfig.Text">导出配置</x:String>
     <x:String x:Key="ProfilesAutoStartTitle.Text">启动核心</x:String>
     <x:String x:Key="ProfilesAutoStartMsg.Text">核心未运行，正在自动启动…</x:String>
+    <x:String x:Key="PortConflictTitle.Text">端口被占用</x:String>
+    <x:String x:Key="PortConflictMsg.Text">检测到端口 {0} 已被占用，可能存在其他代理程序。</x:String>
+    <x:String x:Key="PortConflictKill.Content">结束进程</x:String>
+    <x:String x:Key="PortConflictClose.Content">关闭</x:String>
 
     <!-- Proxy Context Menu -->
     <x:String x:Key="ProxyCtxTestDelay.Text">测试延迟</x:String>

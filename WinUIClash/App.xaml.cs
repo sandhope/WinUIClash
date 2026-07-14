@@ -116,6 +116,77 @@ namespace WinUIClash
         }
 
         /// <summary>
+        /// 启动核心：在 UI 线程完成端口冲突预检与弹窗，重 IO 的启动放到后台。
+        /// 参考 ClashSharp：检测与弹窗都在 UI 线程、XamlRoot 已就绪，避免后台线程 + DispatcherQueue 转发导致弹窗失败。
+        /// </summary>
+        private static async Task StartCoreWithConflictCheckAsync()
+        {
+            var orchestrator = ServiceLocator.Get<Services.ClashOrchestrator>();
+
+            // 等待主窗口 XamlRoot 就绪（首次布局完成后才有），否则 ContentDialog 的 XamlRoot 为 null 会失败。
+            var xamlRoot = await WaitForXamlRootAsync();
+            if (xamlRoot == null)
+            {
+                // 拿不到 XamlRoot 就直接后台启动（不弹窗）
+                _ = Task.Run(async () =>
+                {
+                    try { await orchestrator.StartAsync(); }
+                    catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Core auto-start failed: {ex.Message}"); }
+                });
+                return;
+            }
+
+            // 端口冲突预检（IO 部分放后台，不阻塞 UI）
+            var conflict = await Task.Run(() => orchestrator.DetectPortConflictAsync());
+            int[]? pidsToKill = null;
+            if (conflict != null)
+            {
+                // 直接在 UI 线程弹窗，无需 DispatcherQueue 转发
+                var resolution = await ShowPortConflictDialogAsync(xamlRoot, conflict);
+                if (resolution == Services.ConflictResolution.KillProcess)
+                    pidsToKill = conflict.Pids;
+            }
+
+            // 启动核心（重 IO），放后台
+            _ = Task.Run(async () =>
+            {
+                try { await orchestrator.StartAsync(pidsToKill); }
+                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Core auto-start failed: {ex.Message}"); }
+            });
+        }
+
+        /// <summary>等待主窗口 XamlRoot 就绪（最多约 5 秒）。</summary>
+        private static async Task<XamlRoot?> WaitForXamlRootAsync()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                if (CurrentWindow?.Content is FrameworkElement fe && fe.XamlRoot != null)
+                    return fe.XamlRoot;
+                await Task.Delay(50);
+            }
+            return null;
+        }
+
+        /// <summary>在 UI 线程直接弹出端口冲突对话框，返回用户的选择。</summary>
+        private static async Task<Services.ConflictResolution> ShowPortConflictDialogAsync(XamlRoot xamlRoot, Services.PortConflictInfo info)
+        {
+            var ports = string.Join(", ", info.Ports);
+            var dialog = new ContentDialog
+            {
+                Title = Services.LocalizationHelper.GetString("PortConflictTitle.Text"),
+                Content = string.Format(Services.LocalizationHelper.GetString("PortConflictMsg.Text"), ports),
+                PrimaryButtonText = Services.LocalizationHelper.GetString("PortConflictKill.Content"),
+                CloseButtonText = Services.LocalizationHelper.GetString("PortConflictClose.Content"),
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = xamlRoot,
+            };
+            var result = await dialog.ShowAsync();
+            return result == ContentDialogResult.Primary
+                ? Services.ConflictResolution.KillProcess
+                : Services.ConflictResolution.Proceed;
+        }
+
+        /// <summary>
         /// Invoked when the application is launched.
         /// </summary>
         /// <param name="args">Details about the launch request and process.</param>
@@ -197,15 +268,10 @@ namespace WinUIClash
             // 使网络/测速/代理页立即可用，避免手动点击启动的等待）。
             // 若 TUN 已开启且 Helper Service 已安装（常驻），则经 SYSTEM 拉起、不弹 UAC；
             // 仅“从未安装且 TUN 开启”的首次会弹一次 UAC（安装服务），之后不再弹。
-            var clash = ServiceLocator.Get<Services.IClashService>();
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await clash.StartAsync();
-                }
-                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Core auto-start failed: {ex.Message}"); }
-            });
+            // 启动核心：端口冲突预检 + 弹窗都在 UI 线程做（参考 ClashSharp 的 OnContentFrameLoaded 模式，
+            // 全程 UI 线程、XamlRoot 已就绪，避免后台线程 + DispatcherQueue 转发导致弹窗失败）。
+            // 重 IO 的启动本身仍放后台，不阻塞 UI。
+            _ = StartCoreWithConflictCheckAsync();
 
             // 启动时自动检查更新
             if (appSettings.AutoCheckUpdate)
