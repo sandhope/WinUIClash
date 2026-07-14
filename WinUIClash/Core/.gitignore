@@ -7,5 +7,9 @@ geoip.dat
 geosite.dat
 geoip.metadb
 
+# 脚本生成的 GPL 合规文件
+mihomo-LICENSE.txt
+mihomo-NOTICE.txt
+
 # 保留配置文件模板（可选）
 # config.yaml
