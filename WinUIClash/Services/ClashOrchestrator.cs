@@ -15,6 +15,23 @@ namespace WinUIClash.Services;
 /// 始终使用真实核心；核心未运行时状态为 Stopped，数据调用将抛出并由各 ViewModel 处理为空状态。
 /// 不提供任何 mock/假数据回退。
 /// </summary>
+/// <summary>启动端口冲突信息：被占用的端口列表。</summary>
+public sealed class PortConflictInfo(int[] Ports)
+{
+    public int[] Ports { get; } = Ports;
+    /// <summary>占用这些端口的进程 PID 列表（可能含重复，调用方去重）。</summary>
+    public int[] Pids { get; set; } = [];
+}
+
+/// <summary>端口冲突解决策略。</summary>
+public enum ConflictResolution
+{
+    /// <summary>忽略冲突，继续启动（关闭弹窗/用户选择不做处理）。</summary>
+    Proceed,
+    /// <summary>结束占用进程后继续启动。</summary>
+    KillProcess,
+}
+
 public class ClashOrchestrator : IClashService
 {
     private readonly CoreProcessService _processService;
@@ -189,9 +206,28 @@ public class ClashOrchestrator : IClashService
 
     // ── 生命周期 ──
 
-    public async Task StartAsync()
+    /// <summary>实现 IClashService：无参启动（静默路径）。</summary>
+    public Task StartAsync() => StartAsync(null);
+
+    /// <summary>
+    /// 启动核心。preKillPids 非空时，先结束占用端口的进程再启动（供用户从端口冲突对话框选择“结束进程”）。
+    /// 静默路径（崩溃恢复、网络恢复、TUN 切换、手动启动）传 null，走正常清理+启动。
+    /// </summary>
+    public async Task StartAsync(int[]? preKillPids)
     {
         if (_coreState == CoreState.Running || _coreState == CoreState.Starting) return;
+
+        // 用户选择“结束进程”：在清理残留之前结束占用端口的外部进程（如手动启动的 mihomo），
+        // 避免后续清理误杀后我们自己的启动仍因端口被占而失败。
+            if (preKillPids != null && preKillPids.Length > 0)
+            {
+                _logger.LogInformation("用户选择结束占用进程：将终止 {Count} 个占用端口的进程后再启动", preKillPids.Length);
+                KillProcesses(preKillPids);
+            }
+
+        // 清理可能残留的核心（上一轮异常退出可能让 SYSTEM/用户态 mihomo 仍占用端口）
+        try { await _helperServiceManager.StopCoreViaHelperAsync(); } catch { }
+        try { await _processService.StopAsync(); } catch { }
 
         _intentionalStop = false;
         _restartAttempts = 0;
@@ -243,10 +279,6 @@ public class ClashOrchestrator : IClashService
             // 关键稳健性保证：无论 SYSTEM 路径是否成功，核心一定在严格预算内被拉起——
             // SYSTEM 路径未在预算内就绪时，回退“当前用户直接启动”，核心常驻、绝不卡死/绝不只报失败。
             // 仅当 Helper Service 完全不可用且直接启动也失败时，才报“启动失败”。
-
-            // 启动前清理可能残留的核心（上一轮异常退出可能让 SYSTEM/用户态 mihomo 仍占用 API 端口）
-            try { await _helperServiceManager.StopCoreViaHelperAsync(); } catch { }
-            try { await _processService.StopAsync(); } catch { }
 
             bool launchedViaHelper = false;
             var serviceRegistered = await _helperServiceManager.RegisterServiceAsync();
@@ -681,6 +713,87 @@ public class ClashOrchestrator : IClashService
         catch
         {
             return false;
+        }
+    }
+
+    /// <summary>
+    /// 预检本应用依赖的端口（API / mixed / socks / http）是否已被其他进程占用。
+    /// 在清理残留之前调用，被占用的端口判定为外部冲突。
+    /// 同时查出占用这些端口的进程 PID，供"结束进程"使用。
+    /// </summary>
+    public async Task<PortConflictInfo?> DetectPortConflictAsync()
+    {
+        var ports = new HashSet<int> { _settings.ApiPort, _settings.MixedPort, _settings.SocksPort, _settings.HttpPort };
+        var occupied = new List<int>(ports.Count);
+        foreach (var p in ports)
+        {
+            if (p > 0 && await IsTcpPortOpenAsync("127.0.0.1", p, 400))
+                occupied.Add(p);
+        }
+        if (occupied.Count == 0) return null;
+
+        var info = new PortConflictInfo(occupied.ToArray());
+        info.Pids = FindPidsOnPorts(occupied);
+        return info;
+    }
+
+    /// <summary>查询占用指定端口的进程 PID 列表。</summary>
+    private static int[] FindPidsOnPorts(IEnumerable<int> ports)
+    {
+        try
+        {
+            var portSet = new HashSet<string>(ports.Select(p => p.ToString()));
+            var pids = new HashSet<int>();
+
+            // 使用 netstat -ano 获取本地监听端口的 PID
+            using var proc = new System.Diagnostics.Process();
+            proc.StartInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "netstat",
+                Arguments = "-ano",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true,
+            };
+            proc.Start();
+            var output = proc.StandardOutput.ReadToEnd();
+            proc.WaitForExit(3000);
+
+            // 解析行格式: TCP    127.0.0.1:7890    0.0.0.0:0    LISTENING    12345
+            foreach (var line in output.Split('\n'))
+            {
+                var parts = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                // LISTENING 行至少 5 段: proto, local-addr, foreign-addr, state, pid
+                if (parts.Length >= 5 && parts[3] == "LISTENING")
+                {
+                    var localAddr = parts[1]; // e.g. "127.0.0.1:7890"
+                    var colonIdx = localAddr.LastIndexOf(':');
+                    if (colonIdx >= 0 && portSet.Contains(localAddr[(colonIdx + 1)..]))
+                    {
+                        if (int.TryParse(parts[4], out var pid) && pid > 0)
+                            pids.Add(pid);
+                    }
+                }
+            }
+            return pids.ToArray();
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    /// <summary>结束指定 PID 的进程。</summary>
+    private static void KillProcesses(int[] pids)
+    {
+        foreach (var pid in pids)
+        {
+            try
+            {
+                var proc = System.Diagnostics.Process.GetProcessById(pid);
+                proc.Kill(entireProcessTree: true);
+            }
+            catch { /* 进程可能已退出 */ }
         }
     }
 

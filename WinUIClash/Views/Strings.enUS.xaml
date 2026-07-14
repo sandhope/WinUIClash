@@ -474,6 +474,10 @@
     <x:String x:Key="ProfilesExportConfig.Text">Export Config</x:String>
     <x:String x:Key="ProfilesAutoStartTitle.Text">Starting Core</x:String>
     <x:String x:Key="ProfilesAutoStartMsg.Text">Core is not running, starting automatically…</x:String>
+    <x:String x:Key="PortConflictTitle.Text">Port Conflict</x:String>
+    <x:String x:Key="PortConflictMsg.Text">Ports {0} are already in use, possibly by another proxy program.</x:String>
+    <x:String x:Key="PortConflictKill.Content">Kill Process</x:String>
+    <x:String x:Key="PortConflictClose.Content">Close</x:String>
 
     <!-- Proxy Context Menu -->
     <x:String x:Key="ProxyCtxTestDelay.Text">Test Delay</x:String>
