@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using WinUIClash.Helpers;
 using WinUIClash.Models;
 using WinUIClash.Services;
 
@@ -17,6 +18,7 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
     private readonly NotificationService _notification;
     private readonly ProfileStorageService _storage;
     private readonly ConfigValidationService _validator;
+    private readonly FailureSuppressor _autoUpdateSuppressor = new();
     private Timer? _autoUpdateTimer;
     private bool _initialized;
 
@@ -413,6 +415,8 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         _autoUpdateTimer = new Timer(async _ =>
         {
             var now = DateTime.Now;
+            bool anyFailed = false;
+            Exception? lastError = null;
             foreach (var p in Profiles.Where(p => p.AutoUpdate && !string.IsNullOrEmpty(p.Url)))
             {
                 if (now - p.LastUpdate >= p.AutoUpdateInterval)
@@ -430,9 +434,15 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
 
                         p.LastUpdate = now;
                     }
-                    catch { /* 自动更新失败静默 */ }
+                    catch (Exception ex) { anyFailed = true; lastError = ex; }
                 }
             }
+
+            // 失败抑制：首次失败记一次、恢复（首次成功）记一次，避免每次循环刷屏
+            _autoUpdateSuppressor.Record(
+                anyFailed,
+                onFirstFailure: () => System.Diagnostics.Debug.WriteLine($"[Profiles] 订阅自动更新失败: {lastError}"),
+                onRecovered: () => System.Diagnostics.Debug.WriteLine("[Profiles] 订阅自动更新已恢复"));
         }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
     }
 

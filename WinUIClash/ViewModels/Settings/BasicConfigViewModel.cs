@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
+using WinUIClash.Helpers;
 using WinUIClash.Models;
 using WinUIClash.Services;
 
@@ -14,30 +13,24 @@ public partial class BasicConfigViewModel : ObservableObject
 {
     private readonly AppSettings _settings;
     private readonly IClashService _clash;
-    private readonly DispatcherQueue _dispatcher;
-    private DispatcherTimer? _debounceTimer;
+    private readonly DebounceHelper _debounce;
 
     public BasicConfigViewModel(AppSettings settings, IClashService clash)
     {
         _settings = settings;
         _clash = clash;
-        _dispatcher = DispatcherQueue.GetForCurrentThread()!;
+        // 防抖：连续配置变更合并为一次 PATCH（核心未运行时跳过）
+        _debounce = new DebounceHelper(_ => PatchCoreAsync(), TimeSpan.FromSeconds(1));
     }
 
     private void SchedulePatchToCore()
     {
-        if (_clash.CoreState != CoreState.Running) return;
-
-        _debounceTimer?.Stop();
-        _debounceTimer ??= new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        _debounceTimer.Tick -= OnDebounceTick;
-        _debounceTimer.Tick += OnDebounceTick;
-        _debounceTimer.Start();
+        _debounce.Pulse();
     }
 
-    private async void OnDebounceTick(object? sender, object e)
+    private async Task PatchCoreAsync()
     {
-        _debounceTimer?.Stop();
+        if (_clash.CoreState != CoreState.Running) return;
         try
         {
             await _clash.PatchCoreConfigAsync(_settings);
