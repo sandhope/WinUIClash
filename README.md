@@ -1,49 +1,51 @@
 # WinUIClash
 
-> 将 [FlClash](https://github.com/chen08209/FlClash) 的 Flutter UI 迁移至 [WinUI 3](https://github.com/microsoft/microsoft-ui-xaml) 的实验性项目。
+English | [中文](README.zh-CN.md)
 
-## 项目目标
+> An experimental project that migrates the Flutter UI of [FlClash](https://github.com/chen08209/FlClash) to [WinUI 3](https://github.com/microsoft/microsoft-ui-xaml).
 
-- **1:1 还原** — 保持 FlClash 的 UI 功能不变，不增加也不减少任何功能点
-- **技术验证** — 验证 WinUI 3 在开发效率、性能和稳定性方面的表现
+## Project Goals
 
-## 技术栈
+- **1:1 Replication** — Keep FlClash's UI functionality unchanged, without adding or removing any features
+- **Technical Validation** — Validate WinUI 3's performance in development efficiency, performance, and stability
 
-| 组件 | 说明 |
-|------|------|
-| 框架 | .NET 10 + Windows App SDK 2.2 |
+## Tech Stack
+
+| Component | Description |
+|-----------|-------------|
+| Framework | .NET 10 + Windows App SDK 2.2 |
 | UI | WinUI 3 (XAML) |
-| 目标平台 | Windows 10 1809+ (`10.0.17763.0`) |
-| 架构 | x86 / x64 / ARM64 |
+| Target Platform | Windows 10 1809+ (`10.0.17763.0`) |
+| Architecture | x86 / x64 / ARM64 |
 
-## 参考项目
+## Reference Project
 
-- **FlClash** — 基于 Flutter + ClashMeta 的多平台代理客户端
-  - 仓库：<https://github.com/chen08209/FlClash>
-  - 本地参考路径：`D:\code\refs\FlClash`
+- **FlClash** — Cross-platform proxy client based on Flutter + ClashMeta
+  - Repository: <https://github.com/chen08209/FlClash>
+  - Local reference path: `D:\code\refs\FlClash`
 
-## 开发环境
+## Development Environment
 
-1. Visual Studio 2022（需安装 **Windows App SDK** 工作负载）
+1. Visual Studio 2022 (with **Windows App SDK** workload installed)
 2. .NET 8 SDK
-3. 打开 `WinUIClash.slnx` 即可开始开发
+3. Open `WinUIClash.slnx` to start development
 
-## 构建与运行
+## Build and Run
 
-选择其一，两种方式开发，Visual Studio运行会有报错
+Choose one of the two development methods. Running in Visual Studio may show errors.
 
-### 推荐
-使用 Visual Studio
+### Recommended
+Use Visual Studio
 
-### 命令行
+### Command Line
 
-参考 [DEVELOP.md](DEVELOP.md)
+Refer to [DEVELOP.md](docs/DEVELOP.md)
 
 ```bash
 dotnet run --project WinUIClash\WinUIClash.csproj --verbose
 dotnet run --project WinUIClash\WinUIClash.csproj -c Debug -r win-x64 --verbose
 ```
 
-## 许可证
+## License
 
-本项目遵循 [LICENSE.txt](LICENSE.txt) 中的许可条款。
+This project is licensed under the terms in [LICENSE.txt](LICENSE).
