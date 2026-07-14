@@ -65,7 +65,7 @@ public class ConfigBuildService
             return list.FirstOrDefault(p => p.IsActive)
                 ?? (list.Count > 0 ? list.OrderBy(p => p.Order).First() : null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or DirectoryNotFoundException or System.Text.Json.JsonException)
         {
             _logger.LogWarning(ex, "读取配置列表失败，回退到默认配置");
             return null;

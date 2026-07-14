@@ -2,7 +2,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using System.Net;
 using System.Net.Http;
+using System.ComponentModel;
 using System.Net.Sockets;
+using System.Net.WebSockets;
 using WinUIClash.Models;
 
 namespace WinUIClash.Services;
@@ -162,6 +164,25 @@ public class ClashOrchestrator : IClashService
         catch (TaskCanceledException) { }
     }
 
+    /// <summary>
+    /// 判断是否为「预期的」核心运行期异常：环境/操作失败（核心缺失、配置写入被拒、
+    /// 网络不可达、API 超时、进程启动失败等），应被优雅降级为「启动/停止/TUN 失败」状态并提示用户。
+    /// 真正的程序错误（NullReferenceException / ArgumentException 等）不在此列，
+    /// 按 fail-fast 原则向上冒泡，避免被静默吞掉而掩盖 bug。
+    /// </summary>
+    private static bool IsExpectedCoreException(Exception ex) => ex is
+        TimeoutException
+        or HttpRequestException
+        or OperationCanceledException
+        or WebSocketException
+        or IOException
+        or UnauthorizedAccessException
+        or FileNotFoundException
+        or DirectoryNotFoundException
+        or InvalidOperationException
+        or Win32Exception
+        or SocketException;
+
     // ── 生命周期 ──
 
     public async Task StartAsync()
@@ -283,7 +304,7 @@ public class ClashOrchestrator : IClashService
 
             _logger.LogInformation("ClashOrchestrator: 已连接真实核心");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (IsExpectedCoreException(ex))
         {
             _logger.LogError(ex, "启动 mihomo 核心失败");
             try { await _processService.StopAsync(); } catch { }
@@ -329,7 +350,7 @@ public class ClashOrchestrator : IClashService
 
             _logger.LogInformation("ClashOrchestrator: 核心已停止");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (IsExpectedCoreException(ex))
         {
             _logger.LogError(ex, "停止核心时出错");
             SetCoreState(CoreState.Stopped);
@@ -421,7 +442,7 @@ public class ClashOrchestrator : IClashService
                 await _httpClashService.SetTunEnabledAsync(false, tunStack);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (IsExpectedCoreException(ex))
         {
             _logger.LogWarning(ex, "PATCH TUN 配置失败");
             return false;
