@@ -124,6 +124,9 @@ public partial class ThemeSettingsViewModel : ObservableObject
         new(LocalizationHelper.GetString("ColorIndigo.Text"), "#3F51B5"),
     ];
 
+    /// <summary>语言切换后重置主题色名称缓存（Name 由 LocalizationHelper 在首次访问时固化）。</summary>
+    public void RefreshPrimaryColors() { _primaryColors = null; }
+
     public int PrimaryColorIndex
     {
         get => _settings.PrimaryColorIndex;
@@ -332,6 +335,27 @@ public partial class ThemeSettingsViewModel : ObservableObject
     }
 
     /// <summary>
+    /// 把当前强调色覆盖镜像到指定资源字典（如 ContentDialog.Resources）。
+    /// ContentDialog 由 Popup 承载，脱离窗口根元素的视觉树，资源查找看不到写在窗口根
+    /// 上的强调色覆盖，会回退到框架默认（系统色）。对这类弹出层需手动把共享强调色画刷
+    /// 注册进其自身 Resources，才能显示自定义强调色（勾选框/单选/开关等）。
+    /// 复用同一批 static 画刷实例（颜色已是最新），系统接管强调色时不处理（弹窗走框架
+    /// 默认即系统色，本就正确）。
+    /// </summary>
+    public static void ApplyAccentBrushesTo(ResourceDictionary res)
+    {
+        if (App.CurrentWindow?.Content is not FrameworkElement element)
+            return;
+
+        // 仅当窗口根当前已启用自定义强调色覆盖时才镜像（用引用比较判定，与 ApplyAccentColorInternal 一致）
+        if (element.Resources.TryGetValue("AccentFillColorDefaultBrush", out var probe)
+            && ReferenceEquals(probe, _accentFillDefault))
+        {
+            RegisterAccentBrushes(res);
+        }
+    }
+
+    /// <summary>
     /// 把持久强调色画刷注册进指定窗口的资源字典。全部复用同一批 static 画刷实例，
     /// 换色时只改各实例 .Color，即时刷新、无需 hover。
     ///
@@ -406,6 +430,19 @@ public partial class ThemeSettingsViewModel : ObservableObject
         res["CheckBoxCheckGlyphForegroundCheckedPointerOver"] = _textOnAccentPrimary;
         res["CheckBoxCheckGlyphForegroundCheckedPressed"] = _textOnAccentPrimary;
 
+        // ── AccentButton 强调按钮（专属键；ContentDialog 默认按钮 / AccentButtonStyle 均用此系列） ──
+        res["AccentButtonBackground"] = _accentFillDefault;
+        res["AccentButtonBackgroundPointerOver"] = _accentFillSecondary;
+        res["AccentButtonBackgroundPressed"] = _accentFillTertiary;
+        res["AccentButtonBackgroundDisabled"] = _accentFillDisabled;
+        res["AccentButtonForeground"] = _textOnAccentPrimary;
+        res["AccentButtonForegroundPointerOver"] = _textOnAccentPrimary;
+        res["AccentButtonForegroundPressed"] = _textOnAccentSecondary;
+        res["AccentButtonForegroundDisabled"] = _textOnAccentDisabled;
+        res["AccentButtonBorderBrush"] = _accentElevationBorder;
+        res["AccentButtonBorderBrushPointerOver"] = _accentElevationBorder;
+        res["AccentButtonBorderBrushPressed"] = _accentElevationBorder;
+
         // ── NavigationView 选中态 ──
         res["NavigationViewSelectionIndicator"] = _navIndicator;
         res["NavigationViewItemBackgroundSelected"] = _navSelectedBg;
@@ -442,6 +479,9 @@ public partial class ThemeSettingsViewModel : ObservableObject
             "CheckBoxCheckBackgroundFillChecked", "CheckBoxCheckBackgroundFillCheckedPointerOver", "CheckBoxCheckBackgroundFillCheckedPressed", "CheckBoxCheckBackgroundFillCheckedDisabled",
             "CheckBoxCheckBackgroundStrokeChecked", "CheckBoxCheckBackgroundStrokeCheckedPointerOver", "CheckBoxCheckBackgroundStrokeCheckedPressed",
             "CheckBoxCheckGlyphForegroundChecked", "CheckBoxCheckGlyphForegroundCheckedPointerOver", "CheckBoxCheckGlyphForegroundCheckedPressed",
+            "AccentButtonBackground", "AccentButtonBackgroundPointerOver", "AccentButtonBackgroundPressed", "AccentButtonBackgroundDisabled",
+            "AccentButtonForeground", "AccentButtonForegroundPointerOver", "AccentButtonForegroundPressed", "AccentButtonForegroundDisabled",
+            "AccentButtonBorderBrush", "AccentButtonBorderBrushPointerOver", "AccentButtonBorderBrushPressed",
             "NavigationViewSelectionIndicator", "NavigationViewItemBackgroundSelected", "NavigationViewItemBackgroundSelectedPointerOver", "NavigationViewItemBackgroundSelectedPressed",
             "NavigationViewItemForegroundSelected", "NavigationViewItemForegroundSelectedPointerOver", "NavigationViewItemForegroundSelectedPressed", "NavigationViewItemSeparatorForeground",
             "SystemAccentColor", "SystemAccentColorLight1", "SystemAccentColorLight2", "SystemAccentColorLight3",

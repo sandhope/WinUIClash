@@ -86,6 +86,8 @@ public class StringResources : INotifyPropertyChanged
     public string DashCoreStop_Text => Get("DashCoreStop.Text");
     public string CoreAutoManaged_Text => Get("CoreAutoManaged.Text");
     public string DashRuntime_Text => Get("DashRuntime.Text");
+    public string DashNetworkSpeed_Text => Get("DashNetworkSpeed.Text");
+    public string DashTunCard_Text => Get("DashTunCard.Text");
     public string DashOutboundMode_Text => Get("DashOutboundMode.Text");
     public string DashSystemProxy_Text => Get("DashSystemProxy.Text");
     public string DashSystemInfo_Text => Get("DashSystemInfo.Text");
@@ -321,6 +323,13 @@ public class StringResources : INotifyPropertyChanged
     public string ProfilesActive_Text => Get("ProfilesActive.Text");
     public string ProfilesClipboardTitle_Text => Get("ProfilesClipboardTitle.Text");
     public string ProfilesClipboardHint_Text => Get("ProfilesClipboardHint.Text");
+    public string DashEditTiles_Content => Get("DashEditTiles.Content");
+    public string CommonDone_Content => Get("CommonDone.Content");
+    public string DashTileSwitch_Content => Get("DashTileSwitch.Content");
+    public string DashTileLanguageZh_Text => Get("DashTileLanguageZh.Text");
+    public string DashTileLanguageEn_Text => Get("DashTileLanguageEn.Text");
+    public string DashTileMemoryUsage_Text => Get("DashTileMemoryUsage.Text");
+    public string DashTileMemoryVersion_Text => Get("DashTileMemoryVersion.Text");
     public string ProfilesClipboardContent_Text => Get("ProfilesClipboardContent.Text");
     public string ProfilesUrlHeader_Text => Get("ProfilesUrlHeader.Text");
     public string ProfilesNamePlaceholder_Text => Get("ProfilesNamePlaceholder.Text");
@@ -586,4 +595,18 @@ public class StringResources : INotifyPropertyChanged
     public string DevToolsStoreDesc_Text => Get("DevToolsStoreDesc.Text");
     public string DevToolsApply_Content => Get("DevToolsApply.Content");
     public string DevToolsReset_Content => Get("DevToolsReset.Content");
+
+    // --- 磁贴标题（走 S 绑定，Load() 后 PropertyChanged("") 自动刷新） ---
+    public string DashTileOutboundMode_Text => Get("DashTile_OutboundMode.Text");
+    public string DashTileNetworkCheck_Text => Get("DashTile_NetworkCheck.Text");
+    public string DashTileTrafficStats_Text => Get("DashTile_TrafficStats.Text");
+    public string DashTileMemory_Text => Get("DashTile_Memory.Text");
+    public string DashTileActiveNode_Text => Get("DashTile_ActiveNode.Text");
+    public string DashTileActiveProfile_Text => Get("DashTile_ActiveProfile.Text");
+    public string DashTileUptime_Text => Get("DashTile_Uptime.Text");
+    public string DashTileConnections_Text => Get("DashTile_Connections.Text");
+    public string DashTileLanguage_Text => Get("DashTile_Language.Text");
+    public string DashTileTheme_Text => Get("DashTile_Theme.Text");
+    public string DashTileAccentColor_Text => Get("DashTile_AccentColor.Text");
+    public string DashTileClipboardDetect_Text => Get("DashTile_ClipboardDetect.Text");
 }

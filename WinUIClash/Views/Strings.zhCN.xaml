@@ -44,11 +44,15 @@
     <x:String x:Key="DashCoreStop.Text">停止</x:String>
     <x:String x:Key="CoreAutoManaged.Text">核心由应用自动管理，无需手动启停</x:String>
     <x:String x:Key="DashRuntime.Text">运行 </x:String>
+    <x:String x:Key="DashNetworkSpeed.Text">网络速度</x:String>
+    <x:String x:Key="DashTunCard.Text">虚拟网卡</x:String>
     <x:String x:Key="DashOutboundMode.Text">出站模式</x:String>
     <x:String x:Key="DashSystemProxy.Text">系统代理</x:String>
     <x:String x:Key="DashSystemInfo.Text">系统信息</x:String>
     <x:String x:Key="DashRefreshMemory.Content">回收内存</x:String>
     <x:String x:Key="DashCoreVersion.Text">核心版本</x:String>
+    <x:String x:Key="DashTileMemoryUsage.Text">内存占用</x:String>
+    <x:String x:Key="DashTileMemoryVersion.Text">版本</x:String>
     <x:String x:Key="DashIpLocalFetching.Text">获取中…</x:String>
     <x:String x:Key="DashIpLocalFailed.Text">未获取</x:String>
 
@@ -68,6 +72,7 @@
     <x:String x:Key="CommonClose.Content">关闭</x:String>
     <x:String x:Key="CommonCancel.Content">取消</x:String>
     <x:String x:Key="CommonConfirm.Content">确认</x:String>
+    <x:String x:Key="CommonDone.Content">完成</x:String>
     <x:String x:Key="CommonDelete.Content">删除</x:String>
     <x:String x:Key="CommonSave.Content">保存</x:String>
     <x:String x:Key="CommonCopy.Content">复制</x:String>
@@ -249,7 +254,7 @@
     <x:String x:Key="ConfigPortSettingsDesc.Text">混合端口、SOCKS 与 HTTP 代理端口</x:String>
     <x:String x:Key="ConfigFeatureSwitches.Text">功能开关</x:String>
     <x:String x:Key="ConfigClipboardDetect.Text">剪贴板订阅检测</x:String>
-    <x:String x:Key="ConfigClipboardDetectDesc.Text">打开配置页面时自动检测剪贴板中的订阅链接（默认关闭）</x:String>
+    <x:String x:Key="ConfigClipboardDetectDesc.Text">打开配置页面时自动检测剪贴板中的订阅链接</x:String>
     <x:String x:Key="ConfigFeatureSwitchesDesc.Text">核心运行时行为的各项开关</x:String>
 
     <!-- App Settings - Section Headers -->
@@ -633,5 +638,25 @@
     <x:String x:Key="FirstRunNext.Content">下一步</x:String>
     <x:String x:Key="FirstRunFinish.Content">完成</x:String>
     <x:String x:Key="FirstRunSkip.Content">跳过</x:String>
+
+    <!-- 仪表盘磁贴 -->
+    <x:String x:Key="DashEditTiles.Content">编辑磁贴</x:String>
+    <x:String x:Key="DashTile_SystemProxy.Text">系统代理</x:String>
+    <x:String x:Key="DashTile_Tun.Text">虚拟网卡</x:String>
+    <x:String x:Key="DashTile_OutboundMode.Text">出站模式</x:String>
+    <x:String x:Key="DashTile_NetworkCheck.Text">网络检测</x:String>
+    <x:String x:Key="DashTile_TrafficStats.Text">流量统计</x:String>
+    <x:String x:Key="DashTile_Memory.Text">核心资源</x:String>
+    <x:String x:Key="DashTile_ActiveNode.Text">当前节点</x:String>
+    <x:String x:Key="DashTile_ActiveProfile.Text">当前配置</x:String>
+    <x:String x:Key="DashTile_Uptime.Text">运行时长</x:String>
+    <x:String x:Key="DashTile_Connections.Text">活跃连接</x:String>
+    <x:String x:Key="DashTile_Language.Text">语言设置</x:String>
+    <x:String x:Key="DashTile_Theme.Text">主题设置</x:String>
+    <x:String x:Key="DashTile_AccentColor.Text">主题色</x:String>
+    <x:String x:Key="DashTile_ClipboardDetect.Text">剪贴板订阅检测</x:String>
+    <x:String x:Key="DashTileLanguageZh.Text">中文</x:String>
+    <x:String x:Key="DashTileLanguageEn.Text">English</x:String>
+    <x:String x:Key="DashTileSwitch.Content">切换</x:String>
 
 </ResourceDictionary>

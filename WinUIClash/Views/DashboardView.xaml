@@ -4,10 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:WinUIClash.Views"
+    xmlns:models="using:WinUIClash.Models"
     xmlns:fluent="using:FluentIcons.WinUI"
     xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
     xmlns:flag="using:Flags.Icons.WinUi"
     xmlns:vm="using:WinUIClash.ViewModels"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -22,307 +25,561 @@
             <Setter Property="FontSize" Value="12" />
             <Setter Property="Opacity" Value="0.7" />
         </Style>
+        <!-- 磁贴卡片统一外观 -->
+        <Style x:Key="TileCardBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <!-- 统一最小高度：ItemsWrapGrid 以"每行第一个磁贴"的尺寸作为整行单元格高度，
+                 其余磁贴被拉伸到该高度。若各磁贴自然高度不一，矮磁贴排在前会把整行压扁、
+                 高磁贴内容被裁切。统一 MinHeight(≥最高磁贴内容≈168) 使所有磁贴等高，
+                 从根本上消除"高度由第一个元素决定"的问题（参考 ClashSharp 的 MasterInfoTile）。 -->
+            <Setter Property="MinHeight" Value="168" />
+        </Style>
+
+        <!-- 各磁贴类型模板 -->
+        <DataTemplate x:Key="TileOutboundModeTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Spacing="12">
+                    <!-- 标题 -->
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="BranchFork" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileOutboundMode_Text}" Style="{StaticResource CardTitleStyle}" />
+                    </StackPanel>
+                    <StackPanel Spacing="4">
+                        <!-- 出站模式选项 -->
+                        <RadioButton Content="{Binding Source={StaticResource S}, Path=DashModeRule_Content}" GroupName="Mode"
+                                     FontSize="13"
+                                     IsChecked="{x:Bind Vm.IsModeRule, Mode=TwoWay}" />
+                        <RadioButton Content="{Binding Source={StaticResource S}, Path=DashModeGlobal_Content}" GroupName="Mode"
+                                     FontSize="13" 
+                                     IsChecked="{x:Bind Vm.IsModeGlobal, Mode=TwoWay}" />
+                        <RadioButton Content="{Binding Source={StaticResource S}, Path=DashModeDirect_Content}" GroupName="Mode"
+                                     FontSize="13" 
+                                     IsChecked="{x:Bind Vm.IsModeDirect, Mode=TwoWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TileNetworkCheckTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid RowSpacing="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <!-- 标题 -->
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="Globe" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileNetworkCheck_Text}" Style="{StaticResource CardTitleStyle}" />
+                        <Button Padding="4,0" Background="Transparent" BorderThickness="0"
+                                ToolTipService.ToolTip="点击刷新 IP 检测"
+                                Command="{x:Bind Vm.CheckIpCommand}">
+                            <fluent:SymbolIcon Symbol="Info" FontSize="12" Opacity="0.45" />
+                        </Button>
+                    </StackPanel>
+                    <!-- 外网 IP -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                        <Border CornerRadius="3" VerticalAlignment="Center">
+                            <flag:FlagIcon Lipis="{x:Bind Vm.CountryFlag, Mode=OneWay}" Width="20" Height="15" />
+                        </Border>
+                        <TextBlock Text="{x:Bind Vm.ExternalIp, Mode=OneWay}" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
+                                   IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis" />
+                        <Button Padding="4" Background="Transparent" BorderThickness="0" VerticalAlignment="Center"
+                                Click="CopyExternalIp_Click" ToolTipService.ToolTip="{x:Bind Vm.ExternalIp, Mode=OneWay}">
+                            <fluent:SymbolIcon Symbol="Copy" FontSize="12" />
+                        </Button>
+                    </StackPanel>
+                    <!-- 分隔线（外网 / 内网 两部分） -->
+                    <Border Grid.Row="2" Height="1" Margin="0,6,0,6" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Opacity="0.4" />
+                    <!-- 内网 IP 标签 -->
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="Router" FontSize="13" Opacity="0.65" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashLocalIp_Text}" Style="{StaticResource CardLabelStyle}" FontWeight="Normal" />
+                    </StackPanel>
+                    <!-- 内网 IP 值 -->
+                    <TextBlock Grid.Row="4" Text="{x:Bind Vm.LocalIp, Mode=OneWay}" FontSize="14" FontWeight="SemiBold"
+                               IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TileTrafficStatsTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid RowSpacing="14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <!-- 标题 -->
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="DataUsage" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileTrafficStats_Text}" Style="{StaticResource CardTitleStyle}" />
+                    </StackPanel>
+                    <!-- 流量数据行 -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10" Margin="0,10,0,0" VerticalAlignment="Center">
+                        <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="13" Foreground="{StaticResource UploadIndicatorBrush}" Opacity="0.75" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTotalUpload_Text}" Style="{StaticResource CardLabelStyle}" VerticalAlignment="Center" />
+                        <TextBlock Text="{x:Bind Vm.TotalUpload, Mode=OneWay}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="13" Foreground="{StaticResource DownloadIndicatorBrush}" Opacity="0.75" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTotalDownload_Text}" Style="{StaticResource CardLabelStyle}" VerticalAlignment="Center" />
+                        <TextBlock Text="{x:Bind Vm.TotalDownload, Mode=OneWay}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <fluent:SymbolIcon Symbol="Link" FontSize="13" Opacity="0.6" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashActiveConnections_Text}" Style="{StaticResource CardLabelStyle}" VerticalAlignment="Center" />
+                        <TextBlock Text="{x:Bind Vm.ActiveConnections, Mode=OneWay}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TileMemoryTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid RowSpacing="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <!-- 标题 -->
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="Gauge" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileMemory_Text}" Style="{StaticResource CardTitleStyle}" />
+                    </StackPanel>
+                    <!-- 内存占用 标签 -->
+                    <TextBlock Grid.Row="1" Text="{Binding Source={StaticResource S}, Path=DashTileMemoryUsage_Text}" Style="{StaticResource CardLabelStyle}" Margin="0,2,0,0" />
+                    <!-- 内存占用 值 -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="6">
+                        <fluent:SymbolIcon Symbol="Storage" FontSize="13" Opacity="0.6" VerticalAlignment="Center" />
+                        <TextBlock Text="{x:Bind Vm.CoreMemory, Mode=OneWay}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <!-- 版本 标签 -->
+                    <TextBlock Grid.Row="3" Text="{Binding Source={StaticResource S}, Path=DashTileMemoryVersion_Text}" Style="{StaticResource CardLabelStyle}" />
+                    <!-- 版本 值 -->
+                    <StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="6">
+                        <fluent:SymbolIcon Symbol="Tag" FontSize="13" Opacity="0.6" VerticalAlignment="Center" />
+                        <TextBlock Text="{x:Bind Vm.CoreVersion, Mode=OneWay}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TileActiveNodeTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Spacing="8">
+                    <!-- 标题 -->
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="Stream" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileActiveNode_Text}" Style="{StaticResource CardTitleStyle}" />
+                    </StackPanel>
+                    <!-- 当前节点 -->
+                    <TextBlock Text="{x:Bind Vm.ActiveProxyNode, Mode=OneWay}" FontSize="13" FontWeight="SemiBold"
+                               IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis"
+                               TextWrapping="Wrap" MaxLines="2" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TileActiveProfileTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Spacing="8">
+                    <!-- 标题 -->
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="Folder" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileActiveProfile_Text}" Style="{StaticResource CardTitleStyle}" />
+                    </StackPanel>
+                    <!-- 当前配置 -->
+                    <TextBlock Text="{x:Bind Vm.ActiveProfileName, Mode=OneWay}" FontSize="13" FontWeight="SemiBold"
+                               IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis"
+                               TextWrapping="Wrap" MaxLines="2" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TileUptimeTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="Clock" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileUptime_Text}" Style="{StaticResource CardTitleStyle}" />
+                    </StackPanel>
+                    <TextBlock Text="{x:Bind Vm.UptimeShort, Mode=OneWay}" FontSize="13" FontWeight="SemiBold"
+                               IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis"
+                               FontFamily="Consolas" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TileConnectionsTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="Link" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileConnections_Text}" Style="{StaticResource CardTitleStyle}" />
+                    </StackPanel>
+                    <TextBlock Text="{x:Bind Vm.ActiveConnections, Mode=OneWay}" FontSize="13" FontWeight="SemiBold"
+                               IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis"
+                               FontFamily="Consolas" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TileLanguageTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="LocalLanguage" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileLanguage_Text}" Style="{StaticResource CardTitleStyle}" />
+                    </StackPanel>
+                    <StackPanel Spacing="4">
+                        <RadioButton Content="{Binding Source={StaticResource S}, Path=DashTileLanguageZh_Text}" GroupName="Lang"
+                                     FontSize="13" MinHeight="28"
+                                     IsChecked="{x:Bind Vm.TileIsChinese, Mode=TwoWay}" />
+                        <RadioButton Content="{Binding Source={StaticResource S}, Path=DashTileLanguageEn_Text}" GroupName="Lang"
+                                     FontSize="13" MinHeight="28"
+                                     IsChecked="{x:Bind Vm.TileIsEnglish, Mode=TwoWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TileThemeTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="WeatherSunny" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileTheme_Text}" Style="{StaticResource CardTitleStyle}" />
+                    </StackPanel>
+                    <StackPanel Spacing="4">
+                        <RadioButton Content="{Binding Source={StaticResource S}, Path=ThemeSystem_Content}" GroupName="ThemeMode"
+                                     FontSize="13"
+                                     IsChecked="{x:Bind Vm.TileIsSystemTheme, Mode=TwoWay}" />
+                        <RadioButton Content="{Binding Source={StaticResource S}, Path=ThemeLight_Content}" GroupName="ThemeMode"
+                                     FontSize="13"
+                                     IsChecked="{x:Bind Vm.TileIsLightTheme, Mode=TwoWay}" />
+                        <RadioButton Content="{Binding Source={StaticResource S}, Path=ThemeDark_Content}" GroupName="ThemeMode"
+                                     FontSize="13"
+                                     IsChecked="{x:Bind Vm.TileIsDarkTheme, Mode=TwoWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TileAccentColorTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid RowSpacing="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="PaintBrush" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileAccentColor_Text}" Style="{StaticResource CardTitleStyle}" />
+                    </StackPanel>
+                    <!-- 使用系统主题色开关（替换原「颜色名称」文本） -->
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ThemeUseSystemAccent_Text}"
+                                   FontSize="13" VerticalAlignment="Center" />
+                        <ToggleSwitch Grid.Column="1" MinWidth="0" Margin="0,-2,0,-2" HorizontalAlignment="Right"
+                                      IsOn="{x:Bind Vm.TileUseSystemAccentColor, Mode=TwoWay}"
+                                      OffContent="" OnContent="" />
+                    </Grid>
+                    <ContentControl Grid.Row="2" HorizontalContentAlignment="Stretch"
+                                    IsEnabled="{x:Bind Vm.TileUsePresetColors, Mode=OneWay}"
+                                    Opacity="{x:Bind Vm.TileUsePresetColors, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}">
+                        <controls:ItemsRepeater ItemsSource="{x:Bind Vm.AccentColors}" HorizontalAlignment="Left"
+                                                ElementPrepared="AccentSwatch_ElementPrepared">
+                            <controls:ItemsRepeater.Layout>
+                                <controls:UniformGridLayout MaximumRowsOrColumns="4"
+                                                           MinItemWidth="30" MinItemHeight="30"
+                                                           MinRowSpacing="6" MinColumnSpacing="6" />
+                            </controls:ItemsRepeater.Layout>
+                            <controls:ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Width="30" Height="30" Padding="0" BorderThickness="0" CornerRadius="3"
+                                            Tag="{Binding}" Click="AccentSwatch_Click"
+                                            ToolTipService.ToolTip="{Binding Name}">
+                                        <Button.Background>
+                                            <SolidColorBrush Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
+                                        </Button.Background>
+                                        <Button.Resources>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
+                                            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
+                                            <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
+                                            <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="Transparent" />
+                                            <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="Transparent" />
+                                            <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="Black" />
+                                        </Button.Resources>
+                                    </Button>
+                                </DataTemplate>
+                            </controls:ItemsRepeater.ItemTemplate>
+                        </controls:ItemsRepeater>
+                    </ContentControl>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TileClipboardDetectTemplate" x:DataType="models:DashboardTile">
+            <Border Style="{StaticResource TileCardBorderStyle}"
+                    Visibility="{x:Bind IsVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <fluent:SymbolIcon Symbol="Clipboard" FontSize="14" Opacity="0.7" />
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTileClipboardDetect_Text}" Style="{StaticResource CardTitleStyle}" />
+                    </StackPanel>
+                    <Grid ColumnSpacing="10" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Source={StaticResource S}, Path=ConfigClipboardDetectDesc_Text}"
+                                   FontSize="11" Opacity="0.6" TextWrapping="Wrap" MaxLines="3"
+                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                        <ToggleSwitch Grid.Column="1" OffContent="" OnContent=""
+                                      MinWidth="0" Margin="0,-4,-8,-4"
+                                      IsOn="{x:Bind Vm.ClipboardDetectionEnabled, Mode=TwoWay}"
+                                      VerticalAlignment="Center" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <local:DashboardTileSelector x:Key="DashboardTileSelector"
+            OutboundModeTemplate="{StaticResource TileOutboundModeTemplate}"
+            NetworkCheckTemplate="{StaticResource TileNetworkCheckTemplate}"
+            TrafficStatsTemplate="{StaticResource TileTrafficStatsTemplate}"
+            MemoryTemplate="{StaticResource TileMemoryTemplate}"
+            ActiveNodeTemplate="{StaticResource TileActiveNodeTemplate}"
+            ActiveProfileTemplate="{StaticResource TileActiveProfileTemplate}"
+            UptimeTemplate="{StaticResource TileUptimeTemplate}"
+            ConnectionsTemplate="{StaticResource TileConnectionsTemplate}"
+            LanguageTemplate="{StaticResource TileLanguageTemplate}"
+            ThemeTemplate="{StaticResource TileThemeTemplate}"
+            AccentColorTemplate="{StaticResource TileAccentColorTemplate}"
+            ClipboardDetectTemplate="{StaticResource TileClipboardDetectTemplate}" />
     </Page.Resources>
 
-    <Grid>
+    <Grid x:Name="RootGrid" SizeChanged="RootGrid_SizeChanged">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource S}, Path=NavDashboard_Content}" FontSize="20" FontWeight="SemiBold" Margin="24,16,24,0" />
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,16,24,0">
-            <StackPanel Spacing="24">
-                <Grid RowSpacing="16" ColumnSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="1*" />
-                    </Grid.ColumnDefinitions>
+        <!-- ═══ 顶部固定区：网速面积图（左） + 固定卡片（右：系统代理/虚拟网卡） ═══ -->
+        <Grid Grid.Row="1" ColumnSpacing="12" Margin="24,16,24,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="*" MinWidth="200" MaxWidth="280" />
+            </Grid.ColumnDefinitions>
+
+            <!-- 网速面积图 -->
+            <Border Grid.Column="0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8" Padding="20,16,20,16"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <Grid RowSpacing="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <!-- ═══ 第一行：左侧网速图（宽） + 右侧系统代理/虚拟网卡（窄堆叠） ═══ -->
-
-                    <!-- 网络速度图表（占 ~66%） -->
-                    <Border Grid.Row="0" Grid.Column="0"
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        CornerRadius="8" Padding="20,16,20,16"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-                        <Grid RowSpacing="6">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <!-- 标题栏：网络速度 | 速度数值 -->
-                            <Grid ColumnSpacing="12">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                    <fluent:SymbolIcon Symbol="Gauge" FontSize="14" Opacity="0.7" />
-                                    <TextBlock Text="网络速度" FontWeight="SemiBold" FontSize="14" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="18" VerticalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal" Spacing="5">
-                                        <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="12" Foreground="{StaticResource UploadIndicatorBrush}" />
-                                        <TextBlock Text="{x:Bind ViewModel.UploadSpeed, Mode=OneWay}" FontSize="13" FontWeight="SemiBold" />
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="5">
-                                        <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="12" Foreground="{StaticResource DownloadIndicatorBrush}" />
-                                        <TextBlock Text="{x:Bind ViewModel.DownloadSpeed, Mode=OneWay}" FontSize="13" FontWeight="SemiBold" />
-                                    </StackPanel>
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- 网速面积图（Win2D GPU 绘制 + XAML tooltip 覆盖层） -->
-                            <Grid Grid.Row="1" Height="150">
-                                <canvas:CanvasControl x:Name="SpeedChart"
-                                                  ClearColor="Transparent"
-                                                  Draw="SpeedChart_Draw"
-                                                  SizeChanged="SpeedChart_SizeChanged"
-                                                  PointerMoved="SpeedChart_PointerMoved"
-                                                  PointerExited="SpeedChart_PointerExited" />
-                                <!-- 悬停竖线 -->
-                                <Border x:Name="TooltipLine"
-                                    Width="1"
-                                    Background="{ThemeResource ChartTooltipLineBrush}"
-                                    Visibility="Collapsed" IsHitTestVisible="False"
-                                    HorizontalAlignment="Left" VerticalAlignment="Stretch">
-                                    <Border.RenderTransform>
-                                        <TranslateTransform x:Name="TooltipLineTransform" />
-                                    </Border.RenderTransform>
-                                </Border>
-                                <!-- 悬停信息面板 -->
-                                <Border x:Name="TooltipPanel"
-                                    Background="{ThemeResource ChartTooltipBackgroundBrush}"
-                                    CornerRadius="6" Padding="8,6"
-                                    Visibility="Collapsed" IsHitTestVisible="False"
-                                    HorizontalAlignment="Left" VerticalAlignment="Top">
-                                    <Border.RenderTransform>
-                                        <TranslateTransform x:Name="TooltipPanelTransform" />
-                                    </Border.RenderTransform>
-                                    <StackPanel Spacing="2">
-                                        <TextBlock x:Name="TooltipTime" FontSize="10"
-                                               Foreground="{ThemeResource ChartTooltipTextBrush}"
-                                               Opacity="0.7" FontFamily="Consolas" />
-                                        <TextBlock x:Name="TooltipUp" FontSize="11"
-                                               Foreground="{ThemeResource ChartUploadBrush}" />
-                                        <TextBlock x:Name="TooltipDown" FontSize="11"
-                                               Foreground="{ThemeResource ChartDownloadBrush}" />
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-
-                            <!-- 底部连接数 / 运行时长 -->
-                            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right">
-                                <StackPanel Orientation="Horizontal" Spacing="4">
-                                    <fluent:SymbolIcon Symbol="PlugConnected" FontSize="11" Opacity="0.55" />
-                                    <TextBlock Text="{x:Bind ViewModel.ActiveConnections, Mode=OneWay}" FontSize="11" Opacity="0.65" />
-                                </StackPanel>
-                                <TextBlock Text="{x:Bind ViewModel.RuntimeText, Mode=OneWay}" FontSize="11" Opacity="0.65" />
+                    <!-- 标题栏：网络速度 | 速度数值 -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <fluent:SymbolIcon Symbol="Gauge" FontSize="14" Opacity="0.7" />
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=DashNetworkSpeed_Text}" FontWeight="SemiBold" FontSize="14" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="18" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="12" Foreground="{StaticResource UploadIndicatorBrush}" />
+                                <TextBlock Text="{x:Bind ViewModel.UploadSpeed, Mode=OneWay}" FontSize="13" FontWeight="SemiBold" />
                             </StackPanel>
-                        </Grid>
-                    </Border>
-
-                    <!-- 右侧：系统代理 + 虚拟网卡（等分拉伸，与左侧同高） -->
-                    <Grid Grid.Row="0" Grid.Column="1" RowSpacing="12">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <!-- 系统代理 -->
-                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            CornerRadius="8" Padding="16,14,16,14"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-                            <Grid ColumnSpacing="12" VerticalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Spacing="3">
-                                    <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
-                                        <fluent:SymbolIcon Symbol="ArrowSwap" FontSize="14" Opacity="0.7" />
-                                        <TextBlock Text="{Binding Source={StaticResource S}, Path=DashSystemProxy_Text}" FontWeight="SemiBold" FontSize="13" />
-                                    </StackPanel>
-                                    <TextBlock Text="{Binding Source={StaticResource S}, Path=AppSystemProxyDesc_Text}" FontSize="11" Opacity="0.55" Margin="21,0,0,0" TextWrapping="Wrap" />
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" MinWidth="0" HorizontalAlignment="Right"
-                                          IsOn="{x:Bind ViewModel.IsSystemProxyOn, Mode=TwoWay}"
-                                          OffContent="" OnContent="" />
-                            </Grid>
-                        </Border>
-
-                        <!-- 虚拟网卡 (TUN) -->
-                        <Border Grid.Row="1"
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            CornerRadius="8" Padding="16,14,16,14"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-                            <Grid ColumnSpacing="12" VerticalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Spacing="3">
-                                    <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
-                                        <fluent:SymbolIcon Symbol="Flashlight" FontSize="14" Opacity="0.7" />
-                                        <TextBlock Text="虚拟网卡" FontWeight="SemiBold" FontSize="13" />
-                                    </StackPanel>
-                                    <TextBlock Text="{Binding Source={StaticResource S}, Path=AppTunModeDesc_Text}" FontSize="11" Opacity="0.55" Margin="21,0,0,0" TextWrapping="Wrap" />
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" MinWidth="0" HorizontalAlignment="Right"
-                                          IsOn="{x:Bind ViewModel.IsTunEnabled, Mode=OneWay}"
-                                          OffContent="" OnContent=""
-                                          Toggled="TunToggle_Toggled" />
-                            </Grid>
-                        </Border>
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="12" Foreground="{StaticResource DownloadIndicatorBrush}" />
+                                <TextBlock Text="{x:Bind ViewModel.DownloadSpeed, Mode=OneWay}" FontSize="13" FontWeight="SemiBold" />
+                            </StackPanel>
+                        </StackPanel>
                     </Grid>
 
-                    <!-- ═══ 第二行：三张等宽卡片（出站模式 / 网络检测 / 流量统计） ═══ -->
-
-                    <Grid Grid.Row="1" Grid.ColumnSpan="2" ColumnSpacing="16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                        </Grid.ColumnDefinitions>
-
-                        <!-- 出站模式 -->
-                        <Border Grid.Column="0"
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            CornerRadius="8" Padding="16"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-                            <Grid RowSpacing="10">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <fluent:SymbolIcon Symbol="BranchFork" FontSize="14" Opacity="0.7" />
-                                    <TextBlock Text="{Binding Source={StaticResource S}, Path=DashOutboundMode_Text}"
-                                           Style="{StaticResource CardTitleStyle}" />
-                                </StackPanel>
-                                <RadioButton Grid.Row="1" Content="{Binding Source={StaticResource S}, Path=DashModeRule_Content}" GroupName="Mode"
-                                         IsChecked="{x:Bind ViewModel.IsModeRule, Mode=TwoWay}" MinHeight="32" />
-                                <RadioButton Grid.Row="2" Content="{Binding Source={StaticResource S}, Path=DashModeGlobal_Content}" GroupName="Mode"
-                                         IsChecked="{x:Bind ViewModel.IsModeGlobal, Mode=TwoWay}" MinHeight="32" />
-                                <RadioButton Grid.Row="3" Content="{Binding Source={StaticResource S}, Path=DashModeDirect_Content}" GroupName="Mode"
-                                         IsChecked="{x:Bind ViewModel.IsModeDirect, Mode=TwoWay}" MinHeight="32" />
-                            </Grid>
+                    <!-- 网速面积图（Win2D GPU 绘制 + XAML tooltip 覆盖层）；高度随窗口尺寸变化，最大 280 -->
+                    <Grid x:Name="SpeedChartHost" Grid.Row="1" Height="200" MinHeight="150" MaxHeight="280">
+                        <canvas:CanvasControl x:Name="SpeedChart"
+                                      ClearColor="Transparent"
+                                      Draw="SpeedChart_Draw"
+                                      SizeChanged="SpeedChart_SizeChanged"
+                                      PointerMoved="SpeedChart_PointerMoved"
+                                      PointerExited="SpeedChart_PointerExited" />
+                        <!-- 悬停竖线 -->
+                        <Border x:Name="TooltipLine"
+                                Width="1"
+                                Background="{ThemeResource ChartTooltipLineBrush}"
+                                Visibility="Collapsed" IsHitTestVisible="False"
+                                HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                            <Border.RenderTransform>
+                                <TranslateTransform x:Name="TooltipLineTransform" />
+                            </Border.RenderTransform>
                         </Border>
-
-                        <!-- 网络检测（合并了外部IP + 内网IP） -->
-                        <Border Grid.Column="1"
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            CornerRadius="8" Padding="16"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-                            <Grid RowSpacing="10">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <!-- 外部 IP 区域 -->
-                                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8">
-                                    <fluent:SymbolIcon Symbol="Globe" FontSize="14" Opacity="0.7" />
-                                    <TextBlock Text="网络检测" Style="{StaticResource CardTitleStyle}" />
-                                    <Button Padding="4,0" Background="Transparent" BorderThickness="0"
-                                        ToolTipService.ToolTip="点击刷新 IP 检测"
-                                        Command="{x:Bind ViewModel.CheckIpCommand}">
-                                        <fluent:SymbolIcon Symbol="Info" FontSize="12" Opacity="0.45" />
-                                    </Button>
-                                </StackPanel>
-                                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                                    <Border CornerRadius="3" VerticalAlignment="Center">
-                                        <flag:FlagIcon Lipis="{x:Bind ViewModel.CountryFlag, Mode=OneWay}"
-                                              Width="20" Height="15" />
-                                    </Border>
-                                    <TextBlock Text="{x:Bind ViewModel.ExternalIp, Mode=OneWay}"
-                                   VerticalAlignment="Center" FontSize="13"
-                                   IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis" />
-                                    <Button Padding="4" Background="Transparent" BorderThickness="0"
-                                        VerticalAlignment="Center"
-                                        Click="CopyExternalIp_Click"
-                                        ToolTipService.ToolTip="{x:Bind ViewModel.ExternalIp, Mode=OneWay}">
-                                        <fluent:SymbolIcon Symbol="Copy" FontSize="12" />
-                                    </Button>
-                                </StackPanel>
-                                <!-- 分隔线 -->
-                                <Border Grid.Row="2" Height="1" Margin="0,6,0,6"
-                                    Background="{ThemeResource DividerStrokeColorDefaultBrush}" Opacity="0.4" />
-
-                                <!-- 内网 IP 区域 -->
-                                <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
-                                    <fluent:SymbolIcon Symbol="Router" FontSize="13" Opacity="0.65" />
-                                    <TextBlock Text="{Binding Source={StaticResource S}, Path=DashLocalIp_Text}"
-                                           Style="{StaticResource CardLabelStyle}" FontWeight="Normal" />
-                                </StackPanel>
-                                <TextBlock Grid.Row="4" Text="{x:Bind ViewModel.LocalIp, Mode=OneWay}"
-                                       FontSize="14" FontWeight="SemiBold"
-                                       IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis" />
-                            </Grid>
-                        </Border>
-
-                        <!-- 流量统计 -->
-                        <Border Grid.Column="2"
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            CornerRadius="8" Padding="16"
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-                            <Grid RowSpacing="14">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <fluent:SymbolIcon Symbol="DataUsage" FontSize="14" Opacity="0.7" />
-                                    <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTrafficStats_Text}"
-                                           Style="{StaticResource CardTitleStyle}" />
-                                </StackPanel>
-
-                                <!-- 上传行 -->
-                                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
-                                    <fluent:SymbolIcon Symbol="ArrowUpload" FontSize="13" Foreground="{StaticResource UploadIndicatorBrush}" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTotalUpload_Text}"
-                                           Style="{StaticResource CardLabelStyle}" VerticalAlignment="Center" />
-                                    <TextBlock Text="{x:Bind ViewModel.TotalUpload, Mode=OneWay}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
-                                </StackPanel>
-
-                                <!-- 下载行 -->
-                                <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10">
-                                    <fluent:SymbolIcon Symbol="ArrowDownload" FontSize="13" Foreground="{StaticResource DownloadIndicatorBrush}" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTotalDownload_Text}"
-                                           Style="{StaticResource CardLabelStyle}" VerticalAlignment="Center" />
-                                    <TextBlock Text="{x:Bind ViewModel.TotalDownload, Mode=OneWay}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" />
-                                </StackPanel>
-
-                                <!-- 连接数 -->
-                                <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10">
-                                    <fluent:SymbolIcon Symbol="Link" FontSize="13" Opacity="0.6" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding Source={StaticResource S}, Path=DashActiveConnections_Text}"
-                                           Style="{StaticResource CardLabelStyle}"  VerticalAlignment="Center"  />
-                                    <TextBlock Text="{x:Bind ViewModel.ActiveConnections, Mode=OneWay}" FontWeight="SemiBold" FontSize="13"  VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Grid>
+                        <!-- 悬停信息面板 -->
+                        <Border x:Name="TooltipPanel"
+                                Background="{ThemeResource ChartTooltipBackgroundBrush}"
+                                CornerRadius="6" Padding="8,6"
+                                Visibility="Collapsed" IsHitTestVisible="False"
+                                HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <Border.RenderTransform>
+                                <TranslateTransform x:Name="TooltipPanelTransform" />
+                            </Border.RenderTransform>
+                            <StackPanel Spacing="2">
+                                <TextBlock x:Name="TooltipTime" FontSize="10"
+                                           Foreground="{ThemeResource ChartTooltipTextBrush}"
+                                           Opacity="0.7" FontFamily="Consolas" />
+                                <TextBlock x:Name="TooltipUp" FontSize="11"
+                                           Foreground="{ThemeResource ChartUploadBrush}" />
+                                <TextBlock x:Name="TooltipDown" FontSize="11"
+                                           Foreground="{ThemeResource ChartDownloadBrush}" />
+                            </StackPanel>
                         </Border>
                     </Grid>
                 </Grid>
+            </Border>
+
+            <!-- 右侧：系统代理 + 虚拟网卡（等分拉伸，与左侧同高；不参与磁贴排序/编辑） -->
+            <Grid Grid.Column="1" RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- 系统代理 -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="8" Padding="16,14,16,14"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <Grid ColumnSpacing="12" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="3">
+                            <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
+                                <fluent:SymbolIcon Symbol="ArrowSwap" FontSize="14" Opacity="0.7" />
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=DashSystemProxy_Text}" FontWeight="SemiBold" FontSize="13" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppSystemProxyDesc_Text}" FontSize="11" Opacity="0.55" Margin="21,0,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch Grid.Column="1" MinWidth="0" HorizontalAlignment="Right"
+                                      IsOn="{x:Bind ViewModel.IsSystemProxyOn, Mode=TwoWay}"
+                                      OffContent="" OnContent="" />
+                    </Grid>
+                </Border>
+
+                <!-- 虚拟网卡 (TUN) -->
+                <Border Grid.Row="1"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="8" Padding="16,14,16,14"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <Grid ColumnSpacing="12" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="3">
+                            <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
+                                <fluent:SymbolIcon Symbol="Flashlight" FontSize="14" Opacity="0.7" />
+                                <TextBlock Text="{Binding Source={StaticResource S}, Path=DashTunCard_Text}" FontWeight="SemiBold" FontSize="13" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding Source={StaticResource S}, Path=AppTunModeDesc_Text}" FontSize="11" Opacity="0.55" Margin="21,0,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch Grid.Column="1" MinWidth="0" HorizontalAlignment="Right"
+                                      IsOn="{x:Bind ViewModel.IsTunEnabled, Mode=OneWay}"
+                                      OffContent="" OnContent=""
+                                      Toggled="TunToggle_Toggled" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- ═══ 可滚动区域：编辑磁贴入口 + 信息磁贴 ═══ -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="24,16,24,0">
+            <StackPanel Spacing="24">
+                <!-- ═══ 编辑磁贴入口 ═══ -->
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <fluent:SymbolIcon Symbol="Edit" FontSize="13" Opacity="0.65" />
+                    <HyperlinkButton Content="{Binding Source={StaticResource S}, Path=DashEditTiles_Content}"
+                                    HorizontalAlignment="Left" Padding="0"
+                                    Click="EditTiles_Click"
+                                    FontSize="13" />
+                </StackPanel>
+
+                <!-- ═══ 可拖拽重排的信息磁贴 ═══ -->
+                <!-- Padding 负值抵消最后一列磁贴的右 Margin，使磁贴铺满容器实现"两端对齐" -->
+                <GridView x:Name="TileGrid"
+                          ItemsSource="{x:Bind ViewModel.VisibleDashboardTiles, Mode=OneWay}"
+                          SelectionMode="None"
+                          CanReorderItems="True"
+                          CanDragItems="True"
+                          AllowDrop="True"
+                          Padding="0,0,-12,-12"
+                          ItemTemplateSelector="{StaticResource DashboardTileSelector}"
+                          DragItemsCompleted="TileGrid_DragItemsCompleted">
+                    <GridView.Transitions>
+                        <TransitionCollection>
+                            <ReorderThemeTransition />
+                        </TransitionCollection>
+                    </GridView.Transitions>
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+                    <GridView.ItemContainerStyle>
+                        <Style TargetType="GridViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                            <Setter Property="Margin" Value="0,0,12,12" />
+                            <Setter Property="MinWidth" Value="220" />
+                            <Setter Property="MinHeight" Value="90" />
+                        </Style>
+                    </GridView.ItemContainerStyle>
+                </GridView>
             </StackPanel>
         </ScrollViewer>
 
         <!-- 右下角悬浮启动按钮（FAB，唯一启动入口，状态联动色，悬停保持颜色） -->
         <Button x:Name="StartFab"
-                Grid.RowSpan="2"
+                Grid.RowSpan="3"
                 Command="{x:Bind ViewModel.ToggleCoreCommand}"
                 Width="56" Height="56" CornerRadius="28"
                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
