@@ -78,8 +78,12 @@ public sealed partial class DashboardView : Page
         if (available <= 0) return;
         const double minHeight = 150;
         const double maxHeight = 280;
-        const double factor = 0.30;
-        double desired = Math.Clamp(available * factor, minHeight, maxHeight);
+        // 顶部标题行 + 右侧系统代理/TUN 卡片 + 上下留白的基准占用；
+        // 矮窗口时先扣掉这部分，图只剩少量空间 → 自然被压到 minHeight，不会抢磁贴空间。
+        const double reserve = 300;
+        const double factor = 0.4;
+        double remaining = Math.Max(0, available - reserve);
+        double desired = Math.Clamp(remaining * factor, minHeight, maxHeight);
         SpeedChartHost.Height = desired;
     }
 
