@@ -606,4 +606,30 @@
     <x:String x:Key="DevDiagApplying.Text">Applying…</x:String>
     <x:String x:Key="DevDiagResetting.Text">Resetting…</x:String>
 
+    <!-- First-run guide (§4.1) -->
+    <x:String x:Key="FirstRunTitle.Text">Welcome to WinUIClash</x:String>
+    <x:String x:Key="FirstRunWelcomeTitle.Text">Quick start</x:String>
+    <x:String x:Key="FirstRunWelcomeSubtitle.Text">Get your proxy running in three steps.</x:String>
+    <x:String x:Key="FirstRunStep1Point1.Text">Import a subscription link to get proxy nodes</x:String>
+    <x:String x:Key="FirstRunStep1Point2.Text">Pick a node on the Proxies page</x:String>
+    <x:String x:Key="FirstRunStep1Point3.Text">Enable system proxy or TUN mode on the dashboard</x:String>
+    <x:String x:Key="FirstRunImportTitle.Text">Import subscription</x:String>
+    <x:String x:Key="FirstRunImportHint.Text">Paste a subscription link to import (optional — you can add it later on the Profiles page).</x:String>
+    <x:String x:Key="FirstRunUrlPlaceholder.Text">Subscription link (https://…)</x:String>
+    <x:String x:Key="FirstRunNamePlaceholder.Text">Name (optional)</x:String>
+    <x:String x:Key="FirstRunImportButton.Content">Import</x:String>
+    <x:String x:Key="FirstRunImportEmpty.Text">Please enter a subscription link.</x:String>
+    <x:String x:Key="FirstRunImportInvalid.Text">Invalid link format, please check and retry.</x:String>
+    <x:String x:Key="FirstRunImportOk.Text">Imported and set as the active profile.</x:String>
+    <x:String x:Key="FirstRunImportFail.Text">Import did not complete, see the notification for details.</x:String>
+    <x:String x:Key="FirstRunImportError.Text">Import failed: {0}</x:String>
+    <x:String x:Key="FirstRunSettingsTitle.Text">Basic settings</x:String>
+    <x:String x:Key="FirstRunThemeLabel.Text">Theme</x:String>
+    <x:String x:Key="FirstRunAutoLaunchLabel.Text">Launch at startup</x:String>
+    <x:String x:Key="FirstRunAutoLaunchHint.Text">Start automatically in the background when you sign in to Windows.</x:String>
+    <x:String x:Key="FirstRunPrev.Content">Back</x:String>
+    <x:String x:Key="FirstRunNext.Content">Next</x:String>
+    <x:String x:Key="FirstRunFinish.Content">Finish</x:String>
+    <x:String x:Key="FirstRunSkip.Content">Skip</x:String>
+
 </ResourceDictionary>

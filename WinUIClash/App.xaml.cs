@@ -136,6 +136,22 @@ namespace WinUIClash
                 return;
             }
 
+            // 首次启动引导（评审 §4.1）：在端口冲突预检前、UI 线程串行弹出，完成/跳过后置位标记不再弹。
+            var appSettings = ServiceLocator.Get<Models.AppSettings>();
+            if (!appSettings.HasCompletedFirstRunGuide)
+            {
+                try
+                {
+                    var guide = new Views.FirstRunGuideDialog { XamlRoot = xamlRoot };
+                    await guide.ShowAsync();
+                }
+                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"First-run guide failed: {ex.Message}"); }
+                finally
+                {
+                    appSettings.HasCompletedFirstRunGuide = true; // 属性变更触发自动保存
+                }
+            }
+
             // 端口冲突预检（IO 部分放后台，不阻塞 UI）
             var conflict = await Task.Run(() => orchestrator.DetectPortConflictAsync());
             int[]? pidsToKill = null;
