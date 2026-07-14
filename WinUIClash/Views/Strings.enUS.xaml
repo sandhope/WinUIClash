@@ -248,6 +248,8 @@
     <x:String x:Key="ConfigPortSettings.Text">Port Settings</x:String>
     <x:String x:Key="ConfigPortSettingsDesc.Text">Mixed, SOCKS and HTTP proxy ports</x:String>
     <x:String x:Key="ConfigFeatureSwitches.Text">Feature Switches</x:String>
+    <x:String x:Key="ConfigClipboardDetect.Text">Clipboard subscription detection</x:String>
+    <x:String x:Key="ConfigClipboardDetectDesc.Text">Auto-detect subscription links in clipboard when opening the Profiles page (disabled by default)</x:String>
     <x:String x:Key="ConfigFeatureSwitchesDesc.Text">Runtime behavior toggles for the core</x:String>
 
     <!-- App Settings - Section Headers -->
@@ -307,7 +309,8 @@
     <x:String x:Key="ProfilesPasteClipboard.Content">Paste</x:String>
     <x:String x:Key="ProfilesActive.Text">Active</x:String>
     <x:String x:Key="ProfilesClipboardTitle.Text">Subscription Link Detected</x:String>
-    <x:String x:Key="ProfilesClipboardContent.Text">Subscription link found in clipboard:\n\n{0}\n\nImport?</x:String>
+    <x:String x:Key="ProfilesClipboardHint.Text">Found the following subscription link in clipboard:</x:String>
+    <x:String x:Key="ProfilesClipboardContent.Text">Import this subscription?</x:String>
     <x:String x:Key="ProfilesUrlHeader.Text">Subscription URL</x:String>
     <x:String x:Key="ProfilesNamePlaceholder.Text">Auto-detected (can be edited)</x:String>
     <x:String x:Key="ProfilesNameHeader.Text">Profile Name</x:String>

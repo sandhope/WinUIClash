@@ -269,6 +269,8 @@ public class StringResources : INotifyPropertyChanged
 
     public string ConfigPortSettings_Text => Get("ConfigPortSettings.Text");
     public string ConfigFeatureSwitches_Text => Get("ConfigFeatureSwitches.Text");
+    public string ConfigClipboardDetect_Text => Get("ConfigClipboardDetect.Text");
+    public string ConfigClipboardDetectDesc_Text => Get("ConfigClipboardDetectDesc.Text");
 
     public string AppStartupExit_Text => Get("AppStartupExit.Text");
     public string AppProxyBehavior_Text => Get("AppProxyBehavior.Text");
@@ -318,6 +320,7 @@ public class StringResources : INotifyPropertyChanged
     public string ProfilesPasteClipboard_Content => Get("ProfilesPasteClipboard.Content");
     public string ProfilesActive_Text => Get("ProfilesActive.Text");
     public string ProfilesClipboardTitle_Text => Get("ProfilesClipboardTitle.Text");
+    public string ProfilesClipboardHint_Text => Get("ProfilesClipboardHint.Text");
     public string ProfilesClipboardContent_Text => Get("ProfilesClipboardContent.Text");
     public string ProfilesUrlHeader_Text => Get("ProfilesUrlHeader.Text");
     public string ProfilesNamePlaceholder_Text => Get("ProfilesNamePlaceholder.Text");

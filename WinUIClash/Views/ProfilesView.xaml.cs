@@ -22,7 +22,9 @@ public sealed partial class ProfilesView : Page
         try
         {
             await ViewModel.InitializeAsync();
-            await TryClipboardImportAsync();
+            // 仅在用户开启剪贴板检测时才自动检测
+            if (ServiceLocator.Get<AppSettings>().EnableClipboardDetection)
+                await TryClipboardImportAsync();
         }
         catch { /* 初始化出错时保持空状态，避免崩溃 */ }
     }
@@ -43,10 +45,43 @@ public sealed partial class ProfilesView : Page
             // 检测是否是订阅链接（常见格式）
             if (!IsSubscriptionUrl(text)) return;
 
+            // 用三个独立文本组件展示，避免 \n 在字符串中渲染异常
+            var hint = new TextBlock
+            {
+                Text = LocalizationHelper.GetString("ProfilesClipboardHint.Text"),
+                TextWrapping = TextWrapping.Wrap,
+            };
+
+            var urlBox = new Border
+            {
+                Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.LightGray),
+                BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Gray),
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(12),
+                CornerRadius = new CornerRadius(6),
+                Child = new TextBlock
+                {
+                    Text = text,
+                    TextWrapping = TextWrapping.Wrap,
+                    IsTextSelectionEnabled = true,
+                },
+            };
+
+            var ask = new TextBlock
+            {
+                Text = LocalizationHelper.GetString("ProfilesClipboardContent.Text"),
+                TextWrapping = TextWrapping.Wrap,
+            };
+
+            var stack = new StackPanel { Spacing = 12 };
+            stack.Children.Add(hint);
+            stack.Children.Add(urlBox);
+            stack.Children.Add(ask);
+
             var dialog = new ContentDialog
             {
                 Title = LocalizationHelper.GetString("ProfilesClipboardTitle.Text"),
-                Content = string.Format(LocalizationHelper.GetString("ProfilesClipboardContent.Text"), text),
+                Content = stack,
                 PrimaryButtonText = LocalizationHelper.GetString("ProfilesImport.Text"),
                 CloseButtonText = LocalizationHelper.GetString("CommonCancel.Content"),
                 DefaultButton = ContentDialogButton.Primary,

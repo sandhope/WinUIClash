@@ -143,6 +143,13 @@ public partial class BasicConfigViewModel : ObservableObject
         set { if (_settings.AutoRestart != value) { _settings.AutoRestart = value; OnPropertyChanged(); } }
     }
 
+    // 打开配置页时自动检测剪贴板订阅链接（默认关闭）
+    public bool EnableClipboardDetection
+    {
+        get => _settings.EnableClipboardDetection;
+        set { if (_settings.EnableClipboardDetection != value) { _settings.EnableClipboardDetection = value; OnPropertyChanged(); } }
+    }
+
     public string CoreBinaryPath
     {
         get => _settings.CoreBinaryPath;
