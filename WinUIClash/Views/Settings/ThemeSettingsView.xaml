@@ -41,7 +41,8 @@
                     </Grid>
 
                     <ContentControl IsEnabled="{x:Bind ViewModel.UsePresetColors, Mode=OneWay}"
-                                    HorizontalContentAlignment="Stretch">
+                                    HorizontalContentAlignment="Stretch"
+                                    Opacity="{x:Bind ViewModel.UsePresetColors, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}">
                         <ItemsRepeater x:Name="ColorsRepeater" ItemsSource="{x:Bind ViewModel.PrimaryColors}"
                                        ElementPrepared="ColorsRepeater_ElementPrepared">
                             <ItemsRepeater.Layout>
@@ -61,8 +62,10 @@
                                         <Button.Resources>
                                             <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
                                             <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
+                                            <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="{Binding Hex, Converter={StaticResource HexToColorConverter}}" />
                                             <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="Transparent" />
                                             <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="Transparent" />
+                                            <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="Black" />
                                         </Button.Resources>
                                     </Button>
                                 </DataTemplate>

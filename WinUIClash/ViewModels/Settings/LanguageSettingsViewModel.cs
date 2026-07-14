@@ -45,7 +45,8 @@ public partial class LanguageSettingsViewModel : ObservableObject
         if (_settings.Language != language)
         {
             _settings.Language = language;
-            OnPropertyChanged(string.Empty);
+            OnPropertyChanged(nameof(IsChinese));
+            OnPropertyChanged(nameof(IsEnglish));
 
             var localizationService = ServiceLocator.Get<LocalizationService>();
             localizationService.SetLanguage(language);

@@ -78,6 +78,8 @@ public class SettingsService
             if (dto.Language != null) _settings.Language = dto.Language;
             _settings.HasCompletedFirstRunGuide = dto.HasCompletedFirstRunGuide;
             _settings.EnableClipboardDetection = dto.EnableClipboardDetection;
+            _settings.DashboardTileOrder = dto.DashboardTileOrder;
+            _settings.DashboardTileHidden = dto.DashboardTileHidden;
 
             // 主题
             if (dto.ThemeMode != null) _settings.ThemeMode = dto.ThemeMode;
@@ -150,6 +152,8 @@ public class SettingsService
                 Language = _settings.Language,
                 HasCompletedFirstRunGuide = _settings.HasCompletedFirstRunGuide,
                 EnableClipboardDetection = _settings.EnableClipboardDetection,
+                DashboardTileOrder = _settings.DashboardTileOrder,
+                DashboardTileHidden = _settings.DashboardTileHidden,
 
                 // 主题
                 ThemeMode = _settings.ThemeMode,
@@ -221,6 +225,8 @@ internal class SettingsDto
     public string Language { get; set; } = "zh-CN";
     public bool HasCompletedFirstRunGuide { get; set; }
     public bool EnableClipboardDetection { get; set; }
+    public System.Collections.Generic.List<string>? DashboardTileOrder { get; set; }
+    public System.Collections.Generic.List<string>? DashboardTileHidden { get; set; }
 
     // 主题
     public string ThemeMode { get; set; } = "System";

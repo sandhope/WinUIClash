@@ -106,7 +106,7 @@ public class HttpClashService : IClashService, IDisposable
     {
         var json = await _http.GetStringAsync("/version");
         var dto = JsonSerializer.Deserialize<VersionDto>(json, JsonOpts);
-        return dto?.Version ?? dto?.Meta ?? "unknown";
+        return dto?.Version ?? "unknown";
     }
 
     // ── 流量 ──
@@ -822,6 +822,6 @@ public class HttpClashService : IClashService, IDisposable
     private class VersionDto
     {
         public string? Version { get; set; }
-        public string? Meta { get; set; }
+        public bool Meta { get; set; }
     }
 }

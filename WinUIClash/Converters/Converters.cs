@@ -55,6 +55,24 @@ public class InverseBoolToVisibilityConverter : IValueConverter
 }
 
 /// <summary>
+/// Bool → Opacity。true → 1.0（完全不透明）；false → 半透明（默认 0.5，可用 parameter 指定，如 "0.6"）。<br/>
+/// 用于「预设色板被禁用时」给色块整体降透明度，直观表达"不可用"，且作用范围仅限绑定它的控件（不影响全局按钮）。
+/// </summary>
+public class BoolToOpacityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        double disabledOpacity = 0.5;
+        if (parameter is string s && double.TryParse(s, out var p) && p is >= 0 and <= 1)
+            disabledOpacity = p;
+        return value is true ? 1.0 : disabledOpacity;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => throw new NotImplementedException();
+}
+
+/// <summary>
 /// 非 null → Visible，null → Collapsed
 /// </summary>
 public class NullToVisibilityConverter : IValueConverter

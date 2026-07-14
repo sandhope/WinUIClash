@@ -8,6 +8,9 @@ using Microsoft.UI.Xaml.Media;
 using Windows.UI;
 using WinUIClash.Models;
 using WinUIClash.Services;
+using WinUIClash.ViewModels.Settings;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace WinUIClash.ViewModels;
 
@@ -27,10 +30,210 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         _clash = clash;
         _settings = settings;
         _dispatcher = DispatcherQueue.GetForCurrentThread()!;
+        _themeVm = ServiceLocator.Get<ThemeSettingsViewModel>();
+        _langVm = ServiceLocator.Get<LanguageSettingsViewModel>();
         _clash.TrafficUpdated += OnTrafficUpdated;
         _clash.CoreStateChanged += HandleCoreStateChanged;
+        _clash.MemoryUpdated += OnMemoryUpdated;
         _settings.PropertyChanged += OnSettingsPropertyChanged;
+        _themeVm.PropertyChanged += OnThemeVmPropertyChanged;
+        _langVm.PropertyChanged += OnLangVmPropertyChanged;
+        DashboardTiles = BuildTiles();
+
+        // 只把"可见"磁贴放进绑定到 GridView 的集合。隐藏磁贴根本不进 GridView，
+        // 从根本上避免"折叠 GridViewItem 容器"与虚拟化回收冲突（旧方案会导致取消一个全消失/残留空位）。
+        VisibleDashboardTiles = new ObservableCollection<DashboardTile>();
+        foreach (var tile in DashboardTiles)
+        {
+            tile.PropertyChanged += OnTilePropertyChanged;
+            if (tile.IsVisible) VisibleDashboardTiles.Add(tile);
+        }
     }
+
+    // ── 仪表盘磁贴（可拖拽重排 + 显示/隐藏）──
+
+    // 系统代理 / 虚拟网卡为固定卡片（网速图右侧），永不进入可拖拽磁贴集合
+    private static readonly HashSet<DashboardTileType> FixedTileTypes =
+        new() { DashboardTileType.SystemProxy, DashboardTileType.Tun };
+
+    private static readonly DashboardTileType[] DefaultTileOrder =
+    {
+        DashboardTileType.OutboundMode,
+        DashboardTileType.NetworkCheck,
+        DashboardTileType.TrafficStats,
+        DashboardTileType.ActiveNode,
+        DashboardTileType.ActiveProfile,
+        DashboardTileType.Memory,
+    };
+
+    // 新增磁贴默认隐藏，需用户在“编辑磁贴”中手动启用
+    private static readonly HashSet<DashboardTileType> DefaultHiddenTileTypes =
+        new()
+        {
+            DashboardTileType.Uptime,
+            DashboardTileType.Connections,
+            DashboardTileType.Language,
+            DashboardTileType.Theme,
+            DashboardTileType.AccentColor,
+            DashboardTileType.ClipboardDetect,
+        };
+
+    /// <summary>全部磁贴（含隐藏）——供"编辑磁贴"对话框勾选用。</summary>
+    public ObservableCollection<DashboardTile> DashboardTiles { get; }
+
+    /// <summary>仅可见磁贴——绑定到 GridView。IsVisible 变化时增删此集合，保证 GridView 中永远没有隐藏项。</summary>
+    public ObservableCollection<DashboardTile> VisibleDashboardTiles { get; }
+
+    /// <summary>磁贴可见性切换时，同步维护 <see cref="VisibleDashboardTiles"/>。
+    /// 显示时按其在全集中的相对顺序插入到可见集合的正确位置。</summary>
+    private void OnTilePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(DashboardTile.IsVisible) || sender is not DashboardTile tile) return;
+
+        if (tile.IsVisible)
+        {
+            if (!VisibleDashboardTiles.Contains(tile))
+            {
+                int sourceIndex = DashboardTiles.IndexOf(tile);
+                int insertAt = VisibleDashboardTiles
+                    .Select(item => DashboardTiles.IndexOf(item))
+                    .TakeWhile(index => index < sourceIndex)
+                    .Count();
+                VisibleDashboardTiles.Insert(insertAt, tile);
+            }
+        }
+        else
+        {
+            VisibleDashboardTiles.Remove(tile);
+        }
+    }
+
+    private ObservableCollection<DashboardTile> BuildTiles()
+    {
+        var hidden = new HashSet<string>(_settings.DashboardTileHidden ?? new List<string>());
+        var order = _settings.DashboardTileOrder;
+        var types = new List<DashboardTileType>();
+        if (order != null)
+        {
+            foreach (var id in order)
+                if (Enum.TryParse<DashboardTileType>(id, out var t) && !types.Contains(t) && !FixedTileTypes.Contains(t))
+                    types.Add(t);
+        }
+        foreach (var t in DefaultTileOrder)
+            if (!types.Contains(t)) types.Add(t);
+        // 默认隐藏的磁贴也进入集合，供"编辑磁贴"勾选启用
+        foreach (var t in DefaultHiddenTileTypes)
+            if (!types.Contains(t)) types.Add(t);
+
+        var tiles = new ObservableCollection<DashboardTile>();
+        foreach (var t in types)
+        {
+            var id = t.ToString();
+            bool visible;
+            if (hidden.Contains(id))
+                visible = false;
+            else if (DefaultHiddenTileTypes.Contains(t))
+                // 默认隐藏：除非用户已显式加入顺序（即启用），否则不显示
+                visible = order != null && order.Contains(id);
+            else
+                visible = true;
+            tiles.Add(new DashboardTile(t, this) { IsVisible = visible });
+        }
+        return tiles;
+    }
+
+    /// <summary>拖拽重排后把当前顺序写回设置（经 EnableAutoSave 自动持久化）。
+    /// 仅持久化"可见"磁贴：折叠的默认隐藏磁贴不写入，避免被误判为已启用。</summary>
+    public void SaveTileOrder()
+    {
+        // 拖拽重排作用于 VisibleDashboardTiles，直接以其顺序持久化（保留用户拖拽后的可见磁贴顺序）。
+        _settings.DashboardTileOrder = VisibleDashboardTiles.Select(t => t.Id).ToList();
+    }
+
+    /// <summary>可见性编辑后把隐藏的磁贴 id 写回设置；同时同步顺序，使默认隐藏磁贴的"启用"状态可持久化。</summary>
+    public void SaveTileVisibility()
+    {
+        _settings.DashboardTileHidden = DashboardTiles.Where(t => !t.IsVisible).Select(t => t.Id).ToList();
+        _settings.DashboardTileOrder = VisibleDashboardTiles.Select(t => t.Id).ToList();
+    }
+
+    // ── 新增可隐藏磁贴的逻辑（默认隐藏，需手动启用）──
+    // 运行时长 / 活跃连接：复用 RuntimeText / ActiveConnections（已从网速图底部移出）
+    // 语言 / 主题 / 主题色 / 剪贴板检测：直接作用于对应设置 VM
+
+    private readonly ThemeSettingsViewModel _themeVm;
+    private readonly LanguageSettingsViewModel _langVm;
+
+    // 主题色预设（来自 ThemeSettingsViewModel.PrimaryColors）
+    public ThemeSettingsViewModel.ThemeColor[] AccentColors => _themeVm.PrimaryColors;
+    public string CurrentAccentColorName =>
+        _themeVm.PrimaryColors.ElementAtOrDefault(_themeVm.PrimaryColorIndex)?.Name ?? "";
+
+    /// <summary>当前选中的预设色索引（用于色板选中态黑框）。</summary>
+    public int CurrentAccentColorIndex => _themeVm.PrimaryColorIndex;
+
+    /// <summary>使用系统主题色开关（与设置页共用同一状态）。</summary>
+    public bool TileUseSystemAccentColor
+    {
+        get => _themeVm.UseSystemAccentColor;
+        set => _themeVm.UseSystemAccentColor = value;
+    }
+
+    /// <summary>启用系统色时禁用预设色板（与设置页 UsePresetColors 一致）。</summary>
+    public bool TileUsePresetColors => _themeVm.UsePresetColors;
+
+    public void SelectAccentColor(ThemeSettingsViewModel.ThemeColor color)
+    {
+        var idx = Array.FindIndex(_themeVm.PrimaryColors, c => c.Hex == color.Hex);
+        if (idx >= 0) _themeVm.PrimaryColorIndex = idx;
+    }
+
+    // 语言：RadioButton 绑定（直接操作 _langVm）
+    public bool TileIsChinese { get => _langVm.IsChinese; set => _langVm.IsChinese = value; }
+    public bool TileIsEnglish { get => _langVm.IsEnglish; set => _langVm.IsEnglish = value; }
+
+    // 主题：RadioButton 绑定（直接操作 _themeVm）
+    public bool TileIsSystemTheme { get => _themeVm.IsSystemTheme; set => _themeVm.IsSystemTheme = value; }
+    public bool TileIsLightTheme { get => _themeVm.IsLightTheme; set => _themeVm.IsLightTheme = value; }
+    public bool TileIsDarkTheme { get => _themeVm.IsDarkTheme; set => _themeVm.IsDarkTheme = value; }
+
+    // 剪贴板订阅检测开关（复用既有 EnableClipboardDetection 设置）
+    public bool ClipboardDetectionEnabled
+    {
+        get => _settings.EnableClipboardDetection;
+        set => _settings.EnableClipboardDetection = value;
+    }
+
+    private void OnThemeVmPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ThemeSettingsViewModel.PrimaryColorIndex))
+            _dispatcher.TryEnqueue(() =>
+            {
+                OnPropertyChanged(nameof(CurrentAccentColorName));
+                OnPropertyChanged(nameof(CurrentAccentColorIndex));
+            });
+        else if (e.PropertyName == nameof(ThemeSettingsViewModel.UseSystemAccentColor))
+            _dispatcher.TryEnqueue(() => OnPropertyChanged(nameof(TileUseSystemAccentColor)));
+        else if (e.PropertyName == nameof(ThemeSettingsViewModel.UsePresetColors))
+            _dispatcher.TryEnqueue(() => OnPropertyChanged(nameof(TileUsePresetColors)));
+    }
+
+    // 语言切换（IsChinese/IsEnglish 翻转）后：
+    // ① 磁贴 Title 是 ObservableProperty 字段，需逐个重新赋值触发 source-generated 通知；
+    // ② 主题色名称缓存（PrimaryColors ??=）在首次访问时固化，需重置并通知刷新。
+    private void OnLangVmPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(LanguageSettingsViewModel.IsChinese) or nameof(LanguageSettingsViewModel.IsEnglish))
+            _dispatcher.TryEnqueue(() =>
+            {
+                foreach (var tile in DashboardTiles) tile.RefreshTitle();
+                _themeVm.RefreshPrimaryColors();
+                OnPropertyChanged(nameof(CurrentAccentColorName));
+            });
+    }
+
+    // 语言/主题的 RadioButton 直接绑定 _langVm/_themeVm 的公开属性，
+    // 无需在 DashboardViewModel 层转发通知。
 
     // ── 核心状态 ──
 
@@ -41,6 +244,19 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     // FAB 启动按钮：颜色随核心状态联动（停止=绿引导启动 / 运行=橙红提示停止）
     [ObservableProperty] private SolidColorBrush _startButtonBrush = new(Color.FromArgb(255, 76, 175, 80));
     [ObservableProperty] private string _runtimeText = "";
+
+    /// <summary>运行时长（短格式，与状态栏一致：m:ss 或 h:mm:ss），供运行时长磁贴使用</summary>
+    public string UptimeShort
+    {
+        get
+        {
+            if (!_startTime.HasValue) return "";
+            var elapsed = DateTime.Now - _startTime.Value;
+            return elapsed.TotalHours >= 1
+                ? $"{(int)elapsed.TotalHours}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}"
+                : $"{elapsed.Minutes}:{elapsed.Seconds:D2}";
+        }
+    }
 
     partial void OnIsRunningChanged(bool value)
     {
@@ -93,6 +309,9 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
                 _ = CheckIpAsync();
                 // 校准 TUN 实际状态（虚拟网卡由核心创建，启动后才可知真实状态），保持 UI 与托盘一致
                 _ = SyncTunStateAsync();
+                // 核心启动后才可取真实内存占用与版本号，刷新避免停留在 "--"
+                _ = RefreshMemoryAsync();
+                _ = RefreshCoreVersionAsync();
             }
             else
             {
@@ -212,6 +431,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
             if (_startTime.HasValue)
             {
                 RuntimeText = LocalizationHelper.GetString("DashRuntime.Text") + Converters.TimeFormatter.Duration(DateTime.Now - _startTime.Value);
+                OnPropertyChanged(nameof(UptimeShort));
             }
 
             var total = _clash.GetTotalTraffic();
@@ -362,7 +582,18 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         }
     }
 
-    // ── 内存 ──
+    // ── 内存（实时：订阅 MemoryUpdated 事件，核心运行时持续推送）──
+
+    /// <summary>核心内存实时更新（与状态栏一致，订阅 MemoryUpdated 事件）。</summary>
+    private void OnMemoryUpdated(long memory)
+    {
+        _dispatcher.TryEnqueue(() =>
+        {
+            CoreMemory = Converters.ByteFormatter.Format(memory);
+            // 内存事件仅在核心就绪后推送。每次都尝试取版本号（成功后会显示真实值，不再重写）。
+            _ = RefreshCoreVersionAsync();
+        });
+    }
 
     [ObservableProperty] private string _coreMemory = "--";
     [ObservableProperty] private string _coreVersion = "--";
@@ -372,6 +603,21 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     {
         var bytes = await _clash.GetCoreMemoryAsync();
         CoreMemory = Converters.ByteFormatter.Format(bytes);
+    }
+
+    /// <summary>核心启动后刷新版本号（/version 接口需核心运行)</summary>
+    private async Task RefreshCoreVersionAsync()
+    {
+        try
+        {
+            var ver = await _clash.GetVersionAsync();
+            if (!string.IsNullOrEmpty(ver) && ver != "unknown")
+                CoreVersion = ver;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Dashboard] GetVersionAsync failed: {ex.Message}");
+        }
     }
 
     // ── 内网 IP ──
@@ -458,6 +704,8 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
             _dispatcher.TryEnqueue(() => OnPropertyChanged(nameof(IsSystemProxyOn)));
         if (e.PropertyName == nameof(AppSettings.TunMode))
             _dispatcher.TryEnqueue(() => IsTunEnabled = _settings.TunMode);
+        if (e.PropertyName == nameof(AppSettings.EnableClipboardDetection))
+            _dispatcher.TryEnqueue(() => OnPropertyChanged(nameof(ClipboardDetectionEnabled)));
     }
 
     [RelayCommand]
@@ -524,7 +772,11 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         _connTimer = null;
         _clash.TrafficUpdated -= OnTrafficUpdated;
         _clash.CoreStateChanged -= HandleCoreStateChanged;
+        _clash.MemoryUpdated -= OnMemoryUpdated;
         _settings.PropertyChanged -= OnSettingsPropertyChanged;
+        _themeVm.PropertyChanged -= OnThemeVmPropertyChanged;
+        _langVm.PropertyChanged -= OnLangVmPropertyChanged;
+        foreach (var tile in DashboardTiles) tile.PropertyChanged -= OnTilePropertyChanged;
     }
 
     private static LipisFlag CountryCodeToFlag(string code)

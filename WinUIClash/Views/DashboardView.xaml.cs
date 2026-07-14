@@ -9,6 +9,8 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
 using WinUIClash.Models;
+using WinUIClash.Services;
+using WinUIClash.ViewModels.Settings;
 
 namespace WinUIClash.Views;
 
@@ -46,6 +48,7 @@ public sealed partial class DashboardView : Page
             catch { /* 核心未运行或初始化出错时保持空状态，避免崩溃 */ }
             _textFormat = new CanvasTextFormat { FontSize = 9, FontFamily = "Consolas" };
             SpeedChart.ActualThemeChanged += SpeedChart_ThemeChanged;
+            UpdateSpeedChartHeight();
             SpeedChart.Invalidate();
         };
         Unloaded += (_, _) =>
@@ -64,6 +67,21 @@ public sealed partial class DashboardView : Page
     // ── 网速面积图绘制（Win2D GPU 即时模式，不创建任何 XAML 元素） ──
 
     private void SpeedChart_SizeChanged(object sender, SizeChangedEventArgs e) => SpeedChart.Invalidate();
+
+    // 网速面积图高度随窗口尺寸自适应，范围 [150, 280]
+    private void RootGrid_SizeChanged(object sender, SizeChangedEventArgs e) => UpdateSpeedChartHeight();
+
+    private void UpdateSpeedChartHeight()
+    {
+        if (SpeedChartHost is null) return;
+        double available = RootGrid.ActualHeight;
+        if (available <= 0) return;
+        const double minHeight = 150;
+        const double maxHeight = 280;
+        const double factor = 0.30;
+        double desired = Math.Clamp(available * factor, minHeight, maxHeight);
+        SpeedChartHost.Height = desired;
+    }
 
     private void SpeedChart_Draw(CanvasControl sender, CanvasDrawEventArgs args)
     {
@@ -252,6 +270,58 @@ public sealed partial class DashboardView : Page
         Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dp);
     }
 
+    // 主题色磁贴：色板容器（用于选中态刷新）。ElementPrepared 首次实体化时捕获。
+    private ItemsRepeater? _accentRepeater;
+
+    private void AccentSwatch_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.Tag is ThemeSettingsViewModel.ThemeColor color)
+        {
+            ViewModel.SelectAccentColor(color);
+            UpdateAccentSwatchSelection();
+        }
+    }
+
+    // 色板项实体化时：捕获容器引用并按当前选中索引设置黑框（参考主题设置子页面）。
+    private void AccentSwatch_ElementPrepared(ItemsRepeater sender, ItemsRepeaterElementPreparedEventArgs args)
+    {
+        _accentRepeater = sender;
+        UpdateAccentSwatchBorder(args.Element, args.Index);
+    }
+
+    // 遍历刷新所有已实体化色板的选中态。
+    private void UpdateAccentSwatchSelection()
+    {
+        if (_accentRepeater is null) return;
+        for (int i = 0; i < ViewModel.AccentColors.Length; i++)
+        {
+            var element = _accentRepeater.TryGetElement(i);
+            if (element != null) UpdateAccentSwatchBorder(element, i);
+        }
+    }
+
+    // 选中项加黑色 2px 边框（含 hover/pressed 态一并锁定为黑色），未选中项无边框。
+    private void UpdateAccentSwatchBorder(UIElement element, int index)
+    {
+        if (element is not Button btn) return;
+        if (index == ViewModel.CurrentAccentColorIndex)
+        {
+            var blackBrush = new SolidColorBrush(Microsoft.UI.Colors.Black);
+            btn.BorderThickness = new Thickness(2);
+            btn.BorderBrush = blackBrush;
+            btn.Resources["ButtonBorderBrushPointerOver"] = blackBrush;
+            btn.Resources["ButtonBorderBrushPressed"] = blackBrush;
+        }
+        else
+        {
+            var transparentBrush = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+            btn.BorderThickness = new Thickness(0);
+            btn.BorderBrush = null;
+            btn.Resources["ButtonBorderBrushPointerOver"] = transparentBrush;
+            btn.Resources["ButtonBorderBrushPressed"] = transparentBrush;
+        }
+    }
+
     private void TunToggle_Toggled(object sender, RoutedEventArgs e)
     {
         if (sender is ToggleSwitch ts)
@@ -262,5 +332,90 @@ public sealed partial class DashboardView : Page
                 ViewModel.ToggleTunModeCommand.Execute(null);
             }
         }
+    }
+
+    // ── 磁贴拖拽重排：拖拽结束后把新顺序写回设置 ──
+
+    private void TileGrid_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+    {
+        ViewModel.SaveTileOrder();
+    }
+
+    // ── 编辑磁贴可见性 ──
+
+    private async void EditTiles_Click(object sender, RoutedEventArgs e)
+    {
+        var stack = new StackPanel { Spacing = 8 };
+        foreach (var tile in ViewModel.DashboardTiles)
+        {
+            var cb = new CheckBox
+            {
+                Content = tile.Title,
+                IsChecked = tile.IsVisible,
+            };
+            cb.Checked += (_, _) => tile.IsVisible = true;
+            cb.Unchecked += (_, _) => tile.IsVisible = false;
+            stack.Children.Add(cb);
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = LocalizationHelper.GetString("DashEditTiles.Content"),
+            Content = new ScrollViewer
+            {
+                Content = stack,
+                MaxHeight = 360,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+            },
+            CloseButtonText = LocalizationHelper.GetString("CommonDone.Content"),
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = XamlRoot,
+        };
+
+        // ContentDialog 由 Popup 承载，脱离窗口根视觉树，看不到窗口根上的自定义强调色覆盖。
+        // 手动把当前强调色画刷镜像进弹窗自身 Resources，使勾选框等显示自定义主题色而非系统色。
+        ThemeSettingsViewModel.ApplyAccentBrushesTo(dialog.Resources);
+
+        await dialog.ShowAsync();
+        // 勾选时 IsVisible 已实时驱动 VisibleDashboardTiles 增删（ViewModel 内维护），此处仅持久化。
+        ViewModel.SaveTileVisibility();
+    }
+}
+
+/// <summary>按磁贴类型选择渲染模板</summary>
+public class DashboardTileSelector : DataTemplateSelector
+{
+    public DataTemplate? OutboundModeTemplate { get; set; }
+    public DataTemplate? NetworkCheckTemplate { get; set; }
+    public DataTemplate? TrafficStatsTemplate { get; set; }
+    public DataTemplate? MemoryTemplate { get; set; }
+    public DataTemplate? ActiveNodeTemplate { get; set; }
+    public DataTemplate? ActiveProfileTemplate { get; set; }
+    public DataTemplate? UptimeTemplate { get; set; }
+    public DataTemplate? ConnectionsTemplate { get; set; }
+    public DataTemplate? LanguageTemplate { get; set; }
+    public DataTemplate? ThemeTemplate { get; set; }
+    public DataTemplate? AccentColorTemplate { get; set; }
+    public DataTemplate? ClipboardDetectTemplate { get; set; }
+
+    protected override DataTemplate? SelectTemplateCore(object item)
+    {
+        if (item is not DashboardTile tile) return null;
+        return tile.Type switch
+        {
+            DashboardTileType.OutboundMode => OutboundModeTemplate,
+            DashboardTileType.NetworkCheck => NetworkCheckTemplate,
+            DashboardTileType.TrafficStats => TrafficStatsTemplate,
+            DashboardTileType.Memory => MemoryTemplate,
+            DashboardTileType.ActiveNode => ActiveNodeTemplate,
+            DashboardTileType.ActiveProfile => ActiveProfileTemplate,
+            DashboardTileType.Uptime => UptimeTemplate,
+            DashboardTileType.Connections => ConnectionsTemplate,
+            DashboardTileType.Language => LanguageTemplate,
+            DashboardTileType.Theme => ThemeTemplate,
+            DashboardTileType.AccentColor => AccentColorTemplate,
+            DashboardTileType.ClipboardDetect => ClipboardDetectTemplate,
+            _ => null,
+        };
     }
 }

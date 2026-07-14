@@ -44,11 +44,15 @@
     <x:String x:Key="DashCoreStop.Text">Stop</x:String>
     <x:String x:Key="CoreAutoManaged.Text">Core is auto-managed by the app</x:String>
     <x:String x:Key="DashRuntime.Text">Running </x:String>
+    <x:String x:Key="DashNetworkSpeed.Text">Network Speed</x:String>
+    <x:String x:Key="DashTunCard.Text">Virtual NIC</x:String>
     <x:String x:Key="DashOutboundMode.Text">Outbound Mode</x:String>
     <x:String x:Key="DashSystemProxy.Text">System Proxy</x:String>
     <x:String x:Key="DashSystemInfo.Text">System Info</x:String>
     <x:String x:Key="DashRefreshMemory.Content">Recycle Memory</x:String>
     <x:String x:Key="DashCoreVersion.Text">Core Version</x:String>
+    <x:String x:Key="DashTileMemoryUsage.Text">Memory</x:String>
+    <x:String x:Key="DashTileMemoryVersion.Text">Version</x:String>
     <x:String x:Key="DashIpLocalFetching.Text">Fetching…</x:String>
     <x:String x:Key="DashIpLocalFailed.Text">Not available</x:String>
 
@@ -68,6 +72,7 @@
     <x:String x:Key="CommonClose.Content">Close</x:String>
     <x:String x:Key="CommonCancel.Content">Cancel</x:String>
     <x:String x:Key="CommonConfirm.Content">Confirm</x:String>
+    <x:String x:Key="CommonDone.Content">Done</x:String>
     <x:String x:Key="CommonDelete.Content">Delete</x:String>
     <x:String x:Key="CommonSave.Content">Save</x:String>
     <x:String x:Key="CommonCopy.Content">Copy</x:String>
@@ -249,7 +254,7 @@
     <x:String x:Key="ConfigPortSettingsDesc.Text">Mixed, SOCKS and HTTP proxy ports</x:String>
     <x:String x:Key="ConfigFeatureSwitches.Text">Feature Switches</x:String>
     <x:String x:Key="ConfigClipboardDetect.Text">Clipboard subscription detection</x:String>
-    <x:String x:Key="ConfigClipboardDetectDesc.Text">Auto-detect subscription links in clipboard when opening the Profiles page (disabled by default)</x:String>
+    <x:String x:Key="ConfigClipboardDetectDesc.Text">Auto-detect subscription links in clipboard when opening the Profiles page</x:String>
     <x:String x:Key="ConfigFeatureSwitchesDesc.Text">Runtime behavior toggles for the core</x:String>
 
     <!-- App Settings - Section Headers -->
@@ -632,5 +637,25 @@
     <x:String x:Key="FirstRunNext.Content">Next</x:String>
     <x:String x:Key="FirstRunFinish.Content">Finish</x:String>
     <x:String x:Key="FirstRunSkip.Content">Skip</x:String>
+
+    <!-- Dashboard tiles -->
+    <x:String x:Key="DashEditTiles.Content">Edit Tiles</x:String>
+    <x:String x:Key="DashTile_SystemProxy.Text">System Proxy</x:String>
+    <x:String x:Key="DashTile_Tun.Text">Virtual NIC (TUN)</x:String>
+    <x:String x:Key="DashTile_OutboundMode.Text">Outbound Mode</x:String>
+    <x:String x:Key="DashTile_NetworkCheck.Text">Network Check</x:String>
+    <x:String x:Key="DashTile_TrafficStats.Text">Traffic Stats</x:String>
+    <x:String x:Key="DashTile_Memory.Text">Core Resources</x:String>
+    <x:String x:Key="DashTile_ActiveNode.Text">Current Node</x:String>
+    <x:String x:Key="DashTile_ActiveProfile.Text">Current Profile</x:String>
+    <x:String x:Key="DashTile_Uptime.Text">Uptime</x:String>
+    <x:String x:Key="DashTile_Connections.Text">Active Connections</x:String>
+    <x:String x:Key="DashTile_Language.Text">Language</x:String>
+    <x:String x:Key="DashTile_Theme.Text">Theme</x:String>
+    <x:String x:Key="DashTile_AccentColor.Text">Accent Color</x:String>
+    <x:String x:Key="DashTile_ClipboardDetect.Text">Clipboard Subscription</x:String>
+    <x:String x:Key="DashTileLanguageZh.Text">Chinese</x:String>
+    <x:String x:Key="DashTileLanguageEn.Text">English</x:String>
+    <x:String x:Key="DashTileSwitch.Content">Switch</x:String>
 
 </ResourceDictionary>

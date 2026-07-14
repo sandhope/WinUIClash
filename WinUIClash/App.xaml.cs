@@ -16,6 +16,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using WinUIClash.ViewModels.Settings;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -77,6 +78,8 @@ namespace WinUIClash
                         CloseButtonText = Services.LocalizationHelper.GetString("AppErrorExit.Content"),
                         XamlRoot = root.XamlRoot,
                     };
+
+                    ThemeSettingsViewModel.ApplyAccentBrushesTo(dialog.Resources);
 
                     if (await dialog.ShowAsync() == ContentDialogResult.None)
                     {
@@ -143,6 +146,7 @@ namespace WinUIClash
                 try
                 {
                     var guide = new Views.FirstRunGuideDialog { XamlRoot = xamlRoot };
+                    // ThemeSettingsViewModel.ApplyAccentBrushesTo(guide.Resources);
                     await guide.ShowAsync();
                 }
                 catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"First-run guide failed: {ex.Message}"); }
@@ -196,6 +200,9 @@ namespace WinUIClash
                 DefaultButton = ContentDialogButton.Close,
                 XamlRoot = xamlRoot,
             };
+
+            ThemeSettingsViewModel.ApplyAccentBrushesTo(dialog.Resources);
+
             var result = await dialog.ShowAsync();
             return result == ContentDialogResult.Primary
                 ? Services.ConflictResolution.KillProcess
@@ -220,6 +227,7 @@ namespace WinUIClash
             Resources.Add("LogLevelToColorConverter", new Converters.LogLevelToColorConverter());
             Resources.Add("BoolToVisibilityConverter", new Converters.BoolToVisibilityConverter());
             Resources.Add("InverseBoolToVisibilityConverter", new Converters.InverseBoolToVisibilityConverter());
+            Resources.Add("BoolToOpacityConverter", new Converters.BoolToOpacityConverter());
             Resources.Add("NullToVisibilityConverter", new Converters.NullToVisibilityConverter());
             Resources.Add("DelayToColorConverter", new Converters.DelayToColorConverter());
             Resources.Add("DelayToTextConverter", new Converters.DelayToTextConverter());
