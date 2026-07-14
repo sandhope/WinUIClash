@@ -319,8 +319,6 @@
     <x:String x:Key="ProfilesImportTitle.Text">Import Subscription</x:String>
     <x:String x:Key="ProfilesViewConfig.Text">View Config</x:String>
     <x:String x:Key="ProfilesCopyUrl.Text">Copy Link</x:String>
-    <x:String x:Key="ProfilesEditName.Text">Edit Name</x:String>
-    <x:String x:Key="ProfilesEditNameTitle.Text">Edit Name</x:String>
     <x:String x:Key="ProfilesEditProfile.Text">Edit Profile</x:String>
     <x:String x:Key="ProfilesEditProfileTitle.Text">Edit Profile</x:String>
     <x:String x:Key="ProfilesMoveUp.Text">Move Up</x:String>
