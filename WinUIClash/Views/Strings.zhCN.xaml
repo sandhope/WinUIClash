@@ -248,6 +248,8 @@
     <x:String x:Key="ConfigPortSettings.Text">端口设置</x:String>
     <x:String x:Key="ConfigPortSettingsDesc.Text">混合端口、SOCKS 与 HTTP 代理端口</x:String>
     <x:String x:Key="ConfigFeatureSwitches.Text">功能开关</x:String>
+    <x:String x:Key="ConfigClipboardDetect.Text">剪贴板订阅检测</x:String>
+    <x:String x:Key="ConfigClipboardDetectDesc.Text">打开配置页面时自动检测剪贴板中的订阅链接（默认关闭）</x:String>
     <x:String x:Key="ConfigFeatureSwitchesDesc.Text">核心运行时行为的各项开关</x:String>
 
     <!-- App Settings - Section Headers -->
@@ -308,7 +310,8 @@
     <x:String x:Key="ProfilesPasteClipboard.Content">粘贴</x:String>
     <x:String x:Key="ProfilesActive.Text">使用中</x:String>
     <x:String x:Key="ProfilesClipboardTitle.Text">检测到订阅链接</x:String>
-    <x:String x:Key="ProfilesClipboardContent.Text">剪贴板中发现订阅链接:\n\n{0}\n\n是否导入？</x:String>
+    <x:String x:Key="ProfilesClipboardHint.Text">在剪贴板中发现以下订阅链接：</x:String>
+    <x:String x:Key="ProfilesClipboardContent.Text">是否导入此订阅？</x:String>
     <x:String x:Key="ProfilesUrlHeader.Text">订阅地址</x:String>
     <x:String x:Key="ProfilesNamePlaceholder.Text">自动识别（可手动修改）</x:String>
     <x:String x:Key="ProfilesNameHeader.Text">配置名称</x:String>

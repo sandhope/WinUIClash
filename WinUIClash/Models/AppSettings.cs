@@ -52,6 +52,8 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private string _language = "zh-CN";
     /// <summary>是否已完成首次启动引导（false 时下次启动弹出引导向导）</summary>
     [ObservableProperty] private bool _hasCompletedFirstRunGuide = false;
+    /// <summary>是否启用打开配置页面时自动检测剪贴板订阅链接（默认关闭）</summary>
+    [ObservableProperty] private bool _enableClipboardDetection = false;
 
     // ── 主题设置 ──
 
