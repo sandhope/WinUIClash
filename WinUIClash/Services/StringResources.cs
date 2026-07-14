@@ -569,4 +569,18 @@ public class StringResources : INotifyPropertyChanged
     public string GeoResources_Text => Get("GeoResources.Text");
     public string GeoEditUrl_Text => Get("GeoEditUrl.Text");
     public string GeoSync_Text => Get("GeoSync.Text");
+
+    // --- 网络诊断与开发者工具 ---
+    public string DevToolsTitle_Text => Get("DevToolsTitle.Text");
+    public string DevToolsDesc_Text => Get("DevToolsDesc.Text");
+    public string DevToolsCardSub_Text => Get("DevToolsCardSub.Text");
+    public string DevToolsRefresh_Content => Get("DevToolsRefresh.Content");
+    public string DevToolsWsl_Text => Get("DevToolsWsl.Text");
+    public string DevToolsWslDesc_Text => Get("DevToolsWslDesc.Text");
+    public string DevToolsTerminal_Text => Get("DevToolsTerminal.Text");
+    public string DevToolsTerminalDesc_Text => Get("DevToolsTerminalDesc.Text");
+    public string DevToolsStore_Text => Get("DevToolsStore.Text");
+    public string DevToolsStoreDesc_Text => Get("DevToolsStoreDesc.Text");
+    public string DevToolsApply_Content => Get("DevToolsApply.Content");
+    public string DevToolsReset_Content => Get("DevToolsReset.Content");
 }

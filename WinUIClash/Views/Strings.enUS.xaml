@@ -576,4 +576,34 @@
     <x:String x:Key="ShortcutCatCore.Text">Core &amp; proxy</x:String>
     <x:String x:Key="ShortcutCatApp.Text">Application</x:String>
 
+    <!-- Network Diagnostics & Developer Tools -->
+    <x:String x:Key="DevToolsTitle.Text">Network Diagnostics &amp; Developer Tools</x:String>
+    <x:String x:Key="DevToolsDesc.Text">Windows network repair tools for developers: WSL proxy bridge, terminal proxy environment variables, and Microsoft Store loopback exemption. No admin rights required.</x:String>
+    <x:String x:Key="DevToolsCardSub.Text">WSL proxy / Terminal proxy / Store loopback</x:String>
+    <x:String x:Key="DevToolsRefresh.Content">Re-check</x:String>
+    <x:String x:Key="DevToolsWsl.Text">WSL Proxy Bridge</x:String>
+    <x:String x:Key="DevToolsWslDesc.Text">Lets WSL inherit Windows proxy environment variables so proxies work inside WSL.</x:String>
+    <x:String x:Key="DevToolsTerminal.Text">Terminal Proxy Env</x:String>
+    <x:String x:Key="DevToolsTerminalDesc.Text">Writes HTTP_PROXY etc. for newly launched CMD / PowerShell / Git Bash.</x:String>
+    <x:String x:Key="DevToolsStore.Text">Microsoft Store Loopback</x:String>
+    <x:String x:Key="DevToolsStoreDesc.Text">Allows Microsoft Store and other UWP apps to reach the local proxy (127.0.0.1).</x:String>
+    <x:String x:Key="DevToolsApply.Content">Apply / Fix</x:String>
+    <x:String x:Key="DevToolsReset.Content">Reset</x:String>
+
+    <!-- Network diagnostic messages -->
+    <x:String x:Key="DevDiagWsl.Text">WSL Proxy Bridge</x:String>
+    <x:String x:Key="DevDiagTerminal.Text">Terminal Proxy Env</x:String>
+    <x:String x:Key="DevDiagStore.Text">Microsoft Store Loopback</x:String>
+    <x:String x:Key="DevDiagWslReady.Text">WSL proxy bridge configured correctly.</x:String>
+    <x:String x:Key="DevDiagWslUnavailable.Text">WSL not detected. Install WSL2 first.</x:String>
+    <x:String x:Key="DevDiagWslProxyMissing.Text">WSL available, but terminal proxy env not configured.</x:String>
+    <x:String x:Key="DevDiagWslBridgeMissing.Text">WSL available, but WSLENV proxy bridge not configured.</x:String>
+    <x:String x:Key="DevDiagTerminalReady.Text">Terminal proxy env configured.</x:String>
+    <x:String x:Key="DevDiagTerminalMissing.Text">Terminal proxy env not configured.</x:String>
+    <x:String x:Key="DevDiagStoreReady.Text">Microsoft Store loopback exemption enabled.</x:String>
+    <x:String x:Key="DevDiagStoreMissing.Text">Microsoft Store loopback exemption not enabled.</x:String>
+    <x:String x:Key="DevDiagChecking.Text">Checking…</x:String>
+    <x:String x:Key="DevDiagApplying.Text">Applying…</x:String>
+    <x:String x:Key="DevDiagResetting.Text">Resetting…</x:String>
+
 </ResourceDictionary>
