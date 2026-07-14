@@ -108,7 +108,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         try
         {
             // 核心常驻后台：FAB 仅切换“代理是否激活”，绝不启停进程。
-            if (_isRunning)
+            if (IsRunning)
                 await DisconnectProxyAsync();
             else
                 await ConnectProxyAsync();
@@ -129,7 +129,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
                 await _clash.StartAsync();
 
             // 按用户选择的出站模式激活（直连选择视为 Rule，以便真正建立连接）
-            var mode = _outboundMode == OutboundMode.Direct ? OutboundMode.Rule : _outboundMode;
+            var mode = OutboundMode == OutboundMode.Direct ? OutboundMode.Rule : OutboundMode;
             await _clash.SetOutboundModeAsync(mode);
 
             // 仅当用户开启了“系统代理”开关时才启用 Windows 系统代理（对齐 FlClash）

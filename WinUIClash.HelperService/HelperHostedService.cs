@@ -99,11 +99,29 @@ public class HelperHostedService : BackgroundService
             using (client)
             using (var stream = client.GetStream())
             {
-                using var reader = new StreamReader(stream, Encoding.ASCII, leaveOpen: true);
+                // 读取 Headers 字节，直到遇到 \r\n\r\n (0x0D 0x0A 0x0D 0x0A)
+                var headerBytes = new List<byte>();
+                var temp = new byte[1];
+                while (true)
+                {
+                    int read = await stream.ReadAsync(temp, 0, 1, stoppingToken);
+                    if (read == 0) return;
+                    headerBytes.Add(temp[0]);
+                    if (headerBytes.Count >= 4 &&
+                        headerBytes[headerBytes.Count - 4] == 0x0D &&
+                        headerBytes[headerBytes.Count - 3] == 0x0A &&
+                        headerBytes[headerBytes.Count - 2] == 0x0D &&
+                        headerBytes[headerBytes.Count - 1] == 0x0A)
+                    {
+                        break;
+                    }
+                }
 
-                var requestLine = await reader.ReadLineAsync(stoppingToken);
-                if (string.IsNullOrWhiteSpace(requestLine)) return;
+                var headersText = Encoding.ASCII.GetString(headerBytes.ToArray());
+                var lines = headersText.Split(new[] { "\r\n" }, StringSplitOptions.None);
+                if (lines.Length == 0) return;
 
+                var requestLine = lines[0];
                 var parts = requestLine.Split(' ');
                 if (parts.Length < 2) { await SendResponseAsync(stream, 400, "Bad Request"); return; }
                 var method = parts[0];
@@ -120,29 +138,30 @@ public class HelperHostedService : BackgroundService
 
                 // 读取请求头，解析 Content-Length
                 var contentLength = 0;
-                string? headerLine;
-                while (!string.IsNullOrWhiteSpace(headerLine = await reader.ReadLineAsync(stoppingToken)))
+                for (int i = 1; i < lines.Length; i++)
                 {
-                    if (headerLine.StartsWith("Content-Length:", StringComparison.OrdinalIgnoreCase) &&
-                        int.TryParse(headerLine.Substring("Content-Length:".Length).Trim(), out var cl))
+                    var line = lines[i];
+                    if (line.StartsWith("Content-Length:", StringComparison.OrdinalIgnoreCase) &&
+                        int.TryParse(line.Substring("Content-Length:".Length).Trim(), out var cl))
                     {
                         contentLength = cl;
+                        break;
                     }
                 }
 
-                // 读取请求体
+                // 读取请求体 (按字节精确读取，防止 UTF-8 字符长度与 Content-Length 字节数不一致导致挂起/乱码)
                 var body = "";
                 if (contentLength > 0)
                 {
-                    var buf = new char[contentLength];
-                    var read = 0;
-                    while (read < contentLength)
+                    var bodyBytes = new byte[contentLength];
+                    var readBytes = 0;
+                    while (readBytes < contentLength)
                     {
-                        var n = await reader.ReadAsync(buf.AsMemory(read, contentLength - read), stoppingToken);
+                        var n = await stream.ReadAsync(bodyBytes, readBytes, contentLength - readBytes, stoppingToken);
                         if (n == 0) break;
-                        read += n;
+                        readBytes += n;
                     }
-                    body = new string(buf, 0, read);
+                    body = Encoding.UTF8.GetString(bodyBytes, 0, readBytes);
                 }
 
                 // 鉴权：除 /ping 外的所有请求需带有效 token

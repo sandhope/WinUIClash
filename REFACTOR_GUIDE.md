@@ -91,7 +91,9 @@ App 启动
 
 ### 3.1 核心生命周期
 - **App 启动时**：无条件启动 `mihomo.exe` 进程，初始化成功后默认处于 `direct` 模式。
-- **App 退出时**：杀死 `mihomo.exe` 进程，释放端口占用。**只有 App 退出才允许杀进程。**
+- **App 退出时（彻底退出）**：通过 Helper Service IPC（`POST /stop`）由 SYSTEM 服务**强行 Kill 其拉起的 `mihomo.exe` 核心进程**，释放 7890/9090 端口并自动卸载 TUN 虚拟网卡；若 Helper 不可达，UI 兜底按二进制路径强杀核心。**只有 App 彻底退出才允许杀核心进程。**
+  - **WinUIClashHelperService 服务本身保持常驻（开机自启），App 退出时绝不卸载**——低权限 UI 既无权也无需销毁 SYSTEM 服务；常驻可消灭“下次打开再弹 UAC”。完整退出契约见 `WinUIClash_INTEGRATION.md` 5.2。
+- **最小化到托盘（MinimizeOnExit=true）**：仅 `Hide()` 窗口，**不杀核心、不卸载服务**，App 仍在后台运行（核心继续常驻）。
 - **开始按钮**：切换 `mode`（`direct` $\leftrightarrow$ `rule`），同步切换系统代理/TUN 的开关。**绝对不 toggle 进程**。
 - **开始按钮默认状态**：非运行（Play 图标），因为初始化 `isStart` 默认为 `false`。
 
@@ -105,6 +107,7 @@ App 启动
 - **零 UAC 弹窗设计**：为了 1:1 还原丝滑体验，严禁在用户点击 TUN 开关时弹出系统 UAC 提权窗。
 - **系统服务接管**：提权由常驻的 Windows 系统服务 `WinUIClashHelper` 代为执行。该服务在软件安装时注册为 SYSTEM 权限服务。
 - **动态无感启用**：主 UI 进程仅作为控制端，通过本地 IPC 向后台服务发送启用/禁用指令。服务在后台完成驱动加载与网卡创建，UI 进程和核心进程无需重启，实现秒级无缝切换。
+- **退出工作流（服务常驻 / 核心随 UI 销毁）**：App 彻底退出时，UI 向 Helper 发送 `shutdown_core`（`POST /stop`）→ Helper 强制 Kill 核心并清理 TUN/端口，但**服务自身保持常驻**；UI 随后 `SystemProxyService.EnsureDisabledOnExit()` 关闭系统代理并退出。完整流程见 `WinUIClash_INTEGRATION.md`。
 
 ### 3.4 后台线程安全（WinRT COM 铁律）
 - **后台线程严禁直接操作 WinUI 3 控件或 XAML 对象**，否则必崩（报 `RPC_E_WRONG_THREAD` 错误）。

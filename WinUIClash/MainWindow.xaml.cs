@@ -123,7 +123,7 @@ public sealed partial class MainWindow : Window
         {
             var settings = ServiceLocator.Get<AppSettings>();
 
-            // 恢复窗口大小（与 WinSing 一致：仅当存在已保存的尺寸时才应用，
+            // 恢复窗口大小（仅当存在已保存的尺寸时才应用，
             // 否则使用系统默认尺寸，而不是强制一个固定默认值）
             if (settings.WindowWidth > 0 && settings.WindowHeight > 0)
             {
@@ -139,10 +139,8 @@ public sealed partial class MainWindow : Window
             }
 
             // 恢复侧边栏状态
-            if (settings.IsSidebarCompact)
-            {
-                RootNavigation.PaneDisplayMode = NavigationViewPaneDisplayMode.LeftCompact;
-            }
+            RootNavigation.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
+            RootNavigation.IsPaneOpen = !settings.IsSidebarCompact;
 
             // 恢复最大化状态
             if (settings.IsMaximized && AppWindow.Presenter is Microsoft.UI.Windowing.OverlappedPresenter presenter)
@@ -172,8 +170,7 @@ public sealed partial class MainWindow : Window
                 settings.WindowY = AppWindow.Position.Y;
             }
 
-            settings.IsSidebarCompact =
-                RootNavigation.PaneDisplayMode == NavigationViewPaneDisplayMode.LeftCompact;
+            settings.IsSidebarCompact = !RootNavigation.IsPaneOpen;
 
             // 立即保存到磁盘
             var settingsService = ServiceLocator.Get<Services.SettingsService>();
@@ -264,13 +261,7 @@ public sealed partial class MainWindow : Window
             Key = Windows.System.VirtualKey.B,
             Modifiers = Windows.System.VirtualKeyModifiers.Control,
         };
-        sidebarAccel.Invoked += (_, _) =>
-        {
-            RootNavigation.PaneDisplayMode =
-                RootNavigation.PaneDisplayMode == NavigationViewPaneDisplayMode.Left
-                    ? NavigationViewPaneDisplayMode.LeftCompact
-                    : NavigationViewPaneDisplayMode.Left;
-        };
+        sidebarAccel.Invoked += (_, _) => ToggleSidebar();
         RootGrid.KeyboardAccelerators.Add(sidebarAccel);
 
         // F5 刷新当前页面
@@ -489,6 +480,16 @@ public sealed partial class MainWindow : Window
         {
             ContentFrame.Navigate(pageType);
         }
+    }
+
+    private void ToggleSidebar()
+    {
+        RootNavigation.IsPaneOpen = !RootNavigation.IsPaneOpen;
+    }
+
+    private void AppTitleBar_PaneToggleRequested(TitleBar sender, object args)
+    {
+        ToggleSidebar();
     }
 
     // ── 窗口标题 ────────────────────────────────────────────────────────────
