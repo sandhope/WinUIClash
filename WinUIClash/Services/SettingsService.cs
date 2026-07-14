@@ -1,4 +1,5 @@
 using System.Text.Json;
+using WinUIClash.Helpers;
 using WinUIClash.Models;
 
 namespace WinUIClash.Services;
@@ -22,11 +23,13 @@ public class SettingsService
     };
 
     private readonly AppSettings _settings;
-    private System.Timers.Timer? _debounceTimer;
+    private readonly DebounceHelper _debounce;
 
     public SettingsService(AppSettings settings)
     {
         _settings = settings;
+        // 防抖：500ms 内的多次保存请求合并为一次磁盘写入
+        _debounce = new DebounceHelper(_ => { SaveImmediate(); return Task.CompletedTask; }, TimeSpan.FromMilliseconds(500));
     }
 
     /// <summary>从磁盘加载设置（启动时调用）</summary>
@@ -100,15 +103,10 @@ public class SettingsService
         }
     }
 
-    /// <summary>保存到磁盘（防抖：500ms 内多次调用只写一次）</summary>
+    /// <summary>保存到磁盘（防抖：500ms 内的多次调用合并为一次写入）</summary>
     public void Save()
     {
-        _debounceTimer?.Stop();
-        _debounceTimer?.Dispose();
-
-        _debounceTimer = new System.Timers.Timer(500) { AutoReset = false };
-        _debounceTimer.Elapsed += (_, _) => SaveImmediate();
-        _debounceTimer.Start();
+        _debounce.Pulse();
     }
 
     /// <summary>立即保存（退出时调用）</summary>

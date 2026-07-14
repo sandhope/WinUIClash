@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.ComponentModel;
 using System.Net.Sockets;
 using System.Net.WebSockets;
+using WinUIClash.Helpers;
 using WinUIClash.Models;
 
 namespace WinUIClash.Services;
@@ -46,7 +47,7 @@ public class ClashOrchestrator : IClashService
     // ── 网络变化检测 ──
     private bool _wasRunningBeforeNetworkLoss;
     private bool _networkLost;
-    private CancellationTokenSource? _networkDebounceCts;
+    private readonly DebounceHelper _networkDebounce;
 
     // ── 事件 ──
     public event Action<Traffic>? TrafficUpdated;
@@ -75,6 +76,9 @@ public class ClashOrchestrator : IClashService
         _helperServiceManager = helperServiceManager;
         _settings = settings;
         _logger = logger;
+
+        // 网络变化防抖：静默期（3s）内的多次变化只触发一次实际处理
+        _networkDebounce = new DebounceHelper(_ => OnNetworkDebouncedAsync(), TimeSpan.FromSeconds(3));
 
         try { _uiDispatcher = DispatcherQueue.GetForCurrentThread(); }
         catch { _uiDispatcher = null; }
@@ -716,20 +720,22 @@ public class ClashOrchestrator : IClashService
     }
 
     /// <summary>
-    /// 网络变化检测：断网时记录核心状态；恢复后若此前在运行，则自动重启核心。
-    /// 使用防抖避免瞬时变化频繁触发。
+    /// 网络变化事件处理：仅触发防抖，实际逻辑在静默期（3s）末尾由
+    /// <see cref="OnNetworkDebouncedAsync"/> 执行一次，避免瞬时变化频繁触发。
     /// </summary>
-    private async void OnNetworkStatusChanged(object? sender)
+    private void OnNetworkStatusChanged(object? sender)
     {
-        _networkDebounceCts?.Cancel();
-        _networkDebounceCts = new CancellationTokenSource();
-        var token = _networkDebounceCts.Token;
+        _networkDebounce.Pulse();
+    }
 
+    /// <summary>
+    /// 网络变化防抖后的实际处理：断网时记录核心状态；恢复后若此前在运行，则自动重启核心。
+    /// 由 <see cref="DebounceHelper"/> 在静默期末尾触发一次，无需手动判断取消。
+    /// </summary>
+    private async Task OnNetworkDebouncedAsync()
+    {
         try
         {
-            await Task.Delay(TimeSpan.FromSeconds(3), token);
-            if (token.IsCancellationRequested) return;
-
             var hasInternet = HasInternetConnectivity();
 
             if (!hasInternet && _coreState == CoreState.Running && !_networkLost)
@@ -753,8 +759,7 @@ public class ClashOrchestrator : IClashService
                         LocalizationHelper.GetString("NetworkRestored.Text"),
                         LocalizationHelper.GetString("NetworkRestoredMsg.Text"));
 
-                    await Task.Delay(TimeSpan.FromSeconds(2), token);
-                    if (token.IsCancellationRequested) return;
+                    await Task.Delay(TimeSpan.FromSeconds(2));
 
                     _restartAttempts = 0;
                     await StartAsync();
@@ -768,7 +773,6 @@ public class ClashOrchestrator : IClashService
                 }
             }
         }
-        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "处理网络状态变化出错");

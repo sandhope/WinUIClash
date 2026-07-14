@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
+using WinUIClash.Helpers;
 using WinUIClash.Models;
 using WinUIClash.Services;
 
@@ -18,6 +19,7 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
     private readonly AppSettings _settings;
     private readonly DispatcherQueue _dispatcher;
     private readonly System.Threading.Timer _autoUpdateTimer;
+    private readonly FailureSuppressor _autoUpdateSuppressor = new();
     private bool _initialized;
 
     public ResourcesViewModel(GeoResourceService geo, NotificationService notification, AppSettings settings)
@@ -170,6 +172,8 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
     {
         if (!_settings.GeoAutoUpdate) return;
         var threshold = DateTime.Now.AddHours(-Math.Max(1, _settings.GeoUpdateInterval));
+        bool anyFailed = false;
+        Exception? lastError = null;
         foreach (var item in Items)
         {
             var info = _geo.GetFileInfo(item.Type);
@@ -180,9 +184,15 @@ public partial class ResourcesViewModel : ObservableObject, IDisposable
                     await _geo.UpdateAsync(item.Type, item.Url);
                     _dispatcher.TryEnqueue(() => RefreshFileInfo(item));
                 }
-                catch { /* 自动更新失败静默 */ }
+                catch (Exception ex) { anyFailed = true; lastError = ex; }
             }
         }
+
+        // 失败抑制：首次失败记一次、恢复（首次成功）记一次，避免每次循环刷屏
+        _autoUpdateSuppressor.Record(
+            anyFailed,
+            onFirstFailure: () => System.Diagnostics.Debug.WriteLine($"[Resources] Geo 资源自动更新失败: {lastError}"),
+            onRecovered: () => System.Diagnostics.Debug.WriteLine("[Resources] Geo 资源自动更新已恢复"));
     }
 
     public async Task InitializeAsync()
