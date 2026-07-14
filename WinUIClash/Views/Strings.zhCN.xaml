@@ -607,4 +607,30 @@
     <x:String x:Key="DevDiagApplying.Text">正在应用…</x:String>
     <x:String x:Key="DevDiagResetting.Text">正在重置…</x:String>
 
+    <!-- 首次启动引导（§4.1） -->
+    <x:String x:Key="FirstRunTitle.Text">欢迎使用 WinUIClash</x:String>
+    <x:String x:Key="FirstRunWelcomeTitle.Text">快速上手</x:String>
+    <x:String x:Key="FirstRunWelcomeSubtitle.Text">只需三步即可开始使用代理。</x:String>
+    <x:String x:Key="FirstRunStep1Point1.Text">导入订阅链接，获取代理节点</x:String>
+    <x:String x:Key="FirstRunStep1Point2.Text">在「代理」页选择要使用的节点</x:String>
+    <x:String x:Key="FirstRunStep1Point3.Text">在仪表盘开启系统代理或 TUN 模式</x:String>
+    <x:String x:Key="FirstRunImportTitle.Text">导入订阅</x:String>
+    <x:String x:Key="FirstRunImportHint.Text">粘贴订阅链接一键导入（可跳过，稍后在「配置」页添加）。</x:String>
+    <x:String x:Key="FirstRunUrlPlaceholder.Text">订阅链接（https://…）</x:String>
+    <x:String x:Key="FirstRunNamePlaceholder.Text">名称（可选）</x:String>
+    <x:String x:Key="FirstRunImportButton.Content">导入</x:String>
+    <x:String x:Key="FirstRunImportEmpty.Text">请输入订阅链接。</x:String>
+    <x:String x:Key="FirstRunImportInvalid.Text">链接格式无效，请检查后重试。</x:String>
+    <x:String x:Key="FirstRunImportOk.Text">导入成功，已设为当前配置。</x:String>
+    <x:String x:Key="FirstRunImportFail.Text">导入未完成，请查看通知了解原因。</x:String>
+    <x:String x:Key="FirstRunImportError.Text">导入失败：{0}</x:String>
+    <x:String x:Key="FirstRunSettingsTitle.Text">基础设置</x:String>
+    <x:String x:Key="FirstRunThemeLabel.Text">主题</x:String>
+    <x:String x:Key="FirstRunAutoLaunchLabel.Text">开机自启</x:String>
+    <x:String x:Key="FirstRunAutoLaunchHint.Text">登录 Windows 时自动在后台启动。</x:String>
+    <x:String x:Key="FirstRunPrev.Content">上一步</x:String>
+    <x:String x:Key="FirstRunNext.Content">下一步</x:String>
+    <x:String x:Key="FirstRunFinish.Content">完成</x:String>
+    <x:String x:Key="FirstRunSkip.Content">跳过</x:String>
+
 </ResourceDictionary>

@@ -50,6 +50,8 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] private bool _onlyStatisticsProxy = false;
     [ObservableProperty] private bool _showNotifications = true;
     [ObservableProperty] private string _language = "zh-CN";
+    /// <summary>是否已完成首次启动引导（false 时下次启动弹出引导向导）</summary>
+    [ObservableProperty] private bool _hasCompletedFirstRunGuide = false;
 
     // ── 主题设置 ──
 

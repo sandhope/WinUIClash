@@ -76,6 +76,7 @@ public class SettingsService
             _settings.OnlyStatisticsProxy = dto.OnlyStatisticsProxy;
             _settings.ShowNotifications = dto.ShowNotifications;
             if (dto.Language != null) _settings.Language = dto.Language;
+            _settings.HasCompletedFirstRunGuide = dto.HasCompletedFirstRunGuide;
 
             // 主题
             if (dto.ThemeMode != null) _settings.ThemeMode = dto.ThemeMode;
@@ -146,6 +147,7 @@ public class SettingsService
                 OnlyStatisticsProxy = _settings.OnlyStatisticsProxy,
                 ShowNotifications = _settings.ShowNotifications,
                 Language = _settings.Language,
+                HasCompletedFirstRunGuide = _settings.HasCompletedFirstRunGuide,
 
                 // 主题
                 ThemeMode = _settings.ThemeMode,
@@ -215,6 +217,7 @@ internal class SettingsDto
     public bool OnlyStatisticsProxy { get; set; }
     public bool ShowNotifications { get; set; } = true;
     public string Language { get; set; } = "zh-CN";
+    public bool HasCompletedFirstRunGuide { get; set; }
 
     // 主题
     public string ThemeMode { get; set; } = "System";
