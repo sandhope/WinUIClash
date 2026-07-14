@@ -231,7 +231,7 @@ internal class SettingsDto
     // 主题
     public string ThemeMode { get; set; } = "System";
     public int PrimaryColorIndex { get; set; }
-    public bool UseSystemAccentColor { get; set; }
+    public bool UseSystemAccentColor { get; set; } = true;
 
     // 系统代理
     public bool SystemProxy { get; set; }
