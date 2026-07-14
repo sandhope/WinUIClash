@@ -217,7 +217,7 @@ public partial class ThemeSettingsViewModel : ObservableObject
 
         var hex = PrimaryColors[_settings.PrimaryColorIndex].Hex;
         var color = ParseHexColor(hex);
-        ApplyAccentColorInternal(color);
+        ApplyAccentColorInternal(color, true);
     }
 
     /// <summary>
@@ -226,7 +226,7 @@ public partial class ThemeSettingsViewModel : ObservableObject
     private void ApplySystemAccentColor()
     {
         var accentColor = _uiSettings.GetColorValue(Windows.UI.ViewManagement.UIColorType.Accent);
-        ApplyAccentColorInternal(accentColor);
+        ApplyAccentColorInternal(accentColor, false);
     }
 
     /// <summary>
@@ -234,7 +234,7 @@ public partial class ThemeSettingsViewModel : ObservableObject
     /// </summary>
     public void ApplyCustomAccentColor(Color color)
     {
-        ApplyAccentColorInternal(color);
+        ApplyAccentColorInternal(color, true);
     }
 
     private static readonly Color Dark = Color.FromArgb(255, 0, 0, 0);
@@ -249,46 +249,39 @@ public partial class ThemeSettingsViewModel : ObservableObject
         _accentFillDefault = new(), _accentFillSecondary = new(), _accentFillTertiary = new(), _accentFillDisabled = new(),
         _accentTextPrimary = new(), _accentTextSecondary = new(), _accentTextTertiary = new(), _accentTextDisabled = new(),
         _accentElevationBorder = new(), _strokeOnAccentDefault = new(), _strokeOnAccentSecondary = new(),
+        _strokeOnAccentTertiary = new(), _strokeOnAccentDisabled = new(),
         _textOnAccentPrimary = new(), _textOnAccentSecondary = new(), _textOnAccentDisabled = new(), _textOnAccentSelected = new(),
         _navIndicator = new(), _navSelectedBg = new(), _navSelectedBgHover = new(), _navSelectedBgPressed = new(),
         _navSelectedFg = new(), _navSelectedFgHover = new(), _navSelectedFgPressed = new(), _navSeparator = new();
 
-    private static bool _accentBrushesRegistered;
-
-    private static void ApplyAccentColorInternal(Color color)
+    /// <param name="customAccent">
+    /// true  = 应用我们的强调色引擎（覆盖系统默认，圈内文字固定白色）；
+    /// false = 系统接管，移除所有覆盖，让 WinUI 原生 accent（含系统强调色与明暗反色）生效。
+    /// </param>
+    private static void ApplyAccentColorInternal(Color color, bool customAccent)
     {
         if (App.CurrentWindow?.Content is not FrameworkElement element)
             return;
 
         var res = element.Resources;
 
-        // 首次调用时把持久画刷注册进资源字典（同一实例长期存在，保证引用稳定）
-        if (!_accentBrushesRegistered)
+        // 系统接管：移除我们对所有 accent 画刷的覆盖，恢复框架原生行为。
+        // 此时深浅模式下的 on-accent 文本（圈内黑/白）由系统按系统强调色决定，
+        // 我们不再强制白色。
+        if (!customAccent)
         {
-            res["AccentFillColorDefaultBrush"] = _accentFillDefault;
-            res["AccentFillColorSecondaryBrush"] = _accentFillSecondary;
-            res["AccentFillColorTertiaryBrush"] = _accentFillTertiary;
-            res["AccentFillColorDisabledBrush"] = _accentFillDisabled;
-            res["AccentTextFillColorPrimaryBrush"] = _accentTextPrimary;
-            res["AccentTextFillColorSecondaryBrush"] = _accentTextSecondary;
-            res["AccentTextFillColorTertiaryBrush"] = _accentTextTertiary;
-            res["AccentTextFillColorDisabledBrush"] = _accentTextDisabled;
-            res["AccentControlElevationBorderBrush"] = _accentElevationBorder;
-            res["ControlStrokeColorOnAccentDefaultBrush"] = _strokeOnAccentDefault;
-            res["ControlStrokeColorOnAccentSecondaryBrush"] = _strokeOnAccentSecondary;
-            res["TextOnAccentFillColorPrimaryBrush"] = _textOnAccentPrimary;
-            res["TextOnAccentFillColorSecondaryBrush"] = _textOnAccentSecondary;
-            res["TextOnAccentFillColorDisabledBrush"] = _textOnAccentDisabled;
-            res["TextOnAccentFillColorSelectedTextBrush"] = _textOnAccentSelected;
-            res["NavigationViewSelectionIndicator"] = _navIndicator;
-            res["NavigationViewItemBackgroundSelected"] = _navSelectedBg;
-            res["NavigationViewItemBackgroundSelectedPointerOver"] = _navSelectedBgHover;
-            res["NavigationViewItemBackgroundSelectedPressed"] = _navSelectedBgPressed;
-            res["NavigationViewItemForegroundSelected"] = _navSelectedFg;
-            res["NavigationViewItemForegroundSelectedPointerOver"] = _navSelectedFgHover;
-            res["NavigationViewItemForegroundSelectedPressed"] = _navSelectedFgPressed;
-            res["NavigationViewItemSeparatorForeground"] = _navSeparator;
-            _accentBrushesRegistered = true;
+            RemoveAccentBrushes(res);
+            return;
+        }
+
+        // 确保持久画刷已注册进【当前窗口】的资源字典。
+        // 用「引用比较」判断而非 static bool：切换语言时 App.RecreateMainWindow
+        // 会新建窗口，旧 static 标志已是 true 会让新窗口漏注册 → 主题色整体回退默认。
+        // 这里对每个新窗口都会重新注册（幂等、开销极小）。
+        if (!(res.TryGetValue("AccentFillColorDefaultBrush", out var probe)
+              && ReferenceEquals(probe, _accentFillDefault)))
+        {
+            RegisterAccentBrushes(res);
         }
 
         // ── 基础色系（Color，作为部分默认模板的中间量） ──
@@ -316,13 +309,16 @@ public partial class ThemeSettingsViewModel : ObservableObject
         _accentElevationBorder.Color = color;
         _strokeOnAccentDefault.Color = WithOpacity(color, 0.14);
         _strokeOnAccentSecondary.Color = WithOpacity(color, 0.08);
+        _strokeOnAccentTertiary.Color = WithOpacity(color, 0.04);
+        _strokeOnAccentDisabled.Color = WithOpacity(color, 0.0);
 
         // ── Accent 上的文本 ──
-        var onAccent = Luminance(color) > 0.5 ? Dark : White;
-        _textOnAccentPrimary.Color = onAccent;
-        _textOnAccentSecondary.Color = WithOpacity(onAccent, 0.7);
-        _textOnAccentDisabled.Color = WithOpacity(onAccent, 0.5);
-        _textOnAccentSelected.Color = onAccent;
+        // 固定白色：RadioButton 选中圆点 / ToggleSwitch 开关蕊 / CheckBox 勾选标记
+        // 一律显示为白色，不再随强调色亮度反色（避免在亮色主题下圈内变黑）。
+        _textOnAccentPrimary.Color = White;
+        _textOnAccentSecondary.Color = WithOpacity(White, 0.7);
+        _textOnAccentDisabled.Color = WithOpacity(White, 0.5);
+        _textOnAccentSelected.Color = White;
 
         // ── NavigationView 选中态 ──
         _navIndicator.Color = color;
@@ -335,11 +331,128 @@ public partial class ThemeSettingsViewModel : ObservableObject
         _navSeparator.Color = WithOpacity(color, 0.2);
     }
 
+    /// <summary>
+    /// 把持久强调色画刷注册进指定窗口的资源字典。全部复用同一批 static 画刷实例，
+    /// 换色时只改各实例 .Color，即时刷新、无需 hover。
+    ///
+    /// 关键：ToggleSwitch / RadioButton / CheckBox 的选中态在模板里引用的是「控件专属键」
+    /// （如 ToggleSwitchFillOn、RadioButtonOuterEllipseCheckedFill），而这些专属键的
+    /// {ThemeResource AccentFillColorDefaultBrush} 是在【框架字典自身作用域】解析的，
+    /// 看不到我们写在窗口根的 AccentFillColorDefaultBrush 覆盖 —— 所以必须直接覆盖
+    /// 这些控件专属键本身，否则开关/单选/复选仍显示框架默认蓝。
+    /// </summary>
+    private static void RegisterAccentBrushes(ResourceDictionary res)
+    {
+        // ── 现代 Fluent Accent 画刷 ──
+        res["AccentFillColorDefaultBrush"] = _accentFillDefault;
+        res["AccentFillColorSecondaryBrush"] = _accentFillSecondary;
+        res["AccentFillColorTertiaryBrush"] = _accentFillTertiary;
+        res["AccentFillColorDisabledBrush"] = _accentFillDisabled;
+        res["AccentTextFillColorPrimaryBrush"] = _accentTextPrimary;
+        res["AccentTextFillColorSecondaryBrush"] = _accentTextSecondary;
+        res["AccentTextFillColorTertiaryBrush"] = _accentTextTertiary;
+        res["AccentTextFillColorDisabledBrush"] = _accentTextDisabled;
+        res["AccentControlElevationBorderBrush"] = _accentElevationBorder;
+        res["ControlStrokeColorOnAccentDefaultBrush"] = _strokeOnAccentDefault;
+        res["ControlStrokeColorOnAccentSecondaryBrush"] = _strokeOnAccentSecondary;
+        res["ControlStrokeColorOnAccentTertiaryBrush"] = _strokeOnAccentTertiary;
+        res["ControlStrokeColorOnAccentDisabledBrush"] = _strokeOnAccentDisabled;
+        res["TextOnAccentFillColorPrimaryBrush"] = _textOnAccentPrimary;
+        res["TextOnAccentFillColorSecondaryBrush"] = _textOnAccentSecondary;
+        res["TextOnAccentFillColorDisabledBrush"] = _textOnAccentDisabled;
+        res["TextOnAccentFillColorSelectedTextBrush"] = _textOnAccentSelected;
+
+        // ── 老式 SystemControl Accent 键（部分控件模板版本仍在用，别名兜底） ──
+        res["SystemControlHighlightAccentBrush"] = _accentFillDefault;
+        res["SystemControlHighlightAltAccentBrush"] = _accentFillDefault;
+        res["SystemControlForegroundAccentBrush"] = _accentTextPrimary;
+        res["SystemControlBackgroundAccentBrush"] = _accentFillDefault;
+        res["SystemControlDisabledAccentBrush"] = _accentFillDisabled;
+        res["SystemControlHighlightListAccentLowBrush"] = _accentFillTertiary;
+        res["SystemControlHighlightListAccentMediumBrush"] = _accentFillSecondary;
+        res["SystemControlHighlightListAccentHighBrush"] = _accentFillDefault;
+
+        // ── ToggleSwitch 开态（专属键） ──
+        res["ToggleSwitchFillOn"] = _accentFillDefault;
+        res["ToggleSwitchFillOnPointerOver"] = _accentFillSecondary;
+        res["ToggleSwitchFillOnPressed"] = _accentFillTertiary;
+        res["ToggleSwitchFillOnDisabled"] = _accentFillDisabled;
+        res["ToggleSwitchStrokeOn"] = _accentFillDefault;
+        res["ToggleSwitchStrokeOnPointerOver"] = _accentFillSecondary;
+        res["ToggleSwitchStrokeOnPressed"] = _accentFillTertiary;
+        res["ToggleSwitchKnobFillOn"] = _textOnAccentPrimary;
+
+        // ── RadioButton 选中态（专属键） ──
+        res["RadioButtonOuterEllipseCheckedFill"] = _accentFillDefault;
+        res["RadioButtonOuterEllipseCheckedFillPointerOver"] = _accentFillSecondary;
+        res["RadioButtonOuterEllipseCheckedFillPressed"] = _accentFillTertiary;
+        res["RadioButtonOuterEllipseCheckedFillDisabled"] = _accentFillDisabled;
+        res["RadioButtonOuterEllipseCheckedStroke"] = _accentFillDefault;
+        res["RadioButtonOuterEllipseCheckedStrokePointerOver"] = _accentFillSecondary;
+        res["RadioButtonOuterEllipseCheckedStrokePressed"] = _accentFillTertiary;
+        res["RadioButtonCheckGlyphFill"] = _textOnAccentPrimary;
+        res["RadioButtonCheckGlyphFillPointerOver"] = _textOnAccentPrimary;
+        res["RadioButtonCheckGlyphFillPressed"] = _textOnAccentPrimary;
+
+        // ── CheckBox 选中态（专属键） ──
+        res["CheckBoxCheckBackgroundFillChecked"] = _accentFillDefault;
+        res["CheckBoxCheckBackgroundFillCheckedPointerOver"] = _accentFillSecondary;
+        res["CheckBoxCheckBackgroundFillCheckedPressed"] = _accentFillTertiary;
+        res["CheckBoxCheckBackgroundFillCheckedDisabled"] = _accentFillDisabled;
+        res["CheckBoxCheckBackgroundStrokeChecked"] = _accentFillDefault;
+        res["CheckBoxCheckBackgroundStrokeCheckedPointerOver"] = _accentFillSecondary;
+        res["CheckBoxCheckBackgroundStrokeCheckedPressed"] = _accentFillTertiary;
+        res["CheckBoxCheckGlyphForegroundChecked"] = _textOnAccentPrimary;
+        res["CheckBoxCheckGlyphForegroundCheckedPointerOver"] = _textOnAccentPrimary;
+        res["CheckBoxCheckGlyphForegroundCheckedPressed"] = _textOnAccentPrimary;
+
+        // ── NavigationView 选中态 ──
+        res["NavigationViewSelectionIndicator"] = _navIndicator;
+        res["NavigationViewItemBackgroundSelected"] = _navSelectedBg;
+        res["NavigationViewItemBackgroundSelectedPointerOver"] = _navSelectedBgHover;
+        res["NavigationViewItemBackgroundSelectedPressed"] = _navSelectedBgPressed;
+        res["NavigationViewItemForegroundSelected"] = _navSelectedFg;
+        res["NavigationViewItemForegroundSelectedPointerOver"] = _navSelectedFgHover;
+        res["NavigationViewItemForegroundSelectedPressed"] = _navSelectedFgPressed;
+        res["NavigationViewItemSeparatorForeground"] = _navSeparator;
+    }
+
+    /// <summary>
+    /// 系统接管时，移除我们对所有 accent 画刷（含 SystemAccentColor 系列）的覆盖，
+    /// 让 WinUI 框架原生定义生效。框架默认即跟随 Windows 系统强调色与明暗主题，
+    /// 因此系统的 on-accent 文本黑/白反色也由系统决定。
+    /// 幂等：键不存在时 Remove 无副作用。
+    /// </summary>
+    private static void RemoveAccentBrushes(ResourceDictionary res)
+    {
+        string[] keys =
+        [
+            "AccentFillColorDefaultBrush", "AccentFillColorSecondaryBrush", "AccentFillColorTertiaryBrush", "AccentFillColorDisabledBrush",
+            "AccentTextFillColorPrimaryBrush", "AccentTextFillColorSecondaryBrush", "AccentTextFillColorTertiaryBrush", "AccentTextFillColorDisabledBrush",
+            "AccentControlElevationBorderBrush",
+            "ControlStrokeColorOnAccentDefaultBrush", "ControlStrokeColorOnAccentSecondaryBrush", "ControlStrokeColorOnAccentTertiaryBrush", "ControlStrokeColorOnAccentDisabledBrush",
+            "TextOnAccentFillColorPrimaryBrush", "TextOnAccentFillColorSecondaryBrush", "TextOnAccentFillColorDisabledBrush", "TextOnAccentFillColorSelectedTextBrush",
+            "SystemControlHighlightAccentBrush", "SystemControlHighlightAltAccentBrush", "SystemControlForegroundAccentBrush", "SystemControlBackgroundAccentBrush",
+            "SystemControlDisabledAccentBrush", "SystemControlHighlightListAccentLowBrush", "SystemControlHighlightListAccentMediumBrush", "SystemControlHighlightListAccentHighBrush",
+            "ToggleSwitchFillOn", "ToggleSwitchFillOnPointerOver", "ToggleSwitchFillOnPressed", "ToggleSwitchFillOnDisabled",
+            "ToggleSwitchStrokeOn", "ToggleSwitchStrokeOnPointerOver", "ToggleSwitchStrokeOnPressed", "ToggleSwitchKnobFillOn",
+            "RadioButtonOuterEllipseCheckedFill", "RadioButtonOuterEllipseCheckedFillPointerOver", "RadioButtonOuterEllipseCheckedFillPressed", "RadioButtonOuterEllipseCheckedFillDisabled",
+            "RadioButtonOuterEllipseCheckedStroke", "RadioButtonOuterEllipseCheckedStrokePointerOver", "RadioButtonOuterEllipseCheckedStrokePressed",
+            "RadioButtonCheckGlyphFill", "RadioButtonCheckGlyphFillPointerOver", "RadioButtonCheckGlyphFillPressed",
+            "CheckBoxCheckBackgroundFillChecked", "CheckBoxCheckBackgroundFillCheckedPointerOver", "CheckBoxCheckBackgroundFillCheckedPressed", "CheckBoxCheckBackgroundFillCheckedDisabled",
+            "CheckBoxCheckBackgroundStrokeChecked", "CheckBoxCheckBackgroundStrokeCheckedPointerOver", "CheckBoxCheckBackgroundStrokeCheckedPressed",
+            "CheckBoxCheckGlyphForegroundChecked", "CheckBoxCheckGlyphForegroundCheckedPointerOver", "CheckBoxCheckGlyphForegroundCheckedPressed",
+            "NavigationViewSelectionIndicator", "NavigationViewItemBackgroundSelected", "NavigationViewItemBackgroundSelectedPointerOver", "NavigationViewItemBackgroundSelectedPressed",
+            "NavigationViewItemForegroundSelected", "NavigationViewItemForegroundSelectedPointerOver", "NavigationViewItemForegroundSelectedPressed", "NavigationViewItemSeparatorForeground",
+            "SystemAccentColor", "SystemAccentColorLight1", "SystemAccentColorLight2", "SystemAccentColorLight3",
+            "SystemAccentColorDark1", "SystemAccentColorDark2", "SystemAccentColorDark3",
+        ];
+        foreach (var key in keys)
+            res.Remove(key);
+    }
+
     private static Color WithOpacity(Color c, double opacity)
         => Color.FromArgb((byte)(c.A * opacity), c.R, c.G, c.B);
-
-    private static double Luminance(Color c)
-        => (0.299 * c.R + 0.587 * c.G + 0.114 * c.B) / 255;
 
     /// <summary>
     /// 应用启动时调用一次，恢复保存的主题和主题色
