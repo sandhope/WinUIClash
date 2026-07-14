@@ -44,6 +44,7 @@ public static class ServiceLocator
         services.AddSingleton<IClashService>(sp => sp.GetRequiredService<ClashOrchestrator>());
         services.AddSingleton(stringResources);
         services.AddSingleton<LocalizationService>();
+        services.AddSingleton<WindowsNetworkDiagnosticService>();
 
         // ── ViewModel ──
         services.AddSingleton<DashboardViewModel>();
@@ -54,6 +55,7 @@ public static class ServiceLocator
         services.AddSingleton<RequestsViewModel>();
         services.AddSingleton<ResourcesViewModel>();
         services.AddSingleton<ToolsViewModel>();
+        services.AddSingleton<DeveloperToolsViewModel>();
 
         services.AddSingleton<ViewModels.Settings.LanguageSettingsViewModel>();
         services.AddSingleton<ViewModels.Settings.BasicConfigViewModel>();

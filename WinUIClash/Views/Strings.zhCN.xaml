@@ -577,4 +577,34 @@
     <x:String x:Key="ShortcutCatCore.Text">内核与代理</x:String>
     <x:String x:Key="ShortcutCatApp.Text">应用</x:String>
 
+    <!-- 网络诊断与开发者工具 -->
+    <x:String x:Key="DevToolsTitle.Text">网络诊断与开发者工具</x:String>
+    <x:String x:Key="DevToolsDesc.Text">面向开发者的 Windows 网络修复工具：WSL 代理桥接、终端代理环境变量、Microsoft Store 回环豁免。均无需管理员权限。</x:String>
+    <x:String x:Key="DevToolsCardSub.Text">WSL 代理 / 终端代理 / Store 回环豁免</x:String>
+    <x:String x:Key="DevToolsRefresh.Content">重新检测</x:String>
+    <x:String x:Key="DevToolsWsl.Text">WSL 代理桥接</x:String>
+    <x:String x:Key="DevToolsWslDesc.Text">让 WSL 子系统继承 Windows 的代理环境变量，可在 WSL 内直接使用代理。</x:String>
+    <x:String x:Key="DevToolsTerminal.Text">终端代理环境变量</x:String>
+    <x:String x:Key="DevToolsTerminalDesc.Text">为后续新开的 CMD / PowerShell / Git Bash 写入 HTTP_PROXY 等环境变量。</x:String>
+    <x:String x:Key="DevToolsStore.Text">Microsoft Store 回环豁免</x:String>
+    <x:String x:Key="DevToolsStoreDesc.Text">允许 Microsoft Store 等 UWP 应用访问本地代理（127.0.0.1）。</x:String>
+    <x:String x:Key="DevToolsApply.Content">应用 / 修复</x:String>
+    <x:String x:Key="DevToolsReset.Content">重置</x:String>
+
+    <!-- 网络诊断消息 -->
+    <x:String x:Key="DevDiagWsl.Text">WSL 代理桥接</x:String>
+    <x:String x:Key="DevDiagTerminal.Text">终端代理环境变量</x:String>
+    <x:String x:Key="DevDiagStore.Text">Microsoft Store 回环豁免</x:String>
+    <x:String x:Key="DevDiagWslReady.Text">WSL 代理桥接已配置，状态正常。</x:String>
+    <x:String x:Key="DevDiagWslUnavailable.Text">未检测到 WSL，请先安装 WSL2。</x:String>
+    <x:String x:Key="DevDiagWslProxyMissing.Text">WSL 可用，但终端代理环境变量未配置。</x:String>
+    <x:String x:Key="DevDiagWslBridgeMissing.Text">WSL 可用，但 WSLENV 代理桥接未配置。</x:String>
+    <x:String x:Key="DevDiagTerminalReady.Text">终端代理环境变量已配置。</x:String>
+    <x:String x:Key="DevDiagTerminalMissing.Text">终端代理环境变量未配置。</x:String>
+    <x:String x:Key="DevDiagStoreReady.Text">Microsoft Store 回环豁免已启用。</x:String>
+    <x:String x:Key="DevDiagStoreMissing.Text">Microsoft Store 回环豁免未启用。</x:String>
+    <x:String x:Key="DevDiagChecking.Text">正在检测…</x:String>
+    <x:String x:Key="DevDiagApplying.Text">正在应用…</x:String>
+    <x:String x:Key="DevDiagResetting.Text">正在重置…</x:String>
+
 </ResourceDictionary>
