@@ -66,6 +66,18 @@ public class ProfileStorageService
         return (path, subInfo);
     }
 
+    /// <summary>仅下载订阅内容（不落盘），用于先校验再决定是否保存。</summary>
+    public async Task<(string Content, SubscriptionInfo? SubInfo)> DownloadAsync(string url)
+    {
+        var response = await _httpClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+
+        var yaml = await response.Content.ReadAsStringAsync();
+        var subInfo = ParseSubscriptionInfo(response.Headers);
+
+        return (yaml, subInfo);
+    }
+
     /// <summary>从 HTTP 响应头解析 subscription-userinfo</summary>
     private static SubscriptionInfo? ParseSubscriptionInfo(System.Net.Http.Headers.HttpResponseHeaders headers)
     {
