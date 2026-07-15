@@ -39,6 +39,7 @@ public class ProfileStorageService
     {
         WriteIndented = true,
         PropertyNameCaseInsensitive = true,
+        TypeInfoResolver = AppJsonContext.Default,
     };
 
     /// <summary>获取配置文件在磁盘上的完整路径</summary>
@@ -153,7 +154,7 @@ public class ProfileStorageService
             SubExpire = p.SubscriptionInfo?.Expire,
         }).ToList();
 
-        var json = JsonSerializer.Serialize(dtos, JsonOpts);
+        var json = JsonSerializer.Serialize(dtos, AppJsonContext.Default.ListProfileListEntry);
         Directory.CreateDirectory(Path.GetDirectoryName(ProfileListPath)!);
         await File.WriteAllTextAsync(ProfileListPath, json);
     }
@@ -166,7 +167,7 @@ public class ProfileStorageService
         try
         {
             var json = await File.ReadAllTextAsync(ProfileListPath);
-            var entries = JsonSerializer.Deserialize<List<ProfileListEntry>>(json, JsonOpts);
+            var entries = JsonSerializer.Deserialize(json, AppJsonContext.Default.ListProfileListEntry);
             if (entries == null) return new List<Profile>();
 
             return entries.Select(e =>

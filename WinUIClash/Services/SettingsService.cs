@@ -20,6 +20,7 @@ public class SettingsService
     {
         WriteIndented = true,
         PropertyNameCaseInsensitive = true,
+        TypeInfoResolver = AppJsonContext.Default,
     };
 
     private readonly AppSettings _settings;
@@ -45,7 +46,7 @@ public class SettingsService
             json = json.Replace("\"FindProcessMode\": true", "\"FindProcessMode\": \"always\"")
                        .Replace("\"FindProcessMode\": false", "\"FindProcessMode\": \"off\"");
 
-            var dto = JsonSerializer.Deserialize<SettingsDto>(json, JsonOptions);
+            var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.SettingsDto);
             if (dto == null) return;
 
             // 基础配置
@@ -176,7 +177,7 @@ public class SettingsService
                 IsSidebarCompact = _settings.IsSidebarCompact,
             };
 
-            var json = JsonSerializer.Serialize(dto, JsonOptions);
+            var json = JsonSerializer.Serialize(dto, AppJsonContext.Default.SettingsDto);
             File.WriteAllText(SettingsPath, json);
         }
         catch (Exception ex)

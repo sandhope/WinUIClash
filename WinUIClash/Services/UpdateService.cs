@@ -25,6 +25,7 @@ public class UpdateService
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
         PropertyNameCaseInsensitive = true,
+        TypeInfoResolver = AppJsonContext.Default,
     };
 
     public UpdateService(ILogger<UpdateService> logger)
@@ -45,7 +46,7 @@ public class UpdateService
         try
         {
             var json = await Http.GetStringAsync(ReleasesUrl, ct);
-            var release = JsonSerializer.Deserialize<GitHubRelease>(json, JsonOpts);
+            var release = JsonSerializer.Deserialize(json, AppJsonContext.Default.GitHubRelease);
 
             if (release == null || string.IsNullOrEmpty(release.TagName))
             {
@@ -131,33 +132,6 @@ public class UpdateService
         string DownloadUrl,
         string ReleasePageUrl,
         DateTimeOffset? PublishedAt);
-
-    private sealed class GitHubRelease
-    {
-        [JsonPropertyName("tag_name")]
-        public string TagName { get; init; } = "";
-
-        [JsonPropertyName("body")]
-        public string? Body { get; init; }
-
-        [JsonPropertyName("html_url")]
-        public string HtmlUrl { get; init; } = "";
-
-        [JsonPropertyName("published_at")]
-        public DateTimeOffset? PublishedAt { get; init; }
-
-        [JsonPropertyName("assets")]
-        public List<GitHubAsset>? Assets { get; init; }
-    }
-
-    private sealed class GitHubAsset
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; init; } = "";
-
-        [JsonPropertyName("browser_download_url")]
-        public string BrowserDownloadUrl { get; init; } = "";
-    }
 }
 
 /// <summary>Exception thrown when update check fails</summary>
