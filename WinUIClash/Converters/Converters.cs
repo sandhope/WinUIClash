@@ -8,7 +8,7 @@ namespace WinUIClash.Converters;
 /// <summary>
 /// 日志级别 → 前景色
 /// </summary>
-public class LogLevelToColorConverter : IValueConverter
+public partial class LogLevelToColorConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
@@ -33,7 +33,7 @@ public class LogLevelToColorConverter : IValueConverter
 /// <summary>
 /// Bool → Visibility
 /// </summary>
-public class BoolToVisibilityConverter : IValueConverter
+public partial class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
         => value is true ? Visibility.Visible : Visibility.Collapsed;
@@ -45,7 +45,7 @@ public class BoolToVisibilityConverter : IValueConverter
 /// <summary>
 /// Bool → Visibility（取反：true → Collapsed，false → Visible）
 /// </summary>
-public class InverseBoolToVisibilityConverter : IValueConverter
+public partial class InverseBoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
         => value is true ? Visibility.Collapsed : Visibility.Visible;
@@ -58,7 +58,7 @@ public class InverseBoolToVisibilityConverter : IValueConverter
 /// Bool → Opacity。true → 1.0（完全不透明）；false → 半透明（默认 0.5，可用 parameter 指定，如 "0.6"）。<br/>
 /// 用于「预设色板被禁用时」给色块整体降透明度，直观表达"不可用"，且作用范围仅限绑定它的控件（不影响全局按钮）。
 /// </summary>
-public class BoolToOpacityConverter : IValueConverter
+public partial class BoolToOpacityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
@@ -75,7 +75,7 @@ public class BoolToOpacityConverter : IValueConverter
 /// <summary>
 /// 非 null → Visible，null → Collapsed
 /// </summary>
-public class NullToVisibilityConverter : IValueConverter
+public partial class NullToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
         => value != null ? Visibility.Visible : Visibility.Collapsed;
@@ -88,7 +88,7 @@ public class NullToVisibilityConverter : IValueConverter
 /// 代理延迟 → 颜色 (绿/黄/红/灰)。<br/>
 /// 使用系统主题资源，确保在 Light/Dark 主题下均有良好的对比度。
 /// </summary>
-public class DelayToColorConverter : IValueConverter
+public partial class DelayToColorConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
@@ -119,7 +119,7 @@ public class DelayToColorConverter : IValueConverter
 /// <summary>
 /// 延迟毫秒 → 显示文本
 /// </summary>
-public class DelayToTextConverter : IValueConverter
+public partial class DelayToTextConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
@@ -138,7 +138,7 @@ public class DelayToTextConverter : IValueConverter
 /// <summary>
 /// 字节数 → 人类可读字符串
 /// </summary>
-public class BytesToStringConverter : IValueConverter
+public partial class BytesToStringConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
         => value is long bytes ? ByteFormatter.Format(bytes) : "0 B";
@@ -150,7 +150,7 @@ public class BytesToStringConverter : IValueConverter
 /// <summary>
 /// 字节速度 → 人类可读字符串/s
 /// </summary>
-public class BytesToSpeedConverter : IValueConverter
+public partial class BytesToSpeedConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
         => value is long bytes ? ByteFormatter.FormatSpeed(bytes) : "0 B/s";
@@ -162,7 +162,7 @@ public class BytesToSpeedConverter : IValueConverter
 /// <summary>
 /// DateTime → 相对时间
 /// </summary>
-public class DateTimeToRelativeConverter : IValueConverter
+public partial class DateTimeToRelativeConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
         => value is DateTime dt ? TimeFormatter.Relative(dt) : "—";
@@ -174,7 +174,7 @@ public class DateTimeToRelativeConverter : IValueConverter
 /// <summary>
 /// Hex 颜色字符串 → Windows.UI.Color
 /// </summary>
-public class HexToColorConverter : IValueConverter
+public partial class HexToColorConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
@@ -202,7 +202,7 @@ public class HexToColorConverter : IValueConverter
 /// <summary>
 /// DateTime → HH:mm:ss 短时间格式
 /// </summary>
-public class DateTimeToTimeConverter : IValueConverter
+public partial class DateTimeToTimeConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
         => value is DateTime dt ? dt.ToString("HH:mm:ss") : "—";
@@ -214,7 +214,7 @@ public class DateTimeToTimeConverter : IValueConverter
 /// <summary>
 /// 集合 → 空状态可见性（集合为空时显示，有元素时隐藏）
 /// </summary>
-public class EmptyCollectionToVisibilityConverter : IValueConverter
+public partial class EmptyCollectionToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
@@ -235,7 +235,7 @@ public class EmptyCollectionToVisibilityConverter : IValueConverter
 /// <summary>
 /// 集合 → 非空可见性（集合有元素时显示，为空时隐藏）
 /// </summary>
-public class NonEmptyCollectionToVisibilityConverter : IValueConverter
+public partial class NonEmptyCollectionToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
@@ -256,7 +256,7 @@ public class NonEmptyCollectionToVisibilityConverter : IValueConverter
 /// <summary>
 /// Bool → Bool（取反：true → false，false → true），用于 IsEnabled 绑定
 /// </summary>
-public class InverseBoolConverter : IValueConverter
+public partial class InverseBoolConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
         => value is bool b ? !b : value;
