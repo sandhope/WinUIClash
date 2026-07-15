@@ -127,27 +127,54 @@
   <!-- TUN 提权依赖 Helper Service：以 SYSTEM 身份运行的常驻服务，负责拉起 mihomo（创建虚拟网卡需要系统权限）。
        对齐 FlClash：首次开启 TUN 时弹一次 UAC 把服务安装为 start=auto 常驻，之后全程不再弹窗。
        注意：必须拷贝整个输出目录（exe + 依赖 DLL + deps.json + runtimeconfig.json），
-       否则服务启动即崩，CheckServiceAsync 永远等不到 Running，被误判为“用户拒绝了 UAC”。 -->
-  <Target Name="EnsureHelperServiceBuilt" BeforeTargets="CopyHelperService">
-    <PropertyGroup>
-      <_HelperOutDir>$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\x64\$(Configuration)\net10.0-windows10.0.26100.0\win-x64</_HelperOutDir>
-    </PropertyGroup>
-    <Exec Command="dotnet build &quot;$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\WinUIClash.HelperService.csproj&quot; -c $(Configuration) -p:Platform=x64"
-          Condition="!Exists('$(_HelperOutDir)\WinUIClash.HelperService.exe')"
+       否则服务启动即崩，CheckServiceAsync 永远等不到 Running，被误判为“用户拒绝了 UAC”。
+
+       关键修复：原 CopyHelperService 仅挂在 AfterTargets="Build"，会把 HelperService 复制到
+       $(OutDir)（即 bin\...\win-x64\）。但 dotnet publish 是在 Build 之后，从“已收集的文件清单”
+       把内容拷到 publish\ 子目录；Build 之后才丢进 OutDir 的文件不会被 publish 收集，于是最终
+       publish\ 产物里缺少 Core\WinUIClash.HelperService 目录 —— 运行后 GetHelperExePath() 返回
+       null、“找不到 Helper Service 可执行文件”，TUN 无法创建虚拟网卡。
+       新增 CopyHelperServiceToPublish（AfterTargets="Publish"）直接把 HelperService 输出复制到
+       最终发布目录 $(PublishDir)Core\WinUIClash.HelperService，确保发布产物包含完整服务目录。 -->
+  <PropertyGroup>
+    <_HelperProj>$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\WinUIClash.HelperService.csproj</_HelperProj>
+    <_HelperBuildDir>$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\x64\$(Configuration)\net10.0-windows10.0.26100.0\win-x64</_HelperBuildDir>
+  </PropertyGroup>
+
+  <!-- 确保 HelperService 已构建（Build 与 Publish 前各按需触发一次；已存在则跳过） -->
+  <Target Name="EnsureHelperServiceBuilt" BeforeTargets="CopyHelperService;Publish">
+    <Exec Command="dotnet build &quot;$(_HelperProj)&quot; -c $(Configuration) -p:Platform=x64"
+          Condition="!Exists('$(_HelperBuildDir)\WinUIClash.HelperService.exe')"
           StandardOutputImportance="low" />
   </Target>
 
+  <!-- 普通 Build：复制到 $(OutDir)Core\WinUIClash.HelperService -->
   <Target Name="CopyHelperService" AfterTargets="Build">
-    <PropertyGroup>
-      <_HelperOutDir>$(MSBuildProjectDirectory)\..\WinUIClash.HelperService\bin\x64\$(Configuration)\net10.0-windows10.0.26100.0\win-x64</_HelperOutDir>
-    </PropertyGroup>
     <ItemGroup>
-      <_HelperFiles Include="$(_HelperOutDir)\**\*" />
+      <_HelperFiles Include="$(_HelperBuildDir)\**\*" />
     </ItemGroup>
     <MakeDir Directories="$(OutDir)Core\WinUIClash.HelperService" Condition="!Exists('$(OutDir)Core\WinUIClash.HelperService')" />
     <Copy SourceFiles="@(_HelperFiles)"
           DestinationFolder="$(OutDir)Core\WinUIClash.HelperService\%(RecursiveDir)"
           SkipUnchangedFiles="true"
-          Condition="Exists('$(_HelperOutDir)')" />
+          Condition="Exists('$(_HelperBuildDir)')" />
+  </Target>
+
+  <!-- Publish：直接复制到最终发布目录（最关键修复）。
+       若 PublishDir 未定义（未指定发布配置），回退到 $(OutDir)publish\。 -->
+  <Target Name="CopyHelperServiceToPublish" AfterTargets="Publish">
+    <PropertyGroup>
+      <_HelperPublishDest>$(PublishDir)</_HelperPublishDest>
+      <_HelperPublishDest Condition="'$(_HelperPublishDest)' == ''">$(OutDir)publish\</_HelperPublishDest>
+      <_HelperPublishDest>$(_HelperPublishDest)Core\WinUIClash.HelperService</_HelperPublishDest>
+    </PropertyGroup>
+    <ItemGroup>
+      <_HelperFiles Include="$(_HelperBuildDir)\**\*" />
+    </ItemGroup>
+    <MakeDir Directories="$(_HelperPublishDest)" Condition="!Exists('$(_HelperPublishDest)')" />
+    <Copy SourceFiles="@(_HelperFiles)"
+          DestinationFolder="$(_HelperPublishDest)\%(RecursiveDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(_HelperBuildDir)')" />
   </Target>
 </Project>
