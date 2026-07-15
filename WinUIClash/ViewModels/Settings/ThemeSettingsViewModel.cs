@@ -268,16 +268,11 @@ public partial class ThemeSettingsViewModel : ObservableObject
 
         var res = element.Resources;
 
-        // 系统接管：移除我们对所有 accent 画刷的覆盖，恢复框架原生行为。
-        // 此时深浅模式下的 on-accent 文本（圈内黑/白）由系统按系统强调色决定，
-        // 我们不再强制白色。
-        if (!customAccent)
-        {
-            RemoveAccentBrushes(res);
-            return;
-        }
-
-        // 确保持久画刷已注册进【当前窗口】的资源字典。
+        // 两种模式都保持持久画刷已注册进【当前窗口】的资源字典。
+        // 关键修复：系统模式下【不再移除】我们的覆盖画刷——移除后已创建的控件不会重新
+        // 解析资源字典（{ThemeResource} 的查找结果被缓存），导致切换「使用系统主题色」
+        // 开关后主题色不刷新，必须切页面或 hover 才生效。改为「始终覆盖 + 改写 Color」，
+        // 借助持久画刷（依赖属性 .Color）即时重绘所有引用控件，与自定义色路径完全一致。
         // 用「引用比较」判断而非 static bool：切换语言时 App.RecreateMainWindow
         // 会新建窗口，旧 static 标志已是 true 会让新窗口漏注册 → 主题色整体回退默认。
         // 这里对每个新窗口都会重新注册（幂等、开销极小）。
@@ -315,13 +310,17 @@ public partial class ThemeSettingsViewModel : ObservableObject
         _strokeOnAccentTertiary.Color = WithOpacity(color, 0.04);
         _strokeOnAccentDisabled.Color = WithOpacity(color, 0.0);
 
-        // ── Accent 上的文本 ──
-        // 固定白色：RadioButton 选中圆点 / ToggleSwitch 开关蕊 / CheckBox 勾选标记
-        // 一律显示为白色，不再随强调色亮度反色（避免在亮色主题下圈内变黑）。
-        _textOnAccentPrimary.Color = White;
-        _textOnAccentSecondary.Color = WithOpacity(White, 0.7);
-        _textOnAccentDisabled.Color = WithOpacity(White, 0.5);
-        _textOnAccentSelected.Color = White;
+        // ── Accent 上的文本（圈内黑/白：RadioButton 选中点 / ToggleSwitch 开关蕊 / CheckBox 勾选） ──
+        // 系统强调色：完全对齐框架原生 —— TextOnAccentFillColorPrimary 是【按主题】取值
+        // （浅色主题 = 白，深色主题 = 黑；深色下框架会提亮 accent 底，故圈内用黑字）。
+        //   ⇒ 深色模式下圈内必须黑色，才和系统默认 Switch/CheckBox 一致。
+        // 自定义强调色：固定白色（预设色均为中/深饱和色，白字对比清晰，且避免亮色主题下变黑）。
+        var dark = customAccent ? false : element.ActualTheme == ElementTheme.Dark;
+        var onAccent = dark ? Dark : White;
+        _textOnAccentPrimary.Color = onAccent;
+        _textOnAccentSecondary.Color = WithOpacity(onAccent, 0.7);
+        _textOnAccentDisabled.Color = WithOpacity(onAccent, 0.5);
+        _textOnAccentSelected.Color = onAccent;
 
         // ── NavigationView 选中态 ──
         _navIndicator.Color = color;
