@@ -106,8 +106,7 @@
   <PropertyGroup>
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <PublishTrimmed>False</PublishTrimmed>
   </PropertyGroup>
 
   <!-- TUN 提权依赖 Helper Service：以 SYSTEM 身份运行的常驻服务，负责拉起 mihomo（创建虚拟网卡需要系统权限）。
