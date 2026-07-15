@@ -387,7 +387,7 @@ public sealed partial class DashboardView : Page
 }
 
 /// <summary>按磁贴类型选择渲染模板</summary>
-public class DashboardTileSelector : DataTemplateSelector
+public partial class DashboardTileSelector : DataTemplateSelector
 {
     public DataTemplate? OutboundModeTemplate { get; set; }
     public DataTemplate? NetworkCheckTemplate { get; set; }
