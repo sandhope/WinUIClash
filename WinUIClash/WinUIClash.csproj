@@ -32,7 +32,15 @@
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <Content Include="Assets\AppIcon.ico" />
+    <!-- AppIcon.ico 必须作为“松散文件”落到输出/发布目录旁：
+         任务栏图标 AppWindow.SetIcon("Assets/AppIcon.ico") 与托盘图标
+         Icon.FromFile(BaseDirectory\Assets\AppIcon.ico) 都按物理路径加载，
+         仅靠 PRI 索引（ms-appx:///）不够。不加 CopyToOutputDirectory 时，
+         dotnet publish 只把它编进 WinUIClash.pri 而不复制松散文件，
+         导致 -o 到独立目录发布后：任务栏无 logo、托盘回退成字母“W”。 -->
+    <Content Include="Assets\AppIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <!-- 打包 mihomo 核心文件（可选：文件存在时才打包） -->
