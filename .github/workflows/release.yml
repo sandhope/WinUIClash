@@ -1,0 +1,201 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version label used in artifact names (no leading v). Ignored when running from a tag.'
+        required: false
+        default: 'dev'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.arch }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            msbuildPlat: x64
+          - arch: arm64
+            msbuildPlat: ARM64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Resolve version
+        id: ver
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -like 'refs/tags/v*') {
+              $v = $env:GITHUB_REF_NAME -replace '^v',''
+          } elseif ('${{ github.event.inputs.version }}') {
+              $v = '${{ github.event.inputs.version }}'
+          } else {
+              $v = 'dev'
+          }
+          Write-Host "Resolved version: $v"
+          "version=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Download mihomo core binaries
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./download-core.ps1 -GitHubToken $env:GITHUB_TOKEN
+
+      - name: Publish WinUIClash (${{ matrix.arch }})
+        shell: pwsh
+        run: |
+          dotnet publish WinUIClash/WinUIClash.csproj `
+            -c Release `
+            -p:Platform=${{ matrix.msbuildPlat }} `
+            -p:PublishProfile=Properties/PublishProfiles/win-${{ matrix.arch }}.pubxml
+
+      - name: Rebuild HelperService for ARM64
+        if: matrix.arch == 'arm64'
+        shell: pwsh
+        run: |
+          $helperOut = "helper-out-arm64"
+          if (Test-Path $helperOut) { Remove-Item -Recurse -Force $helperOut }
+          dotnet publish WinUIClash.HelperService/WinUIClash.HelperService.csproj `
+            -c Release `
+            -r win-arm64 `
+            --self-contained false `
+            -p:PublishSingleFile=true `
+            -o $helperOut
+          if ($LASTEXITCODE -ne 0) { throw "HelperService publish failed" }
+
+          $publishHelperDir = "WinUIClash/bin/Release/net10.0-windows10.0.26100.0/win-arm64/publish/Core/WinUIClash.HelperService"
+          if (-not (Test-Path $publishHelperDir)) {
+              New-Item -ItemType Directory -Path $publishHelperDir -Force | Out-Null
+          }
+          Get-ChildItem -Path $publishHelperDir -Force | Remove-Item -Recurse -Force
+          Copy-Item -Path (Join-Path $helperOut '*') -Destination $publishHelperDir -Recurse -Force
+          Write-Host "ARM64 HelperService contents:"
+          Get-ChildItem $publishHelperDir | Format-Table Name, Length
+
+      - name: Package zip
+        id: pack
+        shell: pwsh
+        run: |
+          $version = '${{ steps.ver.outputs.version }}'
+          $arch = '${{ matrix.arch }}'
+          $publishDir = "WinUIClash/bin/Release/net10.0-windows10.0.26100.0/win-$arch/publish"
+          if (-not (Test-Path $publishDir)) { throw "Publish directory not found: $publishDir" }
+
+          New-Item -ItemType Directory -Path dist -Force | Out-Null
+          $zipName = "WinUIClash-$version-win-$arch.zip"
+          $zipPath = Join-Path (Resolve-Path dist) $zipName
+
+          if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+          Compress-Archive -Path (Join-Path $publishDir '*') -DestinationPath $zipPath -CompressionLevel Optimal
+
+          $hash = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash.ToLower()
+          "$hash *$zipName" | Out-File -FilePath "$zipPath.sha256" -Encoding ascii
+
+          $sizeMb = [math]::Round((Get-Item $zipPath).Length / 1MB, 2)
+          Write-Host "Packed $zipName ($sizeMb MB)"
+          Write-Host "SHA256: $hash"
+
+          "zipName=$zipName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "publishDir=$((Resolve-Path $publishDir).Path)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Build installer (Inno Setup)
+        id: installer
+        shell: pwsh
+        run: |
+          $version = '${{ steps.ver.outputs.version }}'
+          $arch    = '${{ matrix.arch }}'
+          $publishDir = '${{ steps.pack.outputs.publishDir }}'
+          $distDir = (Resolve-Path dist).Path
+
+          # Locate ISCC.exe. windows-latest ships Inno Setup 6 preinstalled.
+          $iscc = @(
+              "$Env:ProgramFiles\Inno Setup 6\ISCC.exe",
+              "${Env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+
+          if (-not $iscc) {
+              Write-Host "Inno Setup not found, installing via Chocolatey..."
+              choco install innosetup --no-progress -y
+              if ($LASTEXITCODE -ne 0) { throw "Failed to install Inno Setup" }
+              $iscc = @(
+                  "$Env:ProgramFiles\Inno Setup 6\ISCC.exe",
+                  "${Env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+              ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+              if (-not $iscc) { throw "ISCC.exe still not found after install" }
+          }
+          Write-Host "Using ISCC: $iscc"
+
+          & $iscc `
+              "/DMyAppVersion=$version" `
+              "/DMyAppArch=$arch" `
+              "/DSourceDir=$publishDir" `
+              "/DOutputDir=$distDir" `
+              installer/WinUIClash.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with exit code $LASTEXITCODE" }
+
+          $setupName = "WinUIClash-Setup-$version-win-$arch.exe"
+          $setupPath = Join-Path $distDir $setupName
+          if (-not (Test-Path $setupPath)) { throw "Installer not produced: $setupPath" }
+
+          $hash = (Get-FileHash -LiteralPath $setupPath -Algorithm SHA256).Hash.ToLower()
+          "$hash *$setupName" | Out-File -FilePath "$setupPath.sha256" -Encoding ascii
+
+          $sizeMb = [math]::Round((Get-Item $setupPath).Length / 1MB, 2)
+          Write-Host "Built $setupName ($sizeMb MB)"
+          Write-Host "SHA256: $hash"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WinUIClash-win-${{ matrix.arch }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: WinUIClash-win-*
+          merge-multiple: true
+          path: dist
+
+      - name: List artifacts
+        run: ls -la dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: WinUIClash ${{ github.ref_name }}
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: |
+            dist/*.zip
+            dist/*.exe
+            dist/*.sha256
