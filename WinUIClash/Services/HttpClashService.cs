@@ -39,6 +39,7 @@ public class HttpClashService : IClashService, IDisposable
     {
         PropertyNameCaseInsensitive = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        TypeInfoResolver = AppJsonContext.Default,
     };
 
     public HttpClashService()
@@ -105,7 +106,7 @@ public class HttpClashService : IClashService, IDisposable
     public async Task<string> GetVersionAsync()
     {
         var json = await _http.GetStringAsync("/version");
-        var dto = JsonSerializer.Deserialize<VersionDto>(json, JsonOpts);
+        var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.VersionDto);
         return dto?.Version ?? "unknown";
     }
 
@@ -138,7 +139,7 @@ public class HttpClashService : IClashService, IDisposable
                 if (result.MessageType == WebSocketMessageType.Close) break;
 
                 var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                var dto = JsonSerializer.Deserialize<TrafficDto>(json, JsonOpts);
+                var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.TrafficDto);
                 if (dto != null)
                 {
                     _currentTraffic = new Traffic
@@ -182,7 +183,7 @@ public class HttpClashService : IClashService, IDisposable
                 if (result.MessageType == WebSocketMessageType.Close) break;
 
                 var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                var dto = JsonSerializer.Deserialize<MemoryDto>(json, JsonOpts);
+                var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.MemoryDto);
                 if (dto != null)
                 {
                     _currentMemory = dto.Inuse;
@@ -214,7 +215,7 @@ public class HttpClashService : IClashService, IDisposable
             _ => "rule",
         };
 
-        var json = JsonSerializer.Serialize(new { mode = modeStr });
+        var json = JsonSerializer.Serialize(new ModePayload { Mode = modeStr }, AppJsonContext.Default.ModePayload);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         await _http.PatchAsync("/configs", content);
         _outboundMode = mode;
@@ -241,19 +242,19 @@ public class HttpClashService : IClashService, IDisposable
         // 发送完整 tun 配置（与 config.yaml 中的 tun 块一致），避免 mihomo PATCH 时
         // 仅合并部分字段导致 device/stack/strict-route 丢失。stack 尊重用户设置，缺省回退 mixed。
         var tunStack = string.IsNullOrWhiteSpace(stack) ? "mixed" : stack;
-        var payload = JsonSerializer.Serialize(new
+        var payload = JsonSerializer.Serialize(new TunConfigPayload
         {
-            tun = new
+            Tun = new TunSettings
             {
-                enable = enabled,
-                stack = tunStack,
-                device = "WinUIClash",
-                auto_route = true,
-                auto_detect_interface = true,
-                dns_hijack = new[] { "any:53" },
-                strict_route = true,
+                Enable = enabled,
+                Stack = tunStack,
+                Device = "WinUIClash",
+                AutoRoute = true,
+                AutoDetectInterface = true,
+                DnsHijack = ["any:53"],
+                StrictRoute = true,
             }
-        });
+        }, AppJsonContext.Default.TunConfigPayload);
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
         await _http.PatchAsync("/configs", content);
         return true;
@@ -261,10 +262,10 @@ public class HttpClashService : IClashService, IDisposable
 
     public async Task SetTunStackAsync(string stack)
     {
-        var payload = JsonSerializer.Serialize(new
+        var payload = JsonSerializer.Serialize(new TunStackPayload
         {
-            tun = new { stack = stack }
-        });
+            Tun = new TunStackInner { Stack = stack }
+        }, AppJsonContext.Default.TunStackPayload);
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
         await _http.PatchAsync("/configs", content);
     }
@@ -274,7 +275,7 @@ public class HttpClashService : IClashService, IDisposable
     public async Task<IReadOnlyList<ProxyGroup>> GetProxyGroupsAsync()
     {
         var json = await _http.GetStringAsync("/proxies");
-        var dto = JsonSerializer.Deserialize<ProxiesResponse>(json, JsonOpts);
+        var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.ProxiesResponse);
         if (dto?.Proxies == null) return Array.Empty<ProxyGroup>();
 
         var groups = new List<ProxyGroup>();
@@ -320,7 +321,7 @@ public class HttpClashService : IClashService, IDisposable
 
     public async Task ChangeProxyAsync(string groupName, string proxyName)
     {
-        var json = JsonSerializer.Serialize(new { name = proxyName });
+        var json = JsonSerializer.Serialize(new NamePayload { Name = proxyName }, AppJsonContext.Default.NamePayload);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         await _http.PutAsync($"/proxies/{Uri.EscapeDataString(groupName)}", content);
     }
@@ -333,7 +334,7 @@ public class HttpClashService : IClashService, IDisposable
         if (!resp.IsSuccessStatusCode) return 0;
 
         var json = await resp.Content.ReadAsStringAsync();
-        var dto = JsonSerializer.Deserialize<DelayResponse>(json, JsonOpts);
+        var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.DelayResponse);
         return dto?.Delay ?? 0;
     }
 
@@ -344,7 +345,7 @@ public class HttpClashService : IClashService, IDisposable
         // 现代 mihomo 已移除 /group/{name}/delay 端点；改为读取该组的成员节点，
         // 逐个调用正确的 /proxies/{name}/delay 进行测速。
         var json = await _http.GetStringAsync("/proxies");
-        var dto = JsonSerializer.Deserialize<ProxiesResponse>(json, JsonOpts);
+        var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.ProxiesResponse);
         if (dto?.Proxies == null ||
             !dto.Proxies.TryGetValue(groupName, out var groupInfo) ||
             groupInfo.All == null)
@@ -394,7 +395,7 @@ public class HttpClashService : IClashService, IDisposable
 
         // Normalize backslashes for the ClashMeta API (it expects forward slashes)
         var normalizedPath = configPath.Replace('\\', '/');
-        var json = JsonSerializer.Serialize(new { path = normalizedPath });
+        var json = JsonSerializer.Serialize(new PathPayload { Path = normalizedPath }, AppJsonContext.Default.PathPayload);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         await _http.PutAsync("/configs", content);
     }
@@ -413,7 +414,7 @@ public class HttpClashService : IClashService, IDisposable
         if (!string.IsNullOrWhiteSpace(configPath))
         {
             var normalizedPath = Path.GetFullPath(configPath).Replace('\\', '/');
-            var json = JsonSerializer.Serialize(new { path = normalizedPath });
+            var json = JsonSerializer.Serialize(new PathPayload { Path = normalizedPath }, AppJsonContext.Default.PathPayload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             await _http.PutAsync("/configs", content);
         }
@@ -424,7 +425,7 @@ public class HttpClashService : IClashService, IDisposable
     public async Task<IReadOnlyList<ConnectionInfo>> GetConnectionsAsync()
     {
         var json = await _http.GetStringAsync("/connections");
-        var dto = JsonSerializer.Deserialize<ConnectionsResponse>(json, JsonOpts);
+        var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.ConnectionsResponse);
         if (dto?.Connections == null) return Array.Empty<ConnectionInfo>();
 
         return dto.Connections.Select(c => new ConnectionInfo
@@ -484,7 +485,7 @@ public class HttpClashService : IClashService, IDisposable
                 if (result.MessageType == WebSocketMessageType.Close) break;
 
                 var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                var dto = JsonSerializer.Deserialize<LogDto>(json, JsonOpts);
+                var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.LogDto);
                 if (dto != null)
                 {
                     var parsedLevel = Enum.TryParse<LogLevel>(dto.Type, true, out var l) ? l : LogLevel.Info;
@@ -541,7 +542,7 @@ public class HttpClashService : IClashService, IDisposable
             try
             {
                 var json = await client.GetStringAsync(url);
-                var dto = JsonSerializer.Deserialize<JsonElement>(json);
+                var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.JsonElement);
                 var info = parse(dto);
                 if (!string.IsNullOrEmpty(info.Ip))
                     return info;
@@ -564,7 +565,7 @@ public class HttpClashService : IClashService, IDisposable
         try
         {
             var json = await _http.GetStringAsync("/providers/proxies");
-            var dto = JsonSerializer.Deserialize<ProvidersResponse>(json, JsonOpts);
+            var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.ProvidersResponse);
             if (dto?.Providers != null)
             {
                 result.AddRange(dto.Providers.Select(p => new ExternalProvider
@@ -584,7 +585,7 @@ public class HttpClashService : IClashService, IDisposable
         try
         {
             var json = await _http.GetStringAsync("/providers/rules");
-            var dto = JsonSerializer.Deserialize<ProvidersResponse>(json, JsonOpts);
+            var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.ProvidersResponse);
             if (dto?.Providers != null)
             {
                 result.AddRange(dto.Providers.Select(p => new ExternalProvider
@@ -615,7 +616,7 @@ public class HttpClashService : IClashService, IDisposable
 
     public async Task UpdateGeoDatabaseAsync(string name)
     {
-        var payload = JsonSerializer.Serialize(new { name });
+        var payload = JsonSerializer.Serialize(new NamePayload { Name = name }, AppJsonContext.Default.NamePayload);
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
         await _http.PutAsync("/configs/geo", content);
     }
@@ -624,19 +625,19 @@ public class HttpClashService : IClashService, IDisposable
 
     public async Task PatchCoreConfigAsync(AppSettings settings)
     {
-        var payload = JsonSerializer.Serialize(new
+        var payload = JsonSerializer.Serialize(new CoreConfigPatch
         {
-            mixed_port = settings.MixedPort,
-            socks_port = settings.SocksPort,
-            port = settings.HttpPort,
-            log_level = settings.LogLevel,
-            ipv6 = settings.Ipv6,
-            allow_lan = settings.AllowLan,
-            unified_delay = settings.UnifiedDelay,
-            tcp_concurrent = settings.TcpConcurrent,
-            find_process_mode = settings.FindProcessMode,
-            keep_alive_interval = settings.KeepAliveInterval,
-        });
+            MixedPort = settings.MixedPort,
+            SocksPort = settings.SocksPort,
+            Port = settings.HttpPort,
+            LogLevel = settings.LogLevel,
+            Ipv6 = settings.Ipv6,
+            AllowLan = settings.AllowLan,
+            UnifiedDelay = settings.UnifiedDelay,
+            TcpConcurrent = settings.TcpConcurrent,
+            FindProcessMode = settings.FindProcessMode,
+            KeepAliveInterval = settings.KeepAliveInterval,
+        }, AppJsonContext.Default.CoreConfigPatch);
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
         await _http.PatchAsync("/configs", content);
     }
@@ -656,7 +657,7 @@ public class HttpClashService : IClashService, IDisposable
     public async Task<IReadOnlyList<Rule>> GetRulesAsync()
     {
         var json = await _http.GetStringAsync("/rules");
-        var dto = JsonSerializer.Deserialize<RulesResponse>(json, JsonOpts);
+        var dto = JsonSerializer.Deserialize(json, AppJsonContext.Default.RulesResponse);
         if (dto?.Rules == null) return Array.Empty<Rule>();
 
         return dto.Rules.Select(r => new Rule
@@ -699,129 +700,5 @@ public class HttpClashService : IClashService, IDisposable
         _logCts?.Cancel();
         _logWs?.Dispose();
         _http.Dispose();
-    }
-
-    // ── DTO 类型 ──
-
-    private class TrafficDto
-    {
-        public long Up { get; set; }
-        public long Down { get; set; }
-    }
-
-    private class ProxiesResponse
-    {
-        public Dictionary<string, ProxyDto>? Proxies { get; set; }
-    }
-
-    private class ProxyDto
-    {
-        public string? Type { get; set; }
-        public string? Now { get; set; }
-        public List<string>? All { get; set; }
-        public List<HistoryDto>? History { get; set; }
-    }
-
-    private class HistoryDto
-    {
-        public int Delay { get; set; }
-    }
-
-    private class DelayResponse
-    {
-        public int Delay { get; set; }
-    }
-
-    private class ConnectionsResponse
-    {
-        public List<ConnectionDto>? Connections { get; set; }
-    }
-
-    private class ConnectionDto
-    {
-        public string Id { get; set; } = "";
-        public DateTime? Start { get; set; }
-        public long Download { get; set; }
-        public long Upload { get; set; }
-        public long UploadSpeed { get; set; }
-        public long DownloadSpeed { get; set; }
-        public ConnectionMetaDto? Metadata { get; set; }
-        public List<string>? Chains { get; set; }
-        public string? Rule { get; set; }
-        public string? RulePayload { get; set; }
-    }
-
-    private class ConnectionMetaDto
-    {
-        public string? Network { get; set; }
-        public string? Type { get; set; }
-        public string? SourceIP { get; set; }
-        public string? SourcePort { get; set; }
-        public string? DestinationIP { get; set; }
-        public string? DestinationPort { get; set; }
-        public string? Host { get; set; }
-        public string? DnsMode { get; set; }
-        public string? ProcessPath { get; set; }
-    }
-
-    private class LogDto
-    {
-        public string? Type { get; set; }
-        public string? Payload { get; set; }
-    }
-
-    private class IpGeoDto
-    {
-        [JsonPropertyName("ip")]
-        public string? Ip { get; set; }
-        [JsonPropertyName("country")]
-        public string? Country { get; set; }
-        [JsonPropertyName("country_code")]
-        public string? CountryCode { get; set; }
-        [JsonPropertyName("isp")]
-        public string? Isp { get; set; }
-    }
-
-    private class ProvidersResponse
-    {
-        public List<ProviderDto>? Providers { get; set; }
-    }
-
-    private class ProviderDto
-    {
-        public string? Name { get; set; }
-        public string? Type { get; set; }
-        public string? VehicleType { get; set; }
-        public int Count { get; set; }
-        public DateTime UpdatedAt { get; set; }
-    }
-
-    private class RulesResponse
-    {
-        public List<RuleDto>? Rules { get; set; }
-    }
-
-    private class RuleDto
-    {
-        public string? Type { get; set; }
-        public string? Payload { get; set; }
-        public string? Proxy { get; set; }
-        public int Size { get; set; }
-    }
-
-    private class MemoryDto
-    {
-        public long Inuse { get; set; }
-        public long Alloc { get; set; }
-        public long Sys { get; set; }
-        public long Idle { get; set; }
-        public long Released { get; set; }
-        public long HeapObjects { get; set; }
-    }
-
-    private class VersionDto
-    {
-        public string? Version { get; set; }
-        public bool Meta { get; set; }
     }
 }

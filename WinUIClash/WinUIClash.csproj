@@ -15,7 +15,7 @@
     <WindowsPackageType>None</WindowsPackageType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <NoWarn>$(NoWarn);MVVMTK0045</NoWarn>
+    <NoWarn>$(NoWarn);MVVMTK0045;IL2104</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="Assets\BadgeLogo.scale-100.png" />

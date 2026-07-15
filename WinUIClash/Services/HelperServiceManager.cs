@@ -232,7 +232,7 @@ public class HelperServiceManager
         {
             using var http = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(5) };
 
-            var payload = JsonSerializer.Serialize(new { path = corePath, arg = arguments });
+            var payload = JsonSerializer.Serialize(new HelperStartPayload { Path = corePath, Arg = arguments }, AppJsonContext.Default.HelperStartPayload);
             var content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
             var response = await http.PostAsync(
                 $"http://127.0.0.1:{HelperApiPort}/start?token={ServiceToken}", content);
