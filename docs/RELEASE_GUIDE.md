@@ -114,10 +114,10 @@ dotnet publish WinUIClash/WinUIClash.csproj -c Release -p:Platform=x64 `
 
 4. **打 tag 并推送**
 
-   ```powershell
-   git tag v1.2.0 -m "Release v1.2.0"
-   git push origin v1.2.0
-   ```
+```powershell
+git tag v1.2.0 -m "Release v1.2.0"
+git push origin v1.2.0
+```
 
 5. **在 Actions 页面观察进度**
    - `Build x64` 与 `Build arm64` 并行执行
