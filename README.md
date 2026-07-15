@@ -18,12 +18,6 @@ English | [中文](README.zh-CN.md)
 | Target Platform | Windows 10 1809+ (`10.0.17763.0`) |
 | Architecture | x86 / x64 / ARM64 |
 
-## Reference Project
-
-- **FlClash** — Cross-platform proxy client based on Flutter + ClashMeta
-  - Repository: <https://github.com/chen08209/FlClash>
-  - Local reference path: `D:\code\refs\FlClash`
-
 ## Development Environment
 
 1. Visual Studio 2022 (with **Windows App SDK** workload installed)
@@ -39,7 +33,7 @@ Use Visual Studio
 
 ### Command Line
 
-Refer to [DEVELOP.md](docs/DEVELOP.md)
+Refer to [CommandLineStart.md](docs/CommandLineStart.md)
 
 ```bash
 dotnet run --project WinUIClash\WinUIClash.csproj --verbose

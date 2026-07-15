@@ -62,9 +62,9 @@ Core/
 推送形如 `v*` 的 tag 时，自动构建两个架构的包并创建 GitHub Release。
 
 ```powershell
-# 例：发布 v1.2.0
-git tag v1.2.0
-git push origin v1.2.0
+# 例：发布 v0.1.0
+git tag v0.1.0
+git push origin v0.1.0
 ```
 
 规则：
@@ -73,7 +73,7 @@ git push origin v1.2.0
 - 带连字符的 tag 会被标记为 **prerelease**（例如 `v1.0.0-rc1`、`v1.0.0-beta.2`）
 - 不带连字符的 tag 会作为正式版发布（例如 `v1.0.0`）
 - Release 名称为 `WinUIClash <tag>`，Release Notes 由 GitHub 根据自上一个 tag 以来的 commit / PR 自动生成
-- 产物文件名中的版本号会去掉 `v` 前缀，例如 tag `v1.2.0` → `WinUIClash-1.2.0-win-x64.zip`
+- 产物文件名中的版本号会去掉 `v` 前缀，例如 tag `v0.1.0` → `WinUIClash-1.2.0-win-x64.zip`
 
 ### 2. 手动触发（测试构建）
 
@@ -87,7 +87,7 @@ git push origin v1.2.0
 
 ## 三、常规发布流程
 
-以发布 `v1.2.0` 为例：
+以发布 `v0.1.0` 为例：
 
 1. **本地验证**（可选但推荐）
 
@@ -115,8 +115,8 @@ dotnet publish WinUIClash/WinUIClash.csproj -c Release -p:Platform=x64 `
 4. **打 tag 并推送**
 
 ```powershell
-git tag v1.2.0 -m "Release v1.2.0"
-git push origin v1.2.0
+git tag v0.1.0 -m "Release v0.1.0"
+git push origin v0.1.0
 ```
 
 5. **在 Actions 页面观察进度**
@@ -223,7 +223,7 @@ git push origin v1.2.0
 
 ## 七、撤回 / 重发布
 
-- **撤回一个 Release**：在 GitHub Releases 页删除该 Release，然后 `git push --delete origin v1.2.0` 删除远端 tag。
+- **撤回一个 Release**：在 GitHub Releases 页删除该 Release，然后 `git push --delete origin v0.1.0` 删除远端 tag。
 - **同一 tag 重新构建**：先删除远端 tag 与对应 Release，再重新打 tag 推送。**不要**在同一 tag 上强制推送后期望流水线复跑，`softprops/action-gh-release` 对已存在的 Release 默认不会覆盖附件。
 
 ---

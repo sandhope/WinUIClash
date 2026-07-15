@@ -118,7 +118,7 @@ dotnet new winui -n WinUIClash
 + <ImplicitUsings>enable</ImplicitUsings>
 ```
 
-### 变化五：启用隐式 Using 指令
+### 变化五：添加命令行构建工具包
 
 `Microsoft.Windows.SDK.BuildTools.WinApp`，是微软专门为 .NET 开发者提供的命令行开发与打包工具集
 

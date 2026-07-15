@@ -16,12 +16,6 @@
 | 目标平台 | Windows 10 1809+ (`10.0.17763.0`) |
 | 架构 | x86 / x64 / ARM64 |
 
-## 参考项目
-
-- **FlClash** — 基于 Flutter + ClashMeta 的多平台代理客户端
-  - 仓库：<https://github.com/chen08209/FlClash>
-  - 本地参考路径：`D:\code\refs\FlClash`
-
 ## 开发环境
 
 1. Visual Studio 2022（需安装 **Windows App SDK** 工作负载）
@@ -37,7 +31,7 @@
 
 ### 命令行
 
-参考 [DEVELOP.md](docs/DEVELOP.md)
+参考 [CommandLineStart.md](docs/CommandLineStart.md)
 
 ```bash
 dotnet run --project WinUIClash\WinUIClash.csproj --verbose
