@@ -51,6 +51,7 @@
 
             <Border Style="{StaticResource SettingsCardStyle}">
                 <StackPanel Spacing="4">
+                    <HyperlinkButton Content="{Binding Source={StaticResource S}, Path=AboutWinUIClash_Content}" NavigateUri="https://github.com/sandhope/WinUIClash" />
                     <HyperlinkButton Content="{Binding Source={StaticResource S}, Path=AboutFlClash_Content}" NavigateUri="https://github.com/chen08209/FlClash" />
                     <HyperlinkButton Content="{Binding Source={StaticResource S}, Path=AboutMihomo_Content}" NavigateUri="https://github.com/MetaCubeX/mihomo" />
                     <HyperlinkButton Content="{Binding Source={StaticResource S}, Path=AboutWinAppSdk_Content}" NavigateUri="https://learn.microsoft.com/windows/apps/winui/" />

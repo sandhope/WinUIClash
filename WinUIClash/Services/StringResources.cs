@@ -297,6 +297,7 @@ public class StringResources : INotifyPropertyChanged
     public string AboutTechStack_Text => Get("AboutTechStack.Text");
     public string AboutProjectLinks_Text => Get("AboutProjectLinks.Text");
     public string AboutActions_Text => Get("AboutActions.Text");
+    public string AboutWinUIClash_Content => Get("AboutWinUIClash.Content");
     public string AboutFlClash_Content => Get("AboutFlClash.Content");
     public string AboutMihomo_Content => Get("AboutMihomo.Content");
     public string AboutWinAppSdk_Content => Get("AboutWinAppSdk.Content");

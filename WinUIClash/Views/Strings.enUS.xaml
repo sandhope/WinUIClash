@@ -286,6 +286,7 @@
     <x:String x:Key="AboutTechStack.Text">Tech Stack</x:String>
     <x:String x:Key="AboutProjectLinks.Text">Project Links</x:String>
     <x:String x:Key="AboutActions.Text">Actions</x:String>
+    <x:String x:Key="AboutWinUIClash.Content">WinUIClash Project</x:String>
     <x:String x:Key="AboutFlClash.Content">FlClash Original Project</x:String>
     <x:String x:Key="AboutMihomo.Content">ClashMeta Core (Mihomo)</x:String>
     <x:String x:Key="AboutWinAppSdk.Content">Windows App SDK Docs</x:String>

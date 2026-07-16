@@ -286,6 +286,7 @@
     <x:String x:Key="AboutTechStack.Text">技术栈</x:String>
     <x:String x:Key="AboutProjectLinks.Text">项目链接</x:String>
     <x:String x:Key="AboutActions.Text">操作</x:String>
+    <x:String x:Key="AboutWinUIClash.Content">WinUIClash 项目</x:String>
     <x:String x:Key="AboutFlClash.Content">FlClash 原项目</x:String>
     <x:String x:Key="AboutMihomo.Content">ClashMeta 核心 (Mihomo)</x:String>
     <x:String x:Key="AboutWinAppSdk.Content">Windows App SDK 文档</x:String>
