@@ -42,4 +42,4 @@ dotnet run --project WinUIClash\WinUIClash.csproj -c Debug -r win-x64 --verbose
 
 ## License
 
-This project is licensed under the terms in [LICENSE.txt](LICENSE).
+This project is licensed under the terms in [LICENSE](LICENSE).

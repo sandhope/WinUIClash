@@ -40,7 +40,7 @@ dotnet run --project WinUIClash\WinUIClash.csproj -c Debug -r win-x64 --verbose
 
 ## 许可证
 
-本项目遵循 [LICENSE.txt](LICENSE) 中的许可条款。
+本项目遵循 [LICENSE](LICENSE) 中的许可条款。
 
 ## 支持项目
 
