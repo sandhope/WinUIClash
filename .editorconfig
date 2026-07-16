@@ -1,0 +1,46 @@
+root = true
+
+# 文件编码与换行
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+# C# 代码风格与格式
+[*.cs]
+indent_size = 4
+csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_prefer_braces = true:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+dotnet_sort_system_directives_first = true
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion
+dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
+dotnet_style_object_initializer = true:suggestion
+dotnet_style_collection_initializer = true:suggestion
+
+# 命名约定
+dotnet_naming_rule.pascal_types.style = pascal_case
+dotnet_naming_rule.pascal_types.symbols = pascal_types
+dotnet_naming_symbols.pascal_types.applicable_kinds = class:field:property:method:event:namespace
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+dotnet_naming_rule.private_fields.style = underscore_prefix
+dotnet_naming_rule.private_fields.symbols = private_fields
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_style.underscore_prefix.capitalization = camel_case
+dotnet_naming_style.underscore_prefix.required_prefix = _
+
+# XAML
+[*.xaml]
+indent_size = 4
+
+# JSON / XML / Markdown
+[*.{json,xml,yml,yaml,md}]
+indent_size = 2

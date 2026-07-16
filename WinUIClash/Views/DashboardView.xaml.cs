@@ -191,7 +191,7 @@ public sealed partial class DashboardView : Page
             && rd.TryGetValue(key, out var res)
             && res is SolidColorBrush b)
         {
-        return b.Color;
+            return b.Color;
         }
         return Color.FromArgb(255, 128, 128, 128);
     }
