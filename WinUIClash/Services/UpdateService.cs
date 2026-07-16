@@ -13,7 +13,7 @@ namespace WinUIClash.Services;
 public class UpdateService
 {
     private readonly ILogger<UpdateService> _logger;
-    private const string GitHubRepo = "chen08209/WinUIClash"; // TODO: replace with actual repo
+    private const string GitHubRepo = "sandhope/WinUIClash";
     private const string ReleasesUrl = $"https://api.github.com/repos/{GitHubRepo}/releases/latest";
 
     private static readonly HttpClient Http = new(new HttpClientHandler { UseProxy = false })
