@@ -44,6 +44,7 @@ public sealed partial class MainWindow : Window
     private IClashService? _clash;
     private AppSettings? _appSettings;
     private ViewModels.DashboardViewModel? _dashboardVm;
+    private StringResources? _stringResources;
 
     // 状态栏连接数轮询定时器
     private DispatcherTimer? _statusBarConnTimer;
@@ -558,8 +559,24 @@ public sealed partial class MainWindow : Window
 
             // 内存更新事件订阅
             _clash.MemoryUpdated += OnMemoryUpdated;
+
+            // 订阅语言切换：状态栏三处文本由命令式赋值设置，
+            // 绑定不会自动刷新，需在语言变更时重新调用各 Update 方法。
+            _stringResources = ServiceLocator.Get<StringResources>();
+            _stringResources.PropertyChanged += OnStringResourcesChanged;
         }
         catch { /* ServiceLocator 未初始化时忽略 */ }
+    }
+
+    private void OnStringResourcesChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.PropertyName)) return;
+        _dispatcher.TryEnqueue(() =>
+        {
+            UpdateCoreStatusUI(_clash?.CoreState ?? CoreState.Stopped);
+            UpdateOutboundModeUI(_dashboardVm?.OutboundMode ?? OutboundMode.Rule);
+            UpdateProxyStatusUI(_dashboardVm?.IsRunning ?? false);
+        });
     }
 
     private void OnCoreStateChanged(CoreState state)
@@ -815,6 +832,10 @@ public sealed partial class MainWindow : Window
             if (_dashboardVm != null)
             {
                 _dashboardVm.PropertyChanged -= OnDashboardPropertyChanged;
+            }
+            if (_stringResources != null)
+            {
+                _stringResources.PropertyChanged -= OnStringResourcesChanged;
             }
 
             // 退出时彻底终止常驻核心进程（仅 App 退出才杀进程，符合 REFACTOR_GUIDE T3）

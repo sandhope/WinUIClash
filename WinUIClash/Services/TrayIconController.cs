@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -30,9 +31,19 @@ public sealed class TrayIconController : IDisposable
     private readonly Action _exitApp;
 
     // 托盘菜单项（需要动态更新状态）
+    private MenuFlyoutItem? _trayShowItem;
     private ToggleMenuFlyoutItem? _trayProxyItem;
     private ToggleMenuFlyoutItem? _trayConnectItem;
+    private ToggleMenuFlyoutItem? _trayTunItem;
+    private MenuFlyoutItem? _trayGcItem;
+    private MenuFlyoutItem? _trayRestartItem;
+    private MenuFlyoutSubItem? _trayModeItem;
+    private ToggleMenuFlyoutItem? _trayModeRule;
+    private ToggleMenuFlyoutItem? _trayModeGlobal;
+    private ToggleMenuFlyoutItem? _trayModeDirect;
     private MenuFlyoutSubItem? _trayProfileMenu;
+    private MenuFlyoutItem? _trayOpenDataItem;
+    private MenuFlyoutItem? _trayExitItem;
 
     private System.Drawing.Icon? _currentTrayIcon;
     private CoreState _lastTrayIconState = CoreState.Stopped;
@@ -43,6 +54,14 @@ public sealed class TrayIconController : IDisposable
         _exitApp = exitApp;
         _dispatcher = dispatcher;
         InitTrayIcon();
+
+        // 订阅语言切换：托盘菜单在构建时一次性读取文本，需在语言变更后逐项刷新。
+        try
+        {
+            var sr = ServiceLocator.Get<StringResources>();
+            sr.PropertyChanged += OnStringResourcesChanged;
+        }
+        catch (Exception ex) { Debug.WriteLine($"Tray i18n subscription error: {ex.Message}"); }
     }
 
     // ── 系统托盘 ──────────────────────────────────────────────────────────────
@@ -67,9 +86,9 @@ public sealed class TrayIconController : IDisposable
         var menu = new MenuFlyout();
 
         // ── 显示主窗口 ──
-        var showItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayShow.Text") };
-        showItem.Click += (_, _) => _showWindow();
-        menu.Items.Add(showItem);
+        _trayShowItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayShow.Text") };
+        _trayShowItem.Click += (_, _) => _showWindow();
+        menu.Items.Add(_trayShowItem);
 
         // ── 连接 / 断开代理（核心常驻，此处仅切换模式 + 系统代理）──
         _trayConnectItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayConnectProxy.Text") };
@@ -132,14 +151,14 @@ public sealed class TrayIconController : IDisposable
         menu.Items.Add(_trayProxyItem);
 
         // ── TUN 模式 ──
-        var trayTunItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayTunMode.Text") };
+        _trayTunItem = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayTunMode.Text") };
         try
         {
             var tunSettings = ServiceLocator.Get<AppSettings>();
-            trayTunItem.IsChecked = tunSettings.TunMode;
+            _trayTunItem.IsChecked = tunSettings.TunMode;
         }
         catch (Exception ex) { Debug.WriteLine($"Tray TUN init error: {ex.Message}"); }
-        trayTunItem.Click += (_, _) =>
+        _trayTunItem.Click += (_, _) =>
         {
             try
             {
@@ -155,15 +174,15 @@ public sealed class TrayIconController : IDisposable
             tunAppSettings.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(AppSettings.TunMode))
-                    _dispatcher.TryEnqueue(() => trayTunItem.IsChecked = tunAppSettings.TunMode);
+                    _dispatcher.TryEnqueue(() => _trayTunItem!.IsChecked = tunAppSettings.TunMode);
             };
         }
         catch (Exception ex) { Debug.WriteLine($"Tray TUN PropertyChanged subscription error: {ex.Message}"); }
-        menu.Items.Add(trayTunItem);
+        menu.Items.Add(_trayTunItem);
 
         // ── 强制 GC ──
-        var gcItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayForceGc.Text") };
-        gcItem.Click += async (_, _) =>
+        _trayGcItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayForceGc.Text") };
+        _trayGcItem.Click += async (_, _) =>
         {
             try
             {
@@ -173,11 +192,11 @@ public sealed class TrayIconController : IDisposable
             }
             catch (Exception ex) { Debug.WriteLine($"Tray GC error: {ex.Message}"); }
         };
-        menu.Items.Add(gcItem);
+        menu.Items.Add(_trayGcItem);
 
         // ── 重启核心 ──
-        var restartItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayRestartCore.Text") };
-        restartItem.Click += async (_, _) =>
+        _trayRestartItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayRestartCore.Text") };
+        _trayRestartItem.Click += async (_, _) =>
         {
             try
             {
@@ -187,50 +206,50 @@ public sealed class TrayIconController : IDisposable
             }
             catch (Exception ex) { Debug.WriteLine($"Tray restart error: {ex.Message}"); }
         };
-        menu.Items.Add(restartItem);
+        menu.Items.Add(_trayRestartItem);
 
         menu.Items.Add(new MenuFlyoutSeparator());
 
         // ── 出站模式子菜单 ──
-        var modeItem = new MenuFlyoutSubItem { Text = Services.LocalizationHelper.GetString("TrayOutboundMode.Text") };
+        _trayModeItem = new MenuFlyoutSubItem { Text = Services.LocalizationHelper.GetString("TrayOutboundMode.Text") };
 
-        var modeRule = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeRule.Content"), IsChecked = true };
-        var modeGlobal = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeGlobal.Content") };
-        var modeDirect = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeDirect.Content") };
+        _trayModeRule = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeRule.Content"), IsChecked = true };
+        _trayModeGlobal = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeGlobal.Content") };
+        _trayModeDirect = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeDirect.Content") };
 
         void ClearModeChecks()
         {
-            modeRule.IsChecked = false;
-            modeGlobal.IsChecked = false;
-            modeDirect.IsChecked = false;
+            _trayModeRule!.IsChecked = false;
+            _trayModeGlobal!.IsChecked = false;
+            _trayModeDirect!.IsChecked = false;
         }
 
-        modeRule.Click += async (_, _) =>
+        _trayModeRule.Click += async (_, _) =>
         {
             ClearModeChecks();
-            modeRule.IsChecked = true;
+            _trayModeRule.IsChecked = true;
             try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Rule); }
             catch (Exception ex) { Debug.WriteLine($"Tray mode Rule error: {ex.Message}"); }
         };
-        modeGlobal.Click += async (_, _) =>
+        _trayModeGlobal.Click += async (_, _) =>
         {
             ClearModeChecks();
-            modeGlobal.IsChecked = true;
+            _trayModeGlobal.IsChecked = true;
             try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Global); }
             catch (Exception ex) { Debug.WriteLine($"Tray mode Global error: {ex.Message}"); }
         };
-        modeDirect.Click += async (_, _) =>
+        _trayModeDirect.Click += async (_, _) =>
         {
             ClearModeChecks();
-            modeDirect.IsChecked = true;
+            _trayModeDirect.IsChecked = true;
             try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Direct); }
             catch (Exception ex) { Debug.WriteLine($"Tray mode Direct error: {ex.Message}"); }
         };
 
-        modeItem.Items.Add(modeRule);
-        modeItem.Items.Add(modeGlobal);
-        modeItem.Items.Add(modeDirect);
-        menu.Items.Add(modeItem);
+        _trayModeItem.Items.Add(_trayModeRule);
+        _trayModeItem.Items.Add(_trayModeGlobal);
+        _trayModeItem.Items.Add(_trayModeDirect);
+        menu.Items.Add(_trayModeItem);
 
         // ── 配置切换子菜单 ──
         var profileItem = new MenuFlyoutSubItem { Text = Services.LocalizationHelper.GetString("NavProfiles.Content") };
@@ -243,8 +262,8 @@ public sealed class TrayIconController : IDisposable
         menu.Items.Add(new MenuFlyoutSeparator());
 
         // ── 打开数据目录 ──
-        var openDataItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("AboutOpenDataFolder.Content") };
-        openDataItem.Click += (_, _) =>
+        _trayOpenDataItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("AboutOpenDataFolder.Content") };
+        _trayOpenDataItem.Click += (_, _) =>
         {
             try
             {
@@ -260,14 +279,14 @@ public sealed class TrayIconController : IDisposable
             }
             catch (Exception ex) { Debug.WriteLine($"Open data dir error: {ex.Message}"); }
         };
-        menu.Items.Add(openDataItem);
+        menu.Items.Add(_trayOpenDataItem);
 
         menu.Items.Add(new MenuFlyoutSeparator());
 
         // ── 退出 ──
-        var exitItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayExit.Text") };
-        exitItem.Click += (_, _) => _exitApp();
-        menu.Items.Add(exitItem);
+        _trayExitItem = new MenuFlyoutItem { Text = Services.LocalizationHelper.GetString("TrayExit.Text") };
+        _trayExitItem.Click += (_, _) => _exitApp();
+        menu.Items.Add(_trayExitItem);
 
         _trayIcon.ContextFlyout = menu;
 
@@ -323,6 +342,69 @@ public sealed class TrayIconController : IDisposable
         catch { }
     }
 
+    private void OnStringResourcesChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(e.PropertyName)) return;
+        _dispatcher.TryEnqueue(UpdateTrayMenuTexts);
+    }
+
+    /// <summary>
+    /// 语言切换后逐项刷新托盘右键菜单文本。
+    /// </summary>
+    private void UpdateTrayMenuTexts()
+    {
+        if (_trayShowItem != null)
+            _trayShowItem.Text = Services.LocalizationHelper.GetString("TrayShow.Text");
+
+        if (_trayConnectItem != null)
+        {
+            try
+            {
+                var dashVm = ServiceLocator.Get<DashboardViewModel>();
+                _trayConnectItem.Text = dashVm.IsRunning
+                    ? Services.LocalizationHelper.GetString("TrayDisconnectProxy.Text")
+                    : Services.LocalizationHelper.GetString("TrayConnectProxy.Text");
+            }
+            catch
+            {
+                _trayConnectItem.Text = Services.LocalizationHelper.GetString("TrayConnectProxy.Text");
+            }
+        }
+
+        if (_trayProxyItem != null)
+            _trayProxyItem.Text = Services.LocalizationHelper.GetString("TraySystemProxy.Text");
+
+        if (_trayTunItem != null)
+            _trayTunItem.Text = Services.LocalizationHelper.GetString("TrayTunMode.Text");
+
+        if (_trayGcItem != null)
+            _trayGcItem.Text = Services.LocalizationHelper.GetString("TrayForceGc.Text");
+
+        if (_trayRestartItem != null)
+            _trayRestartItem.Text = Services.LocalizationHelper.GetString("TrayRestartCore.Text");
+
+        if (_trayModeItem != null)
+            _trayModeItem.Text = Services.LocalizationHelper.GetString("TrayOutboundMode.Text");
+
+        if (_trayModeRule != null)
+            _trayModeRule.Text = Services.LocalizationHelper.GetString("DashModeRule.Content");
+
+        if (_trayModeGlobal != null)
+            _trayModeGlobal.Text = Services.LocalizationHelper.GetString("DashModeGlobal.Content");
+
+        if (_trayModeDirect != null)
+            _trayModeDirect.Text = Services.LocalizationHelper.GetString("DashModeDirect.Content");
+
+        if (_trayProfileMenu != null)
+            _trayProfileMenu.Text = Services.LocalizationHelper.GetString("NavProfiles.Content");
+
+        if (_trayOpenDataItem != null)
+            _trayOpenDataItem.Text = Services.LocalizationHelper.GetString("AboutOpenDataFolder.Content");
+
+        if (_trayExitItem != null)
+            _trayExitItem.Text = Services.LocalizationHelper.GetString("TrayExit.Text");
+    }
+
     /// <summary>设置托盘提示文本（由主窗口根据其状态栏数据组装后写入）。</summary>
     public string ToolTipText
     {
@@ -349,6 +431,13 @@ public sealed class TrayIconController : IDisposable
 
     public void Dispose()
     {
+        try
+        {
+            var sr = ServiceLocator.Get<StringResources>();
+            sr.PropertyChanged -= OnStringResourcesChanged;
+        }
+        catch { }
+
         _trayIcon?.Dispose();
         _currentTrayIcon?.Dispose();
     }
