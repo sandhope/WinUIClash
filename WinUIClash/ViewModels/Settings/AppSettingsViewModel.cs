@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using WinUIClash.Models;
 using WinUIClash.Services;
@@ -16,6 +17,13 @@ public partial class AppSettingsViewModel : ObservableObject
     {
         _settings = settings;
         _autoLaunch = autoLaunch;
+        _settings.PropertyChanged += OnSettingsPropertyChanged;
+    }
+
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        // 托盘 / 仪表盘等外部修改设置后，刷新本页对应绑定
+        OnPropertyChanged(e.PropertyName);
     }
 
     public bool MinimizeOnExit
