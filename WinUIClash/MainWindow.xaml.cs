@@ -531,9 +531,9 @@ public sealed partial class MainWindow : Window
             _dashboardVm.PropertyChanged += OnDashboardPropertyChanged;
             UpdateProxyStatusUI(_dashboardVm.IsRunning);
 
-            // 订阅出站模式变化（来自 DashboardViewModel，不依赖核心运行状态）
-            _clash.OutboundModeChanged += OnOutboundModeChanged;
-            UpdateOutboundModeUI(_dashboardVm.OutboundMode);
+            // 订阅出站模式变化：单一来源 = AppSettings.OutboundMode（用户设置的状态）。
+            // 由 _appSettings.PropertyChanged（OnSettingsPropertyChanged）统一处理，不依赖核心运行状态。
+            UpdateOutboundModeUI(_clash.GetOutboundMode());
 
             // 连接数轮询（每5秒）
             _statusBarConnTimer = new DispatcherTimer
@@ -574,7 +574,7 @@ public sealed partial class MainWindow : Window
         _dispatcher.TryEnqueue(() =>
         {
             UpdateCoreStatusUI(_clash?.CoreState ?? CoreState.Stopped);
-            UpdateOutboundModeUI(_dashboardVm?.OutboundMode ?? OutboundMode.Rule);
+            UpdateOutboundModeUI(_clash?.GetOutboundMode() ?? OutboundMode.Rule);
             UpdateProxyStatusUI(_dashboardVm?.IsRunning ?? false);
         });
     }
@@ -654,11 +654,6 @@ public sealed partial class MainWindow : Window
         });
     }
 
-    private void OnOutboundModeChanged(OutboundMode mode)
-    {
-        _dispatcher.TryEnqueue(() => UpdateOutboundModeUI(mode));
-    }
-
     private void OnMemoryUpdated(long memory)
     {
         _dispatcher.TryEnqueue(() =>
@@ -684,6 +679,11 @@ public sealed partial class MainWindow : Window
         {
             UpdateTrayTooltip();
         }
+        // 出站模式（单一来源）变化 → 刷新状态栏文本
+        else if (e.PropertyName == nameof(AppSettings.OutboundMode))
+        {
+            _dispatcher.TryEnqueue(() => UpdateOutboundModeUI(_clash?.GetOutboundMode() ?? OutboundMode.Rule));
+        }
     }
 
     private void OnDashboardPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -694,14 +694,6 @@ public sealed partial class MainWindow : Window
             {
                 if (_dashboardVm != null)
                     UpdateProxyStatusUI(_dashboardVm.IsRunning);
-            });
-        }
-        else if (e.PropertyName == nameof(ViewModels.DashboardViewModel.OutboundMode))
-        {
-            _dispatcher.TryEnqueue(() =>
-            {
-                if (_dashboardVm != null)
-                    UpdateOutboundModeUI(_dashboardVm.OutboundMode);
             });
         }
     }
@@ -823,7 +815,6 @@ public sealed partial class MainWindow : Window
             {
                 _clash.CoreStateChanged -= OnCoreStateChanged;
                 _clash.TrafficUpdated -= OnTrafficUpdated;
-                _clash.OutboundModeChanged -= OnOutboundModeChanged;
             }
             if (_appSettings != null)
             {

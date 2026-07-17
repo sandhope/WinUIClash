@@ -239,6 +239,7 @@ namespace WinUIClash
             Resources.Add("EmptyCollectionToVisibilityConverter", new Converters.EmptyCollectionToVisibilityConverter());
             Resources.Add("NonEmptyCollectionToVisibilityConverter", new Converters.NonEmptyCollectionToVisibilityConverter());
             Resources.Add("InverseBoolConverter", new Converters.InverseBoolConverter());
+            Resources.Add("StringEqualsConverter", new Converters.StringEqualsConverter());
 
             var stringResources = (Services.StringResources)Resources["S"];
             Services.LocalizationHelper.Initialize(stringResources);

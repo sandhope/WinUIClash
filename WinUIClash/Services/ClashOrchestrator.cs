@@ -103,7 +103,6 @@ public class ClashOrchestrator : IClashService
         // 转发真实核心的事件
         _httpClashService.TrafficUpdated += OnTrafficUpdated;
         _httpClashService.LogReceived += OnLogReceived;
-        _httpClashService.OutboundModeChanged += OnOutboundModeChanged;
         _httpClashService.MemoryUpdated += OnMemoryUpdated;
 
         // 监听核心进程意外退出
@@ -426,14 +425,12 @@ public class ClashOrchestrator : IClashService
         _ => OutboundMode.Rule,
     };
 
+    /// <summary>
+    /// 把出站模式 PATCH 到核心。这是纯副作用：<b>绝不回写 _settings.OutboundMode</b>——
+    /// 单一来源（用户设置）只由 UI（仪表盘/托盘）写入，从根上切断“核心 → settings → UI”回写循环。
+    /// </summary>
     public async Task SetOutboundModeAsync(OutboundMode mode)
     {
-        _settings.OutboundMode = mode switch
-        {
-            OutboundMode.Global => "global",
-            OutboundMode.Direct => "direct",
-            _ => "rule",
-        };
         // 记录代理激活状态：直连 = 未连接，rule/global = 已连接
         _proxyActive = mode != OutboundMode.Direct;
         await SafeRunAsync(() => _httpClashService.SetOutboundModeAsync(mode));

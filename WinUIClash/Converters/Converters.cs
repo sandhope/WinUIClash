@@ -55,6 +55,22 @@ public partial class InverseBoolToVisibilityConverter : IValueConverter
 }
 
 /// <summary>
+/// string 相等 → bool。把字符串状态（如出站模式 "rule"/"global"/"direct"）与
+/// RadioButton.IsChecked 双向绑定：<br/>
+/// Convert：value == parameter（忽略大小写）→ 该单选项是否被选中；<br/>
+/// ConvertBack：仅当被选中（true）时回写 parameter 对应的字符串；取消选中（false）时返回
+/// UnsetValue，避免把源值覆盖为空——这样一个单选组里只有“新选中项”会写回来源。
+/// </summary>
+public partial class StringEqualsConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+        => string.Equals(value as string, parameter as string, StringComparison.OrdinalIgnoreCase);
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+        => value is true ? (parameter as string ?? string.Empty) : DependencyProperty.UnsetValue;
+}
+
+/// <summary>
 /// Bool → Opacity。true → 1.0（完全不透明）；false → 半透明（默认 0.5，可用 parameter 指定，如 "0.6"）。<br/>
 /// 用于「预设色板被禁用时」给色块整体降透明度，直观表达"不可用"，且作用范围仅限绑定它的控件（不影响全局按钮）。
 /// </summary>

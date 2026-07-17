@@ -53,13 +53,16 @@
                         <!-- 出站模式选项 -->
                         <RadioButton Content="{Binding Source={StaticResource S}, Path=DashModeRule_Content}" GroupName="Mode"
                                      FontSize="13"
-                                     IsChecked="{x:Bind Vm.IsModeRule, Mode=TwoWay}" />
+                                     IsChecked="{x:Bind Vm.Settings.OutboundMode, Mode=OneWay, Converter={StaticResource StringEqualsConverter}, ConverterParameter=rule}"
+                                     Command="{x:Bind Vm.SetOutboundModeCommand}" CommandParameter="rule" />
                         <RadioButton Content="{Binding Source={StaticResource S}, Path=DashModeGlobal_Content}" GroupName="Mode"
-                                     FontSize="13" 
-                                     IsChecked="{x:Bind Vm.IsModeGlobal, Mode=TwoWay}" />
+                                     FontSize="13"
+                                     IsChecked="{x:Bind Vm.Settings.OutboundMode, Mode=OneWay, Converter={StaticResource StringEqualsConverter}, ConverterParameter=global}"
+                                     Command="{x:Bind Vm.SetOutboundModeCommand}" CommandParameter="global" />
                         <RadioButton Content="{Binding Source={StaticResource S}, Path=DashModeDirect_Content}" GroupName="Mode"
-                                     FontSize="13" 
-                                     IsChecked="{x:Bind Vm.IsModeDirect, Mode=TwoWay}" />
+                                     FontSize="13"
+                                     IsChecked="{x:Bind Vm.Settings.OutboundMode, Mode=OneWay, Converter={StaticResource StringEqualsConverter}, ConverterParameter=direct}"
+                                     Command="{x:Bind Vm.SetOutboundModeCommand}" CommandParameter="direct" />
                     </StackPanel>
                 </StackPanel>
             </Border>

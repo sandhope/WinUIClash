@@ -12,7 +12,7 @@ namespace WinUIClash.Services;
 /// 真实的 ClashMeta REST API 客户端实现
 /// 对接 ClashMeta 的 :9090 RESTful API
 /// </summary>
-public class HttpClashService : IClashService, IDisposable
+public class HttpClashService : IDisposable
 {
     private readonly HttpClient _http;
     private ClientWebSocket? _trafficWs;
@@ -25,13 +25,11 @@ public class HttpClashService : IClashService, IDisposable
     private CoreState _coreState = CoreState.Stopped;
     private Traffic _currentTraffic = new();
     private Traffic _totalTraffic = new();
-    private OutboundMode _outboundMode = OutboundMode.Rule;
     private long _currentMemory = 0;
 
     public CoreState CoreState => _coreState;
     public event Action<Traffic>? TrafficUpdated;
     public event Action<CoreState>? CoreStateChanged;
-    public event Action<OutboundMode>? OutboundModeChanged;
     public event Action<LogEntry>? LogReceived;
     public event Action<long>? MemoryUpdated;
 
@@ -202,10 +200,6 @@ public class HttpClashService : IClashService, IDisposable
         _memoryWs = null;
     }
 
-    // ── 出站模式 ──
-
-    public OutboundMode GetOutboundMode() => _outboundMode;
-
     public async Task SetOutboundModeAsync(OutboundMode mode)
     {
         var modeStr = mode switch
@@ -218,8 +212,6 @@ public class HttpClashService : IClashService, IDisposable
         var json = JsonSerializer.Serialize(new ModePayload { Mode = modeStr }, AppJsonContext.Default.ModePayload);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         await _http.PatchAsync("/configs", content);
-        _outboundMode = mode;
-        OutboundModeChanged?.Invoke(mode);
     }
 
     // ── TUN 模式 ──

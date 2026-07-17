@@ -113,6 +113,15 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>外部（托盘菜单等）切换配置后，同步本地状态：更新 IsActive 标记、持久化、通知 UI。</summary>
+    public async Task SyncActiveProfileAsync(string profileId)
+    {
+        foreach (var p in Profiles) p.IsActive = p.Id == profileId;
+        ActiveProfile = Profiles.FirstOrDefault(p => p.IsActive);
+        await SaveProfileListAsync();
+        RaiseProfilesChanged();
+    }
+
     [RelayCommand]
     private async Task SyncProfileAsync(Profile? profile)
     {

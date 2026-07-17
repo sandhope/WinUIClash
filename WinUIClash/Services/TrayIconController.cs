@@ -213,38 +213,50 @@ public sealed class TrayIconController : IDisposable
         // ── 出站模式子菜单 ──
         _trayModeItem = new MenuFlyoutSubItem { Text = Services.LocalizationHelper.GetString("TrayOutboundMode.Text") };
 
-        _trayModeRule = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeRule.Content"), IsChecked = true };
+        _trayModeRule = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeRule.Content") };
         _trayModeGlobal = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeGlobal.Content") };
         _trayModeDirect = new ToggleMenuFlyoutItem { Text = Services.LocalizationHelper.GetString("DashModeDirect.Content") };
 
-        void ClearModeChecks()
+        // 按单一来源（AppSettings.OutboundMode）刷新三项勾选
+        void UpdateModeChecks(string? mode)
         {
-            _trayModeRule!.IsChecked = false;
-            _trayModeGlobal!.IsChecked = false;
-            _trayModeDirect!.IsChecked = false;
+            var m = (mode ?? "rule").ToLowerInvariant();
+            _trayModeRule!.IsChecked = m == "rule";
+            _trayModeGlobal!.IsChecked = m == "global";
+            _trayModeDirect!.IsChecked = m == "direct";
         }
 
-        _trayModeRule.Click += async (_, _) =>
+        // 点选出站模式：只写单一来源 _settings.OutboundMode。
+        // 副作用（PATCH 核心/断开）由 DashboardViewModel 统一订阅施加，三处 UI 由各自订阅刷新。
+        void SetTrayMode(string mode)
         {
-            ClearModeChecks();
-            _trayModeRule.IsChecked = true;
-            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Rule); }
-            catch (Exception ex) { Debug.WriteLine($"Tray mode Rule error: {ex.Message}"); }
-        };
-        _trayModeGlobal.Click += async (_, _) =>
+            try
+            {
+                ServiceLocator.Get<AppSettings>().OutboundMode = mode;
+                UpdateModeChecks(mode); // 立即回正勾选，防止点“已选项”被 Toggle 框架翻掉
+            }
+            catch (Exception ex) { Debug.WriteLine($"Tray mode set {mode} error: {ex.Message}"); }
+        }
+
+        // 初始勾选：读取持久化的用户设置
+        try { UpdateModeChecks(ServiceLocator.Get<AppSettings>().OutboundMode); }
+        catch (Exception ex) { Debug.WriteLine($"Tray mode init error: {ex.Message}"); }
+
+        _trayModeRule.Click += (_, _) => SetTrayMode("rule");
+        _trayModeGlobal.Click += (_, _) => SetTrayMode("global");
+        _trayModeDirect.Click += (_, _) => SetTrayMode("direct");
+
+        // 订阅单一来源变化（来自仪表盘选择 / 开始按钮隐式切换等）→ 同步勾选
+        try
         {
-            ClearModeChecks();
-            _trayModeGlobal.IsChecked = true;
-            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Global); }
-            catch (Exception ex) { Debug.WriteLine($"Tray mode Global error: {ex.Message}"); }
-        };
-        _trayModeDirect.Click += async (_, _) =>
-        {
-            ClearModeChecks();
-            _trayModeDirect.IsChecked = true;
-            try { await ServiceLocator.Get<IClashService>().SetOutboundModeAsync(OutboundMode.Direct); }
-            catch (Exception ex) { Debug.WriteLine($"Tray mode Direct error: {ex.Message}"); }
-        };
+            var modeAppSettings = ServiceLocator.Get<AppSettings>();
+            modeAppSettings.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(AppSettings.OutboundMode))
+                    _dispatcher.TryEnqueue(() => UpdateModeChecks(modeAppSettings.OutboundMode));
+            };
+        }
+        catch (Exception ex) { Debug.WriteLine($"Tray mode PropertyChanged subscription error: {ex.Message}"); }
 
         _trayModeItem.Items.Add(_trayModeRule);
         _trayModeItem.Items.Add(_trayModeGlobal);
@@ -327,6 +339,14 @@ public sealed class TrayIconController : IDisposable
                             var c = ServiceLocator.Get<IClashService>();
                             var configPath = storage.GetConfigPath(capturedProfile.Id);
                             await c.SwitchProfileAsync(capturedProfile.Id, configPath);
+
+                            // 同步 ProfilesViewModel 状态（持久化 IsActive + UI 刷新）
+                            try
+                            {
+                                var profilesVm = ServiceLocator.Get<ViewModels.ProfilesViewModel>();
+                                await profilesVm.SyncActiveProfileAsync(capturedProfile.Id);
+                            }
+                            catch (Exception ex) { Debug.WriteLine($"Tray profile sync error: {ex.Message}"); }
 
                             // Update checkmarks
                             foreach (var item in _trayProfileMenu.Items.OfType<ToggleMenuFlyoutItem>())

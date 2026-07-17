@@ -347,8 +347,11 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
             if (_clash.CoreState != CoreState.Running)
                 await _clash.StartAsync();
 
-            // 按用户选择的出站模式激活（直连选择视为 Rule，以便真正建立连接）
-            var mode = OutboundMode == OutboundMode.Direct ? OutboundMode.Rule : OutboundMode;
+            // 按用户设置的出站模式激活（唯一来源：_settings.OutboundMode，经 _clash.GetOutboundMode() 解析为枚举）。
+            // 这里只把“用户设置”施加到核心，绝不回写 settings——回写会制造“第二真相”，
+            // 还可能让核心实际模式与用户设置不一致。若用户设置为 direct，核心即进入直连，
+            // 与三处 UI（均绑定 settings.OutboundMode）完全同步。
+            var mode = _clash.GetOutboundMode();
             await _clash.SetOutboundModeAsync(mode);
 
             // 仅当用户开启了“系统代理”开关时才启用 Windows 系统代理（对齐 FlClash）
@@ -440,61 +443,48 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         });
     }
 
-    // ── 出站模式 ──
+    // ── 出站模式（单一可观察来源：AppSettings.OutboundMode）──
+    //
+    // 唯一、最终的真相来源就是持久化字符串 _settings.OutboundMode（"rule"/"global"/"direct"），
+    // 它本身即“用户设置的状态”。仪表盘三个 RadioButton 通过 x:Bind + StringEqualsConverter
+    // 直接双向绑定它；状态栏、托盘各自订阅它的 PropertyChanged。谁改了它（只有用户从仪表盘/
+    // 托盘点选），PropertyChanged 自动通知三处刷新。
+    //
+    // 关键点：把模式 PATCH 到核心只是“副作用”，绝不回写 settings，从根上切断
+    // “核心 → settings → UI”的回写循环。副作用统一在此处（本 VM 掌管 IsRunning 与
+    // 连接/断开）根据用户新设置施加。
 
-    [ObservableProperty] private OutboundMode _outboundMode = OutboundMode.Rule;
-    [ObservableProperty] private bool _isModeRule = true;
-    [ObservableProperty] private bool _isModeGlobal;
-    [ObservableProperty] private bool _isModeDirect;
+    /// <summary>供 x:Bind 直接绑定的单一来源（三个出站模式 RadioButton 绑到 Settings.OutboundMode）。</summary>
+    public AppSettings Settings => _settings;
 
-    public string OutboundModeLabel => OutboundMode switch
+    /// <summary>
+    /// 用户改变出站模式后的副作用：direct = 断开代理（仅当正在运行）；rule/global = 若已连接则立即
+    /// PATCH 核心，未连接则仅保留偏好、等下次“开始”时应用。绝不回写 _settings。
+    /// </summary>
+    private async Task ApplyOutboundModeSideEffectAsync()
     {
-        OutboundMode.Global => LocalizationHelper.GetString("DashModeGlobal.Content"),
-        OutboundMode.Direct => LocalizationHelper.GetString("DashModeDirect.Content"),
-        _ => LocalizationHelper.GetString("DashModeRule.Content"),
-    };
-
-    partial void OnOutboundModeChanged(OutboundMode value) => OnPropertyChanged(nameof(OutboundModeLabel));
-
-    partial void OnIsModeRuleChanged(bool value)
-    {
-        if (!value) return;
-        // 已连接：立即切换模式；未连接：仅记录偏好，连接时再应用
-        if (IsRunning && OutboundMode != OutboundMode.Rule)
-            _ = SetModeInternalAsync(OutboundMode.Rule);
+        var mode = _clash.GetOutboundMode();   // 读 _settings.OutboundMode
+        if (mode == OutboundMode.Direct)
+        {
+            // 用户设置为“直连”：若开始按钮处于运行状态，触发“断开代理”
+            if (IsRunning)
+                await DisconnectProxyAsync();
+        }
         else
-            SyncModeState(OutboundMode.Rule);
-    }
-    partial void OnIsModeGlobalChanged(bool value)
-    {
-        if (!value) return;
-        if (IsRunning && OutboundMode != OutboundMode.Global)
-            _ = SetModeInternalAsync(OutboundMode.Global);
-        else
-            SyncModeState(OutboundMode.Global);
-    }
-    partial void OnIsModeDirectChanged(bool value)
-    {
-        if (!value) return;
-        if (IsRunning)
-            _ = DisconnectProxyAsync();   // 选择直连 = 断开代理
-        else
-            SyncModeState(OutboundMode.Direct);
+        {
+            // 规则/全局：仅当代理已激活时立即切换核心，否则等待“开始”按钮统一应用
+            if (IsRunning)
+                await _clash.SetOutboundModeAsync(mode);
+        }
     }
 
-    private async Task SetModeInternalAsync(OutboundMode mode)
-    {
-        await _clash.SetOutboundModeAsync(mode);
-        SyncModeState(mode);
-    }
-
-    private void SyncModeState(OutboundMode mode)
-    {
-        OutboundMode = mode;
-        IsModeRule = mode == OutboundMode.Rule;
-        IsModeGlobal = mode == OutboundMode.Global;
-        IsModeDirect = mode == OutboundMode.Direct;
-    }
+    /// <summary>
+    /// 仪表盘三个 RadioButton 通过此 Command 写回唯一来源，而非 TwoWay 绑定——
+    /// 否则 RadioButton 被取消选中时会反向回写，触发 x:Bind 生成的 (string)ConvertBack(UnsetValue) 崩溃。
+    /// 仅被“用户点击选中的那个”RadioButton 触发，天然避免重复写回。
+    /// </summary>
+    [RelayCommand]
+    private void SetOutboundMode(string mode) => _settings.OutboundMode = mode;
 
     // ── 核心启停按钮文本（FAB：启动/停止核心，对齐 FlClash isStart）──
 
@@ -706,6 +696,9 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
             _dispatcher.TryEnqueue(() => IsTunEnabled = _settings.TunMode);
         if (e.PropertyName == nameof(AppSettings.EnableClipboardDetection))
             _dispatcher.TryEnqueue(() => OnPropertyChanged(nameof(ClipboardDetectionEnabled)));
+        // 出站模式变更（用户从仪表盘 RadioButton 或托盘点选）→ 施加副作用（PATCH 核心/断开），绝不回写 settings
+        if (e.PropertyName == nameof(AppSettings.OutboundMode))
+            _dispatcher.TryEnqueue(async () => await ApplyOutboundModeSideEffectAsync());
     }
 
     [RelayCommand]
@@ -739,7 +732,8 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         ExternalIp = LocalizationHelper.GetString("DashIpChecking.Text");
         LocalIp = LocalizationHelper.GetString("DashIpLocalFetching.Text");
 
-        SyncModeState(_clash.GetOutboundMode());
+        // 出站模式无需在此同步：RadioButton 直接绑定 Settings.OutboundMode（单一来源），
+        // 状态栏/托盘各自订阅其 PropertyChanged，进入页面即显示持久化的用户设置。
         await RefreshTotalTrafficAsync();
         await RefreshConnectionCountAsync();
         await RefreshRuleCountAsync();
