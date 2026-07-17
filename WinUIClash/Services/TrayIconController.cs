@@ -271,6 +271,14 @@ public sealed class TrayIconController : IDisposable
         // Populate profiles asynchronously
         _ = PopulateTrayProfilesAsync();
 
+        // 配置新增 / 切换后即时刷新托盘「配置」子菜单（BUG：此前需重启程序才生效）
+        try
+        {
+            var profilesVm = ServiceLocator.Get<ViewModels.ProfilesViewModel>();
+            profilesVm.ProfilesChanged += OnProfilesChanged;
+        }
+        catch (Exception ex) { Debug.WriteLine($"Tray profile change subscription error: {ex.Message}"); }
+
         menu.Items.Add(new MenuFlyoutSeparator());
 
         // ── 打开数据目录 ──
@@ -306,6 +314,12 @@ public sealed class TrayIconController : IDisposable
         _trayIcon.ForceCreate();
     }
 
+    /// <summary>
+    /// 构建/重建托盘「配置」子菜单。列表取自本地存储（始终反映已落盘的配置，
+    /// 含刚新增的），激活项以配置页共用的 ProfilesViewModel 为准（与配置页完全一致）；
+    /// VM 尚未加载时回退到存储中的 IsActive 标记。配置新增/切换后由 ProfilesChanged
+    /// 触发重建，不再需要重启程序（此前仅在启动时填充一次）。
+    /// </summary>
     private async Task PopulateTrayProfilesAsync()
     {
         if (_trayProfileMenu == null) return;
@@ -316,11 +330,22 @@ public sealed class TrayIconController : IDisposable
             var profiles = await storage.LoadProfileListAsync();
             if (profiles.Count == 0) return;
 
-            // Get active profile from the clash service
-            var clash = ServiceLocator.Get<IClashService>();
-            var apiProfiles = await clash.GetProfilesAsync();
-            var activeId = apiProfiles.FirstOrDefault(p => p.IsActive)?.Id ?? "";
+            // 激活项：优先用配置页共用的 ProfilesViewModel（切换即更新），
+            // 回退到本地存储的 IsActive（首次启动、配置页尚未加载时）。
+            string activeId;
+            try
+            {
+                var profilesVm = ServiceLocator.Get<ViewModels.ProfilesViewModel>();
+                activeId = profilesVm.ActiveProfile?.Id
+                           ?? profiles.FirstOrDefault(p => p.IsActive)?.Id
+                           ?? "";
+            }
+            catch
+            {
+                activeId = profiles.FirstOrDefault(p => p.IsActive)?.Id ?? "";
+            }
 
+            var capturedStorage = storage;
             _dispatcher.TryEnqueue(() =>
             {
                 _trayProfileMenu.Items.Clear();
@@ -337,14 +362,14 @@ public sealed class TrayIconController : IDisposable
                         try
                         {
                             var c = ServiceLocator.Get<IClashService>();
-                            var configPath = storage.GetConfigPath(capturedProfile.Id);
+                            var configPath = capturedStorage.GetConfigPath(capturedProfile.Id);
                             await c.SwitchProfileAsync(capturedProfile.Id, configPath);
 
                             // 同步 ProfilesViewModel 状态（持久化 IsActive + UI 刷新）
                             try
                             {
-                                var profilesVm = ServiceLocator.Get<ViewModels.ProfilesViewModel>();
-                                await profilesVm.SyncActiveProfileAsync(capturedProfile.Id);
+                                var vm = ServiceLocator.Get<ViewModels.ProfilesViewModel>();
+                                await vm.SyncActiveProfileAsync(capturedProfile.Id);
                             }
                             catch (Exception ex) { Debug.WriteLine($"Tray profile sync error: {ex.Message}"); }
 
@@ -366,6 +391,14 @@ public sealed class TrayIconController : IDisposable
     {
         if (!string.IsNullOrEmpty(e.PropertyName)) return;
         _dispatcher.TryEnqueue(UpdateTrayMenuTexts);
+    }
+
+    /// <summary>
+    /// 配置页新增 / 切换配置后，重建托盘「配置」子菜单以保持同步。
+    /// </summary>
+    private void OnProfilesChanged(object? sender, EventArgs e)
+    {
+        _ = PopulateTrayProfilesAsync();
     }
 
     /// <summary>
@@ -455,6 +488,13 @@ public sealed class TrayIconController : IDisposable
         {
             var sr = ServiceLocator.Get<StringResources>();
             sr.PropertyChanged -= OnStringResourcesChanged;
+        }
+        catch { }
+
+        try
+        {
+            var profilesVm = ServiceLocator.Get<ViewModels.ProfilesViewModel>();
+            profilesVm.ProfilesChanged -= OnProfilesChanged;
         }
         catch { }
 
