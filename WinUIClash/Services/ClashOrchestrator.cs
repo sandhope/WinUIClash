@@ -334,8 +334,8 @@ public class ClashOrchestrator : IClashService
             if (_proxyActive)
                 await SafeRunAsync(() => _httpClashService.SetOutboundModeAsync(GetOutboundMode()));
 
-            // TUN 配置已在 config.yaml 中注入（ConfigBuildService.InjectControllerSettings），
-            // mihomo 启动时即知 TUN 参数，不再需要运行时 PATCH（对齐 FlClash 写入 config 的方式）
+            // 注意：config.yaml 中的 tun 块恒为 enable:false（核心启动不带虚拟网卡）。
+            // 虚拟网卡的创建/卸载由“开始/停止按钮”在代理连接生命周期内通过 PATCH /configs 控制。
 
             _logger.LogInformation("ClashOrchestrator: 已连接真实核心");
         }
@@ -443,7 +443,7 @@ public class ClashOrchestrator : IClashService
 
     /// <summary>
     /// 设置 TUN 开关。核心常驻优先，且全程不弹 UAC：
-    /// - 核心未运行：TUN 由 config.yaml 注入，下次启动生效（返回 true）。
+    /// - 核心未运行：由调用方（连接流程）保证核心已拉起后再调用本方法以创建网卡，故此处直接返回 true（无操作）。
     /// - 核心已运行且由 SYSTEM 服务拉起（_launchedViaHelper==true）：仅 PATCH /configs 完整 tun 配置（不重启、不弹 UAC）。
     /// - 核心已运行但为用户态进程（异常降级，仅当首次启动未成功提权时才会发生）：创建虚拟网卡需要 SYSTEM 权限，
     ///   **此处不弹 UAC 重新注册**，直接返回 false 交由 UI 提示“请重启软件并在启动时允许 UAC 提权”。

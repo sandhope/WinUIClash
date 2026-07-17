@@ -257,18 +257,10 @@ namespace WinUIClash
             proxyService.Disable();
             proxyService.WatchSettings();
 
-            // 监听 TUN 模式/协议栈变化：
-            // 核心始终由 SYSTEM 服务拉起，TUN 切换仅 PATCH /configs，绝不重启核心、绝不弹 UAC。
-            // 仅当核心处于异常的用户态降级（服务不可用）时，开 TUN 会返回 false，由 UI 提示并回退开关。
-            appSettings.PropertyChanged += async (s, e) =>
-            {
-                if (e.PropertyName == nameof(Models.AppSettings.TunMode) ||
-                    e.PropertyName == nameof(Models.AppSettings.TunStack))
-                {
-                    if (_tunWatcherSuppressed) return;
-                    await ApplyTunChangeAsync(e.PropertyName);
-                }
-            };
+            // TUN 模式/协议栈：与 FlClash 一致，开关仅是“用户设置”。
+            // 切换只持久化偏好（SettingsService 自动保存），不在此处 PATCH 核心、
+            // 不创建/删除虚拟网卡（避免点击开关即操作网卡）。UI 开关状态由
+            // DashboardViewModel 订阅 AppSettings.TunMode 的 PropertyChanged 同步；
 
             // 应用语言设置（必须在 MainWindow 构造之前，否则状态栏文字会显示为资源 key）
             var localizationService = ServiceLocator.Get<Services.LocalizationService>();
@@ -333,71 +325,24 @@ namespace WinUIClash
             }
         }
 
-        // TUN 变更（仪表盘切换 / 托盘项 / 设置页）统一入口
-        private static bool _tunWatcherSuppressed;
-
-        private static async Task ApplyTunChangeAsync(string? changedProperty)
-        {
-            try
-            {
-                var appSettings = ServiceLocator.Get<Models.AppSettings>();
-                var clash = ServiceLocator.Get<Services.IClashService>();
-                var notification = ServiceLocator.Get<Services.NotificationService>();
-
-                bool enabling = appSettings.TunMode;
-
-                if (changedProperty == nameof(Models.AppSettings.TunMode))
-                {
-                    // 开/关 TUN：SetTunEnabledAsync 仅 PATCH /configs；核心常驻、绝不退出、绝不弹 UAC。
-                    // 若核心处于用户态降级（服务不可用），返回 false → 下方提示并回退开关。
-                    var ok = await clash.SetTunEnabledAsync(enabling);
-                    if (!ok && enabling)
-                    {
-                        // UAC 被拒或 exe 缺失：回退开关，避免 UI 与实际状态不一致
-                        _tunWatcherSuppressed = true;
-                        appSettings.TunMode = false;
-                        _tunWatcherSuppressed = false;
-                        notification.Warning(
-                            Services.LocalizationHelper.GetString("TunAdminRequired.Title"),
-                            Services.LocalizationHelper.GetString("TunAdminRequired.Msg"));
-                        return;
-                    }
-                }
-                else if (changedProperty == nameof(Models.AppSettings.TunStack))
-                {
-                    // 切换 TUN 协议栈：mihomo 运行时通常无法热切换 stack，需重启核心才能套用。
-                    // 但核心必须常驻、绝不退出，因此此处不做 RestartAsync；
-                    // 新 stack 在下次核心启动（应用重启）后生效。这里仅 best-effort PATCH 一次，
-                    // 部分 mihomo 版本可在运行时套用 stack。
-                    if (appSettings.TunMode)
-                        await clash.SetTunStackAsync(appSettings.TunStack);
-                }
-
-                // 校准 TUN 开关 UI（实际网卡状态）
-                await ServiceLocator.Get<ViewModels.DashboardViewModel>().SyncTunStateAsync();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"ApplyTunChange error: {ex.Message}");
-            }
-        }
+        // TUN 开关仅作为“用户设置”由 DashboardViewModel 订阅 AppSettings.TunMode 同步 UI；
 
         public static void RecreateMainWindow(string navigationTag)
-    {
-        _savedNavigationTag = navigationTag;
-
-        var oldWindow = CurrentWindow as MainWindow;
-        if (oldWindow == null) return;
-
-        oldWindow.DispatcherQueue.TryEnqueue(async () =>
         {
-            await oldWindow.PerformCleanupAsync();
+            _savedNavigationTag = navigationTag;
 
-            CurrentWindow = new MainWindow();
-            CurrentWindow.Activate();
+            var oldWindow = CurrentWindow as MainWindow;
+            if (oldWindow == null) return;
 
-            oldWindow.Close();
-        });
-    }
+            oldWindow.DispatcherQueue.TryEnqueue(async () =>
+            {
+                await oldWindow.PerformCleanupAsync();
+
+                CurrentWindow = new MainWindow();
+                CurrentWindow.Activate();
+
+                oldWindow.Close();
+            });
+        }
     }
 }

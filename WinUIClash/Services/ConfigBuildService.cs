@@ -106,9 +106,10 @@ public class ConfigBuildService
         sb.AppendLine($"allow-lan: {(_settings.AllowLan ? "true" : "false")}");
         sb.AppendLine($"ipv6: {(_settings.Ipv6 ? "true" : "false")}");
 
-        // TUN 配置（对齐 FlClash config 写入方式，核心启动时即知 TUN 参数）
+        // TUN 配置：核心启动时恒为关闭（enable:false）。虚拟网卡的创建/卸载由“开始/停止按钮”
+        // 在代理连接生命周期内通过 PATCH /configs 显式控制（TUN 仅为用户设置，网卡随连接生灭，对齐 FlClash）。
         sb.AppendLine("tun:");
-        sb.AppendLine($"  enable: {(_settings.TunMode ? "true" : "false")}");
+        sb.AppendLine("  enable: false");
         sb.AppendLine($"  device: WinUIClash");
         sb.AppendLine($"  stack: {_settings.TunStack}");
         sb.AppendLine("  dns-hijack:");

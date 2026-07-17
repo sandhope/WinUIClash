@@ -338,14 +338,24 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         }
     }
 
-    /// <summary>连接代理：确保常驻核心存活 → PATCH mode 为选定模式 → 开启系统代理。</summary>
+    /// <summary>
+    /// 连接代理：确保常驻核心存活 → 若开启“虚拟网卡”则创建网卡 → PATCH mode 为选定模式 → 开启系统代理。
+    /// 核心常驻、本方法不启停进程；虚拟网卡的生命周期 = 代理连接生命周期（此处创建、DisconnectProxyAsync 卸载）。
+    /// </summary>
     private async Task ConnectProxyAsync()
     {
         try
         {
-            // 兜底：确保常驻核心进程存活（非 TUN 模式启动时已拉起）
+            // 兜底：确保常驻核心进程存活（核心由 App 启动时无条件拉起，这里仅用于崩溃恢复等异常兜底）
             if (_clash.CoreState != CoreState.Running)
                 await _clash.StartAsync();
+
+            // 若“虚拟网卡”开关开启，则在连接时显式创建虚拟网卡（PATCH /configs 启用 TUN）。
+            // 核心启动配置恒为 tun.enable:false，网卡不随核心启动而创建——这正是 flclash 行为。
+            if (_settings.TunMode)
+            {
+                await ApplyTunStateAsync(true);
+            }
 
             // 按用户设置的出站模式激活（唯一来源：_settings.OutboundMode，经 _clash.GetOutboundMode() 解析为枚举）。
             // 这里只把“用户设置”施加到核心，绝不回写 settings——回写会制造“第二真相”，
@@ -365,11 +375,15 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         }
     }
 
-    /// <summary>断开代理：PATCH mode 为 direct → 关闭系统代理。核心继续常驻。</summary>
+    /// <summary>断开代理：卸载虚拟网卡（如开启）→ PATCH mode 为 direct → 关闭系统代理。核心继续常驻。</summary>
     private async Task DisconnectProxyAsync()
     {
         try
         {
+            // 若“虚拟网卡”开关开启，则在断开时显式卸载虚拟网卡（PATCH /configs 禁用 TUN）
+            if (_settings.TunMode)
+                await _clash.SetTunEnabledAsync(false);
+
             // 切回直连模式（核心继续常驻，0 性能开销）
             await _clash.SetOutboundModeAsync(OutboundMode.Direct);
 
@@ -475,6 +489,32 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
             // 规则/全局：仅当代理已激活时立即切换核心，否则等待“开始”按钮统一应用
             if (IsRunning)
                 await _clash.SetOutboundModeAsync(mode);
+        }
+    }
+
+    /// <summary>
+    /// 根据 TUN 开关目标值即时创建/卸载虚拟网卡。仅当代理已激活时由 OnSettingsPropertyChanged
+    /// 调用，覆盖“连接状态下切换 TUN 开关”的场景（网卡生命周期 = 代理连接生命周期）。
+    /// 创建失败（核心处于用户态降级 / 无 SYSTEM 权限）则提示并回退开关，保证 UI 与实际一致。
+    /// 未激活时不应调用——切换只持久化偏好，由“开始/停止”按钮在连接生命周期内统一施加。
+    /// </summary>
+    private async Task ApplyTunStateAsync(bool enable)
+    {
+        try
+        {
+            var ok = await _clash.SetTunEnabledAsync(enable);
+            if (!ok && enable)
+            {
+                // 创建失败：提示并回退开关，避免 UI 与实际网卡状态不一致
+                ServiceLocator.Get<NotificationService>().Warning(
+                    LocalizationHelper.GetString("TunAdminRequired.Title"),
+                    LocalizationHelper.GetString("TunAdminRequired.Msg"));
+                _settings.TunMode = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ApplyTunState error: {ex.Message}");
         }
     }
 
@@ -691,9 +731,33 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     private void OnSettingsPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(AppSettings.SystemProxy))
-            _dispatcher.TryEnqueue(() => OnPropertyChanged(nameof(IsSystemProxyOn)));
+        {
+            var enable = _settings.SystemProxy;
+            _dispatcher.TryEnqueue(() =>
+            {
+                OnPropertyChanged(nameof(IsSystemProxyOn));
+                // 代理激活状态下，切换系统代理开关需即时开启/关闭系统代理；
+                // 未激活时仅持久化偏好（代理只在“开始”时才生效），不操作注册表。
+                if (IsRunning)
+                {
+                    var proxy = ServiceLocator.Get<SystemProxyService>();
+                    if (enable) proxy.Enable();
+                    else proxy.Disable();
+                }
+            });
+        }
         if (e.PropertyName == nameof(AppSettings.TunMode))
-            _dispatcher.TryEnqueue(() => IsTunEnabled = _settings.TunMode);
+        {
+            var enable = _settings.TunMode;
+            _dispatcher.TryEnqueue(async () =>
+            {
+                IsTunEnabled = enable;
+                // 代理激活状态下，切换 TUN(虚拟网卡)开关需即时创建/卸载网卡；
+                // 未激活时仅持久化偏好（网卡生命周期 = 代理连接生命周期），不操作核心。
+                if (IsRunning)
+                    await ApplyTunStateAsync(enable);
+            });
+        }
         if (e.PropertyName == nameof(AppSettings.EnableClipboardDetection))
             _dispatcher.TryEnqueue(() => OnPropertyChanged(nameof(ClipboardDetectionEnabled)));
         // 出站模式变更（用户从仪表盘 RadioButton 或托盘点选）→ 施加副作用（PATCH 核心/断开），绝不回写 settings
@@ -704,8 +768,10 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private async Task ToggleTunModeAsync()
     {
-        // 仅翻转发开关；实际的 UAC 提权 + 经 Helper 重启核心由 App.xaml.cs 的设置监听统一处理，
-        // 保证仪表盘切换、托盘项、设置页三处行为一致。UI 状态由 OnSettingsPropertyChanged / 校准逻辑同步。
+        // TUN 开关仅是“用户设置”：此处只翻转并持久化偏好，不在此 PATCH 核心。
+        // 实际网卡操作由 OnSettingsPropertyChanged 统一调度：
+        //   - 代理已激活 → 立即创建/卸载网卡（ApplyTunStateAsync）；
+        //   - 代理未激活 → 仅保存偏好，等“开始/停止”按钮在连接生命周期内施加。
         _settings.TunMode = !IsTunEnabled;
     }
 
