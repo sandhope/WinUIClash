@@ -17,12 +17,18 @@ public class ProfileStorageService
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "WinUIClash", "profilelist.json");
 
+    /// <summary>
+    /// 单个订阅下载允许的超时时间。添加配置时若服务端无响应，30s 会让用户
+    /// 在无任何反馈的情况下久等；10s 足以覆盖正常订阅，超时即快速报错。
+    /// </summary>
+    private const int DownloadTimeoutSeconds = 10;
+
     private static readonly HttpClient _httpClient = new(new HttpClientHandler
     {
         UseProxy = false
     })
     {
-        Timeout = TimeSpan.FromSeconds(30)
+        Timeout = TimeSpan.FromSeconds(DownloadTimeoutSeconds)
     };
 
     static ProfileStorageService()

@@ -39,6 +39,7 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
     [ObservableProperty] private Profile? _activeProfile;
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private bool _isSwitching;
+    [ObservableProperty] private bool _isImporting;
 
     /// <summary>Profile count label for the page header, e.g. "(3)"</summary>
     public string ProfileCountText => Profiles.Count > 0 ? $"({Profiles.Count})" : "";
@@ -310,6 +311,11 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
     /// </summary>
     public async Task ImportProfileAsync(string url, string? name)
     {
+        // 导入涉及远程下载 + 配置校验，过程可能持续数秒且无即时反馈，
+        // 用 IsImporting 驱动页面加载动画，避免用户以为“卡死/无响应”。
+        IsImporting = true;
+        try
+        {
         // 检查重复 URL
         if (HasProfileWithUrl(url))
         {
@@ -369,6 +375,11 @@ public partial class ProfilesViewModel : ObservableObject, IDisposable
             await _clash.SwitchProfileAsync(profile.Id, configPath);
 
         RaiseProfilesChanged();
+        }
+        finally
+        {
+            IsImporting = false;
+        }
     }
 
     /// <summary>编辑已有档案的 URL 和标签</summary>
